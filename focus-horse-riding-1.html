@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horse Riding POV - Calming Experience</title>
+    <style>
+        :root {
+            /* Design system variables */
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --radius-base: 8px;
+            --duration-normal: 250ms;
+            
+            /* Horse animation variables */
+            --bob-duration: 2s;
+            --bob-distance: 15px;
+            --scroll-speed: 1;
+            --ear-rotation: 0deg;
+            
+            /* Scenery colors */
+            --sky-color-1: #87CEEB;
+            --sky-color-2: #B0E0E6;
+            --far-bg-1: #2D5016;
+            --far-bg-2: #4A7C2C;
+            --mid-bg-1: #3D6B1F;
+            --mid-bg-2: #5A8C2F;
+            --near-bg-1: #4D7C2F;
+            --near-bg-2: #6B9C3F;
+            --ground-color-1: #8B7355;
+            --ground-color-2: #A0826D;
+            
+            /* Time filter */
+            --time-filter: brightness(1.2) saturate(1.1);
+        }
+        
+        @font-face {
+            font-family: 'FKGroteskNeue';
+            src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-family-base);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #scene-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            filter: var(--time-filter);
+            transition: filter 1s ease;
+        }
+        
+        /* Sky Layer */
+        .sky-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70%;
+            background: linear-gradient(to bottom, var(--sky-color-1), var(--sky-color-2));
+            transition: background 1s ease;
+        }
+        
+        /* Parallax layers */
+        .parallax-layer {
+            position: absolute;
+            left: 0;
+            width: 300%;
+            height: 100%;
+            will-change: transform;
+        }
+        
+        .far-background {
+            top: 20%;
+            height: 50%;
+            z-index: 1;
+        }
+        
+        .mid-background {
+            top: 40%;
+            height: 40%;
+            z-index: 2;
+        }
+        
+        .near-background {
+            top: 55%;
+            height: 30%;
+            z-index: 3;
+        }
+        
+        .ground-layer {
+            bottom: 0;
+            height: 30%;
+            z-index: 4;
+            background: linear-gradient(to bottom, var(--ground-color-1), var(--ground-color-2));
+            transition: background 1s ease;
+        }
+        
+        /* Scenery elements */
+        .scenery-element {
+            position: absolute;
+            bottom: 0;
+        }
+        
+        /* Forest elements */
+        .tree {
+            width: 80px;
+            height: 150px;
+            background: linear-gradient(to bottom, var(--far-bg-1), var(--far-bg-2));
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        
+        .bush {
+            width: 60px;
+            height: 40px;
+            background: var(--near-bg-2);
+            border-radius: 50% 50% 0 0;
+        }
+        
+        /* Beach elements */
+        .wave {
+            width: 200px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: wave-motion 3s ease-in-out infinite;
+        }
+        
+        @keyframes wave-motion {
+            0%, 100% { transform: translateY(0) scaleX(1); }
+            50% { transform: translateY(-5px) scaleX(1.1); }
+        }
+        
+        .palm-tree {
+            width: 60px;
+            height: 120px;
+        }
+        
+        .palm-trunk {
+            width: 15px;
+            height: 80px;
+            background: #8B7355;
+            margin: 0 auto;
+        }
+        
+        .palm-leaves {
+            width: 60px;
+            height: 40px;
+            background: var(--near-bg-2);
+            border-radius: 50%;
+            position: relative;
+            top: -10px;
+        }
+        
+        /* Mountain elements */
+        .mountain {
+            width: 200px;
+            height: 180px;
+            background: linear-gradient(135deg, var(--far-bg-1), var(--far-bg-2));
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        
+        .rock {
+            width: 40px;
+            height: 30px;
+            background: #696969;
+            border-radius: 30% 70% 70% 30%;
+        }
+        
+        /* Plains elements */
+        .grass-tuft {
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(to top, var(--near-bg-1), var(--near-bg-2));
+            clip-path: polygon(20% 100%, 0% 50%, 20% 0%, 40% 0%, 30% 50%, 50% 0%, 70% 0%, 60% 50%, 80% 0%, 100% 50%, 80% 100%);
+        }
+        
+        .wildflower {
+            width: 20px;
+            height: 25px;
+            position: relative;
+        }
+        
+        .flower-stem {
+            width: 2px;
+            height: 20px;
+            background: var(--near-bg-1);
+            margin: 0 auto;
+        }
+        
+        .flower-bloom {
+            width: 12px;
+            height: 12px;
+            background: #FF69B4;
+            border-radius: 50%;
+            position: absolute;
+            top: -5px;
+            left: 4px;
+        }
+        
+        /* Desert elements */
+        .cactus {
+            width: 40px;
+            height: 80px;
+            background: var(--near-bg-1);
+            border-radius: 20px;
+            position: relative;
+        }
+        
+        .cactus-arm {
+            width: 15px;
+            height: 30px;
+            background: var(--near-bg-1);
+            border-radius: 10px;
+            position: absolute;
+            top: 20px;
+        }
+        
+        .cactus-arm.left {
+            left: -10px;
+            transform: rotate(-30deg);
+        }
+        
+        .cactus-arm.right {
+            right: -10px;
+            transform: rotate(30deg);
+        }
+        
+        .sand-dune {
+            width: 300px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--mid-bg-1), var(--mid-bg-2));
+            border-radius: 50% 50% 0 0;
+        }
+        
+        /* Weather effects */
+        .weather-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            overflow: hidden;
+        }
+        
+        .weather-particle {
+            position: absolute;
+            opacity: 0;
+        }
+        
+        .rain-drop {
+            width: 2px;
+            height: 15px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2));
+            animation: rain-fall 1s linear infinite;
+        }
+        
+        @keyframes rain-fall {
+            0% { transform: translateY(-20px); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0.5; }
+        }
+        
+        .leaf {
+            width: 15px;
+            height: 15px;
+            background: #8FBC8F;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            animation: leaf-fall 5s ease-in infinite;
+        }
+        
+        @keyframes leaf-fall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        .firefly {
+            width: 4px;
+            height: 4px;
+            background: #FFD700;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #FFD700;
+            animation: firefly-float 4s ease-in-out infinite;
+        }
+        
+        @keyframes firefly-float {
+            0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+            25% { transform: translate(20px, -30px); opacity: 1; }
+            50% { transform: translate(-15px, -50px); opacity: 0.5; }
+            75% { transform: translate(10px, -20px); opacity: 1; }
+        }
+        
+        .snowflake {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: snow-fall 4s linear infinite;
+        }
+        
+        @keyframes snow-fall {
+            0% { transform: translateY(-20px) translateX(0); opacity: 1; }
+            100% { transform: translateY(100vh) translateX(30px); opacity: 0.8; }
+        }
+        
+        .bird {
+            width: 30px;
+            height: 15px;
+            position: relative;
+            animation: bird-fly 8s linear infinite;
+        }
+        
+        .bird::before,
+        .bird::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 8px;
+            background: var(--color-charcoal-700);
+            border-radius: 50% 50% 0 0;
+            transform-origin: bottom;
+        }
+        
+        .bird::before {
+            left: 0;
+            animation: wing-flap 0.5s ease-in-out infinite;
+        }
+        
+        .bird::after {
+            right: 0;
+            animation: wing-flap 0.5s ease-in-out infinite reverse;
+        }
+        
+        @keyframes bird-fly {
+            0% { transform: translateX(-50px) translateY(20vh); }
+            100% { transform: translateX(100vw) translateY(30vh); }
+        }
+        
+        @keyframes wing-flap {
+            0%, 100% { transform: rotateX(0deg); }
+            50% { transform: rotateX(-30deg); }
+        }
+        
+        /* Horse POV */
+        .horse-container {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            pointer-events: none;
+        }
+        
+        .horse-head {
+            width: 500px;
+            height: 280px;
+            position: relative;
+            animation: horse-bob var(--bob-duration) ease-in-out infinite;
+        }
+        
+        @keyframes horse-bob {
+            0%, 100% { transform: translateY(0); }
+            25% { transform: translateY(calc(var(--bob-distance) * -0.5)); }
+            50% { transform: translateY(calc(var(--bob-distance) * -1)); }
+            75% { transform: translateY(calc(var(--bob-distance) * -0.5)); }
+        }
+        
+        .horse-ears {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 5;
+        }
+        
+        .ear {
+            width: 50px;
+            height: 70px;
+            background: linear-gradient(to bottom, #8B4513, #A0522D);
+            clip-path: polygon(50% 0%, 80% 100%, 20% 100%);
+            transform-origin: bottom;
+            transition: transform 0.3s ease;
+            box-shadow: inset -2px -2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .ear.left {
+            transform: rotate(-5deg);
+        }
+        
+        .ear.right {
+            transform: rotate(5deg);
+        }
+        
+        .ear.twitch-left {
+            animation: ear-twitch-left 0.5s ease;
+        }
+        
+        .ear.twitch-right {
+            animation: ear-twitch-right 0.5s ease;
+        }
+        
+        @keyframes ear-twitch-left {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(-20deg); }
+        }
+        
+        @keyframes ear-twitch-right {
+            0%, 100% { transform: rotate(5deg); }
+            50% { transform: rotate(20deg); }
+        }
+        
+        .horse-back-head {
+            width: 280px;
+            height: 200px;
+            background: linear-gradient(to bottom, #8B4513 0%, #A0522D 40%, #8B4513 100%);
+            border-radius: 60% 60% 40% 40% / 50% 50% 60% 60%;
+            margin: 0 auto;
+            position: relative;
+            margin-top: 60px;
+            box-shadow: inset -8px -8px 20px rgba(0, 0, 0, 0.3), inset 8px 0px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .horse-neck {
+            width: 240px;
+            height: 120px;
+            background: linear-gradient(to bottom, #A0522D, #8B4513);
+            margin: 0 auto;
+            position: relative;
+            top: -20px;
+            border-radius: 40% 40% 0 0;
+            box-shadow: inset -5px 0 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .horse-mane {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160px;
+            height: 200px;
+            z-index: 1;
+        }
+        
+        .mane-strand {
+            width: 16px;
+            height: 140px;
+            background: linear-gradient(to bottom, #3D2817 0%, #2D1810 50%, #3D2817 100%);
+            border-radius: 8px;
+            position: absolute;
+            animation: mane-sway 3s ease-in-out infinite;
+            transform-origin: top;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+        
+        .mane-strand:nth-child(1) { left: 10px; height: 120px; animation-delay: 0s; }
+        .mane-strand:nth-child(2) { left: 30px; height: 150px; animation-delay: 0.2s; }
+        .mane-strand:nth-child(3) { left: 50px; height: 160px; animation-delay: 0.4s; }
+        .mane-strand:nth-child(4) { left: 70px; height: 155px; animation-delay: 0.6s; }
+        .mane-strand:nth-child(5) { left: 90px; height: 145px; animation-delay: 0.8s; }
+        .mane-strand:nth-child(6) { left: 110px; height: 135px; animation-delay: 1s; }
+        .mane-strand:nth-child(7) { left: 130px; height: 125px; animation-delay: 1.2s; }
+        
+        @keyframes mane-sway {
+            0%, 100% { transform: rotate(-4deg); }
+            50% { transform: rotate(4deg); }
+        }
+        
+        /* Control Panel */
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(31, 33, 33, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: var(--radius-base);
+            color: var(--color-gray-200);
+            z-index: 100;
+            min-width: 280px;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: auto;
+        }
+        
+        .control-panel.hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+        }
+        
+        .control-section {
+            margin-bottom: 20px;
+        }
+        
+        .control-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .control-label {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            color: var(--color-gray-200);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color-gray-200);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: all 0.2s ease;
+            font-family: var(--font-family-base);
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .btn.active {
+            background: var(--color-teal-500);
+            border-color: var(--color-teal-600);
+            color: white;
+        }
+        
+        .weather-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .checkbox.checked {
+            background: var(--color-teal-500);
+            border-color: var(--color-teal-600);
+        }
+        
+        .checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color-gray-200);
+            border-radius: 6px;
+            font-size: var(--font-size-sm);
+            font-family: var(--font-family-base);
+            cursor: pointer;
+        }
+        
+        select option {
+            background: var(--color-charcoal-700);
+            color: var(--color-gray-200);
+        }
+        
+        .fullscreen-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        
+        .toggle-controls-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(31, 33, 33, 0.85);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 99;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .toggle-controls-btn.show {
+            display: flex;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .control-panel {
+                bottom: 10px;
+                right: 10px;
+                min-width: 240px;
+                padding: 15px;
+            }
+            
+            .horse-head {
+                width: 350px;
+                height: 200px;
+            }
+            
+            .horse-back-head {
+                width: 200px;
+                height: 150px;
+            }
+            
+            .horse-neck {
+                width: 170px;
+                height: 90px;
+            }
+            
+            .horse-mane {
+                width: 120px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="scene-container">
+        <!-- Sky -->
+        <div class="sky-layer" id="sky"></div>
+        
+        <!-- Parallax Layers -->
+        <div class="parallax-layer far-background" id="far-bg"></div>
+        <div class="parallax-layer mid-background" id="mid-bg"></div>
+        <div class="parallax-layer near-background" id="near-bg"></div>
+        <div class="parallax-layer ground-layer" id="ground"></div>
+        
+        <!-- Weather Effects -->
+        <div class="weather-container" id="weather"></div>
+        
+        <!-- Horse POV -->
+        <div class="horse-container">
+            <div class="horse-head">
+                <div class="horse-ears">
+                    <div class="ear left" id="ear-left"></div>
+                    <div class="ear right" id="ear-right"></div>
+                </div>
+                <div class="horse-mane">
+                    <div class="mane-strand"></div>
+                    <div class="mane-strand"></div>
+                    <div class="mane-strand"></div>
+                    <div class="mane-strand"></div>
+                    <div class="mane-strand"></div>
+                    <div class="mane-strand"></div>
+                    <div class="mane-strand"></div>
+                </div>
+                <div class="horse-back-head">
+                    <div class="horse-neck"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Control Panel -->
+    <div class="control-panel" id="controls">
+        <div class="control-section">
+            <label class="control-label">Scenery</label>
+            <select id="scenery-select">
+                <option value="forest">Forest Trail</option>
+                <option value="beach">Beach Ride</option>
+                <option value="mountain">Mountain Path</option>
+                <option value="plains">Open Plains</option>
+                <option value="desert">Desert Trail</option>
+            </select>
+        </div>
+        
+        <div class="control-section">
+            <label class="control-label">Gait Speed</label>
+            <div class="btn-group">
+                <button class="btn active" data-gait="walk">Walk</button>
+                <button class="btn" data-gait="trot">Trot</button>
+                <button class="btn" data-gait="canter">Canter</button>
+            </div>
+        </div>
+        
+        <div class="control-section">
+            <label class="control-label">Time of Day</label>
+            <div class="btn-group">
+                <button class="btn" data-time="morning">Morning</button>
+                <button class="btn active" data-time="midday">Midday</button>
+                <button class="btn" data-time="evening">Evening</button>
+                <button class="btn" data-time="night">Night</button>
+            </div>
+        </div>
+        
+        <div class="control-section">
+            <label class="control-label">Weather Effects</label>
+            <div class="weather-toggle" data-weather="rain">
+                <div class="checkbox"></div>
+                <span>Rain</span>
+            </div>
+            <div class="weather-toggle" data-weather="leaves">
+                <div class="checkbox"></div>
+                <span>Falling Leaves</span>
+            </div>
+            <div class="weather-toggle" data-weather="fireflies">
+                <div class="checkbox"></div>
+                <span>Fireflies</span>
+            </div>
+            <div class="weather-toggle" data-weather="snow">
+                <div class="checkbox"></div>
+                <span>Snow</span>
+            </div>
+            <div class="weather-toggle" data-weather="birds">
+                <div class="checkbox"></div>
+                <span>Birds</span>
+            </div>
+        </div>
+        
+        <button class="btn fullscreen-btn" id="fullscreen-btn">Enter Fullscreen</button>
+    </div>
+    
+    <button class="toggle-controls-btn" id="toggle-btn">⚙</button>
+    
+    <script>
+        // State management
+        const state = {
+            scenery: 'forest',
+            gait: 'walk',
+            timeOfDay: 'midday',
+            weather: {
+                rain: false,
+                leaves: false,
+                fireflies: false,
+                snow: false,
+                birds: false
+            },
+            scrollOffset: 0,
+            controlsVisible: true
+        };
+        
+        // Scenery data
+        const sceneries = {
+            forest: {
+                name: 'Forest Trail',
+                colors: {
+                    sky: ['#87CEEB', '#B0E0E6'],
+                    farBg: ['#2D5016', '#4A7C2C'],
+                    midBg: ['#3D6B1F', '#5A8C2F'],
+                    nearBg: ['#4D7C2F', '#6B9C3F'],
+                    ground: ['#8B7355', '#A0826D']
+                },
+                elements: ['trees', 'bushes']
+            },
+            beach: {
+                name: 'Beach Ride',
+                colors: {
+                    sky: ['#FFB347', '#FF9966'],
+                    farBg: ['#1E90FF', '#4682B4'],
+                    midBg: ['#87CEEB', '#ADD8E6'],
+                    nearBg: ['#F4A460', '#DEB887'],
+                    ground: ['#F5DEB3', '#EDD9B0']
+                },
+                elements: ['waves', 'palms']
+            },
+            mountain: {
+                name: 'Mountain Path',
+                colors: {
+                    sky: ['#87CEEB', '#B0C4DE'],
+                    farBg: ['#696969', '#778899'],
+                    midBg: ['#556B2F', '#6B8E23'],
+                    nearBg: ['#8FBC8F', '#90EE90'],
+                    ground: ['#A9A9A9', '#C0C0C0']
+                },
+                elements: ['mountains', 'rocks']
+            },
+            plains: {
+                name: 'Open Plains',
+                colors: {
+                    sky: ['#87CEEB', '#ADD8E6'],
+                    farBg: ['#9ACD32', '#ADFF2F'],
+                    midBg: ['#7CFC00', '#90EE90'],
+                    nearBg: ['#32CD32', '#3CB371'],
+                    ground: ['#6B8E23', '#808000']
+                },
+                elements: ['grass', 'flowers']
+            },
+            desert: {
+                name: 'Desert Trail',
+                colors: {
+                    sky: ['#FFD700', '#FFA500'],
+                    farBg: ['#EDC9AF', '#F4A460'],
+                    midBg: ['#D2B48C', '#DEB887'],
+                    nearBg: ['#BC8F8F', '#CD853F'],
+                    ground: ['#F5DEB3', '#FFE4B5']
+                },
+                elements: ['cacti', 'dunes']
+            }
+        };
+        
+        // Time of day settings
+        const timeSettings = {
+            morning: { filter: 'brightness(1.1) saturate(0.9)' },
+            midday: { filter: 'brightness(1.2) saturate(1.1)' },
+            evening: { filter: 'brightness(0.9) saturate(1.2)' },
+            night: { filter: 'brightness(0.4) saturate(0.7)' }
+        };
+        
+        // Gait settings
+        const gaitSettings = {
+            walk: { speed: 1, bobDuration: '2s', bobDistance: '15px' },
+            trot: { speed: 2, bobDuration: '1s', bobDistance: '25px' },
+            canter: { speed: 2.5, bobDuration: '0.8s', bobDistance: '30px' }
+        };
+        
+        // DOM elements
+        const elements = {
+            sceneContainer: document.getElementById('scene-container'),
+            farBg: document.getElementById('far-bg'),
+            midBg: document.getElementById('mid-bg'),
+            nearBg: document.getElementById('near-bg'),
+            ground: document.getElementById('ground'),
+            weather: document.getElementById('weather'),
+            controls: document.getElementById('controls'),
+            toggleBtn: document.getElementById('toggle-btn'),
+            earLeft: document.getElementById('ear-left'),
+            earRight: document.getElementById('ear-right')
+        };
+        
+        // Initialize scenery
+        function createSceneryElements(sceneryType) {
+            const scenery = sceneries[sceneryType];
+            
+            // Clear existing elements
+            elements.farBg.innerHTML = '';
+            elements.midBg.innerHTML = '';
+            elements.nearBg.innerHTML = '';
+            
+            // Update colors
+            updateSceneryColors(scenery.colors);
+            
+            // Create elements based on scenery type
+            const elementCount = { far: 6, mid: 8, near: 12 };
+            
+            // Far background elements
+            for (let i = 0; i < elementCount.far; i++) {
+                const el = createElement(sceneryType, 'far', i);
+                if (el) elements.farBg.appendChild(el);
+            }
+            
+            // Mid background elements
+            for (let i = 0; i < elementCount.mid; i++) {
+                const el = createElement(sceneryType, 'mid', i);
+                if (el) elements.midBg.appendChild(el);
+            }
+            
+            // Near background elements
+            for (let i = 0; i < elementCount.near; i++) {
+                const el = createElement(sceneryType, 'near', i);
+                if (el) elements.nearBg.appendChild(el);
+            }
+        }
+        
+        function createElement(sceneryType, layer, index) {
+            const spacing = layer === 'far' ? 500 : layer === 'mid' ? 350 : 250;
+            const offset = index * spacing + Math.random() * 100;
+            
+            let element;
+            
+            if (sceneryType === 'forest') {
+                if (layer === 'far' || layer === 'mid') {
+                    element = document.createElement('div');
+                    element.className = 'scenery-element tree';
+                } else {
+                    element = document.createElement('div');
+                    element.className = 'scenery-element bush';
+                }
+            } else if (sceneryType === 'beach') {
+                if (layer === 'far') {
+                    element = document.createElement('div');
+                    element.className = 'scenery-element wave';
+                } else if (layer === 'near') {
+                    element = document.createElement('div');
+                    element.className = 'scenery-element palm-tree';
+                    element.innerHTML = '<div class="palm-trunk"></div><div class="palm-leaves"></div>';
+                }
+            } else if (sceneryType === 'mountain') {
+                if (layer === 'far') {
+                    element = document.createElement('div');
+                    element.className = 'scenery-element mountain';
+                } else if (layer === 'near') {
+                    element = document.createElement('div');
+                    element.className = 'scenery-element rock';
+                }
+            } else if (sceneryType === 'plains') {
+                if (layer === 'mid' || layer === 'near') {
+                    element = document.createElement('div');
+                    element.className = 'scenery-element grass-tuft';
+                }
+                if (layer === 'near' && Math.random() > 0.6) {
+                    element = document.createElement('div');
+                    element.className = 'scenery-element wildflower';
+                    element.innerHTML = '<div class="flower-stem"></div><div class="flower-bloom"></div>';
+                }
+            } else if (sceneryType === 'desert') {
+                if (layer === 'far' || layer === 'mid') {
+                    element = document.createElement('div');
+                    element.className = 'scenery-element sand-dune';
+                } else if (layer === 'near') {
+                    element = document.createElement('div');
+                    element.className = 'scenery-element cactus';
+                    element.innerHTML = '<div class="cactus-arm left"></div><div class="cactus-arm right"></div>';
+                }
+            }
+            
+            if (element) {
+                element.style.left = offset + 'px';
+            }
+            
+            return element;
+        }
+        
+        function updateSceneryColors(colors) {
+            const root = document.documentElement;
+            root.style.setProperty('--sky-color-1', colors.sky[0]);
+            root.style.setProperty('--sky-color-2', colors.sky[1]);
+            root.style.setProperty('--far-bg-1', colors.farBg[0]);
+            root.style.setProperty('--far-bg-2', colors.farBg[1]);
+            root.style.setProperty('--mid-bg-1', colors.midBg[0]);
+            root.style.setProperty('--mid-bg-2', colors.midBg[1]);
+            root.style.setProperty('--near-bg-1', colors.nearBg[0]);
+            root.style.setProperty('--near-bg-2', colors.nearBg[1]);
+            root.style.setProperty('--ground-color-1', colors.ground[0]);
+            root.style.setProperty('--ground-color-2', colors.ground[1]);
+        }
+        
+        // Update gait
+        function updateGait(gait) {
+            const settings = gaitSettings[gait];
+            const root = document.documentElement;
+            root.style.setProperty('--bob-duration', settings.bobDuration);
+            root.style.setProperty('--bob-distance', settings.bobDistance);
+            root.style.setProperty('--scroll-speed', settings.speed);
+            state.gait = gait;
+        }
+        
+        // Update time of day
+        function updateTimeOfDay(time) {
+            const settings = timeSettings[time];
+            elements.sceneContainer.style.filter = settings.filter;
+            state.timeOfDay = time;
+        }
+        
+        // Weather effects
+        function createWeatherParticles(type, count) {
+            elements.weather.innerHTML = '';
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = `weather-particle ${type}`;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * -20 + '%';
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                particle.style.opacity = '1';
+                elements.weather.appendChild(particle);
+            }
+        }
+        
+        function updateWeather() {
+            elements.weather.innerHTML = '';
+            
+            if (state.weather.rain) createWeatherParticles('rain-drop', 50);
+            if (state.weather.leaves) createWeatherParticles('leaf', 20);
+            if (state.weather.fireflies) createWeatherParticles('firefly', 15);
+            if (state.weather.snow) createWeatherParticles('snowflake', 30);
+            if (state.weather.birds) createWeatherParticles('bird', 5);
+        }
+        
+        // Ear twitch animation
+        function twitchEars() {
+            const ear = Math.random() > 0.5 ? elements.earLeft : elements.earRight;
+            const twitchClass = ear === elements.earLeft ? 'twitch-left' : 'twitch-right';
+            
+            ear.classList.add(twitchClass);
+            setTimeout(() => ear.classList.remove(twitchClass), 500);
+            
+            // Random interval between 3-7 seconds
+            setTimeout(twitchEars, 3000 + Math.random() * 4000);
+        }
+        
+        // Parallax animation
+        function animateParallax() {
+            const speed = gaitSettings[state.gait].speed;
+            state.scrollOffset += speed * 0.5;
+            
+            // Update each layer with different speeds
+            elements.farBg.style.transform = `translateX(-${state.scrollOffset * 0.2}px)`;
+            elements.midBg.style.transform = `translateX(-${state.scrollOffset * 0.5}px)`;
+            elements.nearBg.style.transform = `translateX(-${state.scrollOffset * 0.8}px)`;
+            elements.ground.style.transform = `translateX(-${state.scrollOffset * 1}px)`;
+            
+            // Loop the scroll
+            if (state.scrollOffset > 2000) {
+                state.scrollOffset = 0;
+            }
+            
+            requestAnimationFrame(animateParallax);
+        }
+        
+        // Controls fade behavior
+        let controlsTimeout;
+        
+        function showControls() {
+            elements.controls.classList.remove('hidden');
+            elements.toggleBtn.classList.remove('show');
+            clearTimeout(controlsTimeout);
+            controlsTimeout = setTimeout(hideControls, 5000);
+        }
+        
+        function hideControls() {
+            elements.controls.classList.add('hidden');
+            elements.toggleBtn.classList.add('show');
+        }
+        
+        // Event listeners
+        document.getElementById('scenery-select').addEventListener('change', (e) => {
+            state.scenery = e.target.value;
+            createSceneryElements(state.scenery);
+        });
+        
+        document.querySelectorAll('[data-gait]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-gait]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                updateGait(e.target.dataset.gait);
+            });
+        });
+        
+        document.querySelectorAll('[data-time]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                updateTimeOfDay(e.target.dataset.time);
+            });
+        });
+        
+        document.querySelectorAll('.weather-toggle').forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                const weatherType = toggle.dataset.weather;
+                const checkbox = toggle.querySelector('.checkbox');
+                state.weather[weatherType] = !state.weather[weatherType];
+                checkbox.classList.toggle('checked');
+                updateWeather();
+            });
+        });
+        
+        document.getElementById('fullscreen-btn').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        });
+        
+        document.getElementById('toggle-btn').addEventListener('click', showControls);
+        
+        // Mouse movement to show controls
+        let mouseMoveTimeout;
+        document.addEventListener('mousemove', () => {
+            if (elements.controls.classList.contains('hidden')) {
+                showControls();
+            } else {
+                clearTimeout(controlsTimeout);
+                controlsTimeout = setTimeout(hideControls, 5000);
+            }
+        });
+        
+        // Initialize
+        createSceneryElements(state.scenery);
+        updateGait(state.gait);
+        updateTimeOfDay(state.timeOfDay);
+        animateParallax();
+        twitchEars();
+        
+        // Start control fade timer
+        controlsTimeout = setTimeout(hideControls, 5000);
+    </script>
+</body>
+</html>
