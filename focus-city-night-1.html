@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Late Night Cityscape - Calming View</title>
+    <style>
+        :root {
+            --sky-dark: #0a0a1a;
+            --sky-midnight: #1a1a3e;
+            --sky-late-night: #2d1b4d;
+            --building-shadow: #1a1a2e;
+            --window-light: #ffd700;
+            --street-light-warm: #ffb84d;
+            --street-light-cool: #4d7aff;
+            --fog-color: #e6e6fa;
+            --accent-neon: #ff1493;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+        }
+
+        #cityCanvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, var(--sky-dark) 0%, var(--sky-midnight) 50%, #1a1a2e 100%);
+        }
+
+        #controlPanel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 26, 46, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            color: #e0e0e0;
+            width: 320px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        #controlPanel.collapsed {
+            transform: translateX(calc(100% + 20px));
+        }
+
+        #togglePanel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 26, 46, 0.95);
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #e0e0e0;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 999;
+            transition: opacity 0.3s ease;
+        }
+
+        #togglePanel:hover {
+            background: rgba(36, 36, 56, 0.95);
+        }
+
+        #controlPanel:not(.collapsed) ~ #togglePanel {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffd700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+        }
+
+        .control-section h3 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: #ffb84d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .control-item {
+            margin-bottom: 16px;
+        }
+
+        .control-item label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #b0b0b0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffd700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffd700;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #b0b0b0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .toggle-btn.active {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+
+        .preset-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .preset-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .preset-btn.active {
+            background: rgba(77, 122, 255, 0.2);
+            border-color: #4d7aff;
+            color: #4d7aff;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 20, 147, 0.2);
+            border: 1px solid rgba(255, 20, 147, 0.3);
+            color: #ff1493;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 20, 147, 0.3);
+            border-color: #ff1493;
+        }
+
+        .value-display {
+            display: inline-block;
+            float: right;
+            color: #ffd700;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        #controlPanel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #controlPanel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        #controlPanel::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.3);
+            border-radius: 3px;
+        }
+
+        #controlPanel::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 215, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="cityCanvas"></canvas>
+    
+    <div id="togglePanel">☰ Controls</div>
+    
+    <div id="controlPanel">
+        <div class="control-header">
+            <h2>City Controls</h2>
+            <button class="close-btn">×</button>
+        </div>
+
+        <div class="control-section">
+            <h3>Presets</h3>
+            <div class="preset-group">
+                <button class="preset-btn" data-preset="early_night">🌆 Early Night</button>
+                <button class="preset-btn active" data-preset="midnight">🌃 Midnight</button>
+                <button class="preset-btn" data-preset="late_night_dawn">🌌 Late Night</button>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h3>Atmosphere</h3>
+            <div class="control-item">
+                <label>Rain Effect</label>
+                <div class="toggle-group">
+                    <button class="toggle-btn" data-toggle="rain" data-value="off">Off</button>
+                    <button class="toggle-btn active" data-toggle="rain" data-value="on">On</button>
+                </div>
+            </div>
+            <div class="control-item">
+                <label>Fog Density</label>
+                <div class="toggle-group">
+                    <button class="toggle-btn" data-toggle="fog" data-value="low">Low</button>
+                    <button class="toggle-btn active" data-toggle="fog" data-value="medium">Medium</button>
+                    <button class="toggle-btn" data-toggle="fog" data-value="high">High</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h3>Traffic</h3>
+            <div class="control-item">
+                <label>Traffic Intensity</label>
+                <div class="toggle-group">
+                    <button class="toggle-btn" data-toggle="traffic" data-value="low">Low</button>
+                    <button class="toggle-btn active" data-toggle="traffic" data-value="medium">Medium</button>
+                    <button class="toggle-btn" data-toggle="traffic" data-value="high">High</button>
+                </div>
+            </div>
+            <div class="control-item">
+                <label>Traffic Speed <span class="value-display" id="trafficSpeedValue">1.0x</span></label>
+                <input type="range" class="slider" id="trafficSpeed" min="0.3" max="2" step="0.1" value="1">
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h3>Lighting</h3>
+            <div class="control-item">
+                <label>Brightness <span class="value-display" id="brightnessValue">0.5</span></label>
+                <input type="range" class="slider" id="brightness" min="0.1" max="1" step="0.05" value="0.5">
+            </div>
+            <div class="control-item">
+                <label>Window Activity <span class="value-display" id="windowActivityValue">Medium</span></label>
+                <input type="range" class="slider" id="windowActivity" min="0.2" max="2" step="0.2" value="1">
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h3>Animation</h3>
+            <div class="control-item">
+                <label>Animation Speed <span class="value-display" id="animSpeedValue">1.0x</span></label>
+                <input type="range" class="slider" id="animSpeed" min="0.5" max="2" step="0.1" value="1">
+            </div>
+        </div>
+
+        <div class="control-section">
+            <button class="reset-btn" id="resetBtn">Reset to Default</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('cityCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // State management
+        const state = {
+            rain: true,
+            fog: 'medium',
+            traffic: 'medium',
+            trafficSpeed: 1,
+            brightness: 0.5,
+            windowActivity: 1,
+            animSpeed: 1,
+            preset: 'midnight',
+            timeOfDay: 0
+        };
+
+        // Building configurations with depth layers
+        const buildingTypes = [
+            { name: 'Office', windowDensity: 0.7, heightRange: [200, 350] },
+            { name: 'Residential', windowDensity: 0.5, heightRange: [150, 300] },
+            { name: 'Commercial', windowDensity: 0.8, heightRange: [200, 400] },
+            { name: 'LowRise', windowDensity: 0.3, heightRange: [80, 150] }
+        ];
+
+        // Building layers configuration
+        const buildingLayers = {
+            far_background: { scale: 0.2, darkness: 0.95, count: 3, zIndex: 1 },
+            mid_distance: { scale: 0.5, darkness: 0.85, count: 5, zIndex: 2 },
+            near: { scale: 0.8, darkness: 0.7, count: 7, zIndex: 3 },
+            foreground: { scale: 1.0, darkness: 0.6, count: 5, zIndex: 9 }
+        };
+
+        // Generate buildings organized by layers
+        const buildingsByLayer = {
+            far_background: [],
+            mid_distance: [],
+            near: [],
+            foreground: []
+        };
+
+        Object.keys(buildingLayers).forEach(layerName => {
+            const layer = buildingLayers[layerName];
+            let layerWidth = 0;
+            
+            for (let i = 0; i < layer.count; i++) {
+                const type = buildingTypes[Math.floor(Math.random() * buildingTypes.length)];
+                const baseWidth = 60 + Math.random() * 80;
+                const baseHeight = type.heightRange[0] + Math.random() * (type.heightRange[1] - type.heightRange[0]);
+                
+                const building = {
+                    x: layerWidth,
+                    width: baseWidth,
+                    height: baseHeight,
+                    layer: layerName,
+                    scale: layer.scale,
+                    darkness: layer.darkness,
+                    zIndex: layer.zIndex,
+                    windowDensity: type.windowDensity,
+                    windows: []
+                };
+
+                // Create windows
+                const windowRows = Math.floor(baseHeight / 20);
+                const windowCols = Math.floor(baseWidth / 15);
+                
+                for (let row = 0; row < windowRows; row++) {
+                    for (let col = 0; col < windowCols; col++) {
+                        if (Math.random() < type.windowDensity) {
+                            building.windows.push({
+                                x: col * 15 + 5,
+                                y: row * 20 + 5,
+                                lit: Math.random() > 0.3,
+                                brightness: 0.5 + Math.random() * 0.5,
+                                nextChange: Date.now() + Math.random() * 5000
+                            });
+                        }
+                    }
+                }
+
+                buildingsByLayer[layerName].push(building);
+                layerWidth += baseWidth;
+            }
+        });
+
+        // Vehicles organized by traffic layers
+        const vehiclesByLayer = {
+            far_traffic: [],
+            mid_traffic: [],
+            near_traffic: []
+        };
+
+        const trafficLayers = {
+            far_traffic: { scale: 0.15, speedMultiplier: 0.4, zIndex: 2, countFactor: 0.3, yBase: canvas.height - 180 },
+            mid_traffic: { scale: 0.5, speedMultiplier: 0.7, zIndex: 4, countFactor: 0.6, yBase: canvas.height - 130 },
+            near_traffic: { scale: 0.85, speedMultiplier: 1.0, zIndex: 8, countFactor: 1.0, yBase: canvas.height - 80 }
+        };
+
+        const vehicleTypes = [
+            { type: 'sedan', colors: ['#1a1a2e', '#0f0f1e', '#2d1b3d'], length: 80, speedFactor: 1.0 },
+            { type: 'suv', colors: ['#16213e', '#0a0a15', '#3d2d1b'], length: 100, speedFactor: 0.9 },
+            { type: 'truck', colors: ['#1a1a1a', '#2d2d2d'], length: 120, speedFactor: 0.7 }
+        ];
+
+        function createVehicle(layerName) {
+            const layer = trafficLayers[layerName];
+            const type = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
+            const lane = Math.floor(Math.random() * 2);
+            
+            return {
+                x: -type.length * layer.scale,
+                y: layer.yBase + (lane * 25 * layer.scale),
+                length: type.length * layer.scale,
+                height: 20 * layer.scale,
+                color: type.colors[Math.floor(Math.random() * type.colors.length)],
+                speed: (1 + Math.random() * 0.5) * type.speedFactor * layer.speedMultiplier,
+                layer: layerName,
+                scale: layer.scale,
+                zIndex: layer.zIndex,
+                hasLights: Math.random() > 0.3
+            };
+        }
+
+        // Rain particles
+        const rainDrops = [];
+        const maxRainDrops = 150;
+
+        function createRainDrop() {
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                length: 10 + Math.random() * 20,
+                speed: 8 + Math.random() * 4,
+                opacity: 0.1 + Math.random() * 0.2
+            };
+        }
+
+        // Fog particles
+        const fogParticles = [];
+        const maxFogParticles = 30;
+
+        function createFogParticle() {
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: 100 + Math.random() * 200,
+                speedX: (Math.random() - 0.5) * 0.3,
+                speedY: (Math.random() - 0.5) * 0.2,
+                opacity: 0.02 + Math.random() * 0.03
+            };
+        }
+
+        // Initialize particles
+        for (let i = 0; i < maxRainDrops; i++) {
+            rainDrops.push(createRainDrop());
+        }
+        for (let i = 0; i < maxFogParticles; i++) {
+            fogParticles.push(createFogParticle());
+        }
+
+        // Drawing functions
+        function drawSky() {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            
+            const brightness = state.brightness;
+            const r1 = Math.floor(10 + brightness * 30);
+            const g1 = Math.floor(10 + brightness * 30);
+            const b1 = Math.floor(26 + brightness * 40);
+            
+            const r2 = Math.floor(26 + brightness * 20);
+            const g2 = Math.floor(26 + brightness * 20);
+            const b2 = Math.floor(62 + brightness * 30);
+            
+            gradient.addColorStop(0, `rgb(${r1}, ${g1}, ${b1})`);
+            gradient.addColorStop(0.5, `rgb(${r2}, ${g2}, ${b2})`);
+            gradient.addColorStop(1, 'rgb(26, 26, 46)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawBuildingsLayer(layerName) {
+            const groundLevel = canvas.height - 50;
+            const layer = buildingsByLayer[layerName];
+            if (!layer) return;
+            
+            // Calculate total width for this layer
+            const totalLayerWidth = layer.reduce((sum, b) => sum + b.width, 0);
+            
+            layer.forEach(building => {
+                const scale = building.scale;
+                const buildingHeight = building.height * scale;
+                const buildingWidth = building.width * scale;
+                const x = (building.x / totalLayerWidth) * canvas.width;
+                const y = groundLevel - buildingHeight;
+                
+                // Building silhouette - darker for distant buildings
+                const baseBrightness = (1 - building.darkness) * 50;
+                const buildingBrightness = baseBrightness + state.brightness * 30;
+                ctx.fillStyle = `rgb(${buildingBrightness}, ${buildingBrightness}, ${buildingBrightness + 16})`;
+                ctx.fillRect(x, y, buildingWidth, buildingHeight);
+                
+                // Windows (less visible on far buildings)
+                if (building.scale > 0.3) {
+                    building.windows.forEach(window => {
+                        const now = Date.now();
+                        
+                        // Update window state
+                        if (now > window.nextChange) {
+                            window.lit = Math.random() > 0.5;
+                            window.nextChange = now + (3000 + Math.random() * 4000) / state.windowActivity;
+                        }
+                        
+                        if (window.lit) {
+                            const wx = x + (window.x / building.width) * buildingWidth;
+                            const wy = y + (window.y / building.height) * buildingHeight;
+                            const ww = 8 * scale;
+                            const wh = 12 * scale;
+                            
+                            // Window glow
+                            const brightness = window.brightness * state.brightness * 1.5 * (building.scale * 0.5 + 0.5);
+                            ctx.shadowBlur = 8 * scale;
+                            ctx.shadowColor = `rgba(255, 215, 0, ${brightness * 0.5})`;
+                            ctx.fillStyle = `rgba(255, 215, 0, ${brightness})`;
+                            ctx.fillRect(wx, wy, ww, wh);
+                            ctx.shadowBlur = 0;
+                        }
+                    });
+                }
+            });
+        }
+
+        function drawVehiclesLayer(layerName) {
+            const layer = trafficLayers[layerName];
+            const vehicles = vehiclesByLayer[layerName];
+            if (!vehicles || !layer) return;
+            
+            const trafficCounts = { low: 2, medium: 4, high: 6 };
+            const baseCount = trafficCounts[state.traffic] || 4;
+            const targetCount = Math.ceil(baseCount * layer.countFactor);
+            
+            // Add vehicles if needed
+            while (vehicles.length < targetCount) {
+                vehicles.push(createVehicle(layerName));
+            }
+            
+            // Remove excess vehicles
+            while (vehicles.length > targetCount) {
+                vehicles.pop();
+            }
+            
+            // Update and draw vehicles
+            for (let i = vehicles.length - 1; i >= 0; i--) {
+                const vehicle = vehicles[i];
+                
+                // Update position
+                vehicle.x += vehicle.speed * state.trafficSpeed * state.animSpeed;
+                
+                // Reset if off screen
+                if (vehicle.x > canvas.width + vehicle.length) {
+                    vehicle.x = -vehicle.length;
+                    const lane = Math.floor(Math.random() * 2);
+                    vehicle.y = layer.yBase + (lane * 25 * layer.scale);
+                }
+                
+                // Draw vehicle
+                ctx.fillStyle = vehicle.color;
+                ctx.fillRect(vehicle.x, vehicle.y, vehicle.length, vehicle.height);
+                
+                // Headlights (only on larger vehicles)
+                if (vehicle.hasLights && vehicle.scale > 0.4) {
+                    const lightSize = 3 * vehicle.scale;
+                    ctx.fillStyle = 'rgba(255, 255, 200, 0.8)';
+                    ctx.beginPath();
+                    ctx.arc(vehicle.x + vehicle.length - 5 * vehicle.scale, vehicle.y + 5 * vehicle.scale, lightSize, 0, Math.PI * 2);
+                    ctx.arc(vehicle.x + vehicle.length - 5 * vehicle.scale, vehicle.y + vehicle.height - 5 * vehicle.scale, lightSize, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Light beam
+                    const beamLength = 50 * vehicle.scale;
+                    const gradient = ctx.createLinearGradient(vehicle.x + vehicle.length, vehicle.y, vehicle.x + vehicle.length + beamLength, vehicle.y);
+                    gradient.addColorStop(0, 'rgba(255, 255, 200, 0.15)');
+                    gradient.addColorStop(1, 'rgba(255, 255, 200, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(vehicle.x + vehicle.length, vehicle.y, beamLength, vehicle.height);
+                }
+            }
+        }
+        
+        function drawRoad() {
+            const roadY = canvas.height - 100;
+            const roadHeight = 100;
+            
+            // Road surface
+            const gradient = ctx.createLinearGradient(0, roadY, 0, canvas.height);
+            gradient.addColorStop(0, '#2a2a3a');
+            gradient.addColorStop(1, '#1a1a2a');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, roadY, canvas.width, roadHeight);
+            
+            // Road markings
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([20, 15]);
+            
+            // Draw lane markings
+            for (let i = 1; i < 3; i++) {
+                const y = roadY + (roadHeight / 3) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            ctx.setLineDash([]);
+            
+            // Street lights
+            const lightSpacing = 200;
+            const numLights = Math.ceil(canvas.width / lightSpacing);
+            
+            for (let i = 0; i < numLights; i++) {
+                const x = i * lightSpacing + 50;
+                const y = roadY - 10;
+                
+                // Light pole
+                ctx.strokeStyle = '#3a3a4a';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, y - 60);
+                ctx.stroke();
+                
+                // Light glow
+                const lightGradient = ctx.createRadialGradient(x, y - 60, 0, x, y - 60, 80);
+                lightGradient.addColorStop(0, 'rgba(255, 184, 77, 0.3)');
+                lightGradient.addColorStop(1, 'rgba(255, 184, 77, 0)');
+                ctx.fillStyle = lightGradient;
+                ctx.fillRect(x - 80, y - 140, 160, 80);
+                
+                // Light bulb
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
+                ctx.beginPath();
+                ctx.arc(x, y - 60, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawRain() {
+            if (!state.rain) return;
+            
+            ctx.strokeStyle = 'rgba(174, 194, 224, 0.3)';
+            ctx.lineWidth = 1;
+            
+            rainDrops.forEach(drop => {
+                // Update
+                drop.y += drop.speed * state.animSpeed;
+                
+                if (drop.y > canvas.height) {
+                    drop.y = -drop.length;
+                    drop.x = Math.random() * canvas.width;
+                }
+                
+                // Draw
+                ctx.globalAlpha = drop.opacity;
+                ctx.beginPath();
+                ctx.moveTo(drop.x, drop.y);
+                ctx.lineTo(drop.x, drop.y + drop.length);
+                ctx.stroke();
+            });
+            
+            ctx.globalAlpha = 1;
+        }
+
+        function drawFog() {
+            const densities = { low: 0.3, medium: 0.6, high: 1 };
+            const density = densities[state.fog] || 0.6;
+            
+            fogParticles.forEach(particle => {
+                // Update
+                particle.x += particle.speedX * state.animSpeed;
+                particle.y += particle.speedY * state.animSpeed;
+                
+                // Wrap around
+                if (particle.x > canvas.width + particle.radius) particle.x = -particle.radius;
+                if (particle.x < -particle.radius) particle.x = canvas.width + particle.radius;
+                if (particle.y > canvas.height + particle.radius) particle.y = -particle.radius;
+                if (particle.y < -particle.radius) particle.y = canvas.height + particle.radius;
+                
+                // Draw
+                const gradient = ctx.createRadialGradient(particle.x, particle.y, 0, particle.x, particle.y, particle.radius);
+                gradient.addColorStop(0, `rgba(230, 230, 250, ${particle.opacity * density})`);
+                gradient.addColorStop(1, 'rgba(230, 230, 250, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(particle.x - particle.radius, particle.y - particle.radius, particle.radius * 2, particle.radius * 2);
+            });
+        }
+
+        // Animation loop with proper z-index rendering
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Layer 0: Sky background
+            drawSky();
+            
+            // Layer 1: Far background buildings
+            drawBuildingsLayer('far_background');
+            
+            // Layer 2: Far traffic + Mid distance buildings
+            drawVehiclesLayer('far_traffic');
+            drawBuildingsLayer('mid_distance');
+            
+            // Layer 3-4: Near buildings + mid traffic
+            drawBuildingsLayer('near');
+            drawVehiclesLayer('mid_traffic');
+            
+            // Layer 5: Road surface with markings and street lights
+            drawRoad();
+            
+            // Layer 8: Near traffic (on the road)
+            drawVehiclesLayer('near_traffic');
+            
+            // Layer 9: Foreground buildings (partially occlude traffic)
+            drawBuildingsLayer('foreground');
+            
+            // Layer 10: Fog effects
+            drawFog();
+            
+            // Layer 11: Rain particles
+            drawRain();
+            
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // UI Controls
+        const controlPanel = document.getElementById('controlPanel');
+        const togglePanel = document.getElementById('togglePanel');
+        const closeBtn = document.querySelector('.close-btn');
+
+        togglePanel.addEventListener('click', () => {
+            controlPanel.classList.remove('collapsed');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            controlPanel.classList.add('collapsed');
+        });
+
+        // Toggle buttons
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const toggle = btn.dataset.toggle;
+                const value = btn.dataset.value;
+                
+                // Update active state
+                document.querySelectorAll(`[data-toggle="${toggle}"]`).forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Update state
+                if (toggle === 'rain') {
+                    state.rain = value === 'on';
+                } else {
+                    state[toggle] = value;
+                }
+            });
+        });
+
+        // Preset buttons
+        const presets = {
+            early_night: {
+                brightness: 0.6,
+                windowActivity: 1.6,
+                traffic: 'medium',
+                fog: 'low',
+                rain: false
+            },
+            midnight: {
+                brightness: 0.4,
+                windowActivity: 0.8,
+                traffic: 'medium',
+                fog: 'medium',
+                rain: true
+            },
+            late_night_dawn: {
+                brightness: 0.3,
+                windowActivity: 0.4,
+                traffic: 'low',
+                fog: 'high',
+                rain: false
+            }
+        };
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const presetName = btn.dataset.preset;
+                const preset = presets[presetName];
+                
+                if (preset) {
+                    // Update active state
+                    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Apply preset
+                    state.brightness = preset.brightness;
+                    state.windowActivity = preset.windowActivity;
+                    state.traffic = preset.traffic;
+                    state.fog = preset.fog;
+                    state.rain = preset.rain;
+                    state.preset = presetName;
+                    
+                    // Update UI
+                    document.getElementById('brightness').value = preset.brightness;
+                    document.getElementById('brightnessValue').textContent = preset.brightness.toFixed(2);
+                    document.getElementById('windowActivity').value = preset.windowActivity;
+                    updateWindowActivityDisplay(preset.windowActivity);
+                    
+                    // Update toggle buttons
+                    document.querySelectorAll(`[data-toggle="traffic"]`).forEach(b => {
+                        b.classList.toggle('active', b.dataset.value === preset.traffic);
+                    });
+                    document.querySelectorAll(`[data-toggle="fog"]`).forEach(b => {
+                        b.classList.toggle('active', b.dataset.value === preset.fog);
+                    });
+                    document.querySelectorAll(`[data-toggle="rain"]`).forEach(b => {
+                        b.classList.toggle('active', (b.dataset.value === 'on') === preset.rain);
+                    });
+                }
+            });
+        });
+
+        // Sliders
+        function updateWindowActivityDisplay(value) {
+            const labels = ['Very Low', 'Low', 'Medium', 'High', 'Very High'];
+            const index = Math.min(Math.floor(value / 0.5), labels.length - 1);
+            document.getElementById('windowActivityValue').textContent = labels[index];
+        }
+
+        document.getElementById('brightness').addEventListener('input', (e) => {
+            state.brightness = parseFloat(e.target.value);
+            document.getElementById('brightnessValue').textContent = state.brightness.toFixed(2);
+        });
+
+        document.getElementById('windowActivity').addEventListener('input', (e) => {
+            state.windowActivity = parseFloat(e.target.value);
+            updateWindowActivityDisplay(state.windowActivity);
+        });
+
+        document.getElementById('trafficSpeed').addEventListener('input', (e) => {
+            state.trafficSpeed = parseFloat(e.target.value);
+            document.getElementById('trafficSpeedValue').textContent = state.trafficSpeed.toFixed(1) + 'x';
+        });
+
+        document.getElementById('animSpeed').addEventListener('input', (e) => {
+            state.animSpeed = parseFloat(e.target.value);
+            document.getElementById('animSpeedValue').textContent = state.animSpeed.toFixed(1) + 'x';
+        });
+
+        // Reset button
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            state.rain = true;
+            state.fog = 'medium';
+            state.traffic = 'medium';
+            state.trafficSpeed = 1;
+            state.brightness = 0.5;
+            state.windowActivity = 1;
+            state.animSpeed = 1;
+            state.preset = 'midnight';
+            
+            // Reset UI
+            document.getElementById('brightness').value = 0.5;
+            document.getElementById('brightnessValue').textContent = '0.50';
+            document.getElementById('windowActivity').value = 1;
+            updateWindowActivityDisplay(1);
+            document.getElementById('trafficSpeed').value = 1;
+            document.getElementById('trafficSpeedValue').textContent = '1.0x';
+            document.getElementById('animSpeed').value = 1;
+            document.getElementById('animSpeedValue').textContent = '1.0x';
+            
+            // Reset toggle buttons
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if ((btn.dataset.toggle === 'rain' && btn.dataset.value === 'on') ||
+                    (btn.dataset.toggle === 'fog' && btn.dataset.value === 'medium') ||
+                    (btn.dataset.toggle === 'traffic' && btn.dataset.value === 'medium')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Reset preset buttons
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.preset === 'midnight');
+            });
+        });
+    </script>
+</body>
+</html>
