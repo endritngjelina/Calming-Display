@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Mall - Immersive Experience</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-border: rgba(94, 82, 64, 0.2);
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-md: 14px;
+            --font-size-lg: 16px;
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --radius-base: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-background: var(--color-charcoal-700);
+                --color-surface: var(--color-charcoal-800);
+                --color-text: var(--color-gray-200);
+                --color-text-secondary: rgba(167, 169, 169, 0.7);
+                --color-primary: var(--color-teal-300);
+                --color-primary-hover: var(--color-teal-400);
+                --color-border: rgba(119, 124, 124, 0.3);
+            }
+        }
+
+        @font-face {
+            font-family: 'FKGroteskNeue';
+            src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            color: var(--color-text);
+            background: var(--color-background);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .mall-viewport {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #e8f4f8 0%, #f5f5f5 50%, #e0e0e0 100%);
+        }
+
+        #mallCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .controls-panel {
+            width: 320px;
+            background: var(--color-surface);
+            border-left: 1px solid var(--color-border);
+            padding: var(--space-20);
+            overflow-y: auto;
+            box-shadow: var(--shadow-md);
+        }
+
+        .control-group {
+            margin-bottom: var(--space-24);
+        }
+
+        .control-label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: var(--space-8);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-8);
+        }
+
+        .control-btn {
+            padding: var(--space-8) var(--space-12);
+            border: 1px solid var(--color-border);
+            background: var(--color-surface);
+            color: var(--color-text);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: all 0.2s ease;
+            font-family: var(--font-family-base);
+        }
+
+        .control-btn:hover {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .control-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-8);
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--color-border);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .slider-value {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            text-align: center;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: var(--space-12);
+            border: none;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-weight: 500;
+            transition: all 0.2s ease;
+            font-family: var(--font-family-base);
+        }
+
+        .action-btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .action-btn-primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .action-btn-secondary {
+            background: var(--color-surface);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .action-btn-secondary:hover {
+            background: rgba(var(--color-teal-500), 0.1);
+        }
+
+        h2 {
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--space-16);
+            color: var(--color-text);
+        }
+
+        .zone-btn {
+            width: 100%;
+            margin-bottom: var(--space-8);
+        }
+
+        .help-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .help-modal.active {
+            display: flex;
+        }
+
+        .help-content {
+            background: var(--color-surface);
+            padding: var(--space-24);
+            border-radius: var(--radius-lg);
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-md);
+        }
+
+        .help-content h3 {
+            margin-bottom: var(--space-16);
+            color: var(--color-text);
+        }
+
+        .help-content p {
+            margin-bottom: var(--space-12);
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+            line-height: 1.6;
+        }
+
+        .close-help {
+            margin-top: var(--space-16);
+        }
+
+        @media (max-width: 768px) {
+            .controls-panel {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 50vh;
+                border-left: none;
+                border-top: 1px solid var(--color-border);
+                z-index: 100;
+            }
+
+            .mall-viewport {
+                height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="mall-viewport">
+            <canvas id="mallCanvas"></canvas>
+        </div>
+
+        <div class="controls-panel">
+            <h2>Mall Controls</h2>
+
+            <div class="control-group">
+                <label class="control-label">Time of Day</label>
+                <div class="button-group">
+                    <button class="control-btn active" data-time="morning">Morning</button>
+                    <button class="control-btn" data-time="afternoon">Afternoon</button>
+                    <button class="control-btn" data-time="evening">Evening</button>
+                    <button class="control-btn" data-time="night">Night</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Atmosphere</label>
+                <div class="button-group">
+                    <button class="control-btn active" data-atmosphere="clear">Clear</button>
+                    <button class="control-btn" data-atmosphere="cloudy">Cloudy</button>
+                    <button class="control-btn" data-atmosphere="rainy">Rainy</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Scenery Zone</label>
+                <button class="control-btn zone-btn active" data-zone="main_atrium">Main Atrium</button>
+                <button class="control-btn zone-btn" data-zone="food_court">Food Court</button>
+                <button class="control-btn zone-btn" data-zone="fashion_district">Fashion District</button>
+                <button class="control-btn zone-btn" data-zone="tech_wing">Tech &amp; Electronics</button>
+                <button class="control-btn zone-btn" data-zone="upper_level">Upper Level View</button>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Crowd Density</label>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="crowdSlider" min="0" max="3" value="1" step="1">
+                    <div class="slider-value" id="crowdValue">Medium</div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Lighting Intensity</label>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="lightingSlider" min="0.3" max="1.5" value="1" step="0.1">
+                    <div class="slider-value" id="lightingValue">100%</div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Animation Speed</label>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="speedSlider" min="0.5" max="2" value="1" step="0.1">
+                    <div class="slider-value" id="speedValue">1.0x</div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Ambient Sound</label>
+                <button class="action-btn action-btn-secondary" id="soundToggle">Sound: OFF</button>
+            </div>
+
+            <div class="control-group">
+                <button class="action-btn action-btn-primary" id="resetBtn">Reset to Defaults</button>
+            </div>
+
+            <div class="control-group">
+                <button class="action-btn action-btn-secondary" id="helpBtn">Help &amp; Info</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="help-modal" id="helpModal">
+        <div class="help-content">
+            <h3>Shopping Mall Experience - Guide</h3>
+            <p><strong>Time of Day:</strong> Changes the lighting and ambiance of the mall. Morning is bright and fresh, evening is warm and cozy, night creates a serene atmosphere.</p>
+            <p><strong>Atmosphere:</strong> Adjust weather conditions. Clear provides optimal visibility, cloudy adds softness, rainy creates a moody atmosphere.</p>
+            <p><strong>Scenery Zones:</strong> Explore different areas of the mall, each with unique characteristics and visual elements.</p>
+            <p><strong>Crowd Density:</strong> Control how many shoppers populate the mall. More crowds create energy, fewer creates calm.</p>
+            <p><strong>Lighting Intensity:</strong> Fine-tune the brightness to your preference.</p>
+            <p><strong>Animation Speed:</strong> Slow down for meditation, speed up for liveliness.</p>
+            <p><strong>Tips:</strong> Try combining evening time with low crowd density for maximum relaxation. Experiment with different zones to discover your favorite view!</p>
+            <button class="action-btn action-btn-primary close-help" id="closeHelp">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Mall Experience App - Main Application
+
+class MallExperience {
+    constructor() {
+        this.canvas = document.getElementById('mallCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        
+        // State management
+        this.state = {
+            timeOfDay: 'morning',
+            atmosphere: 'clear',
+            zone: 'main_atrium',
+            crowdDensity: 1, // 0=low, 1=medium, 2=high, 3=very_high
+            lightingIntensity: 1.0,
+            animationSpeed: 1.0,
+            soundEnabled: false
+        };
+
+        // Animation objects
+        this.shoppers = [];
+        this.particles = [];
+        this.displays = [];
+        this.fountainParticles = [];
+        this.animationFrame = null;
+        this.time = 0;
+
+        // Configuration
+        this.config = {
+            timeColors: {
+                morning: { sky: '#87CEEB', ambient: '#FDB813', shadow: 'rgba(0,0,0,0.2)' },
+                afternoon: { sky: '#B0D4E3', ambient: '#FFD700', shadow: 'rgba(0,0,0,0.3)' },
+                evening: { sky: '#FF8C42', ambient: '#FF8C42', shadow: 'rgba(0,0,0,0.5)' },
+                night: { sky: '#1a1a2e', ambient: '#4a4a6e', shadow: 'rgba(0,0,0,0.7)' }
+            },
+            crowdCounts: [8, 15, 25, 40],
+            crowdLabels: ['Low', 'Medium', 'High', 'Very High']
+        };
+
+        this.init();
+    }
+
+    init() {
+        this.resizeCanvas();
+        window.addEventListener('resize', () => this.resizeCanvas());
+        this.setupControls();
+        this.initializeScene();
+        this.animate();
+    }
+
+    resizeCanvas() {
+        this.canvas.width = this.canvas.offsetWidth;
+        this.canvas.height = this.canvas.offsetHeight;
+        this.initializeScene();
+    }
+
+    setupControls() {
+        // Time of day buttons
+        document.querySelectorAll('[data-time]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.state.timeOfDay = btn.dataset.time;
+            });
+        });
+
+        // Atmosphere buttons
+        document.querySelectorAll('[data-atmosphere]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-atmosphere]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.state.atmosphere = btn.dataset.atmosphere;
+            });
+        });
+
+        // Zone buttons
+        document.querySelectorAll('[data-zone]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-zone]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.state.zone = btn.dataset.zone;
+                this.initializeScene();
+            });
+        });
+
+        // Crowd density slider
+        const crowdSlider = document.getElementById('crowdSlider');
+        const crowdValue = document.getElementById('crowdValue');
+        crowdSlider.addEventListener('input', (e) => {
+            this.state.crowdDensity = parseInt(e.target.value);
+            crowdValue.textContent = this.config.crowdLabels[this.state.crowdDensity];
+            this.updateShopperCount();
+        });
+
+        // Lighting slider
+        const lightingSlider = document.getElementById('lightingSlider');
+        const lightingValue = document.getElementById('lightingValue');
+        lightingSlider.addEventListener('input', (e) => {
+            this.state.lightingIntensity = parseFloat(e.target.value);
+            lightingValue.textContent = Math.round(this.state.lightingIntensity * 100) + '%';
+        });
+
+        // Speed slider
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        speedSlider.addEventListener('input', (e) => {
+            this.state.animationSpeed = parseFloat(e.target.value);
+            speedValue.textContent = this.state.animationSpeed.toFixed(1) + 'x';
+        });
+
+        // Sound toggle
+        const soundToggle = document.getElementById('soundToggle');
+        soundToggle.addEventListener('click', () => {
+            this.state.soundEnabled = !this.state.soundEnabled;
+            soundToggle.textContent = 'Sound: ' + (this.state.soundEnabled ? 'ON' : 'OFF');
+        });
+
+        // Reset button
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            this.resetToDefaults();
+        });
+
+        // Help modal
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const closeHelp = document.getElementById('closeHelp');
+        
+        helpBtn.addEventListener('click', () => {
+            helpModal.classList.add('active');
+        });
+        
+        closeHelp.addEventListener('click', () => {
+            helpModal.classList.remove('active');
+        });
+        
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.classList.remove('active');
+            }
+        });
+    }
+
+    resetToDefaults() {
+        this.state = {
+            timeOfDay: 'morning',
+            atmosphere: 'clear',
+            zone: 'main_atrium',
+            crowdDensity: 1,
+            lightingIntensity: 1.0,
+            animationSpeed: 1.0,
+            soundEnabled: false
+        };
+
+        // Reset UI
+        document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+        document.querySelector('[data-time="morning"]').classList.add('active');
+        
+        document.querySelectorAll('[data-atmosphere]').forEach(b => b.classList.remove('active'));
+        document.querySelector('[data-atmosphere="clear"]').classList.add('active');
+        
+        document.querySelectorAll('[data-zone]').forEach(b => b.classList.remove('active'));
+        document.querySelector('[data-zone="main_atrium"]').classList.add('active');
+        
+        document.getElementById('crowdSlider').value = 1;
+        document.getElementById('crowdValue').textContent = 'Medium';
+        
+        document.getElementById('lightingSlider').value = 1.0;
+        document.getElementById('lightingValue').textContent = '100%';
+        
+        document.getElementById('speedSlider').value = 1.0;
+        document.getElementById('speedValue').textContent = '1.0x';
+        
+        document.getElementById('soundToggle').textContent = 'Sound: OFF';
+
+        this.initializeScene();
+    }
+
+    initializeScene() {
+        this.shoppers = [];
+        this.particles = [];
+        this.displays = [];
+        this.fountainParticles = [];
+        
+        this.createShoppers();
+        this.createParticles();
+        this.createDisplays();
+        
+        if (this.state.zone === 'main_atrium') {
+            this.createFountain();
+        }
+    }
+
+    createShoppers() {
+        const count = this.config.crowdCounts[this.state.crowdDensity];
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        
+        for (let i = 0; i < count; i++) {
+            this.shoppers.push({
+                x: Math.random() * w,
+                y: h * 0.6 + Math.random() * h * 0.3,
+                size: 15 + Math.random() * 10,
+                speed: (0.3 + Math.random() * 0.7),
+                direction: Math.random() > 0.5 ? 1 : -1,
+                color: this.getRandomShopperColor(),
+                bobOffset: Math.random() * Math.PI * 2
+            });
+        }
+    }
+
+    updateShopperCount() {
+        const targetCount = this.config.crowdCounts[this.state.crowdDensity];
+        const currentCount = this.shoppers.length;
+        
+        if (targetCount > currentCount) {
+            for (let i = 0; i < targetCount - currentCount; i++) {
+                const w = this.canvas.width;
+                const h = this.canvas.height;
+                this.shoppers.push({
+                    x: Math.random() * w,
+                    y: h * 0.6 + Math.random() * h * 0.3,
+                    size: 15 + Math.random() * 10,
+                    speed: (0.3 + Math.random() * 0.7),
+                    direction: Math.random() > 0.5 ? 1 : -1,
+                    color: this.getRandomShopperColor(),
+                    bobOffset: Math.random() * Math.PI * 2
+                });
+            }
+        } else if (targetCount < currentCount) {
+            this.shoppers.splice(targetCount);
+        }
+    }
+
+    getRandomShopperColor() {
+        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    createParticles() {
+        const count = 30;
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        
+        for (let i = 0; i < count; i++) {
+            this.particles.push({
+                x: Math.random() * w,
+                y: Math.random() * h * 0.5,
+                size: 1 + Math.random() * 2,
+                speed: 0.1 + Math.random() * 0.3,
+                alpha: 0.1 + Math.random() * 0.3
+            });
+        }
+    }
+
+    createDisplays() {
+        const displays = [];
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        
+        // Create animated store displays based on zone
+        if (this.state.zone === 'fashion_district') {
+            for (let i = 0; i < 3; i++) {
+                displays.push({
+                    x: (i + 1) * w / 4,
+                    y: h * 0.3,
+                    width: 80,
+                    height: 100,
+                    type: 'fashion',
+                    phase: Math.random() * Math.PI * 2
+                });
+            }
+        } else if (this.state.zone === 'tech_wing') {
+            for (let i = 0; i < 3; i++) {
+                displays.push({
+                    x: (i + 1) * w / 4,
+                    y: h * 0.3,
+                    width: 80,
+                    height: 100,
+                    type: 'tech',
+                    phase: Math.random() * Math.PI * 2
+                });
+            }
+        }
+        
+        this.displays = displays;
+    }
+
+    createFountain() {
+        // Create fountain particles for main atrium
+        for (let i = 0; i < 50; i++) {
+            this.fountainParticles.push({
+                x: this.canvas.width / 2,
+                y: this.canvas.height * 0.7,
+                vx: (Math.random() - 0.5) * 2,
+                vy: -2 - Math.random() * 3,
+                life: 1.0,
+                maxLife: 0.5 + Math.random() * 0.5
+            });
+        }
+    }
+
+    animate() {
+        this.time += 0.016 * this.state.animationSpeed;
+        
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.drawBackground();
+        this.drawMallStructure();
+        this.drawStores();
+        this.drawDisplays();
+        this.drawFountain();
+        this.drawParticles();
+        this.drawShoppers();
+        this.drawAtmosphereEffects();
+        
+        this.animationFrame = requestAnimationFrame(() => this.animate());
+    }
+
+    drawBackground() {
+        const colors = this.config.timeColors[this.state.timeOfDay];
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        
+        // Sky/ceiling gradient
+        const skyGradient = this.ctx.createLinearGradient(0, 0, 0, h * 0.3);
+        skyGradient.addColorStop(0, this.adjustBrightness(colors.sky, this.state.lightingIntensity));
+        skyGradient.addColorStop(1, this.adjustBrightness('#FFFFFF', this.state.lightingIntensity * 0.8));
+        
+        this.ctx.fillStyle = skyGradient;
+        this.ctx.fillRect(0, 0, w, h * 0.3);
+        
+        // Floor gradient
+        const floorGradient = this.ctx.createLinearGradient(0, h * 0.6, 0, h);
+        floorGradient.addColorStop(0, this.adjustBrightness('#E8E8E8', this.state.lightingIntensity));
+        floorGradient.addColorStop(1, this.adjustBrightness('#CCCCCC', this.state.lightingIntensity * 0.9));
+        
+        this.ctx.fillStyle = floorGradient;
+        this.ctx.fillRect(0, h * 0.6, w, h * 0.4);
+    }
+
+    drawMallStructure() {
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        const colors = this.config.timeColors[this.state.timeOfDay];
+        
+        // Draw skylights
+        if (this.state.zone === 'main_atrium' || this.state.zone === 'upper_level') {
+            const skylightCount = 4;
+            for (let i = 0; i < skylightCount; i++) {
+                const x = (i + 1) * w / (skylightCount + 1);
+                const y = h * 0.1;
+                const size = 60;
+                
+                this.ctx.fillStyle = this.adjustBrightness(colors.sky, this.state.lightingIntensity * 1.2);
+                this.ctx.fillRect(x - size / 2, y - 10, size, 20);
+                
+                // Light rays
+                const rayGradient = this.ctx.createLinearGradient(x, y + 10, x, h * 0.6);
+                rayGradient.addColorStop(0, `rgba(255, 255, 200, ${0.1 * this.state.lightingIntensity})`);
+                rayGradient.addColorStop(1, 'rgba(255, 255, 200, 0)');
+                
+                this.ctx.fillStyle = rayGradient;
+                this.ctx.fillRect(x - 30, y + 10, 60, h * 0.5);
+            }
+        }
+        
+        // Draw upper level railing if applicable
+        if (this.state.zone === 'main_atrium' || this.state.zone === 'upper_level') {
+            this.ctx.strokeStyle = this.adjustBrightness('#999999', this.state.lightingIntensity);
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, h * 0.35);
+            this.ctx.lineTo(w, h * 0.35);
+            this.ctx.stroke();
+            
+            // Railing posts
+            for (let i = 0; i < 10; i++) {
+                const x = (i + 1) * w / 11;
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, h * 0.35);
+                this.ctx.lineTo(x, h * 0.4);
+                this.ctx.stroke();
+            }
+        }
+    }
+
+    drawStores() {
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        const storeCount = this.state.zone === 'upper_level' ? 4 : 5;
+        
+        for (let i = 0; i < storeCount; i++) {
+            const x = (i + 0.5) * w / storeCount;
+            const y = h * 0.4;
+            const storeWidth = w / storeCount - 20;
+            const storeHeight = h * 0.2;
+            
+            // Store facade
+            this.ctx.fillStyle = this.adjustBrightness('#F5F5F5', this.state.lightingIntensity);
+            this.ctx.fillRect(x - storeWidth / 2, y, storeWidth, storeHeight);
+            
+            // Store border
+            this.ctx.strokeStyle = this.adjustBrightness('#CCCCCC', this.state.lightingIntensity);
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(x - storeWidth / 2, y, storeWidth, storeHeight);
+            
+            // Store window with glow
+            const windowWidth = storeWidth * 0.8;
+            const windowHeight = storeHeight * 0.6;
+            const windowX = x - windowWidth / 2;
+            const windowY = y + storeHeight * 0.2;
+            
+            // Window glow effect
+            const glowIntensity = 0.5 + Math.sin(this.time * 2 + i) * 0.2;
+            const glow = this.ctx.createRadialGradient(x, windowY + windowHeight / 2, 0, x, windowY + windowHeight / 2, windowWidth / 2);
+            glow.addColorStop(0, `rgba(255, 240, 200, ${glowIntensity * this.state.lightingIntensity})`);
+            glow.addColorStop(1, 'rgba(255, 240, 200, 0)');
+            
+            this.ctx.fillStyle = glow;
+            this.ctx.fillRect(windowX - 20, windowY - 20, windowWidth + 40, windowHeight + 40);
+            
+            // Window
+            this.ctx.fillStyle = this.adjustBrightness('#FFF8DC', this.state.lightingIntensity * 1.1);
+            this.ctx.fillRect(windowX, windowY, windowWidth, windowHeight);
+        }
+    }
+
+    drawDisplays() {
+        this.displays.forEach(display => {
+            const pulse = Math.sin(this.time * 2 + display.phase) * 0.5 + 0.5;
+            
+            if (display.type === 'fashion') {
+                // Animated fashion display
+                this.ctx.fillStyle = `rgba(255, ${100 + pulse * 155}, 200, ${this.state.lightingIntensity})`;
+                this.ctx.fillRect(display.x - display.width / 2, display.y, display.width, display.height);
+                
+                // Animated mannequin silhouette
+                this.ctx.fillStyle = `rgba(80, 80, 80, ${this.state.lightingIntensity * 0.8})`;
+                const offset = Math.sin(this.time + display.phase) * 5;
+                this.ctx.beginPath();
+                this.ctx.arc(display.x, display.y + 30 + offset, 12, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.fillRect(display.x - 8, display.y + 42 + offset, 16, 40);
+            } else if (display.type === 'tech') {
+                // Animated tech display
+                this.ctx.fillStyle = `rgba(100, 200, ${255}, ${this.state.lightingIntensity})`;
+                this.ctx.fillRect(display.x - display.width / 2, display.y, display.width, display.height);
+                
+                // Scrolling lines effect
+                this.ctx.strokeStyle = `rgba(0, 255, 255, ${pulse * this.state.lightingIntensity})`;
+                this.ctx.lineWidth = 2;
+                for (let i = 0; i < 5; i++) {
+                    const lineY = display.y + ((this.time * 50 + i * 20) % display.height);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(display.x - display.width / 2 + 10, lineY);
+                    this.ctx.lineTo(display.x + display.width / 2 - 10, lineY);
+                    this.ctx.stroke();
+                }
+            }
+        });
+    }
+
+    drawFountain() {
+        if (this.state.zone !== 'main_atrium' || this.fountainParticles.length === 0) return;
+        
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        const centerX = w / 2;
+        const centerY = h * 0.7;
+        
+        // Fountain base
+        this.ctx.fillStyle = this.adjustBrightness('#8B7355', this.state.lightingIntensity);
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, 40, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Update and draw fountain particles
+        this.fountainParticles.forEach((particle, index) => {
+            particle.vy += 0.1; // gravity
+            particle.x += particle.vx * this.state.animationSpeed;
+            particle.y += particle.vy * this.state.animationSpeed;
+            particle.life -= 0.01 * this.state.animationSpeed;
+            
+            if (particle.life <= 0) {
+                // Reset particle
+                particle.x = centerX;
+                particle.y = centerY;
+                particle.vx = (Math.random() - 0.5) * 2;
+                particle.vy = -2 - Math.random() * 3;
+                particle.life = particle.maxLife;
+            }
+            
+            // Draw water droplet
+            const alpha = particle.life * this.state.lightingIntensity;
+            this.ctx.fillStyle = `rgba(100, 150, 255, ${alpha})`;
+            this.ctx.beginPath();
+            this.ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+    }
+
+    drawParticles() {
+        // Dust motes and light particles
+        this.particles.forEach(particle => {
+            particle.y += particle.speed * this.state.animationSpeed;
+            
+            if (particle.y > this.canvas.height) {
+                particle.y = 0;
+                particle.x = Math.random() * this.canvas.width;
+            }
+            
+            const alpha = particle.alpha * this.state.lightingIntensity;
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+            this.ctx.beginPath();
+            this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+    }
+
+    drawShoppers() {
+        const h = this.canvas.height;
+        const w = this.canvas.width;
+        
+        this.shoppers.forEach(shopper => {
+            shopper.x += shopper.speed * shopper.direction * this.state.animationSpeed;
+            
+            // Wrap around screen
+            if (shopper.x < -50) shopper.x = w + 50;
+            if (shopper.x > w + 50) shopper.x = -50;
+            
+            // Bobbing animation
+            const bob = Math.sin(this.time * 3 + shopper.bobOffset) * 2;
+            
+            // Shadow
+            this.ctx.fillStyle = `rgba(0, 0, 0, ${0.2 * this.state.lightingIntensity})`;
+            this.ctx.beginPath();
+            this.ctx.ellipse(shopper.x, shopper.y + shopper.size, shopper.size * 0.6, shopper.size * 0.2, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Body
+            this.ctx.fillStyle = this.adjustBrightness(shopper.color, this.state.lightingIntensity);
+            this.ctx.beginPath();
+            this.ctx.arc(shopper.x, shopper.y - shopper.size / 2 + bob, shopper.size * 0.4, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.fillRect(shopper.x - shopper.size * 0.3, shopper.y - shopper.size / 2 + bob, shopper.size * 0.6, shopper.size * 0.8);
+            
+            // Highlight
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${0.3 * this.state.lightingIntensity})`;
+            this.ctx.beginPath();
+            this.ctx.arc(shopper.x - shopper.size * 0.15, shopper.y - shopper.size * 0.7 + bob, shopper.size * 0.15, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+    }
+
+    drawAtmosphereEffects() {
+        if (this.state.atmosphere === 'rainy') {
+            // Rain effect
+            this.ctx.strokeStyle = `rgba(200, 200, 255, ${0.3 * this.state.lightingIntensity})`;
+            this.ctx.lineWidth = 1;
+            
+            for (let i = 0; i < 100; i++) {
+                const x = (Math.random() * this.canvas.width + this.time * 200) % this.canvas.width;
+                const y = (Math.random() * this.canvas.height + this.time * 500) % this.canvas.height;
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, y);
+                this.ctx.lineTo(x - 5, y + 20);
+                this.ctx.stroke();
+            }
+        } else if (this.state.atmosphere === 'cloudy') {
+            // Soft overlay
+            this.ctx.fillStyle = `rgba(200, 200, 200, ${0.1 * this.state.lightingIntensity})`;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+    }
+
+    adjustBrightness(color, intensity) {
+        // Parse hex color
+        const hex = color.replace('#', '');
+        let r = parseInt(hex.substr(0, 2), 16);
+        let g = parseInt(hex.substr(2, 2), 16);
+        let b = parseInt(hex.substr(4, 2), 16);
+        
+        // Adjust brightness
+        r = Math.min(255, Math.floor(r * intensity));
+        g = Math.min(255, Math.floor(g * intensity));
+        b = Math.min(255, Math.floor(b * intensity));
+        
+        return `rgb(${r}, ${g}, ${b})`;
+    }
+}
+
+// Initialize the app when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        new MallExperience();
+    });
+} else {
+    new MallExperience();
+}
+    </script>
+</body>
+</html>
