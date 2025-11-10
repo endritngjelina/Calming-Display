@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peaceful Village - Calming Scenery</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --color-slate-500-rgb: 98, 108, 113;
+            --color-red-500-rgb: 192, 21, 47;
+            --color-red-400-rgb: 255, 84, 89;
+            --color-orange-500-rgb: 168, 75, 47;
+            --color-orange-400-rgb: 230, 129, 97;
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-primary-active: var(--color-teal-700);
+            --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+            --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-btn-primary-text: var(--color-cream-50);
+            --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-md: 14px;
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-24: 24px;
+            --radius-base: 8px;
+            --radius-lg: 12px;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @font-face {
+            font-family: 'FKGroteskNeue';
+            src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            overflow: hidden;
+            background: #0F1F35;
+        }
+
+        #canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            cursor: default;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: var(--space-16);
+            max-width: 320px;
+            max-height: 85vh;
+            overflow-y: auto;
+            transition: transform var(--duration-normal) var(--ease-standard), opacity var(--duration-normal) var(--ease-standard);
+            z-index: 1000;
+            border: 1px solid var(--color-card-border);
+        }
+
+        .controls.collapsed {
+            transform: translateX(calc(100% + 20px));
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            background: var(--color-primary);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            z-index: 999;
+            transition: all var(--duration-normal) var(--ease-standard);
+            color: var(--color-btn-primary-text);
+            font-size: 24px;
+        }
+
+        .toggle-btn:hover {
+            background: var(--color-primary-hover);
+            transform: scale(1.05);
+        }
+
+        .toggle-btn.active {
+            right: 360px;
+        }
+
+        .control-group {
+            margin-bottom: var(--space-16);
+        }
+
+        .control-label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: 550;
+            color: var(--color-text);
+            margin-bottom: var(--space-8);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: var(--space-4);
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: var(--space-8) var(--space-12);
+            border: 1px solid var(--color-border);
+            background: var(--color-surface);
+            color: var(--color-text);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-family: var(--font-family-base);
+            transition: all var(--duration-normal) var(--ease-standard);
+            flex: 1;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: var(--color-secondary-hover);
+        }
+
+        .btn.active {
+            background: var(--color-primary);
+            color: var(--color-btn-primary-text);
+            border-color: var(--color-primary);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-8);
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--color-secondary);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: 2px solid var(--color-surface);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: 2px solid var(--color-surface);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .slider-value {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            min-width: 35px;
+            text-align: right;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-8);
+            padding: var(--space-8) 0;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+        }
+
+        .checkbox-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .section-title {
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: var(--space-12);
+            padding-bottom: var(--space-8);
+            border-bottom: 1px solid var(--color-card-border-inner);
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: var(--space-12);
+            background: var(--color-primary);
+            color: var(--color-btn-primary-text);
+            border: none;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-family: var(--font-family-base);
+            font-weight: 550;
+            transition: all var(--duration-normal) var(--ease-standard);
+        }
+
+        .action-btn:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .action-btn.secondary {
+            background: var(--color-secondary);
+            color: var(--color-text);
+            margin-top: var(--space-8);
+        }
+
+        .action-btn.secondary:hover {
+            background: var(--color-secondary-hover);
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                top: 10px;
+                right: 10px;
+                max-width: calc(100vw - 80px);
+                max-height: 80vh;
+            }
+
+            .toggle-btn {
+                top: 10px;
+                right: 10px;
+            }
+
+            .toggle-btn.active {
+                right: calc(100vw - 60px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <button class="toggle-btn" id="toggleBtn" title="Toggle Controls">⚙️</button>
+
+    <div class="controls collapsed" id="controls">
+        <div class="section-title">Village Settings</div>
+
+        <div class="control-group">
+            <label class="control-label">Time of Day</label>
+            <div class="btn-group">
+                <button class="btn" data-time="morning">Morning</button>
+                <button class="btn" data-time="noon">Noon</button>
+                <button class="btn" data-time="evening">Evening</button>
+                <button class="btn" data-time="night">Night</button>
+                <button class="btn active" data-time="auto_cycle">Auto</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Season</label>
+            <div class="btn-group">
+                <button class="btn" data-season="spring">Spring</button>
+                <button class="btn active" data-season="summer">Summer</button>
+                <button class="btn" data-season="autumn">Autumn</button>
+                <button class="btn" data-season="winter">Winter</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Village Type</label>
+            <div class="btn-group">
+                <button class="btn active" data-village="valley_village">Valley</button>
+                <button class="btn" data-village="hillside_village">Hillside</button>
+                <button class="btn" data-village="coastal_village">Coastal</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Village Density</label>
+            <div class="btn-group">
+                <button class="btn" data-density="sparse">Sparse</button>
+                <button class="btn active" data-density="moderate">Moderate</button>
+                <button class="btn" data-density="dense">Dense</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Animation Speed</label>
+            <div class="btn-group">
+                <button class="btn" data-speed="slow">Slow</button>
+                <button class="btn active" data-speed="normal">Normal</button>
+                <button class="btn" data-speed="fast">Fast</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Brightness</label>
+            <div class="slider-container">
+                <input type="range" id="brightness" min="50" max="150" value="100">
+                <span class="slider-value" id="brightnessValue">100%</span>
+            </div>
+        </div>
+
+        <div class="section-title">Animations</div>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="wind_effects" checked>
+            <label for="wind_effects" class="checkbox-label">Wind Effects</label>
+        </div>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="clouds" checked>
+            <label for="clouds" class="checkbox-label">Clouds</label>
+        </div>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="chimney_smoke" checked>
+            <label for="chimney_smoke" class="checkbox-label">Chimney Smoke</label>
+        </div>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="fireflies" checked>
+            <label for="fireflies" class="checkbox-label">Fireflies</label>
+        </div>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="water_ripples" checked>
+            <label for="water_ripples" class="checkbox-label">Water Ripples</label>
+        </div>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="birds" checked>
+            <label for="birds" class="checkbox-label">Birds</label>
+        </div>
+
+        <button class="action-btn" id="fullscreenBtn">Toggle Fullscreen</button>
+        <button class="action-btn secondary" id="resetBtn">Reset Settings</button>
+    </div>
+
+    <script>
+        // Village Scene Configuration
+const config = {
+    timeOfDay: 'auto_cycle',
+    season: 'summer',
+    villageType: 'valley_village',
+    villageDensity: 'moderate',
+    animationSpeed: 'normal',
+    brightness: 1.0,
+    animations: {
+        wind_effects: true,
+        clouds: true,
+        chimney_smoke: true,
+        fireflies: true,
+        water_ripples: true,
+        birds: true
+    }
+};
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let width, height;
+let animationFrame;
+let startTime = Date.now();
+let cycleTime = 0;
+let speedMultiplier = 1.0;
+
+// Animation state
+const clouds = [];
+const trees = [];
+const houses = [];
+const smokeParticles = [];
+const fireflies = [];
+const birds = [];
+const waterRipples = [];
+
+// Color palettes
+const colorPalettes = {
+    morning: {
+        sky: ['#FDB462', '#FFE6B3', '#E8F4F8'],
+        grass: '#8FBC8F',
+        tree: '#2F4F2F',
+        water: '#87CEEB'
+    },
+    noon: {
+        sky: ['#87CEEB', '#E0F6FF', '#F0F8FF'],
+        grass: '#7CFC00',
+        tree: '#228B22',
+        water: '#4682B4'
+    },
+    evening: {
+        sky: ['#FF6B6B', '#FFA07A', '#FFE4E1'],
+        grass: '#6B8E23',
+        tree: '#556B2F',
+        water: '#4169E1'
+    },
+    night: {
+        sky: ['#0B1E4D', '#1A3A52', '#0F1F35'],
+        grass: '#2F4F2F',
+        tree: '#1C2833',
+        water: '#191970'
+    }
+};
+
+// Season palettes
+const seasonPalettes = {
+    spring: {
+        grass: '#90EE90',
+        tree: '#98FB98',
+        flowers: ['#FFB6C1', '#FFC0CB', '#FF69B4']
+    },
+    summer: {
+        grass: '#7CFC00',
+        tree: '#228B22',
+        flowers: ['#FFD700', '#FFA500', '#FF6347']
+    },
+    autumn: {
+        grass: '#DAA520',
+        tree: '#D2691E',
+        flowers: ['#FF8C00', '#FF4500', '#8B4513']
+    },
+    winter: {
+        grass: '#F0F8FF',
+        tree: '#2F4F4F',
+        flowers: ['#FFFFFF', '#E0E0E0', '#D3D3D3']
+    }
+};
+
+function resizeCanvas() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+}
+
+function init() {
+    resizeCanvas();
+    initClouds();
+    initTrees();
+    initHouses();
+    initFireflies();
+    animate();
+}
+
+function initClouds() {
+    clouds.length = 0;
+    const count = Math.floor(width / 200);
+    for (let i = 0; i < count; i++) {
+        clouds.push({
+            x: Math.random() * width,
+            y: Math.random() * (height * 0.3),
+            width: 80 + Math.random() * 120,
+            height: 40 + Math.random() * 40,
+            speed: 0.1 + Math.random() * 0.2,
+            opacity: 0.3 + Math.random() * 0.4
+        });
+    }
+}
+
+function initTrees() {
+    trees.length = 0;
+    const densityMap = { sparse: 8, moderate: 15, dense: 25 };
+    const count = densityMap[config.villageDensity];
+    
+    for (let i = 0; i < count; i++) {
+        trees.push({
+            x: Math.random() * width,
+            y: height * 0.5 + Math.random() * (height * 0.3),
+            width: 20 + Math.random() * 30,
+            height: 60 + Math.random() * 80,
+            swayOffset: Math.random() * Math.PI * 2,
+            type: Math.random() > 0.5 ? 'pine' : 'round'
+        });
+    }
+    
+    trees.sort((a, b) => a.y - b.y);
+}
+
+function initHouses() {
+    houses.length = 0;
+    const densityMap = { sparse: 3, moderate: 6, dense: 10 };
+    const count = densityMap[config.villageDensity];
+    
+    for (let i = 0; i < count; i++) {
+        const houseWidth = 60 + Math.random() * 40;
+        const houseHeight = 50 + Math.random() * 30;
+        
+        houses.push({
+            x: 50 + Math.random() * (width - 150),
+            y: height * 0.55 + Math.random() * (height * 0.25),
+            width: houseWidth,
+            height: houseHeight,
+            roofColor: ['#8B4513', '#A0522D', '#CD853F'][Math.floor(Math.random() * 3)],
+            wallColor: ['#F5DEB3', '#DEB887', '#D2B48C'][Math.floor(Math.random() * 3)],
+            hasChimney: Math.random() > 0.3
+        });
+    }
+    
+    houses.sort((a, b) => a.y - b.y);
+}
+
+function initFireflies() {
+    fireflies.length = 0;
+    for (let i = 0; i < 20; i++) {
+        fireflies.push({
+            x: Math.random() * width,
+            y: height * 0.4 + Math.random() * (height * 0.4),
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.5,
+            brightness: Math.random(),
+            phase: Math.random() * Math.PI * 2
+        });
+    }
+}
+
+function getCurrentTimeOfDay() {
+    if (config.timeOfDay === 'auto_cycle') {
+        const cycle = (cycleTime % 60000) / 60000;
+        if (cycle < 0.25) return 'morning';
+        if (cycle < 0.5) return 'noon';
+        if (cycle < 0.75) return 'evening';
+        return 'night';
+    }
+    return config.timeOfDay;
+}
+
+function interpolateColor(color1, color2, factor) {
+    const c1 = color1.match(/\w\w/g).map(x => parseInt(x, 16));
+    const c2 = color2.match(/\w\w/g).map(x => parseInt(x, 16));
+    const result = c1.map((v, i) => {
+        const val = Math.round(v + (c2[i] - v) * factor);
+        return val.toString(16).padStart(2, '0');
+    });
+    return '#' + result.join('');
+}
+
+function getCurrentPalette() {
+    const timeOfDay = getCurrentTimeOfDay();
+    return colorPalettes[timeOfDay];
+}
+
+function drawSky() {
+    const palette = getCurrentPalette();
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    
+    gradient.addColorStop(0, palette.sky[0]);
+    gradient.addColorStop(0.5, palette.sky[1]);
+    gradient.addColorStop(1, palette.sky[2]);
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+    
+    if (getCurrentTimeOfDay() === 'night') {
+        drawStars();
+        drawMoon();
+    } else {
+        drawSun();
+    }
+}
+
+function drawStars() {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    for (let i = 0; i < 100; i++) {
+        const x = (i * 137.5) % width;
+        const y = (i * 197.3) % (height * 0.6);
+        const size = Math.random() * 1.5;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function drawMoon() {
+    const moonX = width * 0.8;
+    const moonY = height * 0.15;
+    const moonRadius = 40;
+    
+    ctx.fillStyle = 'rgba(240, 240, 220, 0.9)';
+    ctx.beginPath();
+    ctx.arc(moonX, moonY, moonRadius, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = 'rgba(200, 200, 180, 0.3)';
+    ctx.beginPath();
+    ctx.arc(moonX - 10, moonY - 5, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(moonX + 8, moonY + 10, 6, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawSun() {
+    const sunX = width * 0.8;
+    const sunY = height * 0.15;
+    const sunRadius = 45;
+    
+    const gradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunRadius * 1.5);
+    gradient.addColorStop(0, 'rgba(255, 255, 100, 0.8)');
+    gradient.addColorStop(0.5, 'rgba(255, 220, 100, 0.4)');
+    gradient.addColorStop(1, 'rgba(255, 220, 100, 0)');
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, sunRadius * 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawClouds(time) {
+    if (!config.animations.clouds) return;
+    
+    const palette = getCurrentPalette();
+    const timeOfDay = getCurrentTimeOfDay();
+    const cloudColor = timeOfDay === 'night' ? 'rgba(100, 100, 120, 0.3)' : 'rgba(255, 255, 255, 0.7)';
+    
+    clouds.forEach(cloud => {
+        cloud.x += cloud.speed * speedMultiplier;
+        if (cloud.x > width + cloud.width) {
+            cloud.x = -cloud.width;
+            cloud.y = Math.random() * (height * 0.3);
+        }
+        
+        ctx.fillStyle = cloudColor;
+        ctx.globalAlpha = cloud.opacity;
+        
+        ctx.beginPath();
+        ctx.ellipse(cloud.x, cloud.y, cloud.width / 2, cloud.height / 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.ellipse(cloud.x + cloud.width * 0.3, cloud.y - cloud.height * 0.2, cloud.width / 3, cloud.height / 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.ellipse(cloud.x - cloud.width * 0.2, cloud.y - cloud.height * 0.1, cloud.width / 4, cloud.height / 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.globalAlpha = 1;
+    });
+}
+
+function drawGround() {
+    const seasonPalette = seasonPalettes[config.season];
+    const palette = getCurrentPalette();
+    
+    const gradient = ctx.createLinearGradient(0, height * 0.5, 0, height);
+    
+    if (config.season === 'winter') {
+        gradient.addColorStop(0, '#E8F4F8');
+        gradient.addColorStop(0.5, '#F0F8FF');
+        gradient.addColorStop(1, '#FFFFFF');
+    } else {
+        const grassColor = seasonPalette.grass;
+        gradient.addColorStop(0, grassColor);
+        gradient.addColorStop(1, interpolateColor(grassColor, '#2F4F2F', 0.3));
+    }
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, height * 0.5, width, height * 0.5);
+    
+    if (config.villageType === 'valley_village') {
+        drawHills();
+    } else if (config.villageType === 'hillside_village') {
+        drawHillside();
+    } else if (config.villageType === 'coastal_village') {
+        drawCoastal();
+    }
+}
+
+function drawHills() {
+    const palette = getCurrentPalette();
+    
+    ctx.fillStyle = 'rgba(100, 120, 100, 0.4)';
+    ctx.beginPath();
+    ctx.moveTo(0, height * 0.4);
+    for (let x = 0; x <= width; x += 50) {
+        const y = height * 0.4 + Math.sin(x * 0.01) * 30;
+        ctx.lineTo(x, y);
+    }
+    ctx.lineTo(width, height * 0.5);
+    ctx.lineTo(0, height * 0.5);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawHillside() {
+    ctx.fillStyle = 'rgba(80, 100, 80, 0.5)';
+    ctx.beginPath();
+    ctx.moveTo(0, height * 0.7);
+    ctx.lineTo(width * 0.3, height * 0.4);
+    ctx.lineTo(width * 0.6, height * 0.45);
+    ctx.lineTo(width, height * 0.5);
+    ctx.lineTo(width, height);
+    ctx.lineTo(0, height);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawCoastal() {
+    const palette = getCurrentPalette();
+    
+    ctx.fillStyle = palette.water;
+    ctx.globalAlpha = 0.6;
+    ctx.fillRect(0, height * 0.65, width, height * 0.35);
+    ctx.globalAlpha = 1;
+    
+    if (config.animations.water_ripples) {
+        drawWaterRipples();
+    }
+}
+
+function drawWaterRipples() {
+    const time = Date.now();
+    
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 1;
+    
+    for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        for (let x = 0; x <= width; x += 10) {
+            const y = height * 0.65 + Math.sin(x * 0.02 + time * 0.002 + i * 0.5) * 3;
+            if (x === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.stroke();
+    }
+}
+
+function drawTrees(time) {
+    const seasonPalette = seasonPalettes[config.season];
+    const windEffect = config.animations.wind_effects ? Math.sin(time * 0.001) * 2 : 0;
+    
+    trees.forEach(tree => {
+        const sway = config.animations.wind_effects ? Math.sin(time * 0.002 + tree.swayOffset) * 3 : 0;
+        
+        ctx.save();
+        ctx.translate(tree.x + sway, tree.y);
+        
+        ctx.fillStyle = '#654321';
+        ctx.fillRect(-tree.width * 0.1, -tree.height * 0.3, tree.width * 0.2, tree.height * 0.4);
+        
+        if (tree.type === 'pine') {
+            drawPineTree(tree, seasonPalette);
+        } else {
+            drawRoundTree(tree, seasonPalette);
+        }
+        
+        ctx.restore();
+    });
+}
+
+function drawPineTree(tree, seasonPalette) {
+    const layers = 4;
+    const treeColor = config.season === 'winter' ? '#F0F8FF' : seasonPalette.tree;
+    
+    for (let i = 0; i < layers; i++) {
+        const y = -tree.height * 0.3 - (i * tree.height * 0.2);
+        const w = tree.width - (i * tree.width * 0.2);
+        
+        ctx.fillStyle = treeColor;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(-w / 2, y + tree.height * 0.25);
+        ctx.lineTo(w / 2, y + tree.height * 0.25);
+        ctx.closePath();
+        ctx.fill();
+    }
+}
+
+function drawRoundTree(tree, seasonPalette) {
+    const treeColor = config.season === 'autumn' ? seasonPalette.flowers[Math.floor(Math.random() * 3)] : seasonPalette.tree;
+    
+    ctx.fillStyle = treeColor;
+    ctx.beginPath();
+    ctx.arc(0, -tree.height * 0.5, tree.width * 0.6, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.arc(-tree.width * 0.3, -tree.height * 0.4, tree.width * 0.4, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.arc(tree.width * 0.3, -tree.height * 0.4, tree.width * 0.4, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawHouses(time) {
+    houses.forEach(house => {
+        ctx.save();
+        ctx.translate(house.x, house.y);
+        
+        ctx.fillStyle = house.wallColor;
+        ctx.fillRect(0, -house.height, house.width, house.height);
+        
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(0, -house.height, house.width, house.height);
+        
+        ctx.fillStyle = house.roofColor;
+        ctx.beginPath();
+        ctx.moveTo(-house.width * 0.1, -house.height);
+        ctx.lineTo(house.width / 2, -house.height - house.width * 0.4);
+        ctx.lineTo(house.width + house.width * 0.1, -house.height);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        
+        ctx.fillStyle = 'rgba(100, 150, 200, 0.6)';
+        ctx.fillRect(house.width * 0.2, -house.height * 0.7, house.width * 0.25, house.height * 0.35);
+        ctx.strokeRect(house.width * 0.2, -house.height * 0.7, house.width * 0.25, house.height * 0.35);
+        
+        ctx.fillStyle = 'rgba(100, 150, 200, 0.6)';
+        ctx.fillRect(house.width * 0.6, -house.height * 0.7, house.width * 0.25, house.height * 0.35);
+        ctx.strokeRect(house.width * 0.6, -house.height * 0.7, house.width * 0.25, house.height * 0.35);
+        
+        ctx.fillStyle = '#654321';
+        ctx.fillRect(house.width * 0.4, -house.height * 0.4, house.width * 0.2, house.height * 0.4);
+        ctx.strokeRect(house.width * 0.4, -house.height * 0.4, house.width * 0.2, house.height * 0.4);
+        
+        if (house.hasChimney && config.animations.chimney_smoke) {
+            drawChimney(house, time);
+        }
+        
+        ctx.restore();
+    });
+}
+
+function drawChimney(house, time) {
+    const chimneyX = house.width * 0.75;
+    const chimneyY = -house.height - house.width * 0.3;
+    
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(chimneyX, chimneyY, house.width * 0.12, house.width * 0.3);
+    
+    for (let i = 0; i < 3; i++) {
+        const particle = {
+            x: chimneyX + house.width * 0.06,
+            y: chimneyY - (time * 0.03 * speedMultiplier + i * 20) % 100,
+            size: 3 + Math.random() * 3,
+            opacity: 0.5 - ((time * 0.03 * speedMultiplier + i * 20) % 100) / 200
+        };
+        
+        ctx.fillStyle = `rgba(200, 200, 200, ${particle.opacity})`;
+        ctx.beginPath();
+        ctx.arc(particle.x + Math.sin(time * 0.005 + i) * 5, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function drawFireflies(time) {
+    if (!config.animations.fireflies) return;
+    const timeOfDay = getCurrentTimeOfDay();
+    if (timeOfDay !== 'evening' && timeOfDay !== 'night') return;
+    
+    fireflies.forEach(firefly => {
+        firefly.x += firefly.vx * speedMultiplier;
+        firefly.y += firefly.vy * speedMultiplier;
+        
+        if (firefly.x < 0 || firefly.x > width) firefly.vx *= -1;
+        if (firefly.y < height * 0.4 || firefly.y > height * 0.9) firefly.vy *= -1;
+        
+        firefly.phase += 0.05 * speedMultiplier;
+        const brightness = (Math.sin(firefly.phase) + 1) / 2;
+        
+        const gradient = ctx.createRadialGradient(firefly.x, firefly.y, 0, firefly.x, firefly.y, 8);
+        gradient.addColorStop(0, `rgba(255, 255, 100, ${brightness * 0.8})`);
+        gradient.addColorStop(0.5, `rgba(255, 255, 100, ${brightness * 0.4})`);
+        gradient.addColorStop(1, 'rgba(255, 255, 100, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(firefly.x, firefly.y, 8, 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
+
+function drawBirds(time) {
+    if (!config.animations.birds) return;
+    const timeOfDay = getCurrentTimeOfDay();
+    if (timeOfDay === 'night') return;
+    
+    if (birds.length === 0 && Math.random() < 0.001) {
+        const birdCount = 3 + Math.floor(Math.random() * 4);
+        for (let i = 0; i < birdCount; i++) {
+            birds.push({
+                x: -50 - i * 30,
+                y: height * 0.2 + Math.random() * (height * 0.2),
+                speed: 1 + Math.random() * 0.5,
+                phase: i * 0.5
+            });
+        }
+    }
+    
+    birds.forEach((bird, index) => {
+        bird.x += bird.speed * speedMultiplier;
+        bird.phase += 0.1 * speedMultiplier;
+        
+        if (bird.x > width + 50) {
+            birds.splice(index, 1);
+            return;
+        }
+        
+        const wingFlap = Math.sin(bird.phase) * 5;
+        
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        
+        ctx.beginPath();
+        ctx.moveTo(bird.x - 8, bird.y + wingFlap);
+        ctx.quadraticCurveTo(bird.x - 4, bird.y - 5 + wingFlap, bird.x, bird.y);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(bird.x + 8, bird.y + wingFlap);
+        ctx.quadraticCurveTo(bird.x + 4, bird.y - 5 + wingFlap, bird.x, bird.y);
+        ctx.stroke();
+    });
+}
+
+function animate() {
+    const currentTime = Date.now();
+    const deltaTime = currentTime - startTime;
+    cycleTime += deltaTime * speedMultiplier;
+    startTime = currentTime;
+    
+    ctx.clearRect(0, 0, width, height);
+    
+    ctx.save();
+    ctx.filter = `brightness(${config.brightness})`;
+    
+    drawSky();
+    drawClouds(cycleTime);
+    drawGround();
+    
+    const allObjects = [...trees, ...houses];
+    allObjects.sort((a, b) => a.y - b.y);
+    
+    allObjects.forEach(obj => {
+        if (obj.type !== undefined) {
+            ctx.save();
+            const tree = obj;
+            const sway = config.animations.wind_effects ? Math.sin(cycleTime * 0.002 + tree.swayOffset) * 3 : 0;
+            const seasonPalette = seasonPalettes[config.season];
+            
+            ctx.translate(tree.x + sway, tree.y);
+            
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(-tree.width * 0.1, -tree.height * 0.3, tree.width * 0.2, tree.height * 0.4);
+            
+            if (tree.type === 'pine') {
+                drawPineTree(tree, seasonPalette);
+            } else {
+                drawRoundTree(tree, seasonPalette);
+            }
+            
+            ctx.restore();
+        } else {
+            const house = obj;
+            ctx.save();
+            ctx.translate(house.x, house.y);
+            
+            ctx.fillStyle = house.wallColor;
+            ctx.fillRect(0, -house.height, house.width, house.height);
+            
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(0, -house.height, house.width, house.height);
+            
+            ctx.fillStyle = house.roofColor;
+            ctx.beginPath();
+            ctx.moveTo(-house.width * 0.1, -house.height);
+            ctx.lineTo(house.width / 2, -house.height - house.width * 0.4);
+            ctx.lineTo(house.width + house.width * 0.1, -house.height);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            ctx.fillStyle = 'rgba(100, 150, 200, 0.6)';
+            ctx.fillRect(house.width * 0.2, -house.height * 0.7, house.width * 0.25, house.height * 0.35);
+            ctx.strokeRect(house.width * 0.2, -house.height * 0.7, house.width * 0.25, house.height * 0.35);
+            
+            ctx.fillStyle = 'rgba(100, 150, 200, 0.6)';
+            ctx.fillRect(house.width * 0.6, -house.height * 0.7, house.width * 0.25, house.height * 0.35);
+            ctx.strokeRect(house.width * 0.6, -house.height * 0.7, house.width * 0.25, house.height * 0.35);
+            
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(house.width * 0.4, -house.height * 0.4, house.width * 0.2, house.height * 0.4);
+            ctx.strokeRect(house.width * 0.4, -house.height * 0.4, house.width * 0.2, house.height * 0.4);
+            
+            if (house.hasChimney && config.animations.chimney_smoke) {
+                drawChimney(house, cycleTime);
+            }
+            
+            ctx.restore();
+        }
+    });
+    
+    drawFireflies(cycleTime);
+    drawBirds(cycleTime);
+    
+    ctx.restore();
+    
+    animationFrame = requestAnimationFrame(animate);
+}
+
+// Event Listeners
+window.addEventListener('resize', () => {
+    resizeCanvas();
+    initClouds();
+    initTrees();
+    initHouses();
+});
+
+const toggleBtn = document.getElementById('toggleBtn');
+const controls = document.getElementById('controls');
+
+toggleBtn.addEventListener('click', () => {
+    controls.classList.toggle('collapsed');
+    toggleBtn.classList.toggle('active');
+});
+
+// Time of Day controls
+document.querySelectorAll('[data-time]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        config.timeOfDay = e.target.dataset.time;
+        if (config.timeOfDay !== 'auto_cycle') {
+            cycleTime = 0;
+        }
+    });
+});
+
+// Season controls
+document.querySelectorAll('[data-season]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        document.querySelectorAll('[data-season]').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        config.season = e.target.dataset.season;
+    });
+});
+
+// Village type controls
+document.querySelectorAll('[data-village]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        document.querySelectorAll('[data-village]').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        config.villageType = e.target.dataset.village;
+    });
+});
+
+// Village density controls
+document.querySelectorAll('[data-density]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        document.querySelectorAll('[data-density]').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        config.villageDensity = e.target.dataset.density;
+        initTrees();
+        initHouses();
+    });
+});
+
+// Animation speed controls
+document.querySelectorAll('[data-speed]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        document.querySelectorAll('[data-speed]').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        config.animationSpeed = e.target.dataset.speed;
+        
+        const speedMap = { slow: 0.5, normal: 1.0, fast: 2.0 };
+        speedMultiplier = speedMap[config.animationSpeed];
+    });
+});
+
+// Brightness control
+const brightnessSlider = document.getElementById('brightness');
+const brightnessValue = document.getElementById('brightnessValue');
+
+brightnessSlider.addEventListener('input', (e) => {
+    const value = e.target.value;
+    config.brightness = value / 100;
+    brightnessValue.textContent = value + '%';
+});
+
+// Animation toggles
+['wind_effects', 'clouds', 'chimney_smoke', 'fireflies', 'water_ripples', 'birds'].forEach(id => {
+    const checkbox = document.getElementById(id);
+    checkbox.addEventListener('change', (e) => {
+        config.animations[id] = e.target.checked;
+    });
+});
+
+// Fullscreen toggle
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+fullscreenBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+});
+
+// Reset settings
+const resetBtn = document.getElementById('resetBtn');
+resetBtn.addEventListener('click', () => {
+    config.timeOfDay = 'auto_cycle';
+    config.season = 'summer';
+    config.villageType = 'valley_village';
+    config.villageDensity = 'moderate';
+    config.animationSpeed = 'normal';
+    config.brightness = 1.0;
+    config.animations = {
+        wind_effects: true,
+        clouds: true,
+        chimney_smoke: true,
+        fireflies: true,
+        water_ripples: true,
+        birds: true
+    };
+    
+    speedMultiplier = 1.0;
+    cycleTime = 0;
+    
+    document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-time="auto_cycle"]').classList.add('active');
+    
+    document.querySelectorAll('[data-season]').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-season="summer"]').classList.add('active');
+    
+    document.querySelectorAll('[data-village]').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-village="valley_village"]').classList.add('active');
+    
+    document.querySelectorAll('[data-density]').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-density="moderate"]').classList.add('active');
+    
+    document.querySelectorAll('[data-speed]').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-speed="normal"]').classList.add('active');
+    
+    brightnessSlider.value = 100;
+    brightnessValue.textContent = '100%';
+    
+    Object.keys(config.animations).forEach(id => {
+        document.getElementById(id).checked = true;
+    });
+    
+    initTrees();
+    initHouses();
+});
+
+init();
+    </script>
+</body>
+</html>
