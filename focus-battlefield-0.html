@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historical Battlefields &amp; Military Architecture Explorer</title>
+    <style>
+        :root {
+  /* Primitive Color Tokens */
+  --color-white: rgba(255, 255, 255, 1);
+  --color-black: rgba(0, 0, 0, 1);
+  --color-cream-50: rgba(252, 252, 249, 1);
+  --color-cream-100: rgba(255, 255, 253, 1);
+  --color-gray-200: rgba(245, 245, 245, 1);
+  --color-gray-300: rgba(167, 169, 169, 1);
+  --color-gray-400: rgba(119, 124, 124, 1);
+  --color-slate-500: rgba(98, 108, 113, 1);
+  --color-brown-600: rgba(94, 82, 64, 1);
+  --color-charcoal-700: rgba(31, 33, 33, 1);
+  --color-charcoal-800: rgba(38, 40, 40, 1);
+  --color-slate-900: rgba(19, 52, 59, 1);
+  --color-teal-300: rgba(50, 184, 198, 1);
+  --color-teal-400: rgba(45, 166, 178, 1);
+  --color-teal-500: rgba(33, 128, 141, 1);
+  --color-teal-600: rgba(29, 116, 128, 1);
+  --color-teal-700: rgba(26, 104, 115, 1);
+  --color-teal-800: rgba(41, 150, 161, 1);
+  --color-red-400: rgba(255, 84, 89, 1);
+  --color-red-500: rgba(192, 21, 47, 1);
+  --color-orange-400: rgba(230, 129, 97, 1);
+  --color-orange-500: rgba(168, 75, 47, 1);
+
+  --color-brown-600-rgb: 94, 82, 64;
+  --color-teal-500-rgb: 33, 128, 141;
+  --color-slate-900-rgb: 19, 52, 59;
+  --color-slate-500-rgb: 98, 108, 113;
+
+  --color-background: var(--color-cream-50);
+  --color-surface: var(--color-cream-100);
+  --color-text: var(--color-slate-900);
+  --color-text-secondary: var(--color-slate-500);
+  --color-primary: var(--color-teal-500);
+  --color-primary-hover: var(--color-teal-600);
+  --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+  --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+
+  --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 20px;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 550;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --radius-base: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-gray-400-rgb: 119, 124, 124;
+    --color-gray-200-rgb: 245, 245, 245;
+    --color-background: var(--color-charcoal-700);
+    --color-surface: var(--color-charcoal-800);
+    --color-text: var(--color-gray-200);
+    --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
+    --color-primary: var(--color-teal-300);
+    --color-primary-hover: var(--color-teal-400);
+    --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+    --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
+  }
+}
+
+@font-face {
+  font-family: 'FKGroteskNeue';
+  src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family-base);
+    background-color: var(--color-background);
+    color: var(--color-text);
+    overflow: hidden;
+    height: 100vh;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+.canvas-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 50%, #8B7355 100%);
+}
+
+#battlefield-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.sidebar {
+    width: 340px;
+    background-color: var(--color-surface);
+    border-left: 1px solid var(--color-border);
+    overflow-y: auto;
+    padding: var(--space-20);
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar h1 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--space-8);
+    color: var(--color-text);
+}
+
+.sidebar h2 {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    margin-top: var(--space-24);
+    margin-bottom: var(--space-12);
+    color: var(--color-text);
+}
+
+.control-section {
+    margin-bottom: var(--space-24);
+}
+
+.scenario-selector {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+}
+
+.scenario-option {
+    display: flex;
+    align-items: center;
+    padding: var(--space-12);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-base);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: var(--color-background);
+}
+
+.scenario-option:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-surface);
+}
+
+.scenario-option.active {
+    border-color: var(--color-primary);
+    background-color: rgba(var(--color-teal-500-rgb), 0.08);
+}
+
+.scenario-option input[type="radio"] {
+    margin-right: var(--space-12);
+    accent-color: var(--color-primary);
+}
+
+.scenario-option label {
+    cursor: pointer;
+    flex: 1;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.slider-control {
+    margin-bottom: var(--space-16);
+}
+
+.slider-control label {
+    display: block;
+    margin-bottom: var(--space-8);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.slider-control input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--color-border);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.slider-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: pointer;
+}
+
+.slider-control input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: pointer;
+    border: none;
+}
+
+.slider-value {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-left: var(--space-8);
+}
+
+.toggle-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+}
+
+.toggle-item {
+    display: flex;
+    align-items: center;
+    padding: var(--space-8);
+    border-radius: var(--radius-base);
+    transition: background-color 0.2s ease;
+}
+
+.toggle-item:hover {
+    background-color: var(--color-background);
+}
+
+.toggle-item input[type="checkbox"] {
+    margin-right: var(--space-12);
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+}
+
+.toggle-item label {
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    flex: 1;
+}
+
+.select-control {
+    margin-bottom: var(--space-16);
+}
+
+.select-control label {
+    display: block;
+    margin-bottom: var(--space-8);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.select-control select {
+    width: 100%;
+    padding: var(--space-12);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-base);
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    font-family: var(--font-family-base);
+}
+
+.info-panel {
+    background-color: var(--color-background);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-16);
+    margin-top: var(--space-24);
+}
+
+.info-panel h3 {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--space-8);
+    color: var(--color-text);
+}
+
+.info-panel .year {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-12);
+}
+
+.info-panel .description {
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    margin-bottom: var(--space-16);
+    color: var(--color-text);
+}
+
+.info-panel .features {
+    list-style: none;
+}
+
+.info-panel .features li {
+    font-size: var(--font-size-sm);
+    padding: var(--space-8);
+    margin-bottom: var(--space-8);
+    background-color: var(--color-surface);
+    border-radius: var(--radius-base);
+    border-left: 3px solid var(--color-primary);
+    color: var(--color-text);
+}
+
+.subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-20);
+}
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="canvas-container">
+            <canvas id="battlefield-canvas"></canvas>
+        </div>
+        
+        <div class="sidebar">
+            <h1>Battlefield Explorer</h1>
+            <p class="subtitle">Historical Military Architecture</p>
+            
+            <div class="control-section">
+                <h2>Battlefield Scenario</h2>
+                <div class="scenario-selector" id="scenario-selector">
+                    <!-- Dynamically generated -->
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h2>Animation Speed</h2>
+                <div class="slider-control">
+                    <label>
+                        Speed: <span class="slider-value" id="speed-value">1.0x</span>
+                    </label>
+                    <input type="range" id="animation-speed" min="0.5" max="2" step="0.1" value="1">
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h2>Visual Elements</h2>
+                <div class="toggle-group">
+                    <div class="toggle-item">
+                        <input type="checkbox" id="toggle-fortifications" checked>
+                        <label for="toggle-fortifications">Fortifications</label>
+                    </div>
+                    <div class="toggle-item">
+                        <input type="checkbox" id="toggle-terrain" checked>
+                        <label for="toggle-terrain">Terrain/Elevation</label>
+                    </div>
+                    <div class="toggle-item">
+                        <input type="checkbox" id="toggle-particles" checked>
+                        <label for="toggle-particles">Particle Effects</label>
+                    </div>
+                    <div class="toggle-item">
+                        <input type="checkbox" id="toggle-grid" false>
+                        <label for="toggle-grid">Strategic Grid</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h2>Atmosphere</h2>
+                <div class="select-control">
+                    <label for="color-scheme">Color Scheme</label>
+                    <select id="color-scheme">
+                        <option value="morning_light">Morning Light</option>
+                        <option value="evening_glow">Evening Glow</option>
+                        <option value="stormy">Stormy</option>
+                        <option value="historical_sepia">Historical Sepia</option>
+                        <option value="night">Night</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="info-panel" id="info-panel">
+                <!-- Dynamically generated -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Battlefield data
+const battlefieldData = [
+    {
+        name: "Gettysburg",
+        year: 1863,
+        type: "Civil War",
+        description: "Union victory at Gettysburg, Pennsylvania. Key features: Cemetery Ridge stone wall, Little Round Top elevation (760ft), Devil's Den rocky outcrop",
+        terrain: "rolling_hills",
+        keyFeatures: [
+            "Cemetery Ridge - linear stone wall defensive position",
+            "Little Round Top - elevated artillery position",
+            "Devil's Den - rocky terrain feature",
+            "Peach Orchard - open field",
+            "Culp's Hill - eastern flank"
+        ]
+    },
+    {
+        name: "Waterloo",
+        year: 1815,
+        type: "Napoleonic",
+        description: "Coalition victory ending Napoleon's rule. Key features: Mont Saint-Jean ridge, sunken roads, strategic high ground",
+        terrain: "undulating_fields",
+        keyFeatures: [
+            "Mont Saint-Jean ridge - critical high ground",
+            "La Belle Alliance - strategic position",
+            "Hougoumont farm - defensive strongpoint",
+            "Lion's Mound - artificial memorial hill",
+            "Sunken roads - terrain advantage"
+        ]
+    },
+    {
+        name: "Culloden",
+        year: 1746,
+        type: "Jacobite Rebellion",
+        description: "Duke of Cumberland defeats Jacobite forces on bleak Scottish moor. Exposed, flat moorland terrain",
+        terrain: "bleak_moorland",
+        keyFeatures: [
+            "Flat exposed moor",
+            "Sparse vegetation",
+            "Memorial cairn",
+            "Mass grave sites",
+            "Rolling hills in distance"
+        ]
+    },
+    {
+        name: "Medieval Castle",
+        year: 1200,
+        type: "Medieval Fortification",
+        description: "Classic trace Italienne fortification. Features: round towers, square bastions, moat system, defensive walls",
+        terrain: "castle_landscape",
+        keyFeatures: [
+            "Round towers (12th-13th century)",
+            "Square bastions (15th century)",
+            "Moat with water",
+            "Outer defensive walls",
+            "Keep/central tower",
+            "Drawbridge entrance"
+        ]
+    },
+    {
+        name: "Normandy - D-Day",
+        year: 1944,
+        type: "WWII",
+        description: "Allied invasion beaches with dramatic coastal cliffs. Omaha Beach defensive positions, Point du Hoc artillery bunkers",
+        terrain: "coastal_cliffs",
+        keyFeatures: [
+            "Seaside cliffs (100+ feet)",
+            "Beach landing zone",
+            "Fortified bunker positions",
+            "Artillery emplacements",
+            "Wire and obstacles",
+            "Observation points"
+        ]
+    },
+    {
+        name: "Vicksburg Siege",
+        year: 1863,
+        type: "Civil War",
+        description: "Grant's siege on Mississippi River bluffs. Features: elevated earthworks, river bend, trench systems",
+        terrain: "river_bluffs",
+        keyFeatures: [
+            "River bluff (high elevation)",
+            "Trench entrenchments",
+            "Artillery positions",
+            "Mississippi River bend",
+            "Supply line positions"
+        ]
+    }
+];
+
+const atmosphericEffects = {
+    morning_light: { skyColor: "#FFD580", shadowOpacity: 0.3, lightDirection: 135 },
+    evening_glow: { skyColor: "#FF8C42", shadowOpacity: 0.5, lightDirection: 225 },
+    stormy: { skyColor: "#4A5568", shadowOpacity: 0.7, lightDirection: 180 },
+    historical_sepia: { skyColor: "#D2B48C", shadowOpacity: 0.4, lightDirection: 135 },
+    night: { skyColor: "#1A1A2E", shadowOpacity: 0.9, lightDirection: 270 }
+};
+
+// Application state
+const state = {
+    currentScenario: 0,
+    animationSpeed: 1.0,
+    showFortifications: true,
+    showTerrain: true,
+    showParticles: true,
+    showGrid: false,
+    atmosphere: 'morning_light',
+    time: 0,
+    particles: [],
+    clouds: [],
+    flags: [],
+    torches: []
+};
+
+// Canvas setup
+const canvas = document.getElementById('battlefield-canvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Initialize UI
+function initializeUI() {
+    const scenarioSelector = document.getElementById('scenario-selector');
+    
+    battlefieldData.forEach((battlefield, index) => {
+        const option = document.createElement('div');
+        option.className = `scenario-option ${index === 0 ? 'active' : ''}`;
+        option.innerHTML = `
+            <input type="radio" name="scenario" id="scenario-${index}" value="${index}" ${index === 0 ? 'checked' : ''}>
+            <label for="scenario-${index}">
+                <strong>${battlefield.name}</strong> (${battlefield.year})
+            </label>
+        `;
+        option.addEventListener('click', () => selectScenario(index));
+        scenarioSelector.appendChild(option);
+    });
+    
+    // Animation speed
+    const speedSlider = document.getElementById('animation-speed');
+    const speedValue = document.getElementById('speed-value');
+    speedSlider.addEventListener('input', (e) => {
+        state.animationSpeed = parseFloat(e.target.value);
+        speedValue.textContent = state.animationSpeed.toFixed(1) + 'x';
+    });
+    
+    // Toggles
+    document.getElementById('toggle-fortifications').addEventListener('change', (e) => {
+        state.showFortifications = e.target.checked;
+    });
+    document.getElementById('toggle-terrain').addEventListener('change', (e) => {
+        state.showTerrain = e.target.checked;
+    });
+    document.getElementById('toggle-particles').addEventListener('change', (e) => {
+        state.showParticles = e.target.checked;
+    });
+    document.getElementById('toggle-grid').addEventListener('change', (e) => {
+        state.showGrid = e.target.checked;
+    });
+    
+    // Color scheme
+    document.getElementById('color-scheme').addEventListener('change', (e) => {
+        state.atmosphere = e.target.value;
+    });
+    
+    updateInfoPanel();
+}
+
+function selectScenario(index) {
+    state.currentScenario = index;
+    
+    // Update UI
+    document.querySelectorAll('.scenario-option').forEach((option, i) => {
+        option.classList.toggle('active', i === index);
+        option.querySelector('input').checked = (i === index);
+    });
+    
+    // Reinitialize scene elements
+    initializeSceneElements();
+    updateInfoPanel();
+}
+
+function updateInfoPanel() {
+    const battlefield = battlefieldData[state.currentScenario];
+    const panel = document.getElementById('info-panel');
+    
+    const featuresHTML = battlefield.keyFeatures
+        .map(feature => `<li>${feature}</li>`)
+        .join('');
+    
+    panel.innerHTML = `
+        <h3>${battlefield.name}</h3>
+        <div class="year">${battlefield.year} - ${battlefield.type}</div>
+        <div class="description">${battlefield.description}</div>
+        <h4 style="font-size: 14px; margin-bottom: 8px; margin-top: 16px;">Key Features:</h4>
+        <ul class="features">${featuresHTML}</ul>
+    `;
+}
+
+// Particle system
+class Particle {
+    constructor(x, y, type = 'dust') {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = Math.random() * 0.3 + 0.2;
+        this.size = Math.random() * 2 + 1;
+        this.opacity = Math.random() * 0.5 + 0.3;
+        this.life = Math.random() * 200 + 100;
+    }
+    
+    update(speed) {
+        this.x += this.vx * speed;
+        this.y += this.vy * speed;
+        this.life -= speed;
+        this.opacity = Math.max(0, this.opacity - 0.002 * speed);
+    }
+    
+    draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = this.type === 'dust' ? '#D2B48C' : '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+class Cloud {
+    constructor(x, y, size) {
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.speed = Math.random() * 0.3 + 0.1;
+        this.opacity = Math.random() * 0.3 + 0.4;
+    }
+    
+    update(speed) {
+        this.x += this.speed * speed;
+        if (this.x > canvas.width + this.size) {
+            this.x = -this.size;
+        }
+    }
+    
+    draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = '#FFFFFF';
+        
+        // Draw fluffy cloud shape
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size * 0.6, 0, Math.PI * 2);
+        ctx.arc(this.x + this.size * 0.5, this.y, this.size * 0.5, 0, Math.PI * 2);
+        ctx.arc(this.x + this.size * 0.9, this.y, this.size * 0.4, 0, Math.PI * 2);
+        ctx.arc(this.x + this.size * 0.3, this.y - this.size * 0.3, this.size * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+class Flag {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.waveOffset = Math.random() * Math.PI * 2;
+    }
+    
+    draw(ctx, time) {
+        ctx.save();
+        
+        // Flag pole
+        ctx.strokeStyle = '#654321';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x, this.y - 60);
+        ctx.stroke();
+        
+        // Waving flag
+        ctx.fillStyle = '#8B0000';
+        ctx.beginPath();
+        for (let i = 0; i < 30; i++) {
+            const wave = Math.sin(time * 0.003 + this.waveOffset + i * 0.2) * 3;
+            const x = this.x + i;
+            const y = this.y - 60 + wave;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        for (let i = 30; i >= 0; i--) {
+            const wave = Math.sin(time * 0.003 + this.waveOffset + i * 0.2) * 3;
+            const x = this.x + i;
+            const y = this.y - 45 + wave;
+            ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        
+        ctx.restore();
+    }
+}
+
+class Torch {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.flicker = 0;
+    }
+    
+    draw(ctx, time) {
+        this.flicker = Math.sin(time * 0.01) * 2 + Math.random() * 3;
+        
+        ctx.save();
+        
+        // Torch flame
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, 15 + this.flicker);
+        gradient.addColorStop(0, '#FFA500');
+        gradient.addColorStop(0.5, '#FF6347');
+        gradient.addColorStop(1, 'rgba(255, 99, 71, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 15 + this.flicker, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.restore();
+    }
+}
+
+function initializeSceneElements() {
+    // Initialize clouds
+    state.clouds = [];
+    for (let i = 0; i < 8; i++) {
+        state.clouds.push(new Cloud(
+            Math.random() * canvas.width,
+            Math.random() * canvas.height * 0.3 + 20,
+            Math.random() * 60 + 40
+        ));
+    }
+    
+    // Initialize flags and torches based on scenario
+    const battlefield = battlefieldData[state.currentScenario];
+    state.flags = [];
+    state.torches = [];
+    
+    if (battlefield.terrain === 'castle_landscape') {
+        // Add flags and torches for castle
+        state.flags.push(new Flag(canvas.width * 0.3, canvas.height * 0.4));
+        state.flags.push(new Flag(canvas.width * 0.7, canvas.height * 0.4));
+        state.torches.push(new Torch(canvas.width * 0.25, canvas.height * 0.5));
+        state.torches.push(new Torch(canvas.width * 0.75, canvas.height * 0.5));
+    } else {
+        // Add flags for other battlefields
+        for (let i = 0; i < 3; i++) {
+            state.flags.push(new Flag(
+                canvas.width * (0.2 + i * 0.3),
+                canvas.height * 0.6
+            ));
+        }
+    }
+}
+
+function spawnParticles() {
+    if (state.showParticles && Math.random() < 0.1) {
+        state.particles.push(new Particle(
+            Math.random() * canvas.width,
+            canvas.height,
+            state.atmosphere === 'stormy' ? 'rain' : 'dust'
+        ));
+    }
+    
+    // Remove dead particles
+    state.particles = state.particles.filter(p => p.life > 0 && p.opacity > 0);
+}
+
+function drawBackground() {
+    const effect = atmosphericEffects[state.atmosphere];
+    
+    // Sky gradient
+    const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    skyGradient.addColorStop(0, effect.skyColor);
+    
+    if (state.atmosphere === 'night') {
+        skyGradient.addColorStop(0.5, '#0F1A2E');
+        skyGradient.addColorStop(1, '#2C1810');
+    } else if (state.atmosphere === 'stormy') {
+        skyGradient.addColorStop(0.5, '#6B7280');
+        skyGradient.addColorStop(1, '#4B5563');
+    } else {
+        skyGradient.addColorStop(0.5, '#B8D4E8');
+        skyGradient.addColorStop(1, '#8B7355');
+    }
+    
+    ctx.fillStyle = skyGradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Stars for night mode
+    if (state.atmosphere === 'night') {
+        ctx.fillStyle = '#FFFFFF';
+        for (let i = 0; i < 100; i++) {
+            const x = (i * 137.5) % canvas.width;
+            const y = (i * 197.3) % (canvas.height * 0.5);
+            const twinkle = Math.sin(state.time * 0.001 + i) * 0.5 + 0.5;
+            ctx.globalAlpha = twinkle * 0.8;
+            ctx.fillRect(x, y, 2, 2);
+        }
+        ctx.globalAlpha = 1;
+    }
+}
+
+function drawTerrain() {
+    if (!state.showTerrain) return;
+    
+    const battlefield = battlefieldData[state.currentScenario];
+    const centerY = canvas.height * 0.6;
+    
+    ctx.save();
+    
+    if (battlefield.terrain === 'rolling_hills') {
+        drawRollingHills(centerY);
+    } else if (battlefield.terrain === 'undulating_fields') {
+        drawUndulatingFields(centerY);
+    } else if (battlefield.terrain === 'bleak_moorland') {
+        drawBleakMoorland(centerY);
+    } else if (battlefield.terrain === 'castle_landscape') {
+        drawCastleLandscape(centerY);
+    } else if (battlefield.terrain === 'coastal_cliffs') {
+        drawCoastalCliffs(centerY);
+    } else if (battlefield.terrain === 'river_bluffs') {
+        drawRiverBluffs(centerY);
+    }
+    
+    ctx.restore();
+}
+
+function drawRollingHills(centerY) {
+    // Background hills (parallax layer 1)
+    ctx.fillStyle = '#6B8E6B';
+    ctx.globalAlpha = 0.6;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    for (let x = 0; x <= canvas.width; x += 20) {
+        const y = centerY + Math.sin((x + state.time * 0.05) * 0.01) * 40 - 80;
+        ctx.lineTo(x, y);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Mid-ground hills
+    ctx.fillStyle = '#7A9A7A';
+    ctx.globalAlpha = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    for (let x = 0; x <= canvas.width; x += 20) {
+        const y = centerY + Math.sin((x + state.time * 0.08) * 0.015) * 50 - 40;
+        ctx.lineTo(x, y);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Foreground terrain
+    ctx.fillStyle = '#8FAA8F';
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    for (let x = 0; x <= canvas.width; x += 20) {
+        const y = centerY + Math.sin((x + state.time * 0.1) * 0.02) * 30;
+        ctx.lineTo(x, y);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawUndulatingFields(centerY) {
+    // Similar to rolling hills but with gentler slopes
+    ctx.fillStyle = '#9CAF88';
+    ctx.globalAlpha = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    for (let x = 0; x <= canvas.width; x += 30) {
+        const y = centerY + Math.sin(x * 0.008) * 25 - 60;
+        ctx.lineTo(x, y);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.fillStyle = '#A8BD95';
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    for (let x = 0; x <= canvas.width; x += 30) {
+        const y = centerY + Math.sin(x * 0.01) * 20;
+        ctx.lineTo(x, y);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawBleakMoorland(centerY) {
+    // Flat, exposed terrain
+    ctx.fillStyle = '#8B8378';
+    ctx.globalAlpha = 0.8;
+    ctx.fillRect(0, centerY - 20, canvas.width, canvas.height);
+    
+    ctx.fillStyle = '#9A9284';
+    ctx.globalAlpha = 1;
+    ctx.fillRect(0, centerY, canvas.width, canvas.height);
+    
+    // Sparse grass tufts
+    ctx.strokeStyle = '#6B6456';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 30; i++) {
+        const x = (i * 117) % canvas.width;
+        const y = centerY + (i * 73) % 50;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - 3, y - 8);
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + 3, y - 8);
+        ctx.stroke();
+    }
+}
+
+function drawCastleLandscape(centerY) {
+    // Gentle landscape for castle
+    ctx.fillStyle = '#7A9A6E';
+    ctx.globalAlpha = 1;
+    ctx.fillRect(0, centerY, canvas.width, canvas.height);
+    
+    // Moat
+    ctx.fillStyle = '#4682B4';
+    ctx.globalAlpha = 0.7;
+    const moatY = centerY + 100;
+    ctx.fillRect(canvas.width * 0.2, moatY, canvas.width * 0.6, 40);
+    
+    // Water ripples
+    ctx.strokeStyle = '#6BA3D4';
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.5;
+    for (let i = 0; i < 5; i++) {
+        const offset = (state.time * 0.5 + i * 20) % 100;
+        ctx.beginPath();
+        ctx.arc(canvas.width * 0.3 + offset, moatY + 20, 10 + i * 5, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+}
+
+function drawCoastalCliffs(centerY) {
+    // Beach
+    ctx.fillStyle = '#D2B48C';
+    ctx.globalAlpha = 1;
+    ctx.fillRect(0, centerY + 80, canvas.width, canvas.height);
+    
+    // Water
+    ctx.fillStyle = '#4682B4';
+    ctx.globalAlpha = 0.8;
+    ctx.fillRect(0, centerY + 120, canvas.width, canvas.height);
+    
+    // Waves
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.6;
+    for (let x = 0; x < canvas.width; x += 40) {
+        const waveOffset = Math.sin(state.time * 0.003 + x * 0.01) * 10;
+        ctx.beginPath();
+        ctx.arc(x, centerY + 120 + waveOffset, 15, Math.PI, 0);
+        ctx.stroke();
+    }
+    
+    // Cliffs
+    ctx.fillStyle = '#8B7355';
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, centerY + 80);
+    ctx.lineTo(canvas.width * 0.3, centerY + 80);
+    ctx.lineTo(canvas.width * 0.3, centerY - 50);
+    ctx.lineTo(0, centerY - 30);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawRiverBluffs(centerY) {
+    // Elevated bluff
+    ctx.fillStyle = '#8B7355';
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    ctx.lineTo(0, centerY - 40);
+    ctx.lineTo(canvas.width * 0.6, centerY - 60);
+    ctx.lineTo(canvas.width * 0.6, centerY + 60);
+    ctx.lineTo(canvas.width, centerY + 80);
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+    
+    // River
+    ctx.fillStyle = '#4682B4';
+    ctx.globalAlpha = 0.7;
+    ctx.fillRect(canvas.width * 0.6, centerY + 60, canvas.width * 0.4, canvas.height);
+    
+    // River bend curve
+    ctx.fillStyle = '#5A92C4';
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    ctx.arc(canvas.width * 0.7, centerY + 80, 50, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawFortifications() {
+    if (!state.showFortifications) return;
+    
+    const battlefield = battlefieldData[state.currentScenario];
+    
+    ctx.save();
+    
+    if (battlefield.terrain === 'rolling_hills') {
+        drawGettysburgFortifications();
+    } else if (battlefield.terrain === 'undulating_fields') {
+        drawWaterlooFortifications();
+    } else if (battlefield.terrain === 'bleak_moorland') {
+        drawCullodenFortifications();
+    } else if (battlefield.terrain === 'castle_landscape') {
+        drawMedievalCastle();
+    } else if (battlefield.terrain === 'coastal_cliffs') {
+        drawNormandyFortifications();
+    } else if (battlefield.terrain === 'river_bluffs') {
+        drawVicksburgFortifications();
+    }
+    
+    ctx.restore();
+}
+
+function drawGettysburgFortifications() {
+    const centerY = canvas.height * 0.6;
+    
+    // Stone wall at Cemetery Ridge
+    ctx.fillStyle = '#8B8378';
+    ctx.strokeStyle = '#5A5248';
+    ctx.lineWidth = 2;
+    
+    for (let i = 0; i < 20; i++) {
+        const x = canvas.width * 0.3 + i * 25;
+        const y = centerY + 20;
+        ctx.fillRect(x, y, 20, 15);
+        ctx.strokeRect(x, y, 20, 15);
+    }
+    
+    // Cannon positions
+    for (let i = 0; i < 3; i++) {
+        const x = canvas.width * 0.4 + i * 150;
+        const y = centerY;
+        drawCannon(x, y);
+    }
+}
+
+function drawWaterlooFortifications() {
+    const centerY = canvas.height * 0.6;
+    
+    // Lion's Mound
+    ctx.fillStyle = '#7A8A6E';
+    ctx.beginPath();
+    ctx.moveTo(canvas.width * 0.7 - 50, centerY + 20);
+    ctx.lineTo(canvas.width * 0.7, centerY - 80);
+    ctx.lineTo(canvas.width * 0.7 + 50, centerY + 20);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Hougoumont farm buildings
+    ctx.fillStyle = '#8B6F47';
+    ctx.fillRect(canvas.width * 0.3, centerY + 10, 60, 40);
+    ctx.fillStyle = '#A0522D';
+    ctx.beginPath();
+    ctx.moveTo(canvas.width * 0.3 - 5, centerY + 10);
+    ctx.lineTo(canvas.width * 0.3 + 30, centerY - 10);
+    ctx.lineTo(canvas.width * 0.3 + 65, centerY + 10);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawCullodenFortifications() {
+    const centerY = canvas.height * 0.6;
+    
+    // Memorial cairn
+    ctx.fillStyle = '#6B6456';
+    ctx.beginPath();
+    ctx.moveTo(canvas.width * 0.5 - 20, centerY + 40);
+    ctx.lineTo(canvas.width * 0.5, centerY);
+    ctx.lineTo(canvas.width * 0.5 + 20, centerY + 40);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Small markers
+    ctx.fillStyle = '#5A5248';
+    for (let i = 0; i < 5; i++) {
+        const x = canvas.width * 0.3 + i * 100;
+        ctx.fillRect(x, centerY + 30, 8, 20);
+    }
+}
+
+function drawMedievalCastle() {
+    const centerY = canvas.height * 0.5;
+    const centerX = canvas.width * 0.5;
+    
+    // Main castle wall
+    ctx.fillStyle = '#8B8378';
+    ctx.fillRect(centerX - 150, centerY, 300, 120);
+    
+    // Battlements
+    ctx.fillStyle = '#7A7268';
+    for (let i = 0; i < 10; i++) {
+        if (i % 2 === 0) {
+            ctx.fillRect(centerX - 150 + i * 30, centerY - 10, 30, 10);
+        }
+    }
+    
+    // Round towers
+    ctx.fillStyle = '#9A9284';
+    ctx.beginPath();
+    ctx.arc(centerX - 150, centerY + 60, 40, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(centerX + 150, centerY + 60, 40, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Tower tops
+    ctx.fillStyle = '#8B7355';
+    ctx.beginPath();
+    ctx.moveTo(centerX - 170, centerY + 20);
+    ctx.lineTo(centerX - 150, centerY - 10);
+    ctx.lineTo(centerX - 130, centerY + 20);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(centerX + 130, centerY + 20);
+    ctx.lineTo(centerX + 150, centerY - 10);
+    ctx.lineTo(centerX + 170, centerY + 20);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Central keep
+    ctx.fillStyle = '#A0A090';
+    ctx.fillRect(centerX - 40, centerY - 20, 80, 100);
+    ctx.fillStyle = '#8B8378';
+    ctx.beginPath();
+    ctx.moveTo(centerX - 50, centerY - 20);
+    ctx.lineTo(centerX, centerY - 60);
+    ctx.lineTo(centerX + 50, centerY - 20);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Gate
+    ctx.fillStyle = '#4A3C28';
+    ctx.fillRect(centerX - 20, centerY + 60, 40, 60);
+}
+
+function drawNormandyFortifications() {
+    const centerY = canvas.height * 0.6;
+    
+    // Bunkers on cliffs
+    ctx.fillStyle = '#5A5248';
+    ctx.fillRect(canvas.width * 0.25, centerY - 30, 50, 30);
+    ctx.fillRect(canvas.width * 0.25 - 10, centerY - 35, 20, 10);
+    
+    // Beach obstacles
+    ctx.strokeStyle = '#4A3C28';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 8; i++) {
+        const x = canvas.width * 0.4 + i * 40;
+        const y = centerY + 90;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - 10, y - 20);
+        ctx.lineTo(x + 10, y - 20);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+    }
+}
+
+function drawVicksburgFortifications() {
+    const centerY = canvas.height * 0.6;
+    
+    // Earthwork trenches
+    ctx.strokeStyle = '#6B5A3C';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(canvas.width * 0.2, centerY - 20);
+    for (let x = canvas.width * 0.2; x < canvas.width * 0.6; x += 30) {
+        const y = centerY - 20 + Math.sin(x * 0.1) * 10;
+        ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    
+    // Artillery positions
+    for (let i = 0; i < 4; i++) {
+        const x = canvas.width * 0.25 + i * 80;
+        const y = centerY - 30;
+        drawCannon(x, y);
+    }
+}
+
+function drawCannon(x, y) {
+    ctx.fillStyle = '#2F2F2F';
+    // Wheels
+    ctx.beginPath();
+    ctx.arc(x - 8, y + 10, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + 8, y + 10, 6, 0, Math.PI * 2);
+    ctx.fill();
+    // Barrel
+    ctx.fillRect(x - 15, y, 30, 6);
+}
+
+function drawGrid() {
+    if (!state.showGrid) return;
+    
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 1;
+    
+    // Vertical lines
+    for (let x = 0; x < canvas.width; x += 50) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+    }
+    
+    // Horizontal lines
+    for (let y = 0; y < canvas.height; y += 50) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+    }
+    
+    ctx.restore();
+}
+
+function animate() {
+    state.time += state.animationSpeed;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw layers
+    drawBackground();
+    
+    // Draw clouds
+    state.clouds.forEach(cloud => {
+        cloud.update(state.animationSpeed);
+        cloud.draw(ctx);
+    });
+    
+    drawTerrain();
+    drawFortifications();
+    
+    // Draw flags
+    state.flags.forEach(flag => {
+        flag.draw(ctx, state.time);
+    });
+    
+    // Draw torches
+    state.torches.forEach(torch => {
+        torch.draw(ctx, state.time);
+    });
+    
+    // Spawn and draw particles
+    spawnParticles();
+    state.particles.forEach(particle => {
+        particle.update(state.animationSpeed);
+        particle.draw(ctx);
+    });
+    
+    drawGrid();
+    
+    requestAnimationFrame(animate);
+}
+
+// Initialize and start
+initializeUI();
+initializeSceneElements();
+animate();
+    </script>
+</body>
+</html>
