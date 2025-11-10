@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calming Beach Experience</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --space-4: 4px;
+            --space-6: 6px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --radius-sm: 6px;
+            --radius-base: 8px;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @font-face {
+            font-family: 'FKGroteskNeue';
+            src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #beachCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .control-panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 320px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+            transform: translateX(100%);
+            transition: transform 0.4s var(--ease-standard);
+            overflow-y: auto;
+            z-index: 1000;
+            padding: var(--space-20);
+        }
+
+        .control-panel.open {
+            transform: translateX(0);
+        }
+
+        .toggle-btn {
+            position: fixed;
+            right: var(--space-20);
+            top: var(--space-20);
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--color-border);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            transition: all var(--duration-normal) var(--ease-standard);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
+        }
+
+        .toggle-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--color-text);
+        }
+
+        .control-section {
+            margin-bottom: var(--space-20);
+        }
+
+        .control-section h3 {
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            margin-bottom: var(--space-12);
+            color: var(--color-text);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-8);
+        }
+
+        .btn-option {
+            padding: var(--space-8) var(--space-12);
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-standard);
+            color: var(--color-text);
+            font-family: var(--font-family-base);
+        }
+
+        .btn-option:hover {
+            background: rgba(var(--color-teal-500-rgb), 0.1);
+            border-color: var(--color-primary);
+        }
+
+        .btn-option.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .slider-control {
+            margin-bottom: var(--space-16);
+        }
+
+        .slider-control label {
+            display: block;
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--space-6);
+            color: var(--color-text-secondary);
+        }
+
+        .slider-control input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: rgba(var(--color-teal-500-rgb), 0.2);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--color-primary);
+            cursor: pointer;
+            border-radius: 50%;
+            transition: all var(--duration-normal) var(--ease-standard);
+        }
+
+        .slider-control input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .slider-control input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: var(--color-primary);
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+            transition: all var(--duration-normal) var(--ease-standard);
+        }
+
+        .toggle-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-8) 0;
+            border-bottom: 1px solid rgba(var(--color-brown-600-rgb), 0.1);
+        }
+
+        .toggle-control label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: rgba(var(--color-brown-600-rgb), 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background var(--duration-normal) var(--ease-standard);
+        }
+
+        .toggle-switch.active {
+            background: var(--color-primary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform var(--duration-normal) var(--ease-standard);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: var(--space-12);
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-standard);
+            margin-top: var(--space-16);
+            font-family: var(--font-family-base);
+        }
+
+        .reset-btn:hover {
+            background: var(--color-primary-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .control-panel {
+                background: rgba(31, 33, 33, 0.95);
+            }
+            .toggle-btn {
+                background: rgba(38, 40, 40, 0.9);
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="beachCanvas"></canvas>
+    
+    <button class="toggle-btn" id="toggleBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12h18M3 6h18M3 18h18"/>
+        </svg>
+    </button>
+
+    <div class="control-panel" id="controlPanel">
+        <div class="control-section">
+            <h3>Time of Day</h3>
+            <div class="button-group" id="timeOfDayButtons"></div>
+        </div>
+
+        <div class="control-section">
+            <h3>Weather</h3>
+            <div class="button-group" id="weatherButtons"></div>
+        </div>
+
+        <div class="control-section">
+            <h3>Wave &amp; Wind</h3>
+            <div class="slider-control">
+                <label>Wave Height: <span id="waveHeightValue">0.5</span></label>
+                <input type="range" id="waveHeight" min="0" max="1" step="0.1" value="0.5">
+            </div>
+            <div class="slider-control">
+                <label>Wind Speed: <span id="windSpeedValue">0.3</span></label>
+                <input type="range" id="windSpeed" min="0" max="1" step="0.1" value="0.3">
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h3>Animation</h3>
+            <div class="slider-control">
+                <label>Speed: <span id="animationSpeedValue">1.0</span></label>
+                <input type="range" id="animationSpeed" min="0.3" max="2" step="0.1" value="1.0">
+            </div>
+            <div class="slider-control">
+                <label>Particles: <span id="particleIntensityValue">0.4</span></label>
+                <input type="range" id="particleIntensity" min="0" max="1" step="0.1" value="0.4">
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h3>Color Palette</h3>
+            <div class="button-group" id="colorPaletteButtons"></div>
+        </div>
+
+        <div class="control-section">
+            <h3>Scenery Elements</h3>
+            <div class="toggle-control">
+                <label>Sun/Moon</label>
+                <div class="toggle-switch active" data-toggle="showSun"></div>
+            </div>
+            <div class="toggle-control">
+                <label>Clouds</label>
+                <div class="toggle-switch active" data-toggle="showClouds"></div>
+            </div>
+            <div class="toggle-control">
+                <label>Seagulls</label>
+                <div class="toggle-switch active" data-toggle="showSeagulls"></div>
+            </div>
+            <div class="toggle-control">
+                <label>Palm Trees</label>
+                <div class="toggle-switch active" data-toggle="showPalmTrees"></div>
+            </div>
+            <div class="toggle-control">
+                <label>Pier</label>
+                <div class="toggle-switch" data-toggle="showPier"></div>
+            </div>
+            <div class="toggle-control">
+                <label>Stars</label>
+                <div class="toggle-switch" data-toggle="showStars"></div>
+            </div>
+        </div>
+
+        <button class="reset-btn" id="resetBtn">Reset to Default</button>
+    </div>
+
+    <script>
+        // Configuration Data
+const TIME_OF_DAY_CONFIGS = {
+    dawn: {
+        skyGradientTop: '#FF9A76',
+        skyGradientMiddle: '#FFA366',
+        skyGradientBottom: '#87CEEB',
+        sunOpacity: 0.7,
+        sunX: 0.1,
+        sunY: 0.8,
+        moonOpacity: 0.0,
+        ambientLight: 0.6,
+        description: 'Dawn'
+    },
+    morning: {
+        skyGradientTop: '#87CEEB',
+        skyGradientMiddle: '#87CEEB',
+        skyGradientBottom: '#E0F6FF',
+        sunOpacity: 1.0,
+        sunX: 0.3,
+        sunY: 0.3,
+        moonOpacity: 0.0,
+        ambientLight: 0.9,
+        description: 'Morning'
+    },
+    noon: {
+        skyGradientTop: '#1E90FF',
+        skyGradientMiddle: '#87CEEB',
+        skyGradientBottom: '#E0F6FF',
+        sunOpacity: 1.0,
+        sunX: 0.5,
+        sunY: 0.2,
+        moonOpacity: 0.0,
+        ambientLight: 1.0,
+        description: 'Noon'
+    },
+    sunset: {
+        skyGradientTop: '#FF6347',
+        skyGradientMiddle: '#FFA500',
+        skyGradientBottom: '#87CEEB',
+        sunOpacity: 1.0,
+        sunX: 0.85,
+        sunY: 0.7,
+        moonOpacity: 0.0,
+        ambientLight: 0.7,
+        description: 'Sunset'
+    },
+    night: {
+        skyGradientTop: '#0B1929',
+        skyGradientMiddle: '#1a1a3e',
+        skyGradientBottom: '#2d3561',
+        sunOpacity: 0.0,
+        sunX: 0.85,
+        sunY: 0.7,
+        moonOpacity: 1.0,
+        ambientLight: 0.3,
+        description: 'Night'
+    }
+};
+
+const WEATHER_CONFIGS = {
+    clear: {
+        cloudDensity: 0.0,
+        cloudOpacity: 0.0,
+        stormIntensity: 0.0,
+        fogIntensity: 0.0,
+        description: 'Clear'
+    },
+    partlyCloudy: {
+        cloudDensity: 0.3,
+        cloudOpacity: 0.6,
+        stormIntensity: 0.0,
+        fogIntensity: 0.0,
+        description: 'Partly Cloudy'
+    },
+    stormy: {
+        cloudDensity: 0.8,
+        cloudOpacity: 0.7,
+        stormIntensity: 0.3,
+        fogIntensity: 0.0,
+        description: 'Stormy'
+    },
+    foggy: {
+        cloudDensity: 0.5,
+        cloudOpacity: 0.5,
+        stormIntensity: 0.0,
+        fogIntensity: 0.8,
+        description: 'Foggy'
+    },
+    aurora: {
+        cloudDensity: 0.2,
+        cloudOpacity: 0.4,
+        stormIntensity: 0.0,
+        fogIntensity: 0.0,
+        auroraActive: true,
+        description: 'Aurora'
+    }
+};
+
+const COLOR_PALETTES = {
+    tropical: {
+        oceanDeep: '#00A8E8',
+        oceanLight: '#00D4FF',
+        sandColor: '#F4A460',
+        skyOverlay: '#FFE4B5',
+        description: 'Tropical'
+    },
+    cool: {
+        oceanDeep: '#004E89',
+        oceanLight: '#1E88E5',
+        sandColor: '#E8DCC8',
+        skyOverlay: '#B3E5FC',
+        description: 'Cool'
+    },
+    warm: {
+        oceanDeep: '#D4845C',
+        oceanLight: '#F4A460',
+        sandColor: '#DEB887',
+        skyOverlay: '#FFB6C1',
+        description: 'Warm'
+    },
+    monochrome: {
+        oceanDeep: '#404040',
+        oceanLight: '#696969',
+        sandColor: '#A9A9A9',
+        skyOverlay: '#D3D3D3',
+        description: 'Monochrome'
+    },
+    sunset: {
+        oceanDeep: '#FF6347',
+        oceanLight: '#FF7F50',
+        sandColor: '#FFB347',
+        skyOverlay: '#FFE4B5',
+        description: 'Sunset'
+    }
+};
+
+// Default settings
+const DEFAULT_SETTINGS = {
+    timeOfDay: 'noon',
+    weather: 'clear',
+    waveHeight: 0.5,
+    windSpeed: 0.3,
+    animationSpeed: 1.0,
+    particleIntensity: 0.4,
+    colorPalette: 'tropical',
+    showSun: true,
+    showMoon: true,
+    showClouds: true,
+    showSeagulls: true,
+    showPalmTrees: true,
+    showPier: false,
+    showStars: false
+};
+
+// Beach Scene Class
+class BeachScene {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.settings = { ...DEFAULT_SETTINGS };
+        this.time = 0;
+        this.particles = [];
+        this.clouds = [];
+        this.seagulls = [];
+        this.waves = [];
+        this.stars = [];
+        
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        
+        this.initClouds();
+        this.initSeagulls();
+        this.initWaves();
+        this.initStars();
+    }
+
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.width = this.canvas.width;
+        this.height = this.canvas.height;
+    }
+
+    initClouds() {
+        for (let i = 0; i < 5; i++) {
+            this.clouds.push({
+                x: Math.random() * this.width,
+                y: Math.random() * this.height * 0.3,
+                size: 50 + Math.random() * 100,
+                speed: 0.1 + Math.random() * 0.3,
+                opacity: 0.3 + Math.random() * 0.4
+            });
+        }
+    }
+
+    initSeagulls() {
+        for (let i = 0; i < 3; i++) {
+            this.seagulls.push({
+                x: Math.random() * this.width,
+                y: 50 + Math.random() * 150,
+                speed: 0.5 + Math.random() * 1.0,
+                wingPhase: Math.random() * Math.PI * 2,
+                amplitude: 20 + Math.random() * 30
+            });
+        }
+    }
+
+    initWaves() {
+        for (let i = 0; i < 3; i++) {
+            this.waves.push({
+                offset: i * 30,
+                speed: 0.02 + i * 0.01,
+                amplitude: 10 + i * 5,
+                frequency: 0.02 - i * 0.002
+            });
+        }
+    }
+
+    initStars() {
+        for (let i = 0; i < 100; i++) {
+            this.stars.push({
+                x: Math.random() * this.width,
+                y: Math.random() * this.height * 0.6,
+                size: Math.random() * 2,
+                twinkle: Math.random() * Math.PI * 2,
+                twinkleSpeed: 0.02 + Math.random() * 0.03
+            });
+        }
+    }
+
+    updateSettings(newSettings) {
+        this.settings = { ...this.settings, ...newSettings };
+    }
+
+    drawSky() {
+        const timeConfig = TIME_OF_DAY_CONFIGS[this.settings.timeOfDay];
+        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.height);
+        
+        gradient.addColorStop(0, timeConfig.skyGradientTop);
+        gradient.addColorStop(0.5, timeConfig.skyGradientMiddle);
+        gradient.addColorStop(1, timeConfig.skyGradientBottom);
+        
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.width, this.height);
+    }
+
+    drawStars() {
+        if (!this.settings.showStars || this.settings.timeOfDay !== 'night') return;
+        
+        const timeConfig = TIME_OF_DAY_CONFIGS[this.settings.timeOfDay];
+        this.stars.forEach(star => {
+            star.twinkle += star.twinkleSpeed * this.settings.animationSpeed;
+            const opacity = 0.5 + Math.sin(star.twinkle) * 0.5;
+            
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${opacity * timeConfig.ambientLight})`;
+            this.ctx.beginPath();
+            this.ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+    }
+
+    drawSunMoon() {
+        const timeConfig = TIME_OF_DAY_CONFIGS[this.settings.timeOfDay];
+        const size = 60;
+        
+        if (this.settings.showSun && timeConfig.sunOpacity > 0) {
+            const x = this.width * timeConfig.sunX;
+            const y = this.height * timeConfig.sunY;
+            
+            const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, size * 2);
+            gradient.addColorStop(0, `rgba(255, 220, 100, ${timeConfig.sunOpacity})`);
+            gradient.addColorStop(0.4, `rgba(255, 200, 80, ${timeConfig.sunOpacity * 0.5})`);
+            gradient.addColorStop(1, 'rgba(255, 200, 80, 0)');
+            
+            this.ctx.fillStyle = gradient;
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, size * 2, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            this.ctx.fillStyle = `rgba(255, 230, 120, ${timeConfig.sunOpacity})`;
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, size, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+        
+        if (this.settings.showMoon && timeConfig.moonOpacity > 0) {
+            const x = this.width * 0.7;
+            const y = this.height * 0.2;
+            
+            const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, size * 1.5);
+            gradient.addColorStop(0, `rgba(240, 240, 255, ${timeConfig.moonOpacity})`);
+            gradient.addColorStop(0.5, `rgba(220, 220, 240, ${timeConfig.moonOpacity * 0.5})`);
+            gradient.addColorStop(1, 'rgba(200, 200, 230, 0)');
+            
+            this.ctx.fillStyle = gradient;
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, size * 1.5, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            this.ctx.fillStyle = `rgba(230, 230, 245, ${timeConfig.moonOpacity})`;
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, size * 0.8, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+    }
+
+    drawClouds() {
+        if (!this.settings.showClouds) return;
+        
+        const weatherConfig = WEATHER_CONFIGS[this.settings.weather];
+        const timeConfig = TIME_OF_DAY_CONFIGS[this.settings.timeOfDay];
+        
+        this.clouds.forEach(cloud => {
+            cloud.x += cloud.speed * this.settings.windSpeed * this.settings.animationSpeed;
+            if (cloud.x > this.width + 100) cloud.x = -100;
+            
+            const opacity = cloud.opacity * weatherConfig.cloudOpacity * timeConfig.ambientLight;
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+            
+            for (let i = 0; i < 3; i++) {
+                this.ctx.beginPath();
+                this.ctx.arc(
+                    cloud.x + i * cloud.size * 0.4,
+                    cloud.y + Math.sin(this.time * 0.001 + i) * 5,
+                    cloud.size * (0.5 + i * 0.2),
+                    0,
+                    Math.PI * 2
+                );
+                this.ctx.fill();
+            }
+        });
+    }
+
+    drawOcean() {
+        const palette = COLOR_PALETTES[this.settings.colorPalette];
+        const timeConfig = TIME_OF_DAY_CONFIGS[this.settings.timeOfDay];
+        const oceanHeight = this.height * 0.6;
+        
+        const gradient = this.ctx.createLinearGradient(0, oceanHeight, 0, this.height);
+        gradient.addColorStop(0, this.adjustColorBrightness(palette.oceanDeep, timeConfig.ambientLight));
+        gradient.addColorStop(1, this.adjustColorBrightness(palette.oceanLight, timeConfig.ambientLight));
+        
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, oceanHeight, this.width, this.height - oceanHeight);
+        
+        this.drawWaves(oceanHeight);
+    }
+
+    drawWaves(oceanHeight) {
+        const palette = COLOR_PALETTES[this.settings.colorPalette];
+        const timeConfig = TIME_OF_DAY_CONFIGS[this.settings.timeOfDay];
+        
+        this.waves.forEach((wave, index) => {
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, oceanHeight + wave.offset);
+            
+            for (let x = 0; x <= this.width; x += 5) {
+                const y = oceanHeight + wave.offset +
+                    Math.sin(x * wave.frequency + this.time * wave.speed * this.settings.animationSpeed) *
+                    wave.amplitude * this.settings.waveHeight;
+                this.ctx.lineTo(x, y);
+            }
+            
+            this.ctx.lineTo(this.width, this.height);
+            this.ctx.lineTo(0, this.height);
+            this.ctx.closePath();
+            
+            const waveColor = index === 0 ? palette.oceanLight : palette.oceanDeep;
+            const opacity = 0.3 - index * 0.1;
+            this.ctx.fillStyle = this.adjustColorBrightness(waveColor, timeConfig.ambientLight * (1 - opacity));
+            this.ctx.fill();
+        });
+    }
+
+    drawBeach() {
+        const palette = COLOR_PALETTES[this.settings.colorPalette];
+        const timeConfig = TIME_OF_DAY_CONFIGS[this.settings.timeOfDay];
+        const beachStart = this.height * 0.75;
+        
+        const gradient = this.ctx.createLinearGradient(0, beachStart, 0, this.height);
+        gradient.addColorStop(0, this.adjustColorBrightness(palette.sandColor, timeConfig.ambientLight * 0.8));
+        gradient.addColorStop(1, this.adjustColorBrightness(palette.sandColor, timeConfig.ambientLight));
+        
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, beachStart, this.width, this.height - beachStart);
+    }
+
+    drawPalmTrees() {
+        if (!this.settings.showPalmTrees) return;
+        
+        const timeConfig = TIME_OF_DAY_CONFIGS[this.settings.timeOfDay];
+        const positions = [
+            { x: this.width * 0.15, scale: 1 },
+            { x: this.width * 0.85, scale: 0.8 }
+        ];
+        
+        positions.forEach(pos => {
+            const baseY = this.height * 0.82;
+            const trunkHeight = 120 * pos.scale;
+            const sway = Math.sin(this.time * 0.001 * this.settings.windSpeed) * 10 * this.settings.windSpeed;
+            
+            this.ctx.strokeStyle = this.adjustColorBrightness('#8B4513', timeConfig.ambientLight);
+            this.ctx.lineWidth = 8 * pos.scale;
+            this.ctx.beginPath();
+            this.ctx.moveTo(pos.x, baseY);
+            this.ctx.quadraticCurveTo(
+                pos.x + sway / 2,
+                baseY - trunkHeight / 2,
+                pos.x + sway,
+                baseY - trunkHeight
+            );
+            this.ctx.stroke();
+            
+            this.ctx.fillStyle = this.adjustColorBrightness('#228B22', timeConfig.ambientLight);
+            for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI * 2 / 6) * i;
+                const leafSway = Math.sin(this.time * 0.001 + i) * 5 * this.settings.windSpeed;
+                this.ctx.save();
+                this.ctx.translate(pos.x + sway, baseY - trunkHeight);
+                this.ctx.rotate(angle);
+                this.ctx.beginPath();
+                this.ctx.ellipse(leafSway, -30 * pos.scale, 15 * pos.scale, 40 * pos.scale, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.restore();
+            }
+        });
+    }
+
+    drawSeagulls() {
+        if (!this.settings.showSeagulls) return;
+        
+        const timeConfig = TIME_OF_DAY_CONFIGS[this.settings.timeOfDay];
+        
+        this.seagulls.forEach(seagull => {
+            seagull.x += seagull.speed * this.settings.animationSpeed;
+            seagull.wingPhase += 0.1 * this.settings.animationSpeed;
+            
+            if (seagull.x > this.width + 50) {
+                seagull.x = -50;
+                seagull.y = 50 + Math.random() * 150;
+            }
+            
+            const wingAngle = Math.sin(seagull.wingPhase) * 0.5;
+            const yOffset = Math.sin(seagull.wingPhase * 0.5) * 10;
+            
+            this.ctx.strokeStyle = this.adjustColorBrightness('#FFFFFF', timeConfig.ambientLight);
+            this.ctx.lineWidth = 2;
+            this.ctx.lineCap = 'round';
+            
+            const x = seagull.x;
+            const y = seagull.y + yOffset;
+            
+            this.ctx.beginPath();
+            this.ctx.moveTo(x - 15, y);
+            this.ctx.quadraticCurveTo(x - 10, y - 8 + wingAngle * 8, x, y - 5);
+            this.ctx.stroke();
+            
+            this.ctx.beginPath();
+            this.ctx.moveTo(x + 15, y);
+            this.ctx.quadraticCurveTo(x + 10, y - 8 + wingAngle * 8, x, y - 5);
+            this.ctx.stroke();
+        });
+    }
+
+    drawPier() {
+        if (!this.settings.showPier) return;
+        
+        const timeConfig = TIME_OF_DAY_CONFIGS[this.settings.timeOfDay];
+        const pierX = this.width * 0.6;
+        const pierY = this.height * 0.65;
+        const pierWidth = 80;
+        const pierHeight = this.height - pierY;
+        
+        this.ctx.fillStyle = this.adjustColorBrightness('#8B4513', timeConfig.ambientLight * 0.7);
+        
+        for (let i = 0; i < 5; i++) {
+            const x = pierX + i * 15;
+            this.ctx.fillRect(x, pierY, 6, pierHeight);
+        }
+        
+        this.ctx.fillRect(pierX - 10, pierY, pierWidth, 12);
+    }
+
+    updateParticles() {
+        const particleCount = Math.floor(this.settings.particleIntensity * 100);
+        
+        while (this.particles.length < particleCount) {
+            this.particles.push({
+                x: Math.random() * this.width,
+                y: this.height * (0.75 + Math.random() * 0.25),
+                vx: (Math.random() - 0.5) * 2 * this.settings.windSpeed,
+                vy: -Math.random() * 2,
+                life: 1.0,
+                size: 1 + Math.random() * 2
+            });
+        }
+        
+        this.particles = this.particles.filter(p => {
+            p.x += p.vx * this.settings.animationSpeed;
+            p.y += p.vy * this.settings.animationSpeed;
+            p.life -= 0.01 * this.settings.animationSpeed;
+            return p.life > 0 && p.x >= 0 && p.x <= this.width;
+        });
+    }
+
+    drawParticles() {
+        const timeConfig = TIME_OF_DAY_CONFIGS[this.settings.timeOfDay];
+        const palette = COLOR_PALETTES[this.settings.colorPalette];
+        
+        this.particles.forEach(p => {
+            this.ctx.fillStyle = `rgba(244, 164, 96, ${p.life * 0.5 * timeConfig.ambientLight})`;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+    }
+
+    drawAurora() {
+        const weatherConfig = WEATHER_CONFIGS[this.settings.weather];
+        if (!weatherConfig.auroraActive) return;
+        
+        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.height * 0.5);
+        gradient.addColorStop(0, `rgba(0, 255, 150, ${0.1 + Math.sin(this.time * 0.001) * 0.05})`);
+        gradient.addColorStop(0.5, `rgba(100, 150, 255, ${0.15 + Math.cos(this.time * 0.0015) * 0.05})`);
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        
+        this.ctx.fillStyle = gradient;
+        
+        for (let i = 0; i < this.width; i += 20) {
+            const height = 200 + Math.sin(i * 0.01 + this.time * 0.001) * 100;
+            const wave = Math.sin(i * 0.05 + this.time * 0.002) * 50;
+            this.ctx.fillRect(i, wave, 20, height);
+        }
+    }
+
+    adjustColorBrightness(color, brightness) {
+        const hex = color.replace('#', '');
+        const r = Math.min(255, Math.floor(parseInt(hex.substr(0, 2), 16) * brightness));
+        const g = Math.min(255, Math.floor(parseInt(hex.substr(2, 2), 16) * brightness));
+        const b = Math.min(255, Math.floor(parseInt(hex.substr(4, 2), 16) * brightness));
+        return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    render() {
+        this.time += 16 * this.settings.animationSpeed;
+        
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        
+        this.drawSky();
+        this.drawStars();
+        this.drawAurora();
+        this.drawSunMoon();
+        this.drawClouds();
+        this.drawOcean();
+        this.drawBeach();
+        this.drawPalmTrees();
+        this.drawPier();
+        this.drawSeagulls();
+        
+        this.updateParticles();
+        this.drawParticles();
+    }
+}
+
+// UI Controller
+class UIController {
+    constructor(scene) {
+        this.scene = scene;
+        this.panel = document.getElementById('controlPanel');
+        this.toggleBtn = document.getElementById('toggleBtn');
+        
+        this.initControls();
+        this.initToggleButton();
+    }
+
+    initControls() {
+        this.createTimeOfDayButtons();
+        this.createWeatherButtons();
+        this.createColorPaletteButtons();
+        this.initSliders();
+        this.initToggles();
+        this.initResetButton();
+    }
+
+    createTimeOfDayButtons() {
+        const container = document.getElementById('timeOfDayButtons');
+        Object.keys(TIME_OF_DAY_CONFIGS).forEach(key => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-option';
+            btn.textContent = TIME_OF_DAY_CONFIGS[key].description;
+            if (key === this.scene.settings.timeOfDay) {
+                btn.classList.add('active');
+            }
+            btn.addEventListener('click', () => {
+                container.querySelectorAll('.btn-option').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.scene.updateSettings({ timeOfDay: key });
+            });
+            container.appendChild(btn);
+        });
+    }
+
+    createWeatherButtons() {
+        const container = document.getElementById('weatherButtons');
+        Object.keys(WEATHER_CONFIGS).forEach(key => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-option';
+            btn.textContent = WEATHER_CONFIGS[key].description;
+            if (key === this.scene.settings.weather) {
+                btn.classList.add('active');
+            }
+            btn.addEventListener('click', () => {
+                container.querySelectorAll('.btn-option').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.scene.updateSettings({ weather: key });
+            });
+            container.appendChild(btn);
+        });
+    }
+
+    createColorPaletteButtons() {
+        const container = document.getElementById('colorPaletteButtons');
+        Object.keys(COLOR_PALETTES).forEach(key => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-option';
+            btn.textContent = COLOR_PALETTES[key].description;
+            if (key === this.scene.settings.colorPalette) {
+                btn.classList.add('active');
+            }
+            btn.addEventListener('click', () => {
+                container.querySelectorAll('.btn-option').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.scene.updateSettings({ colorPalette: key });
+            });
+            container.appendChild(btn);
+        });
+    }
+
+    initSliders() {
+        const sliders = [
+            { id: 'waveHeight', valueId: 'waveHeightValue', setting: 'waveHeight' },
+            { id: 'windSpeed', valueId: 'windSpeedValue', setting: 'windSpeed' },
+            { id: 'animationSpeed', valueId: 'animationSpeedValue', setting: 'animationSpeed' },
+            { id: 'particleIntensity', valueId: 'particleIntensityValue', setting: 'particleIntensity' }
+        ];
+
+        sliders.forEach(slider => {
+            const input = document.getElementById(slider.id);
+            const valueDisplay = document.getElementById(slider.valueId);
+            
+            input.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                valueDisplay.textContent = value.toFixed(1);
+                this.scene.updateSettings({ [slider.setting]: value });
+            });
+        });
+    }
+
+    initToggles() {
+        const toggles = document.querySelectorAll('.toggle-switch');
+        toggles.forEach(toggle => {
+            const setting = toggle.dataset.toggle;
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('active');
+                const isActive = toggle.classList.contains('active');
+                this.scene.updateSettings({ [setting]: isActive });
+            });
+        });
+    }
+
+    initResetButton() {
+        const resetBtn = document.getElementById('resetBtn');
+        resetBtn.addEventListener('click', () => {
+            this.scene.updateSettings(DEFAULT_SETTINGS);
+            this.resetUI();
+        });
+    }
+
+    resetUI() {
+        document.getElementById('waveHeight').value = DEFAULT_SETTINGS.waveHeight;
+        document.getElementById('waveHeightValue').textContent = DEFAULT_SETTINGS.waveHeight.toFixed(1);
+        
+        document.getElementById('windSpeed').value = DEFAULT_SETTINGS.windSpeed;
+        document.getElementById('windSpeedValue').textContent = DEFAULT_SETTINGS.windSpeed.toFixed(1);
+        
+        document.getElementById('animationSpeed').value = DEFAULT_SETTINGS.animationSpeed;
+        document.getElementById('animationSpeedValue').textContent = DEFAULT_SETTINGS.animationSpeed.toFixed(1);
+        
+        document.getElementById('particleIntensity').value = DEFAULT_SETTINGS.particleIntensity;
+        document.getElementById('particleIntensityValue').textContent = DEFAULT_SETTINGS.particleIntensity.toFixed(1);
+        
+        document.querySelectorAll('.btn-option').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('#timeOfDayButtons .btn-option')[2].classList.add('active');
+        document.querySelectorAll('#weatherButtons .btn-option')[0].classList.add('active');
+        document.querySelectorAll('#colorPaletteButtons .btn-option')[0].classList.add('active');
+        
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            const setting = toggle.dataset.toggle;
+            if (DEFAULT_SETTINGS[setting]) {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+        });
+    }
+
+    initToggleButton() {
+        this.toggleBtn.addEventListener('click', () => {
+            this.panel.classList.toggle('open');
+        });
+    }
+}
+
+// Initialize Application
+const canvas = document.getElementById('beachCanvas');
+const scene = new BeachScene(canvas);
+const ui = new UIController(scene);
+
+function animate() {
+    scene.render();
+    requestAnimationFrame(animate);
+}
+
+animate();
+    </script>
+</body>
+</html>
