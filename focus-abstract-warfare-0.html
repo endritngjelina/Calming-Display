@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abstract Warfare Visualization</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --color-slate-500-rgb: 98, 108, 113;
+            --color-red-500-rgb: 192, 21, 47;
+            --color-red-400-rgb: 255, 84, 89;
+            --color-orange-500-rgb: 168, 75, 47;
+            --color-orange-400-rgb: 230, 129, 97;
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-primary-active: var(--color-teal-700);
+            --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+            --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-btn-primary-text: var(--color-cream-50);
+            --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-error: var(--color-red-500);
+            --color-success: var(--color-teal-500);
+            --color-warning: var(--color-orange-500);
+            --color-info: var(--color-slate-500);
+            --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-md: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 550;
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --radius-base: 8px;
+            --radius-lg: 12px;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-gray-400-rgb: 119, 124, 124;
+                --color-teal-300-rgb: 50, 184, 198;
+                --color-gray-300-rgb: 167, 169, 169;
+                --color-gray-200-rgb: 245, 245, 245;
+                --color-background: var(--color-charcoal-700);
+                --color-surface: var(--color-charcoal-800);
+                --color-text: var(--color-gray-200);
+                --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
+                --color-primary: var(--color-teal-300);
+                --color-primary-hover: var(--color-teal-400);
+                --color-primary-active: var(--color-teal-800);
+                --color-secondary: rgba(var(--color-gray-400-rgb), 0.15);
+                --color-secondary-hover: rgba(var(--color-gray-400-rgb), 0.25);
+                --color-secondary-active: rgba(var(--color-gray-400-rgb), 0.3);
+                --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+                --color-error: var(--color-red-400);
+                --color-success: var(--color-teal-300);
+                --color-warning: var(--color-orange-400);
+                --color-info: var(--color-gray-300);
+                --color-focus-ring: rgba(var(--color-teal-300-rgb), 0.4);
+                --color-btn-primary-text: var(--color-slate-900);
+                --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
+                --color-card-border-inner: rgba(var(--color-gray-400-rgb), 0.15);
+            }
+        }
+
+        @font-face {
+            font-family: 'FKGroteskNeue';
+            src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            background: #0a0a0a;
+            color: var(--color-text);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #app {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+        }
+
+        #info-overlay {
+            position: absolute;
+            top: var(--space-24);
+            left: var(--space-24);
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(10px);
+            padding: var(--space-16) var(--space-20);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: var(--font-size-sm);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #info-overlay h2 {
+            font-size: var(--font-size-xl);
+            margin-bottom: var(--space-8);
+            color: var(--color-teal-300);
+        }
+
+        #info-overlay .stat {
+            margin: var(--space-4) 0;
+            opacity: 0.8;
+        }
+
+        #controls {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 320px;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            padding: var(--space-24);
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s var(--ease-standard);
+            z-index: 20;
+            color: #ffffff;
+        }
+
+        #controls.collapsed {
+            transform: translateX(320px);
+        }
+
+        #toggle-controls {
+            position: absolute;
+            top: var(--space-24);
+            right: var(--space-24);
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.2s var(--ease-standard);
+            z-index: 30;
+        }
+
+        #toggle-controls:hover {
+            background: rgba(50, 184, 198, 0.2);
+            border-color: var(--color-teal-300);
+        }
+
+        #controls.collapsed + #toggle-controls {
+            right: calc(var(--space-24));
+        }
+
+        .control-group {
+            margin-bottom: var(--space-24);
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: var(--space-8);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-teal-300);
+        }
+
+        .control-group select,
+        .control-group input[type="range"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-base);
+            color: #ffffff;
+            padding: var(--space-8) var(--space-12);
+            font-size: var(--font-size-base);
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: 2px solid var(--color-teal-300);
+            outline-offset: 2px;
+        }
+
+        .control-group input[type="range"] {
+            padding: var(--space-8) 0;
+            cursor: pointer;
+        }
+
+        .range-value {
+            display: inline-block;
+            margin-left: var(--space-8);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: var(--font-size-sm);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--space-12);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            margin-right: var(--space-8);
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            color: #ffffff;
+        }
+
+        .button {
+            width: 100%;
+            padding: var(--space-12) var(--space-16);
+            background: var(--color-teal-500);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all 0.2s var(--ease-standard);
+            margin-bottom: var(--space-12);
+        }
+
+        .button:hover {
+            background: var(--color-teal-400);
+            transform: translateY(-1px);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .button.secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        h1 {
+            font-size: var(--font-size-xl);
+            margin-bottom: var(--space-24);
+            color: var(--color-teal-300);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <canvas id="canvas"></canvas>
+        
+        <div id="info-overlay">
+            <h2 id="mode-name">Tactical Grid Map</h2>
+            <div class="stat" id="stat-particles">Entities: 0</div>
+            <div class="stat" id="stat-fps">FPS: 60</div>
+            <div class="stat" id="stat-events">Events/sec: 0</div>
+        </div>
+
+        <div id="controls">
+            <h1>Controls</h1>
+            
+            <div class="control-group">
+                <label for="mode-select">Visualization Mode</label>
+                <select id="mode-select">
+                    <option value="tactical">Tactical Grid Map</option>
+                    <option value="particle">Particle Warfare</option>
+                    <option value="wave">Wave Propagation</option>
+                    <option value="matrix">Abstract Matrix</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="color-scheme">Color Scheme</label>
+                <select id="color-scheme">
+                    <option value="redblue">Red vs Blue</option>
+                    <option value="goldpurple">Gold vs Purple</option>
+                    <option value="greenorange">Green vs Orange</option>
+                    <option value="cyanmagenta">Cyan vs Magenta</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="speed-slider">Animation Speed <span class="range-value" id="speed-value">1.0x</span></label>
+                <input type="range" id="speed-slider" min="0.5" max="2" step="0.1" value="1">
+            </div>
+
+            <div class="control-group">
+                <label for="density-slider">Particle Density <span class="range-value" id="density-value">0.7</span></label>
+                <input type="range" id="density-slider" min="0.3" max="1" step="0.1" value="0.7">
+            </div>
+
+            <div class="control-group">
+                <label for="intensity-slider">Battle Intensity <span class="range-value" id="intensity-value">0.6</span></label>
+                <input type="range" id="intensity-slider" min="0.2" max="1" step="0.1" value="0.6">
+            </div>
+
+            <div class="control-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="glow-toggle" checked>
+                    <label for="glow-toggle">Glow Effects</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="sound-toggle">
+                    <label for="sound-toggle">Ambient Sound</label>
+                </div>
+            </div>
+
+            <button class="button" id="pause-btn">Pause</button>
+            <button class="button secondary" id="reset-btn">Reset</button>
+        </div>
+
+        <button id="toggle-controls" title="Toggle Controls">⚙</button>
+    </div>
+
+    <script>
+        // Application State
+const state = {
+    mode: 'tactical',
+    colorScheme: 'redblue',
+    animationSpeed: 1.0,
+    particleDensity: 0.7,
+    battleIntensity: 0.6,
+    glowEffects: true,
+    ambientSound: false,
+    isPaused: false,
+    colors: {
+        faction1: '#FF4444',
+        faction2: '#4444FF'
+    }
+};
+
+// Color schemes
+const colorSchemes = {
+    redblue: { faction1: '#FF4444', faction2: '#4444FF' },
+    goldpurple: { faction1: '#FFD700', faction2: '#9D4EDD' },
+    greenorange: { faction1: '#00FF88', faction2: '#FF8C00' },
+    cyanmagenta: { faction1: '#00FFFF', faction2: '#FF00FF' }
+};
+
+// Canvas setup
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d', { alpha: false });
+let width, height;
+
+// Performance tracking
+let lastTime = performance.now();
+let frameCount = 0;
+let fps = 60;
+let eventCount = 0;
+let lastEventTime = performance.now();
+
+// Audio context for ambient sound
+let audioContext = null;
+let oscillator = null;
+let gainNode = null;
+
+function resizeCanvas() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Tactical Grid Mode
+class TacticalGrid {
+    constructor() {
+        this.gridSize = 40;
+        this.cells = [];
+        this.units = [];
+        this.time = 0;
+        this.init();
+    }
+
+    init() {
+        this.cells = [];
+        const cols = Math.ceil(width / this.gridSize);
+        const rows = Math.ceil(height / this.gridSize);
+        
+        for (let y = 0; y < rows; y++) {
+            for (let x = 0; x < cols; x++) {
+                this.cells.push({
+                    x: x * this.gridSize,
+                    y: y * this.gridSize,
+                    ownership: Math.random() < 0.5 ? 1 : 2,
+                    intensity: Math.random(),
+                    targetIntensity: Math.random(),
+                    changeTime: Math.random() * 5000
+                });
+            }
+        }
+
+        // Create unit particles
+        const unitCount = Math.floor(50 * state.particleDensity);
+        this.units = [];
+        for (let i = 0; i < unitCount; i++) {
+            this.units.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2,
+                faction: Math.random() < 0.5 ? 1 : 2,
+                size: 2 + Math.random() * 3,
+                trail: []
+            });
+        }
+    }
+
+    update(deltaTime) {
+        this.time += deltaTime * state.animationSpeed;
+        
+        // Update cells
+        this.cells.forEach(cell => {
+            cell.intensity += (cell.targetIntensity - cell.intensity) * 0.02;
+            
+            if (Math.random() < 0.001 * state.battleIntensity) {
+                cell.targetIntensity = Math.random();
+                if (Math.random() < 0.1) {
+                    cell.ownership = cell.ownership === 1 ? 2 : 1;
+                    eventCount++;
+                }
+            }
+        });
+
+        // Update units
+        this.units.forEach(unit => {
+            unit.trail.push({ x: unit.x, y: unit.y });
+            if (unit.trail.length > 10) unit.trail.shift();
+
+            unit.x += unit.vx * state.animationSpeed;
+            unit.y += unit.vy * state.animationSpeed;
+
+            if (unit.x < 0 || unit.x > width) unit.vx *= -1;
+            if (unit.y < 0 || unit.y > height) unit.vy *= -1;
+
+            unit.x = Math.max(0, Math.min(width, unit.x));
+            unit.y = Math.max(0, Math.min(height, unit.y));
+        });
+    }
+
+    render() {
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 0, width, height);
+
+        // Draw cells
+        this.cells.forEach(cell => {
+            const color = cell.ownership === 1 ? state.colors.faction1 : state.colors.faction2;
+            const alpha = 0.1 + cell.intensity * 0.3;
+            
+            ctx.fillStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+            ctx.fillRect(cell.x, cell.y, this.gridSize - 1, this.gridSize - 1);
+
+            if (state.glowEffects) {
+                const pulse = Math.sin(this.time * 0.001 + cell.x * 0.01 + cell.y * 0.01) * 0.5 + 0.5;
+                ctx.strokeStyle = color + Math.floor(pulse * 100).toString(16).padStart(2, '0');
+                ctx.lineWidth = 1;
+                ctx.strokeRect(cell.x, cell.y, this.gridSize - 1, this.gridSize - 1);
+            }
+        });
+
+        // Draw units
+        this.units.forEach(unit => {
+            const color = unit.faction === 1 ? state.colors.faction1 : state.colors.faction2;
+            
+            // Trail
+            ctx.strokeStyle = color + '40';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            unit.trail.forEach((point, i) => {
+                if (i === 0) ctx.moveTo(point.x, point.y);
+                else ctx.lineTo(point.x, point.y);
+            });
+            ctx.stroke();
+
+            // Unit
+            if (state.glowEffects) {
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = color;
+            }
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(unit.x, unit.y, unit.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        });
+    }
+}
+
+// Particle Warfare Mode
+class ParticleWarfare {
+    constructor() {
+        this.particles = [];
+        this.time = 0;
+        this.init();
+    }
+
+    init() {
+        const count = Math.floor(200 * state.particleDensity);
+        this.particles = [];
+        
+        for (let i = 0; i < count; i++) {
+            const faction = i < count / 2 ? 1 : 2;
+            const startX = faction === 1 ? Math.random() * width * 0.3 : width * 0.7 + Math.random() * width * 0.3;
+            
+            this.particles.push({
+                x: startX,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2,
+                faction: faction,
+                size: 2 + Math.random() * 4,
+                mass: 1 + Math.random() * 2,
+                trail: [],
+                life: 1
+            });
+        }
+    }
+
+    update(deltaTime) {
+        this.time += deltaTime * state.animationSpeed;
+        
+        this.particles.forEach((p1, i) => {
+            p1.trail.push({ x: p1.x, y: p1.y, alpha: 0.5 });
+            if (p1.trail.length > 15) p1.trail.shift();
+
+            // Move towards center with some drift
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const dx = centerX - p1.x;
+            const dy = centerY - p1.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist > 0) {
+                p1.vx += (dx / dist) * 0.05 * state.battleIntensity;
+                p1.vy += (dy / dist) * 0.05 * state.battleIntensity;
+            }
+
+            // Damping
+            p1.vx *= 0.99;
+            p1.vy *= 0.99;
+
+            p1.x += p1.vx * state.animationSpeed;
+            p1.y += p1.vy * state.animationSpeed;
+
+            // Collision with other particles
+            this.particles.forEach((p2, j) => {
+                if (i >= j) return;
+                
+                const dx = p2.x - p1.x;
+                const dy = p2.y - p1.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const minDist = p1.size + p2.size;
+                
+                if (dist < minDist && dist > 0) {
+                    // Soft collision
+                    const angle = Math.atan2(dy, dx);
+                    const targetX = p1.x + Math.cos(angle) * minDist;
+                    const targetY = p1.y + Math.sin(angle) * minDist;
+                    
+                    const ax = (targetX - p2.x) * 0.1;
+                    const ay = (targetY - p2.y) * 0.1;
+                    
+                    p1.vx -= ax;
+                    p1.vy -= ay;
+                    p2.vx += ax;
+                    p2.vy += ay;
+
+                    if (p1.faction !== p2.faction && Math.random() < 0.01) {
+                        eventCount++;
+                    }
+                }
+            });
+
+            // Boundaries
+            if (p1.x < 0 || p1.x > width) p1.vx *= -0.8;
+            if (p1.y < 0 || p1.y > height) p1.vy *= -0.8;
+            p1.x = Math.max(0, Math.min(width, p1.x));
+            p1.y = Math.max(0, Math.min(height, p1.y));
+        });
+    }
+
+    render() {
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 0, width, height);
+
+        // Render particles
+        this.particles.forEach(p => {
+            const color = p.faction === 1 ? state.colors.faction1 : state.colors.faction2;
+            
+            // Trail
+            p.trail.forEach((point, i) => {
+                const alpha = (i / p.trail.length) * 0.3;
+                ctx.fillStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, p.size * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Particle
+            if (state.glowEffects) {
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = color;
+            }
+            
+            const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(1, color + '00');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        });
+    }
+}
+
+// Wave Propagation Mode
+class WavePropagation {
+    constructor() {
+        this.waves = [];
+        this.time = 0;
+        this.init();
+    }
+
+    init() {
+        this.waves = [];
+    }
+
+    createWave(x, y, faction) {
+        this.waves.push({
+            x: x || Math.random() * width,
+            y: y || Math.random() * height,
+            radius: 0,
+            maxRadius: 200 + Math.random() * 300,
+            speed: 1 + Math.random() * 2,
+            faction: faction || (Math.random() < 0.5 ? 1 : 2),
+            life: 1
+        });
+    }
+
+    update(deltaTime) {
+        this.time += deltaTime * state.animationSpeed;
+        
+        // Create new waves
+        if (Math.random() < 0.02 * state.battleIntensity) {
+            this.createWave();
+            eventCount++;
+        }
+
+        // Update waves
+        this.waves = this.waves.filter(wave => {
+            wave.radius += wave.speed * state.animationSpeed;
+            wave.life = 1 - (wave.radius / wave.maxRadius);
+            return wave.radius < wave.maxRadius;
+        });
+    }
+
+    render() {
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 0, width, height);
+
+        // Draw waves
+        this.waves.forEach(wave => {
+            const color = wave.faction === 1 ? state.colors.faction1 : state.colors.faction2;
+            const alpha = wave.life * 0.3;
+            
+            ctx.strokeStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+            ctx.lineWidth = 2;
+            
+            if (state.glowEffects) {
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = color;
+            }
+            
+            ctx.beginPath();
+            ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Inner wave
+            ctx.strokeStyle = color + Math.floor(alpha * 128).toString(16).padStart(2, '0');
+            ctx.beginPath();
+            ctx.arc(wave.x, wave.y, wave.radius * 0.8, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.shadowBlur = 0;
+        });
+
+        // Draw interference patterns
+        if (state.glowEffects && this.waves.length > 1) {
+            this.waves.forEach((w1, i) => {
+                this.waves.slice(i + 1).forEach(w2 => {
+                    const dx = w2.x - w1.x;
+                    const dy = w2.y - w1.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (Math.abs(w1.radius - w2.radius) < 50 && dist < 500) {
+                        const midX = (w1.x + w2.x) / 2;
+                        const midY = (w1.y + w2.y) / 2;
+                        
+                        const color1 = w1.faction === 1 ? state.colors.faction1 : state.colors.faction2;
+                        ctx.fillStyle = color1 + '20';
+                        ctx.beginPath();
+                        ctx.arc(midX, midY, 10, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+            });
+        }
+    }
+}
+
+// Abstract Matrix Mode
+class AbstractMatrix {
+    constructor() {
+        this.columns = [];
+        this.nodes = [];
+        this.time = 0;
+        this.init();
+    }
+
+    init() {
+        const columnCount = Math.floor(width / 20);
+        this.columns = [];
+        
+        for (let i = 0; i < columnCount; i++) {
+            this.columns.push({
+                x: i * 20,
+                y: Math.random() * height,
+                speed: 1 + Math.random() * 3,
+                chars: this.generateChars(),
+                faction: Math.random() < 0.5 ? 1 : 2
+            });
+        }
+
+        // Strategic nodes
+        const nodeCount = Math.floor(20 * state.particleDensity);
+        this.nodes = [];
+        for (let i = 0; i < nodeCount; i++) {
+            this.nodes.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                size: 5 + Math.random() * 10,
+                pulse: Math.random() * Math.PI * 2,
+                faction: Math.random() < 0.5 ? 1 : 2,
+                connections: []
+            });
+        }
+
+        // Create connections between nearby nodes
+        this.nodes.forEach((node, i) => {
+            this.nodes.slice(i + 1).forEach(other => {
+                const dx = other.x - node.x;
+                const dy = other.y - node.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 200) {
+                    node.connections.push(other);
+                }
+            });
+        });
+    }
+
+    generateChars() {
+        const chars = '01αβγδεζηθικλμνξοπρστυφχψω∑∏∫∂∇';
+        const result = [];
+        for (let i = 0; i < 20; i++) {
+            result.push(chars[Math.floor(Math.random() * chars.length)]);
+        }
+        return result;
+    }
+
+    update(deltaTime) {
+        this.time += deltaTime * state.animationSpeed;
+        
+        // Update columns
+        this.columns.forEach(col => {
+            col.y += col.speed * state.animationSpeed;
+            if (col.y > height + 100) {
+                col.y = -100;
+                col.chars = this.generateChars();
+                if (Math.random() < 0.3) {
+                    col.faction = col.faction === 1 ? 2 : 1;
+                }
+            }
+        });
+
+        // Update nodes
+        this.nodes.forEach(node => {
+            node.pulse += 0.02 * state.animationSpeed;
+            
+            if (Math.random() < 0.001 * state.battleIntensity) {
+                node.faction = node.faction === 1 ? 2 : 1;
+                eventCount++;
+            }
+        });
+    }
+
+    render() {
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 0, width, height);
+
+        // Draw columns
+        ctx.font = '14px monospace';
+        this.columns.forEach(col => {
+            const color = col.faction === 1 ? state.colors.faction1 : state.colors.faction2;
+            
+            col.chars.forEach((char, i) => {
+                const y = col.y + i * 20;
+                if (y > 0 && y < height) {
+                    const alpha = 1 - (i / col.chars.length);
+                    ctx.fillStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+                    ctx.fillText(char, col.x, y);
+                }
+            });
+        });
+
+        // Draw node connections
+        this.nodes.forEach(node => {
+            const color = node.faction === 1 ? state.colors.faction1 : state.colors.faction2;
+            
+            node.connections.forEach(other => {
+                ctx.strokeStyle = color + '20';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(node.x, node.y);
+                ctx.lineTo(other.x, other.y);
+                ctx.stroke();
+            });
+        });
+
+        // Draw nodes
+        this.nodes.forEach(node => {
+            const color = node.faction === 1 ? state.colors.faction1 : state.colors.faction2;
+            const pulse = Math.sin(node.pulse) * 0.5 + 0.5;
+            const size = node.size * (0.8 + pulse * 0.4);
+            
+            if (state.glowEffects) {
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = color;
+            }
+            
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, size + 5, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.shadowBlur = 0;
+        });
+    }
+}
+
+// Mode management
+let currentMode = null;
+
+function initMode() {
+    switch (state.mode) {
+        case 'tactical':
+            currentMode = new TacticalGrid();
+            document.getElementById('mode-name').textContent = 'Tactical Grid Map';
+            break;
+        case 'particle':
+            currentMode = new ParticleWarfare();
+            document.getElementById('mode-name').textContent = 'Particle Warfare';
+            break;
+        case 'wave':
+            currentMode = new WavePropagation();
+            document.getElementById('mode-name').textContent = 'Wave Propagation';
+            break;
+        case 'matrix':
+            currentMode = new AbstractMatrix();
+            document.getElementById('mode-name').textContent = 'Abstract Matrix';
+            break;
+    }
+}
+
+// Audio functions
+function startAudio() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    if (!oscillator) {
+        oscillator = audioContext.createOscillator();
+        gainNode = audioContext.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(110, audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.start();
+    }
+}
+
+function stopAudio() {
+    if (oscillator) {
+        oscillator.stop();
+        oscillator = null;
+    }
+}
+
+// Animation loop
+function animate(currentTime) {
+    if (!state.isPaused) {
+        const deltaTime = currentTime - lastTime;
+        
+        // Update FPS
+        frameCount++;
+        if (currentTime - lastTime > 1000) {
+            fps = Math.round(frameCount * 1000 / (currentTime - lastTime));
+            frameCount = 0;
+            lastTime = currentTime;
+        }
+
+        // Update event counter
+        if (currentTime - lastEventTime > 1000) {
+            document.getElementById('stat-events').textContent = `Events/sec: ${eventCount}`;
+            eventCount = 0;
+            lastEventTime = currentTime;
+        }
+
+        // Update and render
+        if (currentMode) {
+            currentMode.update(deltaTime);
+            currentMode.render();
+            
+            // Update stats
+            let entityCount = 0;
+            if (state.mode === 'tactical') {
+                entityCount = currentMode.cells.length + currentMode.units.length;
+            } else if (state.mode === 'particle') {
+                entityCount = currentMode.particles.length;
+            } else if (state.mode === 'wave') {
+                entityCount = currentMode.waves.length;
+            } else if (state.mode === 'matrix') {
+                entityCount = currentMode.nodes.length + currentMode.columns.length;
+            }
+            
+            document.getElementById('stat-particles').textContent = `Entities: ${entityCount}`;
+            document.getElementById('stat-fps').textContent = `FPS: ${fps}`;
+        }
+
+        // Update audio
+        if (state.ambientSound && oscillator && audioContext) {
+            const freq = 110 + Math.sin(currentTime * 0.001) * 20 + state.battleIntensity * 50;
+            oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+        }
+    }
+    
+    requestAnimationFrame(animate);
+}
+
+// Event listeners
+document.getElementById('mode-select').addEventListener('change', (e) => {
+    state.mode = e.target.value;
+    initMode();
+});
+
+document.getElementById('color-scheme').addEventListener('change', (e) => {
+    state.colorScheme = e.target.value;
+    state.colors = colorSchemes[state.colorScheme];
+});
+
+document.getElementById('speed-slider').addEventListener('input', (e) => {
+    state.animationSpeed = parseFloat(e.target.value);
+    document.getElementById('speed-value').textContent = state.animationSpeed.toFixed(1) + 'x';
+});
+
+document.getElementById('density-slider').addEventListener('input', (e) => {
+    state.particleDensity = parseFloat(e.target.value);
+    document.getElementById('density-value').textContent = state.particleDensity.toFixed(1);
+    initMode(); // Reinit to apply density changes
+});
+
+document.getElementById('intensity-slider').addEventListener('input', (e) => {
+    state.battleIntensity = parseFloat(e.target.value);
+    document.getElementById('intensity-value').textContent = state.battleIntensity.toFixed(1);
+});
+
+document.getElementById('glow-toggle').addEventListener('change', (e) => {
+    state.glowEffects = e.target.checked;
+});
+
+document.getElementById('sound-toggle').addEventListener('change', (e) => {
+    state.ambientSound = e.target.checked;
+    if (state.ambientSound) {
+        startAudio();
+    } else {
+        stopAudio();
+    }
+});
+
+document.getElementById('pause-btn').addEventListener('click', () => {
+    state.isPaused = !state.isPaused;
+    document.getElementById('pause-btn').textContent = state.isPaused ? 'Resume' : 'Pause';
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+    initMode();
+});
+
+document.getElementById('toggle-controls').addEventListener('click', () => {
+    const controls = document.getElementById('controls');
+    controls.classList.toggle('collapsed');
+});
+
+// Canvas click interaction
+canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    if (state.mode === 'wave' && currentMode) {
+        currentMode.createWave(x, y, Math.random() < 0.5 ? 1 : 2);
+        eventCount++;
+    }
+});
+
+// Keyboard shortcuts
+window.addEventListener('keydown', (e) => {
+    if (e.key === '+' || e.key === '=') {
+        state.animationSpeed = Math.min(2, state.animationSpeed + 0.1);
+        document.getElementById('speed-slider').value = state.animationSpeed;
+        document.getElementById('speed-value').textContent = state.animationSpeed.toFixed(1) + 'x';
+    } else if (e.key === '-' || e.key === '_') {
+        state.animationSpeed = Math.max(0.5, state.animationSpeed - 0.1);
+        document.getElementById('speed-slider').value = state.animationSpeed;
+        document.getElementById('speed-value').textContent = state.animationSpeed.toFixed(1) + 'x';
+    } else if (e.key === ' ') {
+        e.preventDefault();
+        state.isPaused = !state.isPaused;
+        document.getElementById('pause-btn').textContent = state.isPaused ? 'Resume' : 'Pause';
+    }
+});
+
+// Initialize
+initMode();
+requestAnimationFrame(animate);
+    </script>
+</body>
+</html>
