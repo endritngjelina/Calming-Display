@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Mall - Calming Experience</title>
+    <style>
+        :root {
+            /* Design System Variables */
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --color-slate-500-rgb: 98, 108, 113;
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-primary-active: var(--color-teal-700);
+            --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-lg: 16px;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 550;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-24: 24px;
+            --radius-base: 8px;
+            --radius-lg: 12px;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-gray-400-rgb: 119, 124, 124;
+                --color-gray-300-rgb: 167, 169, 169;
+                --color-gray-200-rgb: 245, 245, 245;
+                --color-background: var(--color-charcoal-700);
+                --color-surface: var(--color-charcoal-800);
+                --color-text: var(--color-gray-200);
+                --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
+                --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+                --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
+            }
+        }
+
+        @font-face {
+            font-family: 'FKGroteskNeue';
+            src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            overflow: hidden;
+            background: #000;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #scene-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .sky-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: background 3s ease-in-out;
+        }
+
+        /* Sky gradient transitions */
+        .sky-sunrise {
+            background: linear-gradient(to bottom, 
+                #4a5568 0%,
+                #ed8936 20%,
+                #f6ad55 40%,
+                #fbb6ce 60%,
+                #bee3f8 100%);
+        }
+
+        .sky-day {
+            background: linear-gradient(to bottom,
+                #3182ce 0%,
+                #63b3ed 30%,
+                #90cdf4 60%,
+                #bee3f8 100%);
+        }
+
+        .sky-golden {
+            background: linear-gradient(to bottom,
+                #744210 0%,
+                #d69e2e 20%,
+                #ed8936 40%,
+                #fc8181 60%,
+                #c05621 80%,
+                #553c9a 100%);
+        }
+
+        .sky-night {
+            background: linear-gradient(to bottom,
+                #1a202c 0%,
+                #2d3748 30%,
+                #4a5568 60%,
+                #1a202c 100%);
+        }
+
+        /* Canvas layers */
+        #stars-canvas,
+        #clouds-canvas,
+        #birds-canvas,
+        #particles-canvas,
+        #water-canvas {
+            position: absolute;
+            left: 0;
+            pointer-events: none;
+        }
+
+        #stars-canvas {
+            top: 0;
+            width: 100%;
+            height: 60%;
+        }
+
+        #clouds-canvas {
+            top: 0;
+            width: 100%;
+            height: 50%;
+        }
+
+        #birds-canvas {
+            top: 10%;
+            width: 100%;
+            height: 40%;
+        }
+
+        #particles-canvas {
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #water-canvas {
+            bottom: 0;
+            width: 100%;
+            height: 40%;
+        }
+
+        /* Scene image layer */
+        .scene-image {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70%;
+            background-size: cover;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+
+        .scene-image.active {
+            opacity: 1;
+        }
+
+        /* Trees overlay with sway animation */
+        .trees-layer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .tree {
+            position: absolute;
+            width: 80px;
+            height: 120px;
+            background: rgba(34, 139, 34, 0.4);
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+            transform-origin: bottom center;
+            animation: sway 4s ease-in-out infinite;
+        }
+
+        .tree:nth-child(2) { animation-delay: 0.5s; }
+        .tree:nth-child(3) { animation-delay: 1s; }
+        .tree:nth-child(4) { animation-delay: 1.5s; }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-1deg); }
+            50% { transform: rotate(1deg); }
+        }
+
+        /* Control panel */
+        #control-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-card-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        #control-toggle:hover {
+            background: var(--color-primary);
+            transform: scale(1.1);
+        }
+
+        #control-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--color-text);
+        }
+
+        #control-toggle:hover svg {
+            fill: var(--color-white);
+        }
+
+        #control-panel {
+            position: fixed;
+            bottom: -400px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 700px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-card-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-24);
+            box-shadow: var(--shadow-lg);
+            z-index: 999;
+            transition: bottom 0.4s var(--ease-standard);
+        }
+
+        #control-panel.visible {
+            bottom: 80px;
+        }
+
+        .control-section {
+            margin-bottom: var(--space-24);
+        }
+
+        .control-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-text);
+            margin-bottom: var(--space-8);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: var(--space-8);
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: var(--space-8) var(--space-16);
+            background: rgba(var(--color-teal-500-rgb), 0.1);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            color: var(--color-text);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: var(--font-family-base);
+        }
+
+        .control-btn:hover {
+            background: rgba(var(--color-teal-500-rgb), 0.2);
+            transform: translateY(-1px);
+        }
+
+        .control-btn.active {
+            background: var(--color-primary);
+            color: var(--color-white);
+            border-color: var(--color-primary);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-12);
+        }
+
+        .slider {
+            flex: 1;
+            height: 6px;
+            background: rgba(var(--color-teal-500-rgb), 0.2);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            min-width: 40px;
+            text-align: right;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(var(--color-teal-500-rgb), 0.2);
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--color-white);
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            #control-panel {
+                width: 95%;
+                padding: var(--space-16);
+            }
+
+            .control-btn {
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+        }
+
+        /* Loading indicator */
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--color-white);
+            font-size: var(--font-size-lg);
+            z-index: 2000;
+        }
+    </style>
+</head>
+<body>
+    <div id="scene-container">
+        <!-- Sky layer -->
+        <div class="sky-layer sky-day" id="sky"></div>
+        
+        <!-- Canvas layers -->
+        <canvas id="stars-canvas"></canvas>
+        <canvas id="clouds-canvas"></canvas>
+        <canvas id="birds-canvas"></canvas>
+        <canvas id="particles-canvas"></canvas>
+        
+        <!-- Scene images -->
+        <div class="scene-image active" id="scene-1" style="background-image: url('https://pplx-res.cloudinary.com/image/upload/v1763041815/search_images/4506b478c21448e9655d2a9995fa5887eccf15a4.jpg');"></div>
+        <div class="scene-image" id="scene-2" style="background-image: url('https://pplx-res.cloudinary.com/image/upload/v1763041815/search_images/f4f8485ecf748ca335d50f76a462daa052e56a41.jpg');"></div>
+        <div class="scene-image" id="scene-3" style="background-image: url('https://pplx-res.cloudinary.com/image/upload/v1763041815/search_images/d6efce90a4a334de5da7285f07b04b9317ac203b.jpg');"></div>
+        <div class="scene-image" id="scene-4" style="background-image: url('https://pplx-res.cloudinary.com/image/upload/v1763041815/search_images/ee436332097fb2805443327a8ee1606764b81443.jpg');"></div>
+        
+        <!-- Water reflection canvas -->
+        <canvas id="water-canvas"></canvas>
+    </div>
+
+    <!-- Control toggle button -->
+    <div id="control-toggle">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5a3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66z"/>
+        </svg>
+    </div>
+
+    <!-- Control panel -->
+    <div id="control-panel">
+        <!-- Time of day -->
+        <div class="control-section">
+            <label class="control-label">Time of Day</label>
+            <div class="button-group">
+                <button class="control-btn" data-time="sunrise">Sunrise</button>
+                <button class="control-btn active" data-time="day">Daytime</button>
+                <button class="control-btn" data-time="golden">Golden Hour</button>
+                <button class="control-btn" data-time="night">Night</button>
+            </div>
+        </div>
+
+        <!-- Weather/Season -->
+        <div class="control-section">
+            <label class="control-label">Weather &amp; Season</label>
+            <div class="button-group">
+                <button class="control-btn active" data-weather="clear">Clear Sky</button>
+                <button class="control-btn" data-weather="cherry">Cherry Blossoms</button>
+                <button class="control-btn" data-weather="rain">Gentle Rain</button>
+                <button class="control-btn" data-weather="snow">Winter Snow</button>
+            </div>
+        </div>
+
+        <!-- View selector -->
+        <div class="control-section">
+            <label class="control-label">Landmark View</label>
+            <div class="button-group">
+                <button class="control-btn active" data-view="1">Washington Monument</button>
+                <button class="control-btn" data-view="2">Lincoln Memorial</button>
+                <button class="control-btn" data-view="3">Capitol View</button>
+                <button class="control-btn" data-view="4">Reflecting Pool</button>
+            </div>
+        </div>
+
+        <!-- Animation speed -->
+        <div class="control-section">
+            <label class="control-label">Animation Speed</label>
+            <div class="slider-container">
+                <input type="range" min="0.5" max="2" step="0.5" value="1" class="slider" id="speed-slider">
+                <span class="slider-value" id="speed-value">1x</span>
+            </div>
+        </div>
+
+        <!-- Auto-cycle -->
+        <div class="control-section">
+            <label class="control-label">Auto-Cycle Time of Day</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="auto-cycle">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        const state = {
+            timeOfDay: 'day',
+            weather: 'clear',
+            view: '1',
+            animationSpeed: 1,
+            autoCycle: false,
+            controlsVisible: false
+        };
+
+        // Canvas contexts
+        const canvases = {
+            stars: document.getElementById('stars-canvas'),
+            clouds: document.getElementById('clouds-canvas'),
+            birds: document.getElementById('birds-canvas'),
+            particles: document.getElementById('particles-canvas'),
+            water: document.getElementById('water-canvas')
+        };
+
+        const contexts = {};
+        Object.keys(canvases).forEach(key => {
+            contexts[key] = canvases[key].getContext('2d');
+        });
+
+        // Initialize canvas sizes
+        function resizeCanvases() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            canvases.stars.width = width;
+            canvases.stars.height = height * 0.6;
+
+            canvases.clouds.width = width;
+            canvases.clouds.height = height * 0.5;
+
+            canvases.birds.width = width;
+            canvases.birds.height = height * 0.4;
+
+            canvases.particles.width = width;
+            canvases.particles.height = height;
+
+            canvases.water.width = width;
+            canvases.water.height = height * 0.4;
+        }
+
+        // Star animation
+        class Star {
+            constructor() {
+                this.x = Math.random() * canvases.stars.width;
+                this.y = Math.random() * canvases.stars.height;
+                this.size = Math.random() * 2;
+                this.opacity = Math.random();
+                this.twinkleSpeed = Math.random() * 0.02 + 0.01;
+            }
+
+            draw(ctx) {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            update() {
+                this.opacity += this.twinkleSpeed;
+                if (this.opacity > 1 || this.opacity < 0.3) {
+                    this.twinkleSpeed *= -1;
+                }
+            }
+        }
+
+        // Cloud animation
+        class Cloud {
+            constructor() {
+                this.x = Math.random() * canvases.clouds.width;
+                this.y = Math.random() * canvases.clouds.height * 0.6;
+                this.width = Math.random() * 150 + 100;
+                this.height = this.width * 0.4;
+                this.speed = Math.random() * 0.3 + 0.1;
+                this.opacity = Math.random() * 0.3 + 0.3;
+            }
+
+            draw(ctx) {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.ellipse(this.x, this.y, this.width / 2, this.height / 2, 0, 0, Math.PI * 2);
+                ctx.ellipse(this.x + this.width * 0.3, this.y - this.height * 0.2, this.width / 3, this.height / 3, 0, 0, Math.PI * 2);
+                ctx.ellipse(this.x - this.width * 0.3, this.y - this.height * 0.1, this.width / 3, this.height / 3, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            update(speed) {
+                this.x += this.speed * speed;
+                if (this.x > canvases.clouds.width + this.width) {
+                    this.x = -this.width;
+                }
+            }
+        }
+
+        // Bird animation
+        class Bird {
+            constructor() {
+                this.x = Math.random() * canvases.birds.width;
+                this.y = Math.random() * canvases.birds.height;
+                this.speed = Math.random() * 1.5 + 0.5;
+                this.wingPhase = Math.random() * Math.PI * 2;
+                this.size = Math.random() * 8 + 6;
+            }
+
+            draw(ctx) {
+                const wingAngle = Math.sin(this.wingPhase) * 0.3;
+                ctx.strokeStyle = 'rgba(50, 50, 50, 0.6)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(this.x - this.size, this.y);
+                ctx.quadraticCurveTo(this.x, this.y - this.size * wingAngle, this.x + this.size, this.y);
+                ctx.stroke();
+            }
+
+            update(speed) {
+                this.x += this.speed * speed;
+                this.wingPhase += 0.2 * speed;
+                if (this.x > canvases.birds.width + 50) {
+                    this.x = -50;
+                    this.y = Math.random() * canvases.birds.height;
+                }
+            }
+        }
+
+        // Particle system (for rain, snow, petals)
+        class Particle {
+            constructor(type) {
+                this.type = type;
+                this.x = Math.random() * canvases.particles.width;
+                this.y = Math.random() * canvases.particles.height - canvases.particles.height;
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvases.particles.width;
+                this.y = -20;
+                
+                if (this.type === 'rain') {
+                    this.speed = Math.random() * 5 + 8;
+                    this.length = Math.random() * 15 + 10;
+                    this.opacity = Math.random() * 0.3 + 0.4;
+                } else if (this.type === 'snow') {
+                    this.speed = Math.random() * 1 + 0.5;
+                    this.size = Math.random() * 3 + 2;
+                    this.opacity = Math.random() * 0.5 + 0.5;
+                    this.drift = Math.random() * 0.5 - 0.25;
+                } else if (this.type === 'cherry') {
+                    this.speed = Math.random() * 1.5 + 0.5;
+                    this.size = Math.random() * 8 + 4;
+                    this.rotation = Math.random() * Math.PI * 2;
+                    this.rotationSpeed = Math.random() * 0.1 - 0.05;
+                    this.drift = Math.random() * 1 - 0.5;
+                    this.opacity = Math.random() * 0.4 + 0.4;
+                }
+            }
+
+            draw(ctx) {
+                if (this.type === 'rain') {
+                    ctx.strokeStyle = `rgba(174, 194, 224, ${this.opacity})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x, this.y + this.length);
+                    ctx.stroke();
+                } else if (this.type === 'snow') {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (this.type === 'cherry') {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.rotation);
+                    ctx.fillStyle = `rgba(255, 182, 193, ${this.opacity})`;
+                    // Draw petal shape
+                    for (let i = 0; i < 5; i++) {
+                        ctx.beginPath();
+                        ctx.ellipse(0, -this.size / 3, this.size / 4, this.size / 2, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.rotate(Math.PI * 2 / 5);
+                    }
+                    ctx.restore();
+                }
+            }
+
+            update(speed) {
+                this.y += this.speed * speed;
+                
+                if (this.type === 'snow' || this.type === 'cherry') {
+                    this.x += this.drift * speed;
+                }
+                
+                if (this.type === 'cherry') {
+                    this.rotation += this.rotationSpeed * speed;
+                }
+
+                if (this.y > canvases.particles.height) {
+                    this.reset();
+                }
+            }
+        }
+
+        // Water ripple effect
+        class WaterEffect {
+            constructor() {
+                this.ripples = [];
+                this.time = 0;
+            }
+
+            addRipple() {
+                if (Math.random() < 0.02) {
+                    this.ripples.push({
+                        x: Math.random() * canvases.water.width,
+                        y: Math.random() * canvases.water.height,
+                        radius: 0,
+                        maxRadius: Math.random() * 50 + 30,
+                        alpha: 1
+                    });
+                }
+            }
+
+            draw(ctx) {
+                ctx.clearRect(0, 0, canvases.water.width, canvases.water.height);
+                
+                // Draw subtle shimmer
+                this.time += 0.01;
+                const gradient = ctx.createLinearGradient(0, 0, canvases.water.width, 0);
+                gradient.addColorStop(0, `rgba(255, 255, 255, ${0.1 + Math.sin(this.time) * 0.05})`);
+                gradient.addColorStop(0.5, `rgba(255, 255, 255, ${0.15 + Math.cos(this.time * 1.5) * 0.05})`);
+                gradient.addColorStop(1, `rgba(255, 255, 255, ${0.1 + Math.sin(this.time * 0.8) * 0.05})`);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvases.water.width, canvases.water.height);
+
+                // Draw ripples
+                this.ripples.forEach((ripple, index) => {
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${ripple.alpha * 0.3})`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    ripple.radius += 1;
+                    ripple.alpha -= 0.02;
+
+                    if (ripple.alpha <= 0 || ripple.radius > ripple.maxRadius) {
+                        this.ripples.splice(index, 1);
+                    }
+                });
+            }
+
+            update() {
+                this.addRipple();
+            }
+        }
+
+        // Initialize animation objects
+        let stars = [];
+        let clouds = [];
+        let birds = [];
+        let particles = [];
+        const waterEffect = new WaterEffect();
+
+        function initAnimations() {
+            stars = [];
+            for (let i = 0; i < 150; i++) {
+                stars.push(new Star());
+            }
+
+            clouds = [];
+            for (let i = 0; i < 8; i++) {
+                clouds.push(new Cloud());
+            }
+
+            birds = [];
+            for (let i = 0; i < 5; i++) {
+                birds.push(new Bird());
+            }
+        }
+
+        function initParticles(type) {
+            particles = [];
+            if (type !== 'clear') {
+                const count = type === 'rain' ? 100 : (type === 'snow' ? 80 : 60);
+                for (let i = 0; i < count; i++) {
+                    particles.push(new Particle(type));
+                }
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            // Clear canvases
+            contexts.stars.clearRect(0, 0, canvases.stars.width, canvases.stars.height);
+            contexts.clouds.clearRect(0, 0, canvases.clouds.width, canvases.clouds.height);
+            contexts.birds.clearRect(0, 0, canvases.birds.width, canvases.birds.height);
+            contexts.particles.clearRect(0, 0, canvases.particles.width, canvases.particles.height);
+
+            // Draw and update stars (only at night)
+            if (state.timeOfDay === 'night') {
+                stars.forEach(star => {
+                    star.update();
+                    star.draw(contexts.stars);
+                });
+            }
+
+            // Draw and update clouds
+            clouds.forEach(cloud => {
+                cloud.update(state.animationSpeed);
+                cloud.draw(contexts.clouds);
+            });
+
+            // Draw and update birds
+            if (Math.random() < 0.995) {
+                birds.forEach(bird => {
+                    bird.update(state.animationSpeed);
+                    bird.draw(contexts.birds);
+                });
+            }
+
+            // Draw and update particles
+            particles.forEach(particle => {
+                particle.update(state.animationSpeed);
+                particle.draw(contexts.particles);
+            });
+
+            // Update water effect
+            waterEffect.update();
+            waterEffect.draw(contexts.water);
+
+            requestAnimationFrame(animate);
+        }
+
+        // Change time of day
+        function changeTimeOfDay(time) {
+            state.timeOfDay = time;
+            const sky = document.getElementById('sky');
+            sky.className = 'sky-layer';
+            
+            switch(time) {
+                case 'sunrise':
+                    sky.classList.add('sky-sunrise');
+                    break;
+                case 'day':
+                    sky.classList.add('sky-day');
+                    break;
+                case 'golden':
+                    sky.classList.add('sky-golden');
+                    break;
+                case 'night':
+                    sky.classList.add('sky-night');
+                    break;
+            }
+        }
+
+        // Change weather
+        function changeWeather(weather) {
+            state.weather = weather;
+            
+            switch(weather) {
+                case 'clear':
+                    initParticles('clear');
+                    break;
+                case 'cherry':
+                    initParticles('cherry');
+                    break;
+                case 'rain':
+                    initParticles('rain');
+                    break;
+                case 'snow':
+                    initParticles('snow');
+                    break;
+            }
+        }
+
+        // Change view
+        function changeView(viewId) {
+            state.view = viewId;
+            const scenes = document.querySelectorAll('.scene-image');
+            scenes.forEach((scene, index) => {
+                if (scene.id === `scene-${viewId}`) {
+                    scene.classList.add('active');
+                } else {
+                    scene.classList.remove('active');
+                }
+            });
+        }
+
+        // Auto-cycle through times of day
+        let autoCycleInterval;
+        function toggleAutoCycle(enabled) {
+            state.autoCycle = enabled;
+            
+            if (enabled) {
+                const times = ['sunrise', 'day', 'golden', 'night'];
+                let currentIndex = times.indexOf(state.timeOfDay);
+                
+                autoCycleInterval = setInterval(() => {
+                    currentIndex = (currentIndex + 1) % times.length;
+                    changeTimeOfDay(times[currentIndex]);
+                    
+                    // Update button states
+                    document.querySelectorAll('[data-time]').forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.time === times[currentIndex]);
+                    });
+                }, 15000); // Change every 15 seconds
+            } else {
+                clearInterval(autoCycleInterval);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('control-toggle').addEventListener('click', () => {
+            state.controlsVisible = !state.controlsVisible;
+            document.getElementById('control-panel').classList.toggle('visible', state.controlsVisible);
+        });
+
+        // Time of day buttons
+        document.querySelectorAll('[data-time]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                changeTimeOfDay(btn.dataset.time);
+                
+                // Disable auto-cycle if manually changed
+                if (state.autoCycle) {
+                    document.getElementById('auto-cycle').checked = false;
+                    toggleAutoCycle(false);
+                }
+            });
+        });
+
+        // Weather buttons
+        document.querySelectorAll('[data-weather]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-weather]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                changeWeather(btn.dataset.weather);
+            });
+        });
+
+        // View buttons
+        document.querySelectorAll('[data-view]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                changeView(btn.dataset.view);
+            });
+        });
+
+        // Speed slider
+        const speedSlider = document.getElementById('speed-slider');
+        const speedValue = document.getElementById('speed-value');
+        speedSlider.addEventListener('input', (e) => {
+            state.animationSpeed = parseFloat(e.target.value);
+            speedValue.textContent = `${state.animationSpeed}x`;
+        });
+
+        // Auto-cycle toggle
+        document.getElementById('auto-cycle').addEventListener('change', (e) => {
+            toggleAutoCycle(e.target.checked);
+        });
+
+        // Window resize
+        window.addEventListener('resize', () => {
+            resizeCanvases();
+        });
+
+        // Initialize
+        resizeCanvases();
+        initAnimations();
+        initParticles('clear');
+        animate();
+    </script>
+</body>
+</html>
