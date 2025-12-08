@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autumn Street Relaxation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .scene-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 40%, #D4A574 100%);
+            transition: background 1s ease;
+        }
+
+        .scene-container.evening {
+            background: linear-gradient(to bottom, #2C5F7C 0%, #8B6F47 40%, #4A3728 100%);
+        }
+
+        .scene-container.night {
+            background: linear-gradient(to bottom, #0a1628 0%, #1a2844 40%, #2c3e50 100%);
+        }
+
+        /* Street */
+        .street {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35%;
+            background: linear-gradient(to bottom, #4A4A4A 0%, #3A3A3A 50%, #2A2A2A 100%);
+            transform-origin: bottom;
+            perspective: 1000px;
+        }
+
+        .street::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: repeating-linear-gradient(
+                to right,
+                #FFD700 0px,
+                #FFD700 40px,
+                transparent 40px,
+                transparent 80px
+            );
+            opacity: 0.7;
+        }
+
+        /* Sidewalk */
+        .sidewalk {
+            position: absolute;
+            bottom: 0;
+            width: 20%;
+            height: 100%;
+            background: linear-gradient(to bottom, #9B8B7E 0%, #7A6A5D 100%);
+        }
+
+        .sidewalk.left {
+            left: 0;
+        }
+
+        .sidewalk.right {
+            right: 0;
+        }
+
+        /* Trees */
+        .tree {
+            position: absolute;
+            bottom: 25%;
+            width: 120px;
+            height: 400px;
+        }
+
+        .tree-trunk {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 180px;
+            background: linear-gradient(to right, #4A3728 0%, #6B5344 50%, #4A3728 100%);
+            border-radius: 8px;
+        }
+
+        .tree-trunk::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: -5px;
+            width: 50px;
+            height: 3px;
+            background: #3A2718;
+            border-radius: 2px;
+        }
+
+        .tree-trunk::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -3px;
+            width: 46px;
+            height: 3px;
+            background: #3A2718;
+            border-radius: 2px;
+        }
+
+        .tree-canopy {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 250px;
+        }
+
+        .branch {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(1px);
+        }
+
+        .branch:nth-child(1) {
+            top: 20%;
+            left: 20%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #D2691E 0%, #8B4513 100%);
+        }
+
+        .branch:nth-child(2) {
+            top: 10%;
+            left: 50%;
+            width: 90px;
+            height: 90px;
+            background: radial-gradient(circle, #CD853F 0%, #A0522D 100%);
+        }
+
+        .branch:nth-child(3) {
+            top: 30%;
+            right: 20%;
+            width: 75px;
+            height: 75px;
+            background: radial-gradient(circle, #DAA520 0%, #B8860B 100%);
+        }
+
+        .branch:nth-child(4) {
+            top: 50%;
+            left: 10%;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, #FF8C00 0%, #D2691E 100%);
+        }
+
+        .branch:nth-child(5) {
+            top: 45%;
+            right: 15%;
+            width: 85px;
+            height: 85px;
+            background: radial-gradient(circle, #B8860B 0%, #8B6914 100%);
+        }
+
+        /* Leaves */
+        .leaf {
+            position: absolute;
+            width: 12px;
+            height: 16px;
+            background: #CD853F;
+            border-radius: 0 100% 0 100%;
+            opacity: 0.9;
+            animation: fall linear infinite;
+            transform-origin: center;
+        }
+
+        .leaf::before {
+            content: '';
+            position: absolute;
+            width: 1px;
+            height: 12px;
+            background: #8B4513;
+            left: 50%;
+            top: 2px;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg) translateX(0);
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg) translateX(var(--drift));
+                opacity: 0.3;
+            }
+        }
+
+        @keyframes fallWindy {
+            0% {
+                transform: translateY(-100vh) rotate(0deg) translateX(0);
+                opacity: 1;
+            }
+            25% {
+                transform: translateY(25vh) rotate(180deg) translateX(calc(var(--drift) * 2));
+            }
+            50% {
+                transform: translateY(50vh) rotate(360deg) translateX(calc(var(--drift) * -1));
+                opacity: 0.8;
+            }
+            75% {
+                transform: translateY(75vh) rotate(540deg) translateX(calc(var(--drift) * 3));
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg) translateX(var(--drift));
+                opacity: 0.3;
+            }
+        }
+
+        .leaf.windy {
+            animation: fallWindy linear infinite;
+        }
+
+        /* Lamp posts */
+        .lamp {
+            position: absolute;
+            bottom: 25%;
+            width: 20px;
+            height: 300px;
+        }
+
+        .lamp-post {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 250px;
+            background: linear-gradient(to right, #2C2C2C 0%, #444 50%, #2C2C2C 100%);
+            border-radius: 6px;
+        }
+
+        .lamp-light {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: #2C2C2C;
+            border-radius: 50% 50% 0 0;
+        }
+
+        .lamp-light::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #FFF8DC 0%, #FFD700 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 60px 30px rgba(255, 215, 0, 0.3);
+            opacity: 0.9;
+        }
+
+        .scene-container.night .lamp-light::after {
+            box-shadow: 0 0 100px 50px rgba(255, 215, 0, 0.5);
+            opacity: 1;
+        }
+
+        /* Ground leaves */
+        .ground-leaf {
+            position: absolute;
+            width: 15px;
+            height: 20px;
+            background: #8B4513;
+            border-radius: 0 100% 0 100%;
+            opacity: 0.6;
+            bottom: 25%;
+        }
+
+        /* Stars */
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .scene-container.night .star {
+            opacity: 1;
+        }
+
+        /* Moon */
+        .moon {
+            position: absolute;
+            top: 10%;
+            right: 15%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #FFF8DC 0%, #F0E68C 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 40px 10px rgba(255, 248, 220, 0.3);
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .scene-container.night .moon {
+            opacity: 1;
+        }
+
+        /* Sun */
+        .sun {
+            position: absolute;
+            top: 15%;
+            right: 20%;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #FFD700 0%, #FFA500 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 60px 20px rgba(255, 215, 0, 0.4);
+            transition: opacity 1s ease, top 1s ease;
+        }
+
+        .scene-container.evening .sun {
+            top: 50%;
+            opacity: 0.7;
+            background: radial-gradient(circle, #FF6347 0%, #FF4500 100%);
+        }
+
+        .scene-container.night .sun {
+            opacity: 0;
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 250px;
+        }
+
+        .controls h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .control-group button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 8px;
+            border: none;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #D2691E 0%, #CD853F 100%);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .control-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .control-group button.active {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3) inset;
+        }
+
+        .toggle-controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(210, 105, 30, 0.9);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 999;
+            transition: all 0.3s;
+        }
+
+        .toggle-controls:hover {
+            background: rgba(139, 69, 19, 0.9);
+            transform: scale(1.05);
+        }
+
+        .controls.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <button class="toggle-controls" onclick="toggleControls()">☰ Controls</button>
+    
+    <div class="controls hidden">
+        <h3>🍂 Scene Controls</h3>
+        
+        <div class="control-group">
+            <label>Time of Day:</label>
+            <button onclick="setTime('day')" id="btn-day" class="active">☀️ Day</button>
+            <button onclick="setTime('evening')" id="btn-evening">🌅 Evening</button>
+            <button onclick="setTime('night')" id="btn-night">🌙 Night</button>
+        </div>
+        
+        <div class="control-group">
+            <label>Wind:</label>
+            <button onclick="setWind('calm')" id="btn-calm" class="active">🍃 Calm</button>
+            <button onclick="setWind('windy')" id="btn-windy">💨 Windy</button>
+        </div>
+        
+        <div class="control-group">
+            <label>Leaf Amount:</label>
+            <button onclick="setLeafDensity('light')" id="btn-light">Light</button>
+            <button onclick="setLeafDensity('medium')" id="btn-medium" class="active">Medium</button>
+            <button onclick="setLeafDensity('heavy')" id="btn-heavy">Heavy</button>
+        </div>
+    </div>
+
+    <div class="scene-container" id="scene">
+        <!-- Sun -->
+        <div class="sun"></div>
+        
+        <!-- Moon -->
+        <div class="moon"></div>
+        
+        <!-- Stars -->
+        <div id="stars"></div>
+        
+        <!-- Street -->
+        <div class="street"></div>
+        
+        <!-- Sidewalks -->
+        <div class="sidewalk left"></div>
+        <div class="sidewalk right"></div>
+        
+        <!-- Trees and lamps container -->
+        <div id="trees-container"></div>
+        
+        <!-- Leaves container -->
+        <div id="leaves-container"></div>
+        
+        <!-- Ground leaves -->
+        <div id="ground-leaves"></div>
+    </div>
+
+    <script>
+        let currentWind = 'calm';
+        let currentDensity = 'medium';
+        let leafColors = ['#CD853F', '#D2691E', '#DAA520', '#FF8C00', '#8B4513', '#B8860B'];
+        
+        function toggleControls() {
+            const controls = document.querySelector('.controls');
+            controls.classList.toggle('hidden');
+        }
+
+        function setTime(time) {
+            const scene = document.getElementById('scene');
+            scene.className = 'scene-container ' + (time !== 'day' ? time : '');
+            
+            document.querySelectorAll('.control-group button').forEach(btn => {
+                if (btn.id.includes('btn-')) btn.classList.remove('active');
+            });
+            document.getElementById('btn-' + time).classList.add('active');
+        }
+
+        function setWind(wind) {
+            currentWind = wind;
+            document.querySelectorAll('.leaf').forEach(leaf => {
+                if (wind === 'windy') {
+                    leaf.classList.add('windy');
+                } else {
+                    leaf.classList.remove('windy');
+                }
+            });
+            
+            document.getElementById('btn-calm').classList.remove('active');
+            document.getElementById('btn-windy').classList.remove('active');
+            document.getElementById('btn-' + wind).classList.add('active');
+        }
+
+        function setLeafDensity(density) {
+            currentDensity = density;
+            const amounts = { light: 30, medium: 60, heavy: 100 };
+            createLeaves(amounts[density]);
+            
+            document.getElementById('btn-light').classList.remove('active');
+            document.getElementById('btn-medium').classList.remove('active');
+            document.getElementById('btn-heavy').classList.remove('active');
+            document.getElementById('btn-' + density).classList.add('active');
+        }
+
+        function createLeaves(count) {
+            const container = document.getElementById('leaves-container');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < count; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'leaf' + (currentWind === 'windy' ? ' windy' : '');
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.background = leafColors[Math.floor(Math.random() * leafColors.length)];
+                leaf.style.animationDuration = (Math.random() * 5 + 8) + 's';
+                leaf.style.animationDelay = Math.random() * 5 + 's';
+                leaf.style.setProperty('--drift', (Math.random() * 200 - 100) + 'px');
+                leaf.style.width = (Math.random() * 6 + 10) + 'px';
+                leaf.style.height = (Math.random() * 8 + 14) + 'px';
+                container.appendChild(leaf);
+            }
+        }
+
+        function createTrees() {
+            const container = document.getElementById('trees-container');
+            const positions = [
+                { left: '8%', bottom: '25%' },
+                { left: '25%', bottom: '25%' },
+                { left: '42%', bottom: '25%' },
+                { left: '58%', bottom: '25%' },
+                { left: '75%', bottom: '25%' },
+                { left: '92%', bottom: '25%' }
+            ];
+
+            positions.forEach((pos, index) => {
+                if (index % 2 === 0) {
+                    const tree = document.createElement('div');
+                    tree.className = 'tree';
+                    tree.style.left = pos.left;
+                    tree.style.bottom = pos.bottom;
+                    
+                    const trunk = document.createElement('div');
+                    trunk.className = 'tree-trunk';
+                    
+                    const canopy = document.createElement('div');
+                    canopy.className = 'tree-canopy';
+                    
+                    for (let i = 0; i < 5; i++) {
+                        const branch = document.createElement('div');
+                        branch.className = 'branch';
+                        canopy.appendChild(branch);
+                    }
+                    
+                    tree.appendChild(trunk);
+                    tree.appendChild(canopy);
+                    container.appendChild(tree);
+                } else {
+                    const lamp = document.createElement('div');
+                    lamp.className = 'lamp';
+                    lamp.style.left = pos.left;
+                    lamp.style.bottom = pos.bottom;
+                    
+                    const post = document.createElement('div');
+                    post.className = 'lamp-post';
+                    
+                    const light = document.createElement('div');
+                    light.className = 'lamp-light';
+                    
+                    lamp.appendChild(post);
+                    lamp.appendChild(light);
+                    container.appendChild(lamp);
+                }
+            });
+        }
+
+        function createGroundLeaves() {
+            const container = document.getElementById('ground-leaves');
+            for (let i = 0; i < 40; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'ground-leaf';
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.background = leafColors[Math.floor(Math.random() * leafColors.length)];
+                leaf.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+                leaf.style.width = (Math.random() * 8 + 12) + 'px';
+                leaf.style.height = (Math.random() * 10 + 16) + 'px';
+                container.appendChild(leaf);
+            }
+        }
+
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 60 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                container.appendChild(star);
+            }
+        }
+
+        // Initialize
+        createTrees();
+        createLeaves(60);
+        createGroundLeaves();
+        createStars();
+    </script>
+</body>
+</html>
