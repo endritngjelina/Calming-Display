@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autumn Street - Calming Scene</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .scene-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0AC69 50%, #8B4513 100%);
+            transition: background 2s ease;
+        }
+
+        /* Sky and atmosphere */
+        .sky {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                #4A90E2 0%, 
+                #F39C12 40%, 
+                #E67E22 60%, 
+                #D35400 100%);
+            transition: opacity 2s ease;
+        }
+
+        .sky.dusk {
+            background: linear-gradient(to bottom, 
+                #2C3E50 0%, 
+                #E74C3C 40%, 
+                #C0392B 70%, 
+                #1A252F 100%);
+        }
+
+        /* Sun/Moon */
+        .celestial {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            top: 15%;
+            right: 20%;
+            background: radial-gradient(circle at 30% 30%, #FFF8DC, #FFD700);
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.8);
+            animation: celestialFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes celestialFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Clouds */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 100px;
+            width: 200px;
+            height: 60px;
+            top: 20%;
+            animation: cloudDrift 60s linear infinite;
+        }
+
+        .cloud:before {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            width: 100px;
+            height: 80px;
+            border-radius: 100px;
+            top: -40px;
+            left: 30px;
+        }
+
+        .cloud:after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            width: 120px;
+            height: 70px;
+            border-radius: 100px;
+            top: -30px;
+            right: 30px;
+        }
+
+        .cloud1 { left: -10%; animation-duration: 45s; }
+        .cloud2 { left: 30%; top: 15%; animation-duration: 60s; animation-delay: -20s; }
+        .cloud3 { left: 60%; top: 25%; animation-duration: 50s; animation-delay: -40s; }
+
+        @keyframes cloudDrift {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(120vw); }
+        }
+
+        /* Street */
+        .street {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(to bottom, #5D4E37 0%, #3E2723 100%);
+            perspective: 1000px;
+        }
+
+        .street:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30%;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                rgba(80, 80, 80, 0.6) 0%, 
+                rgba(60, 60, 60, 0.8) 100%);
+            clip-path: polygon(40% 0%, 60% 0%, 100% 100%, 0% 100%);
+        }
+
+        /* Sidewalk */
+        .sidewalk {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 15%;
+            background: linear-gradient(to bottom, #A0826D 0%, #8B7355 100%);
+        }
+
+        /* Trees container */
+        .trees {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Tree styling */
+        .tree {
+            position: absolute;
+            bottom: 15%;
+            width: 80px;
+            height: 250px;
+            transform-origin: bottom center;
+        }
+
+        .tree.windy {
+            animation: treeSway 3s ease-in-out infinite;
+        }
+
+        @keyframes treeSway {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(2deg); }
+            75% { transform: rotate(-2deg); }
+        }
+
+        .trunk {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 120px;
+            background: linear-gradient(to right, #4A3728, #6D4C3D, #4A3728);
+            border-radius: 10px;
+        }
+
+        .canopy {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+        }
+
+        .branch {
+            position: absolute;
+            background: radial-gradient(circle, 
+                rgba(255, 140, 0, 0.8),
+                rgba(218, 112, 20, 0.7),
+                rgba(178, 34, 34, 0.6));
+            border-radius: 50%;
+        }
+
+        .branch1 { width: 70px; height: 70px; top: 20%; left: 15%; animation: branchWave 4s ease-in-out infinite; }
+        .branch2 { width: 60px; height: 60px; top: 10%; right: 10%; animation: branchWave 3.5s ease-in-out infinite 0.5s; }
+        .branch3 { width: 65px; height: 65px; bottom: 10%; left: 20%; animation: branchWave 4.5s ease-in-out infinite 1s; }
+        .branch4 { width: 55px; height: 55px; bottom: 15%; right: 15%; animation: branchWave 3.8s ease-in-out infinite 1.5s; }
+        .branch5 { width: 50px; height: 50px; top: 40%; left: 50%; transform: translateX(-50%); animation: branchWave 4.2s ease-in-out infinite 0.8s; }
+
+        @keyframes branchWave {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.05) rotate(5deg); }
+        }
+
+        /* Position trees along the street */
+        .tree1 { left: 5%; }
+        .tree2 { left: 18%; height: 220px; }
+        .tree3 { left: 32%; height: 280px; }
+        .tree4 { left: 68%; height: 270px; }
+        .tree5 { left: 82%; height: 230px; }
+        .tree6 { right: 5%; height: 240px; }
+
+        /* Falling leaves */
+        .leaf {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: linear-gradient(135deg, #FF8C00, #FF4500);
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            animation: leafFall linear infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes leafFall {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) translateX(var(--drift)) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Lamp posts */
+        .lamp {
+            position: absolute;
+            bottom: 15%;
+            width: 10px;
+            height: 200px;
+            background: linear-gradient(to bottom, #333, #555);
+            border-radius: 5px;
+        }
+
+        .lamp-light {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #FFD700, transparent 70%);
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.6);
+            animation: lampFlicker 4s ease-in-out infinite;
+        }
+
+        @keyframes lampFlicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+
+        .lamp-glow {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.2), transparent 70%);
+            border-radius: 50%;
+        }
+
+        .lamp1 { left: 15%; }
+        .lamp2 { right: 15%; }
+
+        /* Fog effect */
+        .fog {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, 
+                rgba(200, 200, 200, 0.4) 0%, 
+                transparent 100%);
+            opacity: 0;
+            transition: opacity 1s ease;
+            animation: fogMove 20s ease-in-out infinite;
+        }
+
+        .fog.active {
+            opacity: 1;
+        }
+
+        @keyframes fogMove {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(30px); }
+        }
+
+        /* Rain */
+        .rain {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .rain.active {
+            opacity: 1;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            height: 30px;
+            background: linear-gradient(to bottom, transparent, rgba(174, 194, 224, 0.8));
+            animation: rainFall 1s linear infinite;
+        }
+
+        @keyframes rainFall {
+            0% { transform: translateY(-100px); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0.3; }
+        }
+
+        /* Birds */
+        .bird {
+            position: absolute;
+            width: 30px;
+            height: 20px;
+            animation: birdFly 15s linear infinite;
+        }
+
+        .bird:before, .bird:after {
+            content: '';
+            position: absolute;
+            background: #333;
+            width: 15px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        .bird:before {
+            left: 0;
+            transform: rotate(-20deg);
+            animation: wingFlap 0.5s ease-in-out infinite;
+        }
+
+        .bird:after {
+            right: 0;
+            transform: rotate(20deg);
+            animation: wingFlap 0.5s ease-in-out infinite 0.25s;
+        }
+
+        @keyframes birdFly {
+            0% { left: -5%; top: 15%; }
+            100% { left: 105%; top: 20%; }
+        }
+
+        @keyframes wingFlap {
+            0%, 100% { transform: rotate(-20deg) scaleY(1); }
+            50% { transform: rotate(-35deg) scaleY(1.2); }
+        }
+
+        .bird1 { animation-duration: 12s; }
+        .bird2 { animation-duration: 18s; animation-delay: -5s; top: 18% !important; }
+        .bird3 { animation-duration: 15s; animation-delay: -10s; top: 12% !important; }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            color: white;
+            min-width: 250px;
+        }
+
+        .controls h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .control-group {
+            margin-bottom: 18px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn.active {
+            background: rgba(255, 215, 0, 0.4);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .toggle-switch {
+            display: flex;
+            gap: 10px;
+        }
+
+        .toggle-switch .btn {
+            flex: 1;
+        }
+
+        /* Particles (fireflies/sparkles) */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 215, 0, 0.9);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            animation: particleFloat 8s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes particleFloat {
+            0%, 100% { 
+                transform: translateY(0) translateX(0); 
+                opacity: 0;
+            }
+            10%, 90% { opacity: 1; }
+            50% { 
+                transform: translateY(-100px) translateX(var(--x-drift)); 
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <div class="sky" id="sky">
+            <div class="celestial"></div>
+            <div class="cloud cloud1"></div>
+            <div class="cloud cloud2"></div>
+            <div class="cloud cloud3"></div>
+            
+            <div class="bird bird1"></div>
+            <div class="bird bird2"></div>
+            <div class="bird bird3"></div>
+        </div>
+
+        <div class="trees" id="trees">
+            <div class="tree tree1">
+                <div class="trunk"></div>
+                <div class="canopy">
+                    <div class="branch branch1"></div>
+                    <div class="branch branch2"></div>
+                    <div class="branch branch3"></div>
+                    <div class="branch branch4"></div>
+                    <div class="branch branch5"></div>
+                </div>
+            </div>
+            <div class="tree tree2">
+                <div class="trunk"></div>
+                <div class="canopy">
+                    <div class="branch branch1"></div>
+                    <div class="branch branch2"></div>
+                    <div class="branch branch3"></div>
+                    <div class="branch branch4"></div>
+                    <div class="branch branch5"></div>
+                </div>
+            </div>
+            <div class="tree tree3">
+                <div class="trunk"></div>
+                <div class="canopy">
+                    <div class="branch branch1"></div>
+                    <div class="branch branch2"></div>
+                    <div class="branch branch3"></div>
+                    <div class="branch branch4"></div>
+                    <div class="branch branch5"></div>
+                </div>
+            </div>
+            <div class="tree tree4">
+                <div class="trunk"></div>
+                <div class="canopy">
+                    <div class="branch branch1"></div>
+                    <div class="branch branch2"></div>
+                    <div class="branch branch3"></div>
+                    <div class="branch branch4"></div>
+                    <div class="branch branch5"></div>
+                </div>
+            </div>
+            <div class="tree tree5">
+                <div class="trunk"></div>
+                <div class="canopy">
+                    <div class="branch branch1"></div>
+                    <div class="branch branch2"></div>
+                    <div class="branch branch3"></div>
+                    <div class="branch branch4"></div>
+                    <div class="branch branch5"></div>
+                </div>
+            </div>
+            <div class="tree tree6">
+                <div class="trunk"></div>
+                <div class="canopy">
+                    <div class="branch branch1"></div>
+                    <div class="branch branch2"></div>
+                    <div class="branch branch3"></div>
+                    <div class="branch branch4"></div>
+                    <div class="branch branch5"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lamp lamp1">
+            <div class="lamp-light"></div>
+            <div class="lamp-glow"></div>
+        </div>
+        <div class="lamp lamp2">
+            <div class="lamp-light"></div>
+            <div class="lamp-glow"></div>
+        </div>
+
+        <div class="street"></div>
+        <div class="sidewalk"></div>
+        
+        <div class="fog" id="fog"></div>
+        <div class="rain" id="rain"></div>
+        <div id="leaves"></div>
+        <div id="particles"></div>
+    </div>
+
+    <div class="controls">
+        <h3>🍂 Scene Controls</h3>
+        
+        <div class="control-group">
+            <label>Wind</label>
+            <div class="toggle-switch">
+                <button class="btn" onclick="setWind('calm')">Calm</button>
+                <button class="btn active" onclick="setWind('windy')">Windy</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Time of Day</label>
+            <div class="toggle-switch">
+                <button class="btn active" onclick="setTime('day')">Day</button>
+                <button class="btn" onclick="setTime('dusk')">Dusk</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Weather Effects</label>
+            <button class="btn" onclick="toggleFog()">Toggle Fog</button>
+            <button class="btn" onclick="toggleRain()">Toggle Rain</button>
+        </div>
+
+        <div class="control-group">
+            <label>Special Effects</label>
+            <button class="btn" onclick="toggleParticles()">Fireflies</button>
+            <button class="btn active" onclick="toggleLeaves()">Leaves</button>
+        </div>
+    </div>
+
+    <script>
+        let leavesActive = true;
+        let particlesActive = false;
+        let windyMode = true;
+
+        // Create falling leaves
+        function createLeaves() {
+            const leavesContainer = document.getElementById('leaves');
+            leavesContainer.innerHTML = '';
+            
+            for (let i = 0; i < 50; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'leaf';
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.setProperty('--drift', (Math.random() * 200 - 100) + 'px');
+                leaf.style.animationDuration = (Math.random() * 5 + 8) + 's';
+                leaf.style.animationDelay = (Math.random() * 5) + 's';
+                
+                // Vary leaf colors
+                const colors = [
+                    'linear-gradient(135deg, #FF8C00, #FF4500)',
+                    'linear-gradient(135deg, #FFD700, #FF8C00)',
+                    'linear-gradient(135deg, #DC143C, #8B0000)',
+                    'linear-gradient(135deg, #DAA520, #B8860B)'
+                ];
+                leaf.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                leavesContainer.appendChild(leaf);
+            }
+        }
+
+        // Create rain
+        function createRain() {
+            const rainContainer = document.getElementById('rain');
+            rainContainer.innerHTML = '';
+            
+            for (let i = 0; i < 100; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'raindrop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
+                drop.style.animationDelay = (Math.random() * 2) + 's';
+                rainContainer.appendChild(drop);
+            }
+        }
+
+        // Create particles (fireflies)
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            particlesContainer.innerHTML = '';
+            
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.bottom = Math.random() * 60 + '%';
+                particle.style.setProperty('--x-drift', (Math.random() * 100 - 50) + 'px');
+                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                particle.style.animationDelay = (Math.random() * 8) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Wind control
+        function setWind(mode) {
+            const trees = document.querySelectorAll('.tree');
+            const buttons = document.querySelectorAll('.toggle-switch .btn');
+            
+            windyMode = mode === 'windy';
+            
+            trees.forEach(tree => {
+                if (windyMode) {
+                    tree.classList.add('windy');
+                } else {
+                    tree.classList.remove('windy');
+                }
+            });
+
+            // Update button states
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Recreate leaves with different animation for wind
+            if (leavesActive) {
+                createLeaves();
+            }
+        }
+
+        // Time of day control
+        function setTime(time) {
+            const sky = document.getElementById('sky');
+            const buttons = event.target.parentElement.querySelectorAll('.btn');
+            
+            if (time === 'dusk') {
+                sky.classList.add('dusk');
+            } else {
+                sky.classList.remove('dusk');
+            }
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // Toggle effects
+        function toggleFog() {
+            const fog = document.getElementById('fog');
+            fog.classList.toggle('active');
+            event.target.classList.toggle('active');
+        }
+
+        function toggleRain() {
+            const rain = document.getElementById('rain');
+            rain.classList.toggle('active');
+            event.target.classList.toggle('active');
+        }
+
+        function toggleLeaves() {
+            leavesActive = !leavesActive;
+            event.target.classList.toggle('active');
+            
+            if (leavesActive) {
+                createLeaves();
+            } else {
+                document.getElementById('leaves').innerHTML = '';
+            }
+        }
+
+        function toggleParticles() {
+            particlesActive = !particlesActive;
+            event.target.classList.toggle('active');
+            
+            if (particlesActive) {
+                createParticles();
+            } else {
+                document.getElementById('particles').innerHTML = '';
+            }
+        }
+
+        // Initialize
+        createLeaves();
+        createRain();
+    </script>
+</body>
+</html>
