@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bioluminescent Mangrove Lagoon</title>
+    <style>
+        :root {
+            --color-primary: #00FFFF;
+            --color-secondary: #00E5FF;
+            --color-tertiary: #1FE0E0;
+            --color-water: #0a1a2e;
+            --glow-effect: 0 0 20px #00FFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-water);
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #scene {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Water background with gradient */
+        #water-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center bottom, rgba(0, 255, 255, 0.1) 0%, var(--color-water) 50%);
+            z-index: 1;
+        }
+
+        /* Wave ripples */
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background: transparent;
+            z-index: 2;
+        }
+
+        .wave-line {
+            position: absolute;
+            width: 200%;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(0, 255, 255, 0.1) 25%, 
+                rgba(0, 255, 255, 0.2) 50%, 
+                rgba(0, 255, 255, 0.1) 75%, 
+                transparent 100%);
+            opacity: 0.3;
+        }
+
+        .wave-line:nth-child(1) {
+            top: 20%;
+            animation: wave-move 8s linear infinite;
+        }
+
+        .wave-line:nth-child(2) {
+            top: 40%;
+            animation: wave-move 10s linear infinite;
+            animation-delay: -2s;
+        }
+
+        .wave-line:nth-child(3) {
+            top: 60%;
+            animation: wave-move 12s linear infinite;
+            animation-delay: -4s;
+        }
+
+        .wave-line:nth-child(4) {
+            top: 80%;
+            animation: wave-move 14s linear infinite;
+            animation-delay: -6s;
+        }
+
+        @keyframes wave-move {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Canvas for plankton */
+        #plankton-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+        }
+
+        /* Mangrove roots */
+        #mangrove-roots {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            z-index: 4;
+            opacity: 0.8;
+            transition: opacity 0.5s ease;
+        }
+
+        .root {
+            position: absolute;
+            background: #000;
+            border-radius: 50% 50% 0 0;
+            opacity: 0.9;
+        }
+
+        /* Control panel */
+        #controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 13px;
+            z-index: 100;
+            max-width: 280px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #controls h2 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-primary);
+            text-shadow: var(--glow-effect);
+        }
+
+        .control-group {
+            margin-bottom: 16px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--color-primary);
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 8px var(--color-primary);
+        }
+
+        .control-group select {
+            width: 100%;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .control-group select:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle.active {
+            background: var(--color-primary);
+            box-shadow: 0 0 12px var(--color-primary);
+        }
+
+        .toggle-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle.active .toggle-knob {
+            transform: translateX(20px);
+        }
+
+        .value-display {
+            min-width: 40px;
+            text-align: right;
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #controls {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+                padding: 15px;
+            }
+        }
+
+        /* Ambient glow overlay */
+        #ambient-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(0, 255, 255, 0.05) 0%, transparent 70%);
+            z-index: 5;
+            pointer-events: none;
+            opacity: 0.6;
+            transition: opacity 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="scene">
+        <div id="water-background"></div>
+        
+        <div class="wave">
+            <div class="wave-line"></div>
+            <div class="wave-line"></div>
+            <div class="wave-line"></div>
+            <div class="wave-line"></div>
+        </div>
+
+        <canvas id="plankton-canvas"></canvas>
+
+        <div id="mangrove-roots"></div>
+
+        <div id="ambient-glow"></div>
+    </div>
+
+    <div id="controls">
+        <h2>Lagoon Controls</h2>
+        
+        <div class="control-group">
+            <div class="toggle-container">
+                <label>Plankton</label>
+                <div class="toggle active" id="plankton-toggle">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>
+                <span>Plankton Intensity</span>
+                <span class="value-display" id="plankton-intensity-value">70%</span>
+            </label>
+            <input type="range" id="plankton-intensity" min="0" max="100" value="70">
+        </div>
+
+        <div class="control-group">
+            <div class="toggle-container">
+                <label>Wave Ripples</label>
+                <div class="toggle active" id="wave-toggle">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>
+                <span>Wave Speed</span>
+                <span class="value-display" id="wave-speed-value">1.0x</span>
+            </label>
+            <input type="range" id="wave-speed" min="50" max="200" value="100">
+        </div>
+
+        <div class="control-group">
+            <label>
+                <span>Mangrove Visibility</span>
+                <span class="value-display" id="mangrove-visibility-value">80%</span>
+            </label>
+            <input type="range" id="mangrove-visibility" min="0" max="100" value="80">
+        </div>
+
+        <div class="control-group">
+            <label>
+                <span>Ambient Glow</span>
+                <span class="value-display" id="ambient-glow-value">60%</span>
+            </label>
+            <input type="range" id="ambient-glow" min="0" max="100" value="60">
+        </div>
+
+        <div class="control-group">
+            <label>Color Scheme</label>
+            <select id="color-scheme">
+                <option value="classic_cyan">Classic Cyan</option>
+                <option value="deep_purple">Deep Purple</option>
+                <option value="electric_blue">Electric Blue</option>
+                <option value="green_glow">Green Glow</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>
+                <span>Animation Speed</span>
+                <span class="value-display" id="animation-speed-value">1.0x</span>
+            </label>
+            <input type="range" id="animation-speed" min="50" max="200" value="100">
+        </div>
+
+        <div class="control-group">
+            <div class="toggle-container">
+                <label>Ambient Sound</label>
+                <div class="toggle active" id="sound-toggle">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const colorSchemes = {
+            classic_cyan: {
+                primary: '#00FFFF',
+                secondary: '#00E5FF',
+                tertiary: '#1FE0E0',
+                water: '#0a1a2e',
+                glow: '0 0 20px #00FFFF'
+            },
+            deep_purple: {
+                primary: '#C77DFF',
+                secondary: '#E0AAFF',
+                tertiary: '#9D4EDD',
+                water: '#1a0a2e',
+                glow: '0 0 20px #C77DFF'
+            },
+            electric_blue: {
+                primary: '#0066FF',
+                secondary: '#0080FF',
+                tertiary: '#00BFFF',
+                water: '#001a33',
+                glow: '0 0 20px #0080FF'
+            },
+            green_glow: {
+                primary: '#00FF80',
+                secondary: '#00FF99',
+                tertiary: '#00E066',
+                water: '#0a2e1a',
+                glow: '0 0 20px #00FF80'
+            }
+        };
+
+        // State
+        let state = {
+            planktonEnabled: true,
+            planktonIntensity: 70,
+            waveEnabled: true,
+            waveSpeed: 1.0,
+            mangroveVisibility: 80,
+            ambientGlow: 60,
+            colorScheme: 'classic_cyan',
+            animationSpeed: 1.0,
+            soundEnabled: true
+        };
+
+        // Canvas setup
+        const canvas = document.getElementById('plankton-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        }
+
+        // Particle class
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.baseSize = Math.random() * 3 + 1;
+                this.size = this.baseSize;
+                this.speedX = (Math.random() - 0.5) * 0.3;
+                this.speedY = (Math.random() - 0.5) * 0.3;
+                this.phase = Math.random() * Math.PI * 2;
+                this.pulseSpeed = Math.random() * 0.02 + 0.01;
+                this.opacity = 0;
+                this.targetOpacity = Math.random() * 0.8 + 0.2;
+            }
+
+            update(time) {
+                // Breathing/pulsing effect
+                this.phase += this.pulseSpeed * state.animationSpeed;
+                const pulse = Math.sin(this.phase) * 0.5 + 0.5;
+                this.opacity = pulse * this.targetOpacity * (state.planktonIntensity / 100);
+                this.size = this.baseSize * (0.7 + pulse * 0.6);
+
+                // Gentle floating movement
+                this.x += this.speedX * state.animationSpeed;
+                this.y += this.speedY * state.animationSpeed;
+
+                // Wrap around edges
+                if (this.x < -10) this.x = canvas.width + 10;
+                if (this.x > canvas.width + 10) this.x = -10;
+                if (this.y < -10) this.y = canvas.height + 10;
+                if (this.y > canvas.height + 10) this.y = -10;
+            }
+
+            draw() {
+                if (!state.planktonEnabled || this.opacity <= 0) return;
+
+                const scheme = colorSchemes[state.colorScheme];
+                const colors = [scheme.primary, scheme.secondary, scheme.tertiary];
+                const color = colors[Math.floor((this.x + this.y) % colors.length)];
+
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                
+                // Outer glow
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 4);
+                gradient.addColorStop(0, color);
+                gradient.addColorStop(0.3, color + '88');
+                gradient.addColorStop(1, 'transparent');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Core
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        function initParticles() {
+            const particleCount = Math.floor(150 * (canvas.width * canvas.height) / (1920 * 1080));
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        // Animation loop
+        let lastTime = 0;
+        function animate(time) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.update(time);
+                particle.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // Mangrove roots generation
+        function generateMangroveRoots() {
+            const container = document.getElementById('mangrove-roots');
+            container.innerHTML = '';
+
+            const rootCount = 15;
+            for (let i = 0; i < rootCount; i++) {
+                const root = document.createElement('div');
+                root.className = 'root';
+                
+                const width = Math.random() * 40 + 20;
+                const height = Math.random() * 200 + 150;
+                const left = (i / rootCount) * 100 + Math.random() * 5;
+                
+                root.style.width = width + 'px';
+                root.style.height = height + 'px';
+                root.style.left = left + '%';
+                root.style.bottom = '0';
+                root.style.transform = `skewX(${Math.random() * 20 - 10}deg)`;
+                
+                container.appendChild(root);
+            }
+        }
+
+        // Apply color scheme
+        function applyColorScheme(schemeName) {
+            const scheme = colorSchemes[schemeName];
+            const root = document.documentElement;
+            
+            root.style.setProperty('--color-primary', scheme.primary);
+            root.style.setProperty('--color-secondary', scheme.secondary);
+            root.style.setProperty('--color-tertiary', scheme.tertiary);
+            root.style.setProperty('--color-water', scheme.water);
+            root.style.setProperty('--glow-effect', scheme.glow);
+            
+            document.body.style.background = scheme.water;
+            document.getElementById('water-background').style.background = 
+                `radial-gradient(ellipse at center bottom, ${scheme.primary}1A 0%, ${scheme.water} 50%)`;
+        }
+
+        // Control handlers
+        function setupControls() {
+            // Plankton toggle
+            document.getElementById('plankton-toggle').addEventListener('click', function() {
+                state.planktonEnabled = !state.planktonEnabled;
+                this.classList.toggle('active', state.planktonEnabled);
+            });
+
+            // Plankton intensity
+            const planktonIntensity = document.getElementById('plankton-intensity');
+            const planktonIntensityValue = document.getElementById('plankton-intensity-value');
+            planktonIntensity.addEventListener('input', function() {
+                state.planktonIntensity = parseInt(this.value);
+                planktonIntensityValue.textContent = this.value + '%';
+            });
+
+            // Wave toggle
+            document.getElementById('wave-toggle').addEventListener('click', function() {
+                state.waveEnabled = !state.waveEnabled;
+                this.classList.toggle('active', state.waveEnabled);
+                const waveContainer = document.querySelector('.wave');
+                waveContainer.style.display = state.waveEnabled ? 'block' : 'none';
+            });
+
+            // Wave speed
+            const waveSpeed = document.getElementById('wave-speed');
+            const waveSpeedValue = document.getElementById('wave-speed-value');
+            waveSpeed.addEventListener('input', function() {
+                state.waveSpeed = parseInt(this.value) / 100;
+                waveSpeedValue.textContent = state.waveSpeed.toFixed(1) + 'x';
+                updateWaveSpeed();
+            });
+
+            // Mangrove visibility
+            const mangroveVisibility = document.getElementById('mangrove-visibility');
+            const mangroveVisibilityValue = document.getElementById('mangrove-visibility-value');
+            const mangroveRoots = document.getElementById('mangrove-roots');
+            mangroveVisibility.addEventListener('input', function() {
+                state.mangroveVisibility = parseInt(this.value);
+                mangroveVisibilityValue.textContent = this.value + '%';
+                mangroveRoots.style.opacity = state.mangroveVisibility / 100;
+            });
+
+            // Ambient glow
+            const ambientGlow = document.getElementById('ambient-glow');
+            const ambientGlowValue = document.getElementById('ambient-glow-value');
+            const ambientGlowEl = document.getElementById('ambient-glow');
+            ambientGlow.addEventListener('input', function() {
+                state.ambientGlow = parseInt(this.value);
+                ambientGlowValue.textContent = this.value + '%';
+                ambientGlowEl.style.opacity = state.ambientGlow / 100;
+            });
+
+            // Color scheme
+            const colorScheme = document.getElementById('color-scheme');
+            colorScheme.addEventListener('change', function() {
+                state.colorScheme = this.value;
+                applyColorScheme(this.value);
+            });
+
+            // Animation speed
+            const animationSpeed = document.getElementById('animation-speed');
+            const animationSpeedValue = document.getElementById('animation-speed-value');
+            animationSpeed.addEventListener('input', function() {
+                state.animationSpeed = parseInt(this.value) / 100;
+                animationSpeedValue.textContent = state.animationSpeed.toFixed(1) + 'x';
+            });
+
+            // Sound toggle
+            document.getElementById('sound-toggle').addEventListener('click', function() {
+                state.soundEnabled = !state.soundEnabled;
+                this.classList.toggle('active', state.soundEnabled);
+            });
+        }
+
+        function updateWaveSpeed() {
+            const waveLines = document.querySelectorAll('.wave-line');
+            waveLines.forEach((line, index) => {
+                const baseDuration = [8, 10, 12, 14][index];
+                const newDuration = baseDuration / state.waveSpeed;
+                line.style.animationDuration = newDuration + 's';
+            });
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            generateMangroveRoots();
+            setupControls();
+            applyColorScheme(state.colorScheme);
+            requestAnimationFrame(animate);
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+</html>
