@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Frost Meadow - Calming Experience</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-primary: var(--color-teal-500);
+            --color-focus-ring: rgba(33, 128, 141, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #e8f1f5 0%, #d4e8f0 50%, #c2dce8 100%);
+        }
+
+        .scene-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* Sky Background */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(180deg, 
+                #b8d9e8 0%,
+                #d4e8f0 30%,
+                #e8f1f5 100%);
+            transition: background 3s ease;
+        }
+
+        .sky.sunrise {
+            background: linear-gradient(180deg, 
+                #ff9a56 0%,
+                #ffb366 15%,
+                #f5d48f 30%,
+                #d4e8f0 70%,
+                #e8f1f5 100%);
+        }
+
+        .sky.midday {
+            background: linear-gradient(180deg, 
+                #87ceeb 0%,
+                #b8d9e8 50%,
+                #e8f1f5 100%);
+        }
+
+        .sky.sunset {
+            background: linear-gradient(180deg, 
+                #ff6b35 0%,
+                #ff9a56 15%,
+                #ffd700 30%,
+                #b8d9e8 70%,
+                #e8f1f5 100%);
+        }
+
+        .sky.twilight {
+            background: linear-gradient(180deg, 
+                #4a148c 0%,
+                #7b1fa2 10%,
+                #c9a2e0 30%,
+                #d4e8f0 70%,
+                #e8f1f5 100%);
+        }
+
+        /* Sun/Moon Elements */
+        .celestial-body {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.9;
+            transition: all 3s ease;
+        }
+
+        .sun {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle at 30% 30%, #ffeb3b, #ffa500);
+            box-shadow: 0 0 60px rgba(255, 165, 0, 0.5);
+            top: 20%;
+            right: 15%;
+        }
+
+        .sun.sunrise {
+            top: 70%;
+            right: 5%;
+            box-shadow: 0 0 80px rgba(255, 107, 53, 0.6);
+        }
+
+        .sun.sunset {
+            top: 65%;
+            left: 5%;
+            background: radial-gradient(circle at 30% 30%, #ff6b35, #c9311e);
+            box-shadow: 0 0 100px rgba(255, 107, 53, 0.7);
+        }
+
+        .moon {
+            display: none;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at 30% 30%, #f0f0f0, #d0d0d0);
+            top: 15%;
+            left: 10%;
+            box-shadow: 0 0 30px rgba(200, 200, 200, 0.3);
+        }
+
+        .moon.active {
+            display: block;
+        }
+
+        /* Fog/Mist Effect */
+        .mist {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .mist-layer {
+            position: absolute;
+            width: 200%;
+            height: 40%;
+            background: radial-gradient(ellipse 800px 200px at 50% 100%, rgba(255,255,255,0.3), transparent);
+            animation: drift 20s linear infinite;
+            bottom: 35%;
+        }
+
+        .mist-layer:nth-child(2) {
+            animation: drift 25s linear infinite reverse;
+            opacity: 0.5;
+            bottom: 30%;
+            animation-delay: 3s;
+        }
+
+        .mist-layer:nth-child(3) {
+            animation: drift 30s linear infinite;
+            opacity: 0.3;
+            bottom: 25%;
+            animation-delay: 6s;
+        }
+
+        @keyframes drift {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(50%); }
+        }
+
+        /* Meadow/Grass */
+        .meadow {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(180deg, 
+                rgba(76, 110, 60, 0.8) 0%,
+                rgba(56, 90, 40, 0.9) 50%,
+                rgba(40, 70, 25, 1) 100%);
+            overflow: hidden;
+            transition: background 3s ease;
+        }
+
+        .meadow.spring {
+            background: linear-gradient(180deg, 
+                rgba(100, 140, 80, 0.8) 0%,
+                rgba(80, 110, 60, 0.9) 50%,
+                rgba(60, 90, 40, 1) 100%);
+        }
+
+        .meadow.summer {
+            background: linear-gradient(180deg, 
+                rgba(120, 150, 80, 0.8) 0%,
+                rgba(100, 130, 60, 0.9) 50%,
+                rgba(80, 110, 40, 1) 100%);
+        }
+
+        .meadow.autumn {
+            background: linear-gradient(180deg, 
+                rgba(150, 120, 60, 0.8) 0%,
+                rgba(130, 100, 50, 0.9) 50%,
+                rgba(110, 80, 30, 1) 100%);
+        }
+
+        /* Frost Sparkle Effect */
+        .frost-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .frost-particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 0 3px rgba(173, 216, 230, 0.6);
+        }
+
+        .frost-particle.large {
+            width: 4px;
+            height: 4px;
+            box-shadow: 0 0 8px rgba(150, 200, 220, 0.8);
+        }
+
+        /* Sparkle Animation */
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .frost-particle {
+            animation: sparkle 3s ease-in-out infinite;
+        }
+
+        .frost-particle:nth-child(odd) {
+            animation-delay: 0s;
+        }
+
+        .frost-particle:nth-child(3n) {
+            animation-delay: 1s;
+        }
+
+        .frost-particle:nth-child(5n) {
+            animation-delay: 2s;
+        }
+
+        /* Noise/Grain Texture */
+        .noise-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255, 255, 255, 0.03),
+                    rgba(255, 255, 255, 0.03) 1px,
+                    transparent 1px,
+                    transparent 2px
+                );
+            animation: grain 0.5s steps(10) infinite;
+            pointer-events: none;
+        }
+
+        @keyframes grain {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-2px, -2px); }
+            20% { transform: translate(-2px, 2px); }
+            30% { transform: translate(2px, -2px); }
+            40% { transform: translate(2px, 2px); }
+            50% { transform: translate(-1px, -1px); }
+        }
+
+        /* Control Panel */
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 95%;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .control-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-slate-900);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border: 2px solid var(--color-primary);
+            background: var(--color-white);
+            color: var(--color-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            background: var(--color-primary);
+            color: var(--color-white);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 128, 141, 0.3);
+        }
+
+        .btn.active {
+            background: var(--color-primary);
+            color: var(--color-white);
+        }
+
+        .btn:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            width: 100px;
+            height: 4px;
+            border-radius: 2px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-teal-300));
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(33, 128, 141, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(33, 128, 141, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .value-display {
+            font-size: 11px;
+            color: var(--color-slate-500);
+            font-weight: 600;
+            min-width: 25px;
+            text-align: center;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .control-panel {
+                bottom: 15px;
+                padding: 15px 20px;
+                gap: 15px;
+            }
+
+            .btn {
+                padding: 6px 12px;
+                font-size: 10px;
+            }
+
+            input[type="range"] {
+                width: 80px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                flex-direction: column;
+                gap: 12px;
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                border-radius: 16px;
+                padding: 12px 16px;
+            }
+
+            .control-group {
+                gap: 8px;
+                width: 100%;
+            }
+
+            .control-buttons {
+                flex: 1;
+                gap: 6px;
+            }
+
+            .btn {
+                flex: 1;
+                min-width: 0;
+                padding: 6px 10px;
+            }
+
+            input[type="range"] {
+                width: 100%;
+            }
+
+            .slider-group {
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <!-- Sky -->
+        <div class="sky default"></div>
+
+        <!-- Celestial Bodies -->
+        <div class="sun"></div>
+        <div class="moon"></div>
+
+        <!-- Mist -->
+        <div class="mist">
+            <div class="mist-layer"></div>
+            <div class="mist-layer"></div>
+            <div class="mist-layer"></div>
+        </div>
+
+        <!-- Meadow -->
+        <div class="meadow default"></div>
+
+        <!-- Frost Particles -->
+        <div class="frost-particles" id="frostContainer"></div>
+
+        <!-- Noise Overlay -->
+        <div class="noise-overlay"></div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <div class="control-group">
+            <label class="control-label">Time of Day</label>
+            <div class="control-buttons">
+                <button class="btn active" data-time="sunrise">Sunrise</button>
+                <button class="btn" data-time="midday">Midday</button>
+                <button class="btn" data-time="sunset">Sunset</button>
+                <button class="btn" data-time="twilight">Twilight</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Season</label>
+            <div class="control-buttons">
+                <button class="btn active" data-season="default">Winter</button>
+                <button class="btn" data-season="spring">Spring</button>
+                <button class="btn" data-season="summer">Summer</button>
+                <button class="btn" data-season="autumn">Autumn</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Frost Intensity</label>
+            <div class="slider-group">
+                <input type="range" id="frostIntensity" min="0" max="100" value="70">
+                <span class="value-display" id="frostValue">70%</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Mist Density</label>
+            <div class="slider-group">
+                <input type="range" id="mistDensity" min="0" max="100" value="50">
+                <span class="value-display" id="mistValue">50%</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Animation Speed</label>
+            <div class="slider-group">
+                <input type="range" id="animSpeed" min="0.25" max="2" step="0.25" value="1">
+                <span class="value-display" id="speedValue">1x</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Frost particle generator
+        function generateFrostParticles() {
+            const container = document.getElementById('frostContainer');
+            const intensity = parseInt(document.getElementById('frostIntensity').value);
+            const particleCount = Math.floor((intensity / 100) * 200);
+
+            container.innerHTML = '';
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = `frost-particle ${Math.random() > 0.7 ? 'large' : ''}`;
+                
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                const duration = 2 + Math.random() * 4;
+                const delay = Math.random() * 3;
+
+                particle.style.left = x + '%';
+                particle.style.top = y + '%';
+                particle.style.animationDuration = duration + 's';
+                particle.style.animationDelay = delay + 's';
+
+                container.appendChild(particle);
+            }
+        }
+
+        // Update mist density
+        function updateMistDensity() {
+            const density = parseInt(document.getElementById('mistDensity').value) / 100;
+            const mistLayers = document.querySelectorAll('.mist-layer');
+            mistLayers.forEach(layer => {
+                layer.style.opacity = density * 0.6;
+            });
+            document.getElementById('mistValue').textContent = document.getElementById('mistDensity').value + '%';
+        }
+
+        // Update animation speed
+        function updateAnimSpeed() {
+            const speed = parseFloat(document.getElementById('animSpeed').value);
+            const root = document.documentElement;
+            root.style.setProperty('--animation-speed', speed);
+            
+            // Apply speed to animations
+            document.querySelectorAll('.mist-layer').forEach(layer => {
+                const currentAnimation = getComputedStyle(layer).animation;
+                const duration = currentAnimation.split(' ')[1];
+                if (duration) {
+                    const baseDuration = parseFloat(duration) / speed;
+                    layer.style.animationDuration = baseDuration + 's';
+                }
+            });
+
+            const display = speed === 1 ? '1x' : speed.toFixed(2) + 'x';
+            document.getElementById('speedValue').textContent = display;
+        }
+
+        // Time of day switching
+        document.querySelectorAll('[data-time]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const time = this.dataset.time;
+                const sky = document.querySelector('.sky');
+                const sun = document.querySelector('.sun');
+                const moon = document.querySelector('.moon');
+
+                sky.className = `sky ${time}`;
+                sun.className = `sun ${time}`;
+
+                if (time === 'twilight') {
+                    sun.style.display = 'none';
+                    moon.classList.add('active');
+                } else {
+                    sun.style.display = 'block';
+                    moon.classList.remove('active');
+                }
+            });
+        });
+
+        // Season switching
+        document.querySelectorAll('[data-season]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-season]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const season = this.dataset.season;
+                const meadow = document.querySelector('.meadow');
+                meadow.className = `meadow ${season}`;
+            });
+        });
+
+        // Frost intensity slider
+        document.getElementById('frostIntensity').addEventListener('input', function() {
+            document.getElementById('frostValue').textContent = this.value + '%';
+            generateFrostParticles();
+        });
+
+        // Mist density slider
+        document.getElementById('mistDensity').addEventListener('input', updateMistDensity);
+
+        // Animation speed slider
+        document.getElementById('animSpeed').addEventListener('input', updateAnimSpeed);
+
+        // Initialize
+        generateFrostParticles();
+        updateMistDensity();
+
+        // Auto-generate new particles periodically for continuous effect
+        setInterval(generateFrostParticles, 8000);
+    </script>
+</body>
+</html>
