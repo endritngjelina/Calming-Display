@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Canyon Campfire Night</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --radius-base: 8px;
+            --radius-lg: 12px;
+            
+            --fire-intensity: 0.6;
+            --moonlight-intensity: 0.4;
+            --smoke-density: 0.5;
+            --animation-speed: 1;
+            --fire-color-1: #ff4500;
+            --fire-color-2: #ff6b1b;
+            --fire-color-3: #ffaa33;
+            --fire-color-4: #ffdd55;
+            --ambient-color: rgba(255, 140, 0, 0.15);
+            --sky-gradient: linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 100%);
+            --wind-intensity: 0.5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            overflow: hidden;
+            background: #000;
+            width: 100vw;
+            height: 100vh;
+            cursor: default;
+        }
+
+        #scene-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #sky {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--sky-gradient);
+            transition: background 2s ease;
+        }
+
+        /* Enhanced Moon with realistic glow */
+        #moon {
+            position: absolute;
+            top: 15%;
+            right: 20%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 35% 35%, #fffef0 0%, #f5f3e0 40%, #d8d6c0 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(255, 255, 220, 0.6),
+                        0 0 80px rgba(255, 255, 220, 0.3),
+                        0 0 120px rgba(255, 255, 220, 0.1),
+                        inset -10px -10px 20px rgba(0, 0, 0, 0.1);
+            z-index: 3;
+            animation: moon-glow 8s ease-in-out infinite;
+        }
+
+        @keyframes moon-glow {
+            0%, 100% { 
+                box-shadow: 0 0 40px rgba(255, 255, 220, 0.6),
+                            0 0 80px rgba(255, 255, 220, 0.3),
+                            0 0 120px rgba(255, 255, 220, 0.1),
+                            inset -10px -10px 20px rgba(0, 0, 0, 0.1);
+            }
+            50% { 
+                box-shadow: 0 0 50px rgba(255, 255, 220, 0.7),
+                            0 0 100px rgba(255, 255, 220, 0.4),
+                            0 0 150px rgba(255, 255, 220, 0.2),
+                            inset -10px -10px 20px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        #moon::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 25%;
+            width: 15px;
+            height: 15px;
+            background: rgba(0, 0, 0, 0.08);
+            border-radius: 50%;
+        }
+
+        #moon::after {
+            content: '';
+            position: absolute;
+            bottom: 30%;
+            right: 25%;
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 50%;
+        }
+
+        /* Enhanced Stars with more variety */
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle ease-in-out infinite;
+        }
+
+        .star-small {
+            width: 1px;
+            height: 1px;
+            box-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+        }
+
+        .star-medium {
+            width: 2px;
+            height: 2px;
+            box-shadow: 0 0 4px rgba(255, 255, 255, 0.9);
+        }
+
+        .star-large {
+            width: 3px;
+            height: 3px;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 1);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Shooting stars with enhanced trail */
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.8);
+            animation: shoot linear forwards;
+            z-index: 2;
+        }
+
+        @keyframes shoot {
+            0% {
+                transform: translate(0, 0) rotate(-45deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-300px, 300px) rotate(-45deg);
+                opacity: 0;
+            }
+        }
+
+        .shooting-star::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), transparent);
+            transform-origin: left center;
+        }
+
+        /* Enhanced Canyon Walls with more depth and texture */
+        .canyon-wall {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.5s ease;
+        }
+
+        #far-wall {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+            opacity: 0.4;
+            clip-path: polygon(0 30%, 20% 40%, 40% 35%, 60% 45%, 80% 38%, 100% 42%, 100% 100%, 0 100%);
+        }
+
+        #mid-wall {
+            background: linear-gradient(135deg, #2d3561 0%, #3d4a7f 50%, #2d3561 100%);
+            opacity: 0.6;
+            clip-path: polygon(0 45%, 15% 50%, 35% 48%, 55% 55%, 75% 50%, 90% 52%, 100% 55%, 100% 100%, 0 100%);
+        }
+
+        #near-wall {
+            background: linear-gradient(135deg, #3d4a7f 0%, #4a5a9e 50%, #3d4a7f 100%);
+            opacity: 0.8;
+            clip-path: polygon(0 60%, 10% 62%, 25% 60%, 45% 65%, 65% 63%, 85% 65%, 100% 68%, 100% 100%, 0 100%);
+        }
+
+        /* Enhanced ground with texture */
+        #ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 35%;
+            background: 
+                radial-gradient(circle at 30% 70%, rgba(139, 69, 19, 0.3) 0%, transparent 20%),
+                radial-gradient(circle at 70% 80%, rgba(101, 67, 33, 0.3) 0%, transparent 20%),
+                linear-gradient(180deg, #2a2415 0%, #1a1410 100%);
+            z-index: 5;
+        }
+
+        /* Enhanced Rocks with more realistic texture and lighting */
+        .rock {
+            position: absolute;
+            background: linear-gradient(135deg, #3a3425 0%, #2a2415 100%);
+            border-radius: 50%;
+            z-index: 6;
+            transition: filter 0.3s ease;
+            box-shadow: 
+                inset 2px 2px 5px rgba(255, 255, 255, 0.1),
+                inset -2px -2px 5px rgba(0, 0, 0, 0.3),
+                0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        #rock1 {
+            bottom: 18%;
+            left: 35%;
+            width: 60px;
+            height: 40px;
+            transform: rotate(-5deg);
+        }
+
+        #rock2 {
+            bottom: 20%;
+            right: 38%;
+            width: 50px;
+            height: 35px;
+            transform: rotate(8deg);
+        }
+
+        #rock3 {
+            bottom: 17%;
+            left: 52%;
+            width: 45px;
+            height: 30px;
+            transform: rotate(-3deg);
+        }
+
+        /* New rocks for more detail */
+        #rock4 {
+            bottom: 16%;
+            left: 28%;
+            width: 40px;
+            height: 25px;
+            transform: rotate(15deg);
+        }
+
+        #rock5 {
+            bottom: 19%;
+            right: 32%;
+            width: 35px;
+            height: 20px;
+            transform: rotate(-10deg);
+        }
+
+        /* Enhanced Campfire with more realistic flames */
+        #campfire {
+            position: absolute;
+            bottom: 22%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 120px;
+            z-index: 15;
+        }
+
+        #fire-glow {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, var(--fire-color-2) 0%, var(--fire-color-1) 30%, transparent 70%);
+            opacity: calc(var(--fire-intensity) * 0.6);
+            animation: glow-pulse 2s ease-in-out infinite;
+            z-index: 10;
+            filter: blur(40px);
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { 
+                transform: translateX(-50%) scale(1); 
+                opacity: calc(var(--fire-intensity) * 0.5); 
+            }
+            50% { 
+                transform: translateX(-50%) scale(1.15); 
+                opacity: calc(var(--fire-intensity) * 0.7); 
+            }
+        }
+
+        /* Enhanced flames with more realistic movement */
+        .flame {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            filter: blur(1px);
+            mix-blend-mode: screen;
+        }
+
+        #flame1 {
+            width: 30px;
+            height: 50px;
+            background: linear-gradient(180deg, var(--fire-color-4) 0%, var(--fire-color-2) 100%);
+            margin-left: -15px;
+            animation: flicker1 calc(3s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        #flame2 {
+            width: 35px;
+            height: 55px;
+            background: linear-gradient(180deg, var(--fire-color-3) 0%, var(--fire-color-1) 100%);
+            margin-left: -17px;
+            animation: flicker2 calc(4.5s / var(--animation-speed)) ease-in-out infinite;
+            opacity: 0.9;
+        }
+
+        #flame3 {
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(180deg, var(--fire-color-2) 0%, var(--fire-color-1) 100%);
+            margin-left: -20px;
+            animation: flicker3 calc(5s / var(--animation-speed)) ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        #flame4 {
+            width: 25px;
+            height: 45px;
+            background: linear-gradient(180deg, var(--fire-color-4) 0%, var(--fire-color-3) 100%);
+            margin-left: -12px;
+            animation: flicker4 calc(3.5s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        #flame5 {
+            width: 28px;
+            height: 48px;
+            background: linear-gradient(180deg, var(--fire-color-4) 0%, var(--fire-color-2) 70%, var(--fire-color-1) 100%);
+            margin-left: 8px;
+            animation: flicker5 calc(3.8s / var(--animation-speed)) ease-in-out infinite;
+            opacity: 0.85;
+        }
+
+        /* New flames for more realism */
+        #flame6 {
+            width: 22px;
+            height: 42px;
+            background: linear-gradient(180deg, var(--fire-color-4) 0%, var(--fire-color-3) 100%);
+            margin-left: -25px;
+            animation: flicker6 calc(4.2s / var(--animation-speed)) ease-in-out infinite;
+            opacity: 0.7;
+        }
+
+        #flame7 {
+            width: 26px;
+            height: 46px;
+            background: linear-gradient(180deg, var(--fire-color-3) 0%, var(--fire-color-1) 100%);
+            margin-left: 20px;
+            animation: flicker7 calc(3.2s / var(--animation-speed)) ease-in-out infinite;
+            opacity: 0.75;
+        }
+
+        @keyframes flicker1 {
+            0%, 100% { transform: translateX(-8px) scaleY(0.95) scaleX(1); }
+            25% { transform: translateX(-5px) scaleY(1.05) scaleX(0.95); }
+            50% { transform: translateX(-10px) scaleY(0.9) scaleX(1.05); }
+            75% { transform: translateX(-6px) scaleY(1.1) scaleX(0.9); }
+        }
+
+        @keyframes flicker2 {
+            0%, 100% { transform: translateX(5px) scaleY(1) scaleX(0.95); }
+            33% { transform: translateX(8px) scaleY(0.92) scaleX(1.05); }
+            66% { transform: translateX(3px) scaleY(1.08) scaleX(0.9); }
+        }
+
+        @keyframes flicker3 {
+            0%, 100% { transform: translateX(0px) scaleY(0.98); }
+            20% { transform: translateX(-3px) scaleY(1.05); }
+            40% { transform: translateX(4px) scaleY(0.92); }
+            60% { transform: translateX(-2px) scaleY(1.03); }
+            80% { transform: translateX(3px) scaleY(0.95); }
+        }
+
+        @keyframes flicker4 {
+            0%, 100% { transform: translateX(10px) scaleY(1.02); }
+            30% { transform: translateX(12px) scaleY(0.95); }
+            70% { transform: translateX(8px) scaleY(1.08); }
+        }
+
+        @keyframes flicker5 {
+            0%, 100% { transform: translateX(8px) scaleY(1); }
+            25% { transform: translateX(10px) scaleY(0.93); }
+            50% { transform: translateX(6px) scaleY(1.07); }
+            75% { transform: translateX(9px) scaleY(0.96); }
+        }
+
+        @keyframes flicker6 {
+            0%, 100% { transform: translateX(-12px) scaleY(0.9); }
+            25% { transform: translateX(-14px) scaleY(1.05); }
+            50% { transform: translateX(-10px) scaleY(0.85); }
+            75% { transform: translateX(-13px) scaleY(1.0); }
+        }
+
+        @keyframes flicker7 {
+            0%, 100% { transform: translateX(12px) scaleY(1.05); }
+            25% { transform: translateX(14px) scaleY(0.9); }
+            50% { transform: translateX(10px) scaleY(1.1); }
+            75% { transform: translateX(13px) scaleY(0.95); }
+        }
+
+        /* Enhanced logs with ember glow and texture */
+        .log {
+            position: absolute;
+            background: linear-gradient(90deg, #2a1810 0%, #1a1008 100%);
+            border-radius: 5px;
+            bottom: 0;
+            z-index: 14;
+            box-shadow: 
+                inset 0 -2px 4px rgba(0, 0, 0, 0.5),
+                0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        #log1 {
+            width: 50px;
+            height: 12px;
+            left: 25px;
+            transform: rotate(-15deg);
+        }
+
+        #log2 {
+            width: 45px;
+            height: 10px;
+            right: 30px;
+            transform: rotate(20deg);
+        }
+
+        #log3 {
+            width: 40px;
+            height: 11px;
+            left: 40px;
+            bottom: -5px;
+            transform: rotate(5deg);
+        }
+
+        /* New log for more realism */
+        #log4 {
+            width: 35px;
+            height: 9px;
+            right: 40px;
+            bottom: -3px;
+            transform: rotate(-10deg);
+        }
+
+        /* Enhanced Embers */
+        .ember {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--fire-color-4), var(--fire-color-2));
+            box-shadow: 0 0 8px var(--fire-color-3);
+            animation: ember-rise linear forwards;
+            z-index: 13;
+        }
+
+        @keyframes ember-rise {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--drift-x), -200px) scale(0.3);
+                opacity: 0;
+            }
+        }
+
+        /* Enhanced smoke with wind effect */
+        .smoke {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(200, 200, 200, calc(0.3 * var(--smoke-density)));
+            filter: blur(12px);
+            animation: smoke-drift ease-out forwards;
+            z-index: 12;
+        }
+
+        @keyframes smoke-drift {
+            0% {
+                transform: translate(0, 0) scale(0.5);
+                opacity: calc(var(--smoke-density) * 0.6);
+            }
+            50% {
+                opacity: calc(var(--smoke-density) * 0.4);
+            }
+            100% {
+                transform: translate(var(--drift-x), -350px) scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Enhanced tent with more details */
+        #tent {
+            position: absolute;
+            bottom: 22%;
+            left: 25%;
+            width: 80px;
+            height: 60px;
+            z-index: 8;
+            filter: drop-shadow(2px 2px 6px rgba(0, 0, 0, 0.6));
+        }
+
+        #tent-body {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 60px solid #2d1810;
+        }
+
+        #tent-flap {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 30px solid #3d2820;
+            left: 25px;
+            top: 30px;
+        }
+
+        #tent-glow {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background: radial-gradient(circle at 40px 60px, var(--fire-color-2) 0%, transparent 70%);
+            opacity: calc(var(--fire-intensity) * 0.35);
+            filter: blur(25px);
+            animation: tent-glow-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes tent-glow-pulse {
+            0%, 100% { opacity: calc(var(--fire-intensity) * 0.3); }
+            50% { opacity: calc(var(--fire-intensity) * 0.4); }
+        }
+
+        /* New bush element */
+        #bush {
+            position: absolute;
+            bottom: 22%;
+            right: 25%;
+            width: 60px;
+            height: 40px;
+            z-index: 7;
+        }
+
+        .bush-part {
+            position: absolute;
+            background: #1a3d1a;
+            border-radius: 50%;
+        }
+
+        #bush1 {
+            width: 25px;
+            height: 25px;
+            bottom: 0;
+            left: 0;
+        }
+
+        #bush2 {
+            width: 30px;
+            height: 30px;
+            bottom: 5px;
+            left: 15px;
+        }
+
+        #bush3 {
+            width: 20px;
+            height: 20px;
+            bottom: 10px;
+            left: 35px;
+        }
+
+        #bush-glow {
+            position: absolute;
+            width: 60px;
+            height: 40px;
+            background: radial-gradient(circle at 30px 40px, var(--fire-color-2) 0%, transparent 70%);
+            opacity: calc(var(--fire-intensity) * 0.2);
+            filter: blur(20px);
+            animation: bush-glow-pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes bush-glow-pulse {
+            0%, 100% { opacity: calc(var(--fire-intensity) * 0.15); }
+            50% { opacity: calc(var(--fire-intensity) * 0.25); }
+        }
+
+        /* Enhanced moonlight with rays */
+        #moonlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 80% 20%, rgba(200, 220, 255, calc(var(--moonlight-intensity) * 0.2)) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        #ambient-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--ambient-color);
+            pointer-events: none;
+            z-index: 19;
+            transition: background 0.5s ease;
+        }
+
+        /* Enhanced Fireflies with more natural movement */
+        .firefly {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 150, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(255, 255, 150, 0.8);
+            animation: firefly-float ease-in-out infinite;
+            z-index: 18;
+        }
+
+        @keyframes firefly-float {
+            0%, 100% {
+                transform: translate(0, 0);
+                opacity: 0.3;
+            }
+            25% {
+                opacity: 1;
+            }
+            50% {
+                transform: translate(var(--float-x), var(--float-y));
+                opacity: 0.5;
+            }
+            75% {
+                opacity: 1;
+            }
+        }
+
+        /* Enhanced Controls */
+        #controls-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-family: var(--font-family-base);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        #controls-toggle:hover {
+            background: rgba(0, 0, 0, 0.85);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        #controls-panel {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 320px;
+            max-height: calc(100vh - 100px);
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-20);
+            z-index: 99;
+            backdrop-filter: blur(15px);
+            overflow-y: auto;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        #controls-panel.hidden {
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
+        }
+
+        .control-group {
+            margin-bottom: var(--space-20);
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            margin-bottom: var(--space-8);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-value {
+            color: var(--fire-color-3);
+            font-weight: 600;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff8833, #ff6b1b);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: linear-gradient(135deg, #ffaa44, #ff8833);
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(255, 107, 27, 0.4);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff8833, #ff6b1b);
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider::-moz-range-thumb:hover {
+            background: linear-gradient(135deg, #ffaa44, #ff8833);
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(255, 107, 27, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: var(--space-8);
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            flex: 1;
+            min-width: 60px;
+            padding: var(--space-8) var(--space-12);
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-family: var(--font-family-base);
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .control-btn.active {
+            background: linear-gradient(135deg, #ff8833, #ff6b1b);
+            color: white;
+            border-color: #ff6b1b;
+            box-shadow: 0 4px 12px rgba(255, 107, 27, 0.3);
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: var(--space-12);
+            background: rgba(255, 107, 27, 0.2);
+            color: #ff6b1b;
+            border: 1px solid #ff6b1b;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-family: var(--font-family-base);
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-top: var(--space-12);
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 107, 27, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 27, 0.3);
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: var(--space-20) 0;
+        }
+
+        #controls-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #controls-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        #controls-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        #controls-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Wind effect indicator */
+        #wind-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-sm);
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #wind-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            #controls-panel {
+                width: calc(100vw - 40px);
+                right: 20px;
+                left: 20px;
+            }
+
+            #moon {
+                width: 60px;
+                height: 60px;
+            }
+            
+            #wind-indicator {
+                top: 70px;
+                left: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="scene-container">
+        <div id="sky"></div>
+        <div id="moon"></div>
+        <div id="stars-container"></div>
+        <div id="shooting-stars-container"></div>
+        
+        <div id="far-wall" class="canyon-wall"></div>
+        <div id="mid-wall" class="canyon-wall"></div>
+        <div id="near-wall" class="canyon-wall"></div>
+        
+        <div id="moonlight"></div>
+        <div id="ground"></div>
+        
+        <div id="tent">
+            <div id="tent-glow"></div>
+            <div id="tent-body"></div>
+            <div id="tent-flap"></div>
+        </div>
+        
+        <div id="bush">
+            <div id="bush-glow"></div>
+            <div id="bush1" class="bush-part"></div>
+            <div id="bush2" class="bush-part"></div>
+            <div id="bush3" class="bush-part"></div>
+        </div>
+        
+        <div id="rock1" class="rock"></div>
+        <div id="rock2" class="rock"></div>
+        <div id="rock3" class="rock"></div>
+        <div id="rock4" class="rock"></div>
+        <div id="rock5" class="rock"></div>
+        
+        <div id="campfire">
+            <div id="fire-glow"></div>
+            <div id="flame1" class="flame"></div>
+            <div id="flame2" class="flame"></div>
+            <div id="flame3" class="flame"></div>
+            <div id="flame4" class="flame"></div>
+            <div id="flame5" class="flame"></div>
+            <div id="flame6" class="flame"></div>
+            <div id="flame7" class="flame"></div>
+            <div id="log1" class="log"></div>
+            <div id="log2" class="log"></div>
+            <div id="log3" class="log"></div>
+            <div id="log4" class="log"></div>
+        </div>
+        
+        <div id="ember-container"></div>
+        <div id="smoke-container"></div>
+        <div id="firefly-container"></div>
+        <div id="ambient-overlay"></div>
+    </div>
+
+    <div id="wind-indicator">
+        <span>Wind:</span>
+        <span id="wind-value">Medium</span>
+        <span id="wind-arrow">→</span>
+    </div>
+
+    <button id="controls-toggle">⚙️ Controls</button>
+    <div id="controls-panel" class="hidden">
+        <div class="control-group">
+            <label class="control-label">
+                <span>Fire Intensity</span>
+                <span class="control-value" id="fire-value">60%</span>
+            </label>
+            <input type="range" id="fire-intensity" class="slider" min="0" max="100" value="60">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">
+                <span>Moonlight</span>
+                <span class="control-value" id="moonlight-value">40%</span>
+            </label>
+            <input type="range" id="moonlight" class="slider" min="0" max="100" value="40">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">
+                <span>Smoke Density</span>
+                <span class="control-value" id="smoke-value">50%</span>
+            </label>
+            <input type="range" id="smoke-density" class="slider" min="0" max="100" value="50">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">
+                <span>Animation Speed</span>
+                <span class="control-value" id="speed-value">100%</span>
+            </label>
+            <input type="range" id="animation-speed" class="slider" min="50" max="200" value="100">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">
+                <span>Wind Intensity</span>
+                <span class="control-value" id="wind-control-value">50%</span>
+            </label>
+            <input type="range" id="wind-intensity" class="slider" min="0" max="100" value="50">
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="control-group">
+            <label class="control-label">Fire Colors</label>
+            <div class="button-group">
+                <button class="control-btn active" data-preset="warm">Warm</button>
+                <button class="control-btn" data-preset="hot">Hot</button>
+                <button class="control-btn" data-preset="magic">Magic</button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">Time of Day</label>
+            <div class="button-group">
+                <button class="control-btn" data-time="night">Night</button>
+                <button class="control-btn active" data-time="dusk">Dusk</button>
+                <button class="control-btn" data-time="dawn">Dawn</button>
+            </div>
+        </div>
+        
+        <button class="reset-btn" id="reset-all">Reset to Default</button>
+    </div>
+
+    <script>
+        // DOM Elements
+        const sceneContainer = document.getElementById('scene-container');
+        const starsContainer = document.getElementById('stars-container');
+        const shootingStarsContainer = document.getElementById('shooting-stars-container');
+        const emberContainer = document.getElementById('ember-container');
+        const smokeContainer = document.getElementById('smoke-container');
+        const fireflyContainer = document.getElementById('firefly-container');
+        const controlsToggle = document.getElementById('controls-toggle');
+        const controlsPanel = document.getElementById('controls-panel');
+        const resetButton = document.getElementById('reset-all');
+
+        // Control Elements
+        const fireIntensity = document.getElementById('fire-intensity');
+        const moonlight = document.getElementById('moonlight');
+        const smokeDensity = document.getElementById('smoke-density');
+        const animationSpeed = document.getElementById('animation-speed');
+        const windIntensity = document.getElementById('wind-intensity');
+        const fireValue = document.getElementById('fire-value');
+        const moonlightValue = document.getElementById('moonlight-value');
+        const smokeValue = document.getElementById('smoke-value');
+        const speedValue = document.getElementById('speed-value');
+        const windControlValue = document.getElementById('wind-control-value');
+        const windIndicatorValue = document.getElementById('wind-value');
+        const windArrow = document.getElementById('wind-arrow');
+        const colorPresets = document.querySelectorAll('.control-btn[data-preset]');
+        const timeButtons = document.querySelectorAll('.control-btn[data-time]');
+
+        // State
+        let isControlsVisible = false;
+        let windDirection = 1; // 1 for right, -1 for left
+
+        // Initialize the scene
+        function initScene() {
+            createStars();
+            createFireflies();
+            startAnimations();
+            
+            // Start periodic effects
+            setInterval(createShootingStar, 8000);
+            setInterval(createEmbers, 300);
+            setInterval(createSmoke, 500);
+            setInterval(changeWindDirection, 15000);
+            
+            // Apply initial wind direction
+            updateWindEffect();
+        }
+
+        // Create stars
+        function createStars() {
+            const starCount = 150;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                const size = Math.random();
+                
+                if (size < 0.6) {
+                    star.className = 'star star-small';
+                } else if (size < 0.9) {
+                    star.className = 'star star-medium';
+                } else {
+                    star.className = 'star star-large';
+                }
+                
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 80}%`;
+                star.style.animationDuration = `${5 + Math.random() * 10}s`;
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Create shooting stars
+        function createShootingStar() {
+            if (Math.random() > 0.3) return; // 30% chance to create a shooting star
+            
+            const star = document.createElement('div');
+            star.className = 'shooting-star';
+            
+            star.style.left = `${80 + Math.random() * 20}%`;
+            star.style.top = `${Math.random() * 30}%`;
+            star.style.animationDuration = `${1 + Math.random() * 2}s`;
+            
+            shootingStarsContainer.appendChild(star);
+            
+            // Remove after animation completes
+            setTimeout(() => {
+                if (star.parentNode) {
+                    star.parentNode.removeChild(star);
+                }
+            }, 3000);
+        }
+
+        // Create fireflies
+        function createFireflies() {
+            const fireflyCount = 12;
+            
+            for (let i = 0; i < fireflyCount; i++) {
+                const firefly = document.createElement('div');
+                firefly.className = 'firefly';
+                
+                firefly.style.left = `${Math.random() * 100}%`;
+                firefly.style.top = `${30 + Math.random() * 60}%`;
+                firefly.style.setProperty('--float-x', `${(Math.random() - 0.5) * 100}px`);
+                firefly.style.setProperty('--float-y', `${(Math.random() - 0.5) * 50}px`);
+                firefly.style.animationDuration = `${8 + Math.random() * 12}s`;
+                firefly.style.animationDelay = `${Math.random() * 5}s`;
+                
+                fireflyContainer.appendChild(firefly);
+            }
+        }
+
+        // Create embers
+        function createEmbers() {
+            const emberCount = Math.floor(2 * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fire-intensity')));
+            
+            for (let i = 0; i < emberCount; i++) {
+                const ember = document.createElement('div');
+                ember.className = 'ember';
+                
+                const size = 2 + Math.random() * 4;
+                ember.style.width = `${size}px`;
+                ember.style.height = `${size}px`;
+                
+                // Position near the fire
+                ember.style.left = `calc(50% + ${(Math.random() - 0.5) * 40}px)`;
+                ember.style.bottom = `22%`;
+                
+                // Random drift with wind effect
+                const baseDrift = (Math.random() - 0.5) * 100;
+                const windEffect = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--wind-intensity')) * windDirection * 50;
+                const totalDrift = baseDrift + windEffect;
+                
+                ember.style.setProperty('--drift-x', `${totalDrift}px`);
+                ember.style.animationDuration = `${1 + Math.random() * 2}s`;
+                
+                emberContainer.appendChild(ember);
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                    if (ember.parentNode) {
+                        ember.parentNode.removeChild(ember);
+                    }
+                }, 3000);
+            }
+        }
+
+        // Create smoke
+        function createSmoke() {
+            const smokeCount = Math.floor(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--smoke-density')));
+            
+            for (let i = 0; i < smokeCount; i++) {
+                const smoke = document.createElement('div');
+                smoke.className = 'smoke';
+                
+                const size = 20 + Math.random() * 40;
+                smoke.style.width = `${size}px`;
+                smoke.style.height = `${size}px`;
+                
+                // Position near the fire
+                smoke.style.left = `calc(50% + ${(Math.random() - 0.5) * 30}px)`;
+                smoke.style.bottom = `22%`;
+                
+                // Random drift with wind effect
+                const baseDrift = (Math.random() - 0.5) * 80;
+                const windEffect = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--wind-intensity')) * windDirection * 100;
+                const totalDrift = baseDrift + windEffect;
+                
+                smoke.style.setProperty('--drift-x', `${totalDrift}px`);
+                smoke.style.animationDuration = `${8 + Math.random() * 7}s`;
+                
+                smokeContainer.appendChild(smoke);
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                    if (smoke.parentNode) {
+                        smoke.parentNode.removeChild(smoke);
+                    }
+                }, 15000);
+            }
+        }
+
+        // Change wind direction randomly
+        function changeWindDirection() {
+            windDirection = Math.random() > 0.5 ? 1 : -1;
+            updateWindEffect();
+        }
+
+        // Update wind visual effects
+        function updateWindEffect() {
+            // Update wind arrow direction
+            windArrow.style.transform = `scaleX(${windDirection})`;
+            
+            // Update wind indicator text
+            const windIntensityValue = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--wind-intensity'));
+            if (windIntensityValue < 0.3) {
+                windIndicatorValue.textContent = 'Calm';
+            } else if (windIntensityValue < 0.7) {
+                windIndicatorValue.textContent = 'Medium';
+            } else {
+                windIndicatorValue.textContent = 'Strong';
+            }
+            
+            // Update flame animations based on wind
+            const flames = document.querySelectorAll('.flame');
+            flames.forEach(flame => {
+                if (windDirection === 1) {
+                    flame.style.transformOrigin = 'bottom left';
+                } else {
+                    flame.style.transformOrigin = 'bottom right';
+                }
+            });
+        }
+
+        // Start all animations
+        function startAnimations() {
+            // All animations are controlled by CSS
+        }
+
+        // Toggle controls panel
+        function toggleControls() {
+            isControlsVisible = !isControlsVisible;
+            
+            if (isControlsVisible) {
+                controlsPanel.classList.remove('hidden');
+            } else {
+                controlsPanel.classList.add('hidden');
+            }
+        }
+
+        // Update CSS variables based on controls
+        function updateCSSVariable(variable, value) {
+            document.documentElement.style.setProperty(variable, value);
+        }
+
+        // Reset all controls to default
+        function resetToDefault() {
+            fireIntensity.value = 60;
+            moonlight.value = 40;
+            smokeDensity.value = 50;
+            animationSpeed.value = 100;
+            windIntensity.value = 50;
+            
+            updateFireIntensity();
+            updateMoonlight();
+            updateSmokeDensity();
+            updateAnimationSpeed();
+            updateWindIntensity();
+            
+            // Reset color preset to warm
+            colorPresets.forEach(btn => {
+                if (btn.dataset.preset === 'warm') {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            setFireColors('warm');
+            
+            // Reset time to dusk
+            timeButtons.forEach(btn => {
+                if (btn.dataset.time === 'dusk') {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            setTimeOfDay('dusk');
+        }
+
+        // Update fire intensity
+        function updateFireIntensity() {
+            const value = fireIntensity.value / 100;
+            updateCSSVariable('--fire-intensity', value);
+            fireValue.textContent = `${fireIntensity.value}%`;
+        }
+
+        // Update moonlight
+        function updateMoonlight() {
+            const value = moonlight.value / 100;
+            updateCSSVariable('--moonlight-intensity', value);
+            moonlightValue.textContent = `${moonlight.value}%`;
+        }
+
+        // Update smoke density
+        function updateSmokeDensity() {
+            const value = smokeDensity.value / 100;
+            updateCSSVariable('--smoke-density', value);
+            smokeValue.textContent = `${smokeDensity.value}%`;
+        }
+
+        // Update animation speed
+        function updateAnimationSpeed() {
+            const value = animationSpeed.value / 100;
+            updateCSSVariable('--animation-speed', value);
+            speedValue.textContent = `${animationSpeed.value}%`;
+        }
+
+        // Update wind intensity
+        function updateWindIntensity() {
+            const value = windIntensity.value / 100;
+            updateCSSVariable('--wind-intensity', value);
+            windControlValue.textContent = `${windIntensity.value}%`;
+            updateWindEffect();
+        }
+
+        // Set fire colors based on preset
+        function setFireColors(preset) {
+            let color1, color2, color3, color4;
+            
+            switch(preset) {
+                case 'warm':
+                    color1 = '#ff4500';
+                    color2 = '#ff6b1b';
+                    color3 = '#ffaa33';
+                    color4 = '#ffdd55';
+                    break;
+                case 'hot':
+                    color1 = '#ff2200';
+                    color2 = '#ff5500';
+                    color3 = '#ff8800';
+                    color4 = '#ffbb00';
+                    break;
+                case 'magic':
+                    color1 = '#ff00cc';
+                    color2 = '#ff33aa';
+                    color3 = '#ff6688';
+                    color4 = '#ff9966';
+                    break;
+            }
+            
+            updateCSSVariable('--fire-color-1', color1);
+            updateCSSVariable('--fire-color-2', color2);
+            updateCSSVariable('--fire-color-3', color3);
+            updateCSSVariable('--fire-color-4', color4);
+        }
+
+        // Set time of day
+        function setTimeOfDay(time) {
+            let skyGradient, ambientColor;
+            
+            switch(time) {
+                case 'night':
+                    skyGradient = 'linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 100%)';
+                    ambientColor = 'rgba(255, 140, 0, 0.15)';
+                    break;
+                case 'dusk':
+                    skyGradient = 'linear-gradient(180deg, #1a1a3a 0%, #2d2d5a 100%)';
+                    ambientColor = 'rgba(255, 140, 0, 0.25)';
+                    break;
+                case 'dawn':
+                    skyGradient = 'linear-gradient(180deg, #2d2d5a 0%, #4a4a7a 100%)';
+                    ambientColor = 'rgba(255, 200, 100, 0.3)';
+                    break;
+            }
+            
+            updateCSSVariable('--sky-gradient', skyGradient);
+            updateCSSVariable('--ambient-color', ambientColor);
+        }
+
+        // Event Listeners
+        controlsToggle.addEventListener('click', toggleControls);
+        resetButton.addEventListener('click', resetToDefault);
+
+        fireIntensity.addEventListener('input', updateFireIntensity);
+        moonlight.addEventListener('input', updateMoonlight);
+        smokeDensity.addEventListener('input', updateSmokeDensity);
+        animationSpeed.addEventListener('input', updateAnimationSpeed);
+        windIntensity.addEventListener('input', updateWindIntensity);
+
+        colorPresets.forEach(btn => {
+            btn.addEventListener('click', () => {
+                colorPresets.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                setFireColors(btn.dataset.preset);
+            });
+        });
+
+        timeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                timeButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                setTimeOfDay(btn.dataset.time);
+            });
+        });
+
+        // Close controls when clicking outside
+        document.addEventListener('click', (e) => {
+            if (isControlsVisible && 
+                !controlsPanel.contains(e.target) && 
+                !controlsToggle.contains(e.target)) {
+                toggleControls();
+            }
+        });
+
+        // Initialize the scene when the page loads
+        window.addEventListener('DOMContentLoaded', initScene);
+    </script>
+</body>
+</html>
