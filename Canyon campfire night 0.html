@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canyon Campfire Night - Calming Scene</title>
+    <style>
+        :root {
+            /* Design System Variables */
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --color-slate-500-rgb: 98, 108, 113;
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --radius-base: 8px;
+            --radius-lg: 12px;
+            
+            /* Scene Variables */
+            --fire-intensity: 0.6;
+            --moonlight-intensity: 0.4;
+            --smoke-density: 0.5;
+            --animation-speed: 1;
+            --fire-color-1: #ff4500;
+            --fire-color-2: #ff6b1b;
+            --fire-color-3: #ffaa33;
+            --fire-color-4: #ffdd55;
+            --ambient-color: rgba(255, 140, 0, 0.15);
+            --sky-gradient: linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            overflow: hidden;
+            background: #000;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #scene-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sky */
+        #sky {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--sky-gradient);
+            transition: background 1s ease;
+        }
+
+        /* Stars */
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Canyon Walls */
+        .canyon-wall {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        #far-wall {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+            opacity: 0.4;
+            clip-path: polygon(0 30%, 20% 40%, 40% 35%, 60% 45%, 80% 38%, 100% 42%, 100% 100%, 0 100%);
+        }
+
+        #mid-wall {
+            background: linear-gradient(135deg, #2d3561 0%, #3d4a7f 50%, #2d3561 100%);
+            opacity: 0.6;
+            clip-path: polygon(0 45%, 15% 50%, 35% 48%, 55% 55%, 75% 50%, 90% 52%, 100% 55%, 100% 100%, 0 100%);
+        }
+
+        #near-wall {
+            background: linear-gradient(135deg, #3d4a7f 0%, #4a5a9e 50%, #3d4a7f 100%);
+            opacity: 0.8;
+            clip-path: polygon(0 60%, 10% 62%, 25% 60%, 45% 65%, 65% 63%, 85% 65%, 100% 68%, 100% 100%, 0 100%);
+        }
+
+        /* Ground */
+        #ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 35%;
+            background: linear-gradient(180deg, #2a2415 0%, #1a1410 100%);
+            z-index: 5;
+        }
+
+        /* Rocks */
+        .rock {
+            position: absolute;
+            background: linear-gradient(135deg, #3a3425 0%, #2a2415 100%);
+            border-radius: 50%;
+            z-index: 6;
+        }
+
+        #rock1 {
+            bottom: 18%;
+            left: 35%;
+            width: 60px;
+            height: 40px;
+            transform: rotate(-5deg);
+        }
+
+        #rock2 {
+            bottom: 20%;
+            right: 38%;
+            width: 50px;
+            height: 35px;
+            transform: rotate(8deg);
+        }
+
+        #rock3 {
+            bottom: 17%;
+            left: 52%;
+            width: 45px;
+            height: 30px;
+            transform: rotate(-3deg);
+        }
+
+        /* Campfire */
+        #campfire {
+            position: absolute;
+            bottom: 22%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 120px;
+            z-index: 15;
+        }
+
+        /* Fire Glow */
+        #fire-glow {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--fire-color-2) 0%, transparent 70%);
+            opacity: calc(var(--fire-intensity) * 0.6);
+            animation: glow-pulse 2s ease-in-out infinite;
+            z-index: 10;
+            filter: blur(30px);
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: calc(var(--fire-intensity) * 0.5); }
+            50% { transform: translateX(-50%) scale(1.1); opacity: calc(var(--fire-intensity) * 0.7); }
+        }
+
+        /* Flames */
+        .flame {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        }
+
+        #flame1 {
+            width: 30px;
+            height: 50px;
+            background: linear-gradient(180deg, var(--fire-color-4) 0%, var(--fire-color-2) 100%);
+            margin-left: -15px;
+            animation: flicker1 calc(3s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        #flame2 {
+            width: 35px;
+            height: 55px;
+            background: linear-gradient(180deg, var(--fire-color-3) 0%, var(--fire-color-1) 100%);
+            margin-left: -17px;
+            animation: flicker2 calc(4.5s / var(--animation-speed)) ease-in-out infinite;
+            opacity: 0.9;
+        }
+
+        #flame3 {
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(180deg, var(--fire-color-2) 0%, var(--fire-color-1) 100%);
+            margin-left: -20px;
+            animation: flicker3 calc(5s / var(--animation-speed)) ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        #flame4 {
+            width: 25px;
+            height: 45px;
+            background: linear-gradient(180deg, var(--fire-color-4) 0%, var(--fire-color-3) 100%);
+            margin-left: -12px;
+            animation: flicker4 calc(3.5s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        @keyframes flicker1 {
+            0%, 100% { transform: translateX(-8px) scaleY(0.95) scaleX(1); }
+            25% { transform: translateX(-5px) scaleY(1.05) scaleX(0.95); }
+            50% { transform: translateX(-10px) scaleY(0.9) scaleX(1.05); }
+            75% { transform: translateX(-6px) scaleY(1.1) scaleX(0.9); }
+        }
+
+        @keyframes flicker2 {
+            0%, 100% { transform: translateX(5px) scaleY(1) scaleX(0.95); }
+            33% { transform: translateX(8px) scaleY(0.92) scaleX(1.05); }
+            66% { transform: translateX(3px) scaleY(1.08) scaleX(0.9); }
+        }
+
+        @keyframes flicker3 {
+            0%, 100% { transform: translateX(0px) scaleY(0.98); }
+            20% { transform: translateX(-3px) scaleY(1.05); }
+            40% { transform: translateX(4px) scaleY(0.92); }
+            60% { transform: translateX(-2px) scaleY(1.03); }
+            80% { transform: translateX(3px) scaleY(0.95); }
+        }
+
+        @keyframes flicker4 {
+            0%, 100% { transform: translateX(10px) scaleY(1.02); }
+            30% { transform: translateX(12px) scaleY(0.95); }
+            70% { transform: translateX(8px) scaleY(1.08); }
+        }
+
+        /* Logs */
+        .log {
+            position: absolute;
+            background: linear-gradient(90deg, #2a1810 0%, #1a1008 100%);
+            border-radius: 5px;
+            bottom: 0;
+            z-index: 14;
+        }
+
+        #log1 {
+            width: 50px;
+            height: 12px;
+            left: 25px;
+            transform: rotate(-15deg);
+        }
+
+        #log2 {
+            width: 45px;
+            height: 10px;
+            right: 30px;
+            transform: rotate(20deg);
+        }
+
+        #log3 {
+            width: 40px;
+            height: 11px;
+            left: 40px;
+            bottom: -5px;
+            transform: rotate(5deg);
+        }
+
+        /* Smoke */
+        .smoke {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(200, 200, 200, calc(0.3 * var(--smoke-density)));
+            filter: blur(8px);
+            animation: smoke-drift ease-out forwards;
+            z-index: 12;
+        }
+
+        @keyframes smoke-drift {
+            0% {
+                transform: translate(0, 0) scale(0.5);
+                opacity: calc(var(--smoke-density) * 0.6);
+            }
+            50% {
+                opacity: calc(var(--smoke-density) * 0.4);
+            }
+            100% {
+                transform: translate(var(--drift-x), -300px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Tent */
+        #tent {
+            position: absolute;
+            bottom: 22%;
+            left: 25%;
+            width: 80px;
+            height: 60px;
+            z-index: 8;
+        }
+
+        #tent-body {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 60px solid #2d1810;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        #tent-flap {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 30px solid #3d2820;
+            left: 25px;
+            top: 30px;
+        }
+
+        #tent-glow {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background: radial-gradient(circle at 40px 60px, var(--fire-color-2) 0%, transparent 70%);
+            opacity: calc(var(--fire-intensity) * 0.3);
+            filter: blur(20px);
+        }
+
+        /* Moonlight */
+        #moonlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 80% 20%, rgba(200, 220, 255, calc(var(--moonlight-intensity) * 0.15)) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        /* Ambient Overlay */
+        #ambient-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--ambient-color);
+            pointer-events: none;
+            z-index: 19;
+            transition: background 0.5s ease;
+        }
+
+        /* Controls */
+        #controls-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-family: var(--font-family-base);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        #controls-toggle:hover {
+            background: rgba(0, 0, 0, 0.85);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        #controls-panel {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 320px;
+            max-height: calc(100vh - 100px);
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-20);
+            z-index: 99;
+            backdrop-filter: blur(10px);
+            overflow-y: auto;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        #controls-panel.hidden {
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
+        }
+
+        .control-group {
+            margin-bottom: var(--space-20);
+        }
+
+        .control-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            margin-bottom: var(--space-8);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff6b1b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: #ff8833;
+            transform: scale(1.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff6b1b;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .slider::-moz-range-thumb:hover {
+            background: #ff8833;
+            transform: scale(1.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: var(--space-8);
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            flex: 1;
+            min-width: 60px;
+            padding: var(--space-8) var(--space-12);
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-family: var(--font-family-base);
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .control-btn.active {
+            background: #ff6b1b;
+            color: white;
+            border-color: #ff6b1b;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: var(--space-12);
+            background: rgba(255, 107, 27, 0.2);
+            color: #ff6b1b;
+            border: 1px solid #ff6b1b;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-family: var(--font-family-base);
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-top: var(--space-12);
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 107, 27, 0.3);
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: var(--space-20) 0;
+        }
+
+        /* Scrollbar */
+        #controls-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #controls-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        #controls-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        #controls-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            #controls-panel {
+                width: calc(100vw - 40px);
+                right: 20px;
+                left: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="scene-container">
+        <!-- Sky -->
+        <div id="sky"></div>
+        
+        <!-- Stars -->
+        <div id="stars-container"></div>
+        
+        <!-- Canyon Walls -->
+        <div id="far-wall" class="canyon-wall"></div>
+        <div id="mid-wall" class="canyon-wall"></div>
+        <div id="near-wall" class="canyon-wall"></div>
+        
+        <!-- Moonlight -->
+        <div id="moonlight"></div>
+        
+        <!-- Ground -->
+        <div id="ground"></div>
+        
+        <!-- Tent -->
+        <div id="tent">
+            <div id="tent-glow"></div>
+            <div id="tent-body"></div>
+            <div id="tent-flap"></div>
+        </div>
+        
+        <!-- Rocks -->
+        <div id="rock1" class="rock"></div>
+        <div id="rock2" class="rock"></div>
+        <div id="rock3" class="rock"></div>
+        
+        <!-- Campfire -->
+        <div id="campfire">
+            <div id="fire-glow"></div>
+            <div id="flame1" class="flame"></div>
+            <div id="flame2" class="flame"></div>
+            <div id="flame3" class="flame"></div>
+            <div id="flame4" class="flame"></div>
+            <div id="log1" class="log"></div>
+            <div id="log2" class="log"></div>
+            <div id="log3" class="log"></div>
+        </div>
+        
+        <!-- Smoke Container -->
+        <div id="smoke-container"></div>
+        
+        <!-- Ambient Overlay -->
+        <div id="ambient-overlay"></div>
+    </div>
+
+    <!-- Controls -->
+    <button id="controls-toggle">⚙️ Controls</button>
+    <div id="controls-panel" class="hidden">
+        <div class="control-group">
+            <label class="control-label">Fire Intensity</label>
+            <input type="range" id="fire-intensity" class="slider" min="0" max="100" value="60">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">Moonlight</label>
+            <input type="range" id="moonlight" class="slider" min="0" max="100" value="40">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">Smoke Density</label>
+            <input type="range" id="smoke-density" class="slider" min="0" max="100" value="50">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">Animation Speed</label>
+            <input type="range" id="animation-speed" class="slider" min="30" max="200" value="100">
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="control-group">
+            <label class="control-label">Color Palette</label>
+            <div class="button-group">
+                <button class="control-btn active" data-palette="warm">Warm</button>
+                <button class="control-btn" data-palette="cool">Cool</button>
+                <button class="control-btn" data-palette="muted">Muted</button>
+                <button class="control-btn" data-palette="deep">Deep Night</button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">Time of Day</label>
+            <div class="button-group">
+                <button class="control-btn" data-time="dusk">Dusk</button>
+                <button class="control-btn active" data-time="night">Deep Night</button>
+                <button class="control-btn" data-time="predawn">Pre-Dawn</button>
+            </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="control-group">
+            <label class="control-label">Sound</label>
+            <button id="sound-toggle" class="control-btn">🔇 Sound Off</button>
+        </div>
+        
+        <button id="reset-btn" class="reset-btn">Reset to Defaults</button>
+    </div>
+
+    <script>
+        // State management
+        const state = {
+            fireIntensity: 0.6,
+            moonlightIntensity: 0.4,
+            smokeDensity: 0.5,
+            animationSpeed: 1,
+            soundEnabled: false,
+            currentPalette: 'warm',
+            currentTime: 'night'
+        };
+
+        // Color palettes
+        const palettes = {
+            warm: {
+                colors: ['#ff4500', '#ff6b1b', '#ffaa33', '#ffdd55'],
+                ambient: 'rgba(255, 140, 0, 0.15)'
+            },
+            cool: {
+                colors: ['#ff5533', '#ff7755', '#ffaa88', '#ffccaa'],
+                ambient: 'rgba(100, 150, 255, 0.1)'
+            },
+            muted: {
+                colors: ['#cc6633', '#dd8844', '#ee9955', '#ffaa77'],
+                ambient: 'rgba(180, 160, 140, 0.1)'
+            },
+            deep: {
+                colors: ['#dd4411', '#ff5522', '#ff8833', '#ffaa44'],
+                ambient: 'rgba(20, 30, 60, 0.2)'
+            }
+        };
+
+        // Time of day settings
+        const timeSettings = {
+            dusk: {
+                skyGradient: 'linear-gradient(180deg, #7a5c5c 0%, #4a3a3a 100%)'
+            },
+            night: {
+                skyGradient: 'linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 100%)'
+            },
+            predawn: {
+                skyGradient: 'linear-gradient(180deg, #2a3a4a 0%, #1a2a3a 100%)'
+            }
+        };
+
+        // Audio context for sound
+        let audioContext;
+        let fireSound;
+        let windSound;
+
+        // Initialize scene
+        function init() {
+            createStars();
+            startSmokeAnimation();
+            setupControls();
+            setupAudio();
+        }
+
+        // Create stars
+        function createStars() {
+            const container = document.getElementById('stars-container');
+            const starCount = 50;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 60 + '%';
+                star.style.animationDuration = (2 + Math.random() * 3) + 's';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        // Smoke animation
+        let smokeInterval;
+        function startSmokeAnimation() {
+            const container = document.getElementById('smoke-container');
+            
+            function createSmoke() {
+                if (state.smokeDensity < 0.1) return;
+                
+                const smoke = document.createElement('div');
+                smoke.className = 'smoke';
+                
+                const size = 20 + Math.random() * 30;
+                smoke.style.width = size + 'px';
+                smoke.style.height = size + 'px';
+                
+                const campfire = document.getElementById('campfire');
+                const rect = campfire.getBoundingClientRect();
+                smoke.style.left = (rect.left + rect.width / 2 - size / 2) + 'px';
+                smoke.style.bottom = (window.innerHeight - rect.top) + 'px';
+                
+                const driftX = (Math.random() - 0.5) * 100;
+                smoke.style.setProperty('--drift-x', driftX + 'px');
+                
+                const duration = 8 + Math.random() * 4;
+                smoke.style.animationDuration = (duration / state.animationSpeed) + 's';
+                
+                container.appendChild(smoke);
+                
+                setTimeout(() => {
+                    smoke.remove();
+                }, duration * 1000);
+            }
+            
+            clearInterval(smokeInterval);
+            smokeInterval = setInterval(createSmoke, 800);
+            createSmoke();
+        }
+
+        // Setup audio
+        function setupAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.log('Web Audio API not supported');
+            }
+        }
+
+        // Toggle sound (placeholder - would play actual audio files)
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            const btn = document.getElementById('sound-toggle');
+            
+            if (state.soundEnabled) {
+                btn.textContent = '🔊 Sound On';
+                btn.classList.add('active');
+                // Would start audio playback here
+            } else {
+                btn.textContent = '🔇 Sound Off';
+                btn.classList.remove('active');
+                // Would stop audio playback here
+            }
+        }
+
+        // Update CSS variables
+        function updateSceneVariables() {
+            const root = document.documentElement;
+            root.style.setProperty('--fire-intensity', state.fireIntensity);
+            root.style.setProperty('--moonlight-intensity', state.moonlightIntensity);
+            root.style.setProperty('--smoke-density', state.smokeDensity);
+            root.style.setProperty('--animation-speed', state.animationSpeed);
+            
+            const palette = palettes[state.currentPalette];
+            root.style.setProperty('--fire-color-1', palette.colors[0]);
+            root.style.setProperty('--fire-color-2', palette.colors[1]);
+            root.style.setProperty('--fire-color-3', palette.colors[2]);
+            root.style.setProperty('--fire-color-4', palette.colors[3]);
+            root.style.setProperty('--ambient-color', palette.ambient);
+            
+            const time = timeSettings[state.currentTime];
+            root.style.setProperty('--sky-gradient', time.skyGradient);
+        }
+
+        // Setup controls
+        function setupControls() {
+            // Toggle controls panel
+            const toggleBtn = document.getElementById('controls-toggle');
+            const panel = document.getElementById('controls-panel');
+            
+            toggleBtn.addEventListener('click', () => {
+                panel.classList.toggle('hidden');
+            });
+            
+            // Fire intensity
+            const fireSlider = document.getElementById('fire-intensity');
+            fireSlider.addEventListener('input', (e) => {
+                state.fireIntensity = e.target.value / 100;
+                updateSceneVariables();
+            });
+            
+            // Moonlight
+            const moonSlider = document.getElementById('moonlight');
+            moonSlider.addEventListener('input', (e) => {
+                state.moonlightIntensity = e.target.value / 100;
+                updateSceneVariables();
+            });
+            
+            // Smoke density
+            const smokeSlider = document.getElementById('smoke-density');
+            smokeSlider.addEventListener('input', (e) => {
+                state.smokeDensity = e.target.value / 100;
+                updateSceneVariables();
+                startSmokeAnimation();
+            });
+            
+            // Animation speed
+            const speedSlider = document.getElementById('animation-speed');
+            speedSlider.addEventListener('input', (e) => {
+                state.animationSpeed = e.target.value / 100;
+                updateSceneVariables();
+                startSmokeAnimation();
+            });
+            
+            // Color palette buttons
+            const paletteButtons = document.querySelectorAll('[data-palette]');
+            paletteButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    paletteButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.currentPalette = btn.dataset.palette;
+                    updateSceneVariables();
+                });
+            });
+            
+            // Time of day buttons
+            const timeButtons = document.querySelectorAll('[data-time]');
+            timeButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    timeButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.currentTime = btn.dataset.time;
+                    updateSceneVariables();
+                });
+            });
+            
+            // Sound toggle
+            const soundBtn = document.getElementById('sound-toggle');
+            soundBtn.addEventListener('click', toggleSound);
+            
+            // Reset button
+            const resetBtn = document.getElementById('reset-btn');
+            resetBtn.addEventListener('click', resetToDefaults);
+        }
+
+        // Reset to defaults
+        function resetToDefaults() {
+            state.fireIntensity = 0.6;
+            state.moonlightIntensity = 0.4;
+            state.smokeDensity = 0.5;
+            state.animationSpeed = 1;
+            state.currentPalette = 'warm';
+            state.currentTime = 'night';
+            
+            document.getElementById('fire-intensity').value = 60;
+            document.getElementById('moonlight').value = 40;
+            document.getElementById('smoke-density').value = 50;
+            document.getElementById('animation-speed').value = 100;
+            
+            document.querySelectorAll('[data-palette]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.palette === 'warm');
+            });
+            
+            document.querySelectorAll('[data-time]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.time === 'night');
+            });
+            
+            updateSceneVariables();
+            startSmokeAnimation();
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
