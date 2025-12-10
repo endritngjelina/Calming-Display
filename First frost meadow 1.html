@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Frost Meadow - Ultra Realistic Experience</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-primary: rgba(33, 128, 141, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .scene-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* Sky Background */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 65%;
+            background: linear-gradient(180deg, 
+                #b8d9e8 0%,
+                #d4e8f0 30%,
+                #e8f1f5 100%);
+            transition: background 3s ease;
+        }
+
+        .sky.sunrise {
+            background: linear-gradient(180deg, 
+                #ff9a56 0%,
+                #ffb366 10%,
+                #ffd89a 20%,
+                #f5d48f 30%,
+                #e8d5b5 50%,
+                #d4e8f0 70%,
+                #e8f1f5 100%);
+        }
+
+        .sky.midday {
+            background: linear-gradient(180deg, 
+                #4a9fd8 0%,
+                #87ceeb 20%,
+                #b8d9e8 50%,
+                #d4e8f0 80%,
+                #e8f1f5 100%);
+        }
+
+        .sky.sunset {
+            background: linear-gradient(180deg, 
+                #2d1b4e 0%,
+                #ff4500 5%,
+                #ff6b35 10%,
+                #ff9a56 15%,
+                #ffd700 25%,
+                #ffb8a5 40%,
+                #b8d9e8 70%,
+                #e8f1f5 100%);
+        }
+
+        .sky.twilight {
+            background: linear-gradient(180deg, 
+                #0a0e27 0%,
+                #1a1a3e 10%,
+                #2e1a47 20%,
+                #4a148c 30%,
+                #6a1b9a 40%,
+                #9c4dcc 50%,
+                #c9a2e0 60%,
+                #d4c4e0 75%,
+                #d8d8f0 90%,
+                #e0e0f0 100%);
+        }
+
+        /* Stars */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 3s ease;
+        }
+
+        .stars.active {
+            opacity: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 4s ease-in-out infinite;
+            box-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* Clouds */
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 100px;
+            animation: drift-cloud linear infinite;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 100px;
+        }
+
+        .cloud-1 {
+            width: 100px;
+            height: 40px;
+            top: 15%;
+            left: -150px;
+            animation-duration: 45s;
+        }
+
+        .cloud-1::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud-1::after {
+            width: 60px;
+            height: 40px;
+            top: -20px;
+            right: 10px;
+        }
+
+        .cloud-2 {
+            width: 120px;
+            height: 50px;
+            top: 25%;
+            left: -200px;
+            animation-duration: 60s;
+            animation-delay: 5s;
+        }
+
+        .cloud-2::before {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            left: 15px;
+        }
+
+        .cloud-2::after {
+            width: 70px;
+            height: 50px;
+            top: -25px;
+            right: 15px;
+        }
+
+        .cloud-3 {
+            width: 80px;
+            height: 35px;
+            top: 10%;
+            left: -120px;
+            animation-duration: 55s;
+            animation-delay: 15s;
+        }
+
+        .cloud-3::before {
+            width: 40px;
+            height: 40px;
+            top: -20px;
+            left: 10px;
+        }
+
+        .cloud-3::after {
+            width: 50px;
+            height: 35px;
+            top: -15px;
+            right: 10px;
+        }
+
+        @keyframes drift-cloud {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 250px)); }
+        }
+
+        /* Sun/Moon Elements */
+        .celestial-body {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.95;
+            transition: all 3s ease;
+        }
+
+        .sun {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle at 30% 30%, #ffeb3b, #ffa500);
+            box-shadow: 0 0 60px rgba(255, 165, 0, 0.6),
+                        0 0 120px rgba(255, 165, 0, 0.3);
+            top: 20%;
+            right: 15%;
+            animation: sun-pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes sun-pulse {
+            0%, 100% { box-shadow: 0 0 60px rgba(255, 165, 0, 0.6), 0 0 120px rgba(255, 165, 0, 0.3); }
+            50% { box-shadow: 0 0 80px rgba(255, 165, 0, 0.8), 0 0 160px rgba(255, 165, 0, 0.4); }
+        }
+
+        .sun.sunrise {
+            top: 55%;
+            right: 5%;
+            background: radial-gradient(circle at 30% 30%, #ff9a56, #ff6b35);
+            box-shadow: 0 0 80px rgba(255, 107, 53, 0.7),
+                        0 0 150px rgba(255, 107, 53, 0.4);
+        }
+
+        .sun.sunset {
+            top: 50%;
+            left: 5%;
+            background: radial-gradient(circle at 30% 30%, #ff6b35, #ff4500);
+            box-shadow: 0 0 100px rgba(255, 69, 0, 0.8),
+                        0 0 200px rgba(255, 69, 0, 0.5);
+        }
+
+        .moon {
+            display: none;
+            width: 90px;
+            height: 90px;
+            background: radial-gradient(circle at 30% 30%, #f5f5f5, #d0d0d0);
+            top: 12%;
+            left: 15%;
+            box-shadow: 0 0 40px rgba(240, 240, 240, 0.6),
+                        inset -10px -10px 20px rgba(100, 100, 100, 0.2);
+        }
+
+        .moon.active {
+            display: block;
+        }
+
+        /* Mountains Background */
+        .mountains {
+            position: absolute;
+            bottom: 38%;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            opacity: 0.3;
+        }
+
+        .mountain {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 200px solid transparent;
+            border-right: 200px solid transparent;
+            border-bottom: 200px solid rgba(70, 80, 90, 0.4);
+            bottom: 0;
+        }
+
+        .mountain-1 { left: -50px; transform: scale(1.2); }
+        .mountain-2 { left: 25%; transform: scale(0.9); }
+        .mountain-3 { right: 10%; transform: scale(1.1); }
+
+        /* Birds */
+        .birds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .bird {
+            position: absolute;
+            width: 20px;
+            height: 2px;
+            animation: fly-across linear infinite;
+        }
+
+        .bird::before,
+        .bird::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 2px;
+            background: rgba(40, 40, 40, 0.6);
+            animation: flap 0.5s ease-in-out infinite;
+        }
+
+        .bird::before {
+            left: 0;
+            transform-origin: right center;
+        }
+
+        .bird::after {
+            right: 0;
+            transform-origin: left center;
+        }
+
+        @keyframes fly-across {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+
+        @keyframes flap {
+            0%, 100% { transform: rotateZ(-10deg); }
+            50% { transform: rotateZ(10deg); }
+        }
+
+        /* Mist/Fog */
+        .mist {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .mist-layer {
+            position: absolute;
+            width: 200%;
+            height: 50%;
+            background: radial-gradient(ellipse 1000px 250px at 50% 100%, 
+                rgba(255, 255, 255, 0.4), 
+                rgba(255, 255, 255, 0.2) 50%,
+                transparent);
+            animation: drift 25s linear infinite;
+            bottom: 35%;
+            filter: blur(20px);
+        }
+
+        .mist-layer:nth-child(2) {
+            animation: drift 35s linear infinite reverse;
+            opacity: 0.6;
+            bottom: 30%;
+            animation-delay: 4s;
+        }
+
+        .mist-layer:nth-child(3) {
+            animation: drift 30s linear infinite;
+            opacity: 0.4;
+            bottom: 25%;
+            animation-delay: 8s;
+        }
+
+        @keyframes drift {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(50%); }
+        }
+
+        /* Meadow/Ground */
+        .meadow {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35%;
+            background: linear-gradient(180deg, 
+                rgba(76, 110, 60, 0.9) 0%,
+                rgba(56, 90, 40, 0.95) 50%,
+                rgba(40, 70, 25, 1) 100%);
+            overflow: hidden;
+            transition: background 3s ease;
+        }
+
+        .meadow.spring {
+            background: linear-gradient(180deg, 
+                rgba(100, 150, 80, 0.9) 0%,
+                rgba(80, 120, 60, 0.95) 50%,
+                rgba(60, 100, 40, 1) 100%);
+        }
+
+        .meadow.summer {
+            background: linear-gradient(180deg, 
+                rgba(120, 160, 80, 0.9) 0%,
+                rgba(100, 140, 60, 0.95) 50%,
+                rgba(80, 120, 40, 1) 100%);
+        }
+
+        .meadow.autumn {
+            background: linear-gradient(180deg, 
+                rgba(160, 130, 60, 0.9) 0%,
+                rgba(140, 110, 50, 0.95) 50%,
+                rgba(120, 90, 30, 1) 100%);
+        }
+
+        /* Grass Blades */
+        .grass-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            bottom: 0;
+            left: 0;
+        }
+
+        .grass-blade {
+            position: absolute;
+            width: 3px;
+            height: 40px;
+            bottom: 0;
+            background: linear-gradient(to top, 
+                rgba(50, 80, 30, 1), 
+                rgba(80, 120, 50, 0.8),
+                rgba(100, 150, 70, 0));
+            border-radius: 50% 50% 0 0;
+            transform-origin: bottom center;
+            animation: sway ease-in-out infinite;
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        /* Weather Effects */
+        .weather-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        /* Snow */
+        .snowflake {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: fall linear infinite;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10px) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(100vh) translateX(50px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Butterflies */
+        .butterfly {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            animation: flutter 15s ease-in-out infinite;
+        }
+
+        .butterfly::before,
+        .butterfly::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 15px;
+            background: rgba(255, 140, 0, 0.7);
+            border-radius: 50%;
+            animation: wing-flap 0.3s ease-in-out infinite;
+        }
+
+        .butterfly::before {
+            left: 0;
+            transform-origin: right center;
+            background: radial-gradient(circle, rgba(255, 200, 0, 0.8), rgba(255, 140, 0, 0.6));
+        }
+
+        .butterfly::after {
+            right: 0;
+            transform-origin: left center;
+            background: radial-gradient(circle, rgba(255, 200, 0, 0.8), rgba(255, 140, 0, 0.6));
+        }
+
+        @keyframes flutter {
+            0%, 100% {
+                transform: translate(0, 50vh) scale(1);
+            }
+            25% {
+                transform: translate(30vw, 30vh) scale(0.8);
+            }
+            50% {
+                transform: translate(60vw, 40vh) scale(1.2);
+            }
+            75% {
+                transform: translate(40vw, 25vh) scale(0.9);
+            }
+        }
+
+        @keyframes wing-flap {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(70deg); }
+        }
+
+        /* Falling Leaves */
+        .leaf {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: rgba(180, 100, 40, 0.8);
+            border-radius: 50% 0;
+            animation: leaf-fall linear infinite;
+        }
+
+        @keyframes leaf-fall {
+            0% {
+                transform: translateY(-10px) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Fireflies */
+        .firefly {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 150, 0.9);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 150, 0.8);
+            animation: firefly-float 8s ease-in-out infinite;
+        }
+
+        @keyframes firefly-float {
+            0%, 100% {
+                transform: translate(0, 0);
+                opacity: 0.3;
+            }
+            25% {
+                transform: translate(50px, -30px);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(20px, -60px);
+                opacity: 0.5;
+            }
+            75% {
+                transform: translate(-30px, -40px);
+                opacity: 0.8;
+            }
+        }
+
+        /* Frost Sparkles */
+        .frost-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .frost-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(173, 216, 230, 0.8);
+            animation: sparkle 3s ease-in-out infinite;
+        }
+
+        .frost-particle.large {
+            width: 5px;
+            height: 5px;
+            box-shadow: 0 0 10px rgba(150, 200, 220, 0.9);
+        }
+
+        @keyframes sparkle {
+            0%, 100% { 
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1;
+                transform: scale(1.3);
+            }
+        }
+
+        /* Noise Texture */
+        .noise-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255, 255, 255, 0.03),
+                    rgba(255, 255, 255, 0.03) 1px,
+                    transparent 1px,
+                    transparent 2px
+                );
+            animation: grain 0.5s steps(10) infinite;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        @keyframes grain {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-2px, -2px); }
+            20% { transform: translate(-2px, 2px); }
+            30% { transform: translate(2px, -2px); }
+            40% { transform: translate(2px, 2px); }
+            50% { transform: translate(-1px, -1px); }
+        }
+
+        /* Light Rays */
+        .light-rays {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 3s ease;
+            pointer-events: none;
+        }
+
+        .light-rays.active {
+            opacity: 0.3;
+        }
+
+        .light-ray {
+            position: absolute;
+            width: 2px;
+            height: 40%;
+            background: linear-gradient(to bottom, 
+                rgba(255, 255, 200, 0.4),
+                transparent);
+            top: 0;
+            transform-origin: top center;
+            animation: ray-rotate 20s linear infinite;
+        }
+
+        @keyframes ray-rotate {
+            0% { opacity: 0.2; }
+            50% { opacity: 0.6; }
+            100% { opacity: 0.2; }
+        }
+
+        /* Control Panel */
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 95%;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .control-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-slate-900);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border: 2px solid var(--color-primary);
+            background: var(--color-white);
+            color: var(--color-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            background: var(--color-primary);
+            color: var(--color-white);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 128, 141, 0.3);
+        }
+
+        .btn.active {
+            background: var(--color-primary);
+            color: var(--color-white);
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            width: 100px;
+            height: 4px;
+            border-radius: 2px;
+            background: linear-gradient(to right, var(--color-primary), rgba(50, 184, 198, 1));
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(33, 128, 141, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(33, 128, 141, 0.4);
+        }
+
+        .value-display {
+            font-size: 11px;
+            color: var(--color-slate-500);
+            font-weight: 600;
+            min-width: 25px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                flex-direction: column;
+                gap: 12px;
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                border-radius: 16px;
+                padding: 12px 16px;
+            }
+
+            .control-group {
+                width: 100%;
+                gap: 8px;
+            }
+
+            .control-buttons {
+                flex: 1;
+                gap: 6px;
+            }
+
+            .btn {
+                flex: 1;
+                padding: 6px 8px;
+                font-size: 9px;
+            }
+
+            input[type="range"] {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <!-- Sky -->
+        <div class="sky sunrise"></div>
+
+        <!-- Stars -->
+        <div class="stars" id="starsContainer"></div>
+
+        <!-- Clouds -->
+        <div class="clouds">
+            <div class="cloud cloud-1"></div>
+            <div class="cloud cloud-2"></div>
+            <div class="cloud cloud-3"></div>
+        </div>
+
+        <!-- Mountains -->
+        <div class="mountains">
+            <div class="mountain mountain-1"></div>
+            <div class="mountain mountain-2"></div>
+            <div class="mountain mountain-3"></div>
+        </div>
+
+        <!-- Light Rays -->
+        <div class="light-rays" id="lightRays"></div>
+
+        <!-- Birds -->
+        <div class="birds" id="birdsContainer"></div>
+
+        <!-- Celestial Bodies -->
+        <div class="sun sunrise"></div>
+        <div class="moon"></div>
+
+        <!-- Mist -->
+        <div class="mist">
+            <div class="mist-layer"></div>
+            <div class="mist-layer"></div>
+            <div class="mist-layer"></div>
+        </div>
+
+        <!-- Meadow -->
+        <div class="meadow default">
+            <div class="grass-container" id="grassContainer"></div>
+        </div>
+
+        <!-- Weather Effects -->
+        <div class="weather-container" id="weatherContainer"></div>
+
+        <!-- Frost Particles -->
+        <div class="frost-particles" id="frostContainer"></div>
+
+        <!-- Noise Overlay -->
+        <div class="noise-overlay"></div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <div class="control-group">
+            <label class="control-label">Time</label>
+            <div class="control-buttons">
+                <button class="btn active" data-time="sunrise">Dawn</button>
+                <button class="btn" data-time="midday">Day</button>
+                <button class="btn" data-time="sunset">Dusk</button>
+                <button class="btn" data-time="twilight">Night</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Season</label>
+            <div class="control-buttons">
+                <button class="btn active" data-season="default">Winter</button>
+                <button class="btn" data-season="spring">Spring</button>
+                <button class="btn" data-season="summer">Summer</button>
+                <button class="btn" data-season="autumn">Autumn</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Frost</label>
+            <div class="slider-group">
+                <input type="range" id="frostIntensity" min="0" max="100" value="70">
+                <span class="value-display" id="frostValue">70%</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Mist</label>
+            <div class="slider-group">
+                <input type="range" id="mistDensity" min="0" max="100" value="50">
+                <span class="value-display" id="mistValue">50%</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Wind</label>
+            <div class="slider-group">
+                <input type="range" id="windSpeed" min="0" max="100" value="30">
+                <span class="value-display" id="windValue">30%</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSeason = 'default';
+        let currentTime = 'sunrise';
+
+        // Generate Stars
+        function generateStars() {
+            const container = document.getElementById('starsContainer');
+            container.innerHTML = '';
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 60 + '%';
+                star.style.animationDelay = Math.random() * 4 + 's';
+                star.style.animationDuration = (3 + Math.random() * 3) + 's';
+                if (Math.random() > 0.7) {
+                    star.style.width = '3px';
+                    star.style.height = '3px';
+                }
+                container.appendChild(star);
+            }
+        }
+
+        // Generate Light Rays
+        function generateLightRays() {
+            const container = document.getElementById('lightRays');
+            container.innerHTML = '';
+            for (let i = 0; i < 8; i++) {
+                const ray = document.createElement('div');
+                ray.className = 'light-ray';
+                ray.style.left = (20 + i * 10) + '%';
+                ray.style.transform = `rotate(${-15 + i * 4}deg)`;
+                ray.style.animationDelay = (i * 0.5) + 's';
+                container.appendChild(ray);
+            }
+        }
+
+        // Generate Grass Blades
+        function generateGrass() {
+            const container = document.getElementById('grassContainer');
+            container.innerHTML = '';
+            const grassCount = Math.floor(window.innerWidth / 8);
+            
+            for (let i = 0; i < grassCount; i++) {
+                const blade = document.createElement('div');
+                blade.className = 'grass-blade';
+                blade.style.left = (Math.random() * 100) + '%';
+                blade.style.height = (30 + Math.random() * 40) + 'px';
+                blade.style.animationDuration = (2 + Math.random() * 3) + 's';
+                blade.style.animationDelay = Math.random() * 2 + 's';
+                blade.style.opacity = 0.6 + Math.random() * 0.4;
+                container.appendChild(blade);
+            }
+        }
+
+        // Generate Birds
+        function generateBirds() {
+            const container = document.getElementById('birdsContainer');
+            const birdCount = 3 + Math.floor(Math.random() * 3);
+            
+            for (let i = 0; i < birdCount; i++) {
+                const bird = document.createElement('div');
+                bird.className = 'bird';
+                bird.style.top = (10 + Math.random() * 30) + '%';
+                bird.style.animationDuration = (30 + Math.random() * 20) + 's';
+                bird.style.animationDelay = (Math.random() * 10) + 's';
+                container.appendChild(bird);
+            }
+        }
+
+        // Weather Effects
+        function updateWeather() {
+            const container = document.getElementById('weatherContainer');
+            container.innerHTML = '';
+
+            if (currentSeason === 'default') {
+                // Snow
+                const snowCount = 50;
+                for (let i = 0; i < snowCount; i++) {
+                    const snow = document.createElement('div');
+                    snow.className = 'snowflake';
+                    snow.style.left = Math.random() * 100 + '%';
+                    snow.style.animationDuration = (8 + Math.random() * 8) + 's';
+                    snow.style.animationDelay = Math.random() * 5 + 's';
+                    snow.style.width = (4 + Math.random() * 6) + 'px';
+                    snow.style.height = snow.style.width;
+                    container.appendChild(snow);
+                }
+            } else if (currentSeason === 'spring' || currentSeason === 'summer') {
+                // Butterflies
+                const butterflyCount = 5;
+                for (let i = 0; i < butterflyCount; i++) {
+                    const butterfly = document.createElement('div');
+                    butterfly.className = 'butterfly';
+                    butterfly.style.left = (Math.random() * 80) + '%';
+                    butterfly.style.top = (30 + Math.random() * 30) + '%';
+                    butterfly.style.animationDuration = (12 + Math.random() * 8) + 's';
+                    butterfly.style.animationDelay = (Math.random() * 5) + 's';
+                    container.appendChild(butterfly);
+                }
+
+                // Fireflies for evening
+                if (currentTime === 'twilight' || currentTime === 'sunset') {
+                    const fireflyCount = 15;
+                    for (let i = 0; i < fireflyCount; i++) {
+                        const firefly = document.createElement('div');
+                        firefly.className = 'firefly';
+                        firefly.style.left = Math.random() * 100 + '%';
+                        firefly.style.bottom = (10 + Math.random() * 40) + '%';
+                        firefly.style.animationDuration = (6 + Math.random() * 6) + 's';
+                        firefly.style.animationDelay = Math.random() * 4 + 's';
+                        container.appendChild(firefly);
+                    }
+                }
+            } else if (currentSeason === 'autumn') {
+                // Falling leaves
+                const leafCount = 30;
+                for (let i = 0; i < leafCount; i++) {
+                    const leaf = document.createElement('div');
+                    leaf.className = 'leaf';
+                    leaf.style.left = Math.random() * 100 + '%';
+                    leaf.style.animationDuration = (10 + Math.random() * 10) + 's';
+                    leaf.style.animationDelay = Math.random() * 5 + 's';
+                    const colors = [
+                        'rgba(180, 100, 40, 0.8)',
+                        'rgba(200, 80, 30, 0.8)',
+                        'rgba(220, 120, 50, 0.8)',
+                        'rgba(160, 60, 20, 0.8)'
+                    ];
+                    leaf.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    container.appendChild(leaf);
+                }
+            }
+        }
+
+        // Frost Particles
+        function generateFrostParticles() {
+            const container = document.getElementById('frostContainer');
+            const intensity = parseInt(document.getElementById('frostIntensity').value);
+            const particleCount = Math.floor((intensity / 100) * 250);
+
+            container.innerHTML = '';
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = `frost-particle ${Math.random() > 0.6 ? 'large' : ''}`;
+                
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDuration = (2 + Math.random() * 4) + 's';
+                particle.style.animationDelay = Math.random() * 3 + 's';
+
+                container.appendChild(particle);
+            }
+        }
+
+        // Update Mist
+        function updateMistDensity() {
+            const density = parseInt(document.getElementById('mistDensity').value) / 100;
+            const mistLayers = document.querySelectorAll('.mist-layer');
+            mistLayers.forEach((layer, i) => {
+                layer.style.opacity = density * (0.6 - i * 0.1);
+            });
+            document.getElementById('mistValue').textContent = document.getElementById('mistDensity').value + '%';
+        }
+
+        // Update Wind
+        function updateWindSpeed() {
+            const wind = parseInt(document.getElementById('windSpeed').value);
+            const grassBlades = document.querySelectorAll('.grass-blade');
+            
+            grassBlades.forEach(blade => {
+                const baseDuration = 2 + Math.random() * 3;
+                const windFactor = 1 - (wind / 150);
+                blade.style.animationDuration = (baseDuration * windFactor) + 's';
+            });
+
+            const mistLayers = document.querySelectorAll('.mist-layer');
+            mistLayers.forEach((layer, i) => {
+                const baseDuration = 25 + i * 5;
+                const windFactor = 1 - (wind / 200);
+                layer.style.animationDuration = (baseDuration * windFactor) + 's';
+            });
+
+            document.getElementById('windValue').textContent = wind + '%';
+        }
+
+        // Time of Day
+        document.querySelectorAll('[data-time]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                currentTime = this.dataset.time;
+                const sky = document.querySelector('.sky');
+                const sun = document.querySelector('.sun');
+                const moon = document.querySelector('.moon');
+                const stars = document.getElementById('starsContainer');
+                const lightRays = document.getElementById('lightRays');
+
+                sky.className = `sky ${currentTime}`;
+                sun.className = `sun ${currentTime}`;
+
+                if (currentTime === 'twilight') {
+                    sun.style.display = 'none';
+                    moon.classList.add('active');
+                    stars.classList.add('active');
+                    lightRays.classList.remove('active');
+                } else {
+                    sun.style.display = 'block';
+                    moon.classList.remove('active');
+                    stars.classList.remove('active');
+                    if (currentTime === 'sunrise' || currentTime === 'sunset') {
+                        lightRays.classList.add('active');
+                    } else {
+                        lightRays.classList.remove('active');
+                    }
+                }
+
+                updateWeather();
+            });
+        });
+
+        // Season
+        document.querySelectorAll('[data-season]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-season]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                currentSeason = this.dataset.season;
+                const meadow = document.querySelector('.meadow');
+                meadow.className = `meadow ${currentSeason}`;
+                
+                updateWeather();
+            });
+        });
+
+        // Sliders
+        document.getElementById('frostIntensity').addEventListener('input', function() {
+            document.getElementById('frostValue').textContent = this.value + '%';
+            generateFrostParticles();
+        });
+
+        document.getElementById('mistDensity').addEventListener('input', updateMistDensity);
+        document.getElementById('windSpeed').addEventListener('input', updateWindSpeed);
+
+        // Initialize
+        generateStars();
+        generateLightRays();
+        generateGrass();
+        generateBirds();
+        generateFrostParticles();
+        updateMistDensity();
+        updateWeather();
+
+        // Regenerate birds periodically
+        setInterval(generateBirds, 35000);
+
+        // Regenerate frost periodically
+        setInterval(generateFrostParticles, 10000);
+    </script>
+</body>
+</html>
