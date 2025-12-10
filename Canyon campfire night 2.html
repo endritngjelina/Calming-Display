@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Canyon Campfire Night - Immersive Scene</title>
+    <style>
+        :root {
+            /* Design System Variables */
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --radius-base: 8px;
+            --radius-lg: 12px;
+            
+            /* Scene Variables */
+            --fire-intensity: 0.6;
+            --moonlight-intensity: 0.4;
+            --smoke-density: 0.5;
+            --animation-speed: 1;
+            --fire-color-1: #ff4500;
+            --fire-color-2: #ff6b1b;
+            --fire-color-3: #ffaa33;
+            --fire-color-4: #ffdd55;
+            --ambient-color: rgba(255, 140, 0, 0.15);
+            --sky-gradient: linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 100%);
+            --moon-glow: rgba(200, 220, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            overflow: hidden;
+            background: #000;
+            width: 100vw;
+            height: 100vh;
+            user-select: none;
+        }
+
+        #scene-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        /* Sky */
+        #sky {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--sky-gradient);
+            transition: background 2s ease;
+        }
+
+        /* Moon */
+        #moon {
+            position: absolute;
+            top: 15%;
+            right: 20%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, #ffffee 0%, #f0f0cc 50%, #d0d0aa 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 40px var(--moon-glow), 0 0 80px var(--moon-glow);
+            z-index: 2;
+            animation: moon-pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes moon-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.95; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        #moon::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(160, 160, 130, 0.3);
+            border-radius: 50%;
+            top: 40%;
+            left: 50%;
+        }
+
+        #moon::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: rgba(160, 160, 130, 0.2);
+            border-radius: 50%;
+            top: 25%;
+            left: 30%;
+        }
+
+        /* Clouds */
+        .cloud {
+            position: absolute;
+            background: rgba(200, 200, 220, 0.15);
+            border-radius: 100px;
+            filter: blur(8px);
+            animation: cloud-drift linear infinite;
+        }
+
+        @keyframes cloud-drift {
+            0% { transform: translateX(-150px); }
+            100% { transform: translateX(calc(100vw + 150px)); }
+        }
+
+        /* Stars */
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Shooting Stars */
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: shoot linear forwards;
+            box-shadow: 0 0 4px white;
+        }
+
+        @keyframes shoot {
+            0% { 
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(-300px, 300px) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        /* Constellation */
+        .constellation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .constellation-dot {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+        }
+
+        .constellation-line {
+            position: absolute;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+            transform-origin: left center;
+        }
+
+        /* Canyon Walls */
+        .canyon-wall {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        #far-wall {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+            opacity: 0.4;
+            clip-path: polygon(0 30%, 20% 40%, 40% 35%, 60% 45%, 80% 38%, 100% 42%, 100% 100%, 0 100%);
+        }
+
+        #mid-wall {
+            background: linear-gradient(135deg, #2d3561 0%, #3d4a7f 50%, #2d3561 100%);
+            opacity: 0.6;
+            clip-path: polygon(0 45%, 15% 50%, 35% 48%, 55% 55%, 75% 50%, 90% 52%, 100% 55%, 100% 100%, 0 100%);
+        }
+
+        #near-wall {
+            background: linear-gradient(135deg, #3d4a7f 0%, #4a5a9e 50%, #3d4a7f 100%);
+            opacity: 0.8;
+            clip-path: polygon(0 60%, 10% 62%, 25% 60%, 45% 65%, 65% 63%, 85% 65%, 100% 68%, 100% 100%, 0 100%);
+        }
+
+        /* Ground */
+        #ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 35%;
+            background: linear-gradient(180deg, #2a2415 0%, #1a1410 100%);
+            z-index: 5;
+        }
+
+        /* Ground Shadow */
+        #ground-shadow {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 150px;
+            background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.4) 70%);
+            z-index: 6;
+            opacity: calc(1 - var(--fire-intensity));
+            transition: opacity 0.5s ease;
+        }
+
+        /* Rocks */
+        .rock {
+            position: absolute;
+            background: linear-gradient(135deg, #3a3425 0%, #2a2415 100%);
+            border-radius: 50%;
+            z-index: 6;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #rock1 {
+            bottom: 18%;
+            left: 35%;
+            width: 60px;
+            height: 40px;
+            transform: rotate(-5deg);
+        }
+
+        #rock2 {
+            bottom: 20%;
+            right: 38%;
+            width: 50px;
+            height: 35px;
+            transform: rotate(8deg);
+        }
+
+        #rock3 {
+            bottom: 17%;
+            left: 52%;
+            width: 45px;
+            height: 30px;
+            transform: rotate(-3deg);
+        }
+
+        /* Campfire */
+        #campfire {
+            position: absolute;
+            bottom: 22%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 120px;
+            z-index: 15;
+            transition: transform 0.2s ease;
+        }
+
+        #campfire:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        /* Fire Glow */
+        #fire-glow {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--fire-color-2) 0%, transparent 70%);
+            opacity: calc(var(--fire-intensity) * 0.6);
+            animation: glow-pulse 2s ease-in-out infinite;
+            z-index: 10;
+            filter: blur(30px);
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: calc(var(--fire-intensity) * 0.5); }
+            50% { transform: translateX(-50%) scale(1.1); opacity: calc(var(--fire-intensity) * 0.7); }
+        }
+
+        /* Flames */
+        .flame {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            filter: blur(0.5px);
+            transition: filter 0.3s ease;
+        }
+
+        #flame1 {
+            width: 30px;
+            height: 50px;
+            background: linear-gradient(180deg, var(--fire-color-4) 0%, var(--fire-color-2) 100%);
+            margin-left: -15px;
+            animation: flicker1 calc(3s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        #flame2 {
+            width: 35px;
+            height: 55px;
+            background: linear-gradient(180deg, var(--fire-color-3) 0%, var(--fire-color-1) 100%);
+            margin-left: -17px;
+            animation: flicker2 calc(4.5s / var(--animation-speed)) ease-in-out infinite;
+            opacity: 0.9;
+        }
+
+        #flame3 {
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(180deg, var(--fire-color-2) 0%, var(--fire-color-1) 100%);
+            margin-left: -20px;
+            animation: flicker3 calc(5s / var(--animation-speed)) ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        #flame4 {
+            width: 25px;
+            height: 45px;
+            background: linear-gradient(180deg, var(--fire-color-4) 0%, var(--fire-color-3) 100%);
+            margin-left: -12px;
+            animation: flicker4 calc(3.5s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        @keyframes flicker1 {
+            0%, 100% { transform: translateX(-8px) scaleY(0.95) scaleX(1); }
+            25% { transform: translateX(-5px) scaleY(1.05) scaleX(0.95); }
+            50% { transform: translateX(-10px) scaleY(0.9) scaleX(1.05); }
+            75% { transform: translateX(-6px) scaleY(1.1) scaleX(0.9); }
+        }
+
+        @keyframes flicker2 {
+            0%, 100% { transform: translateX(5px) scaleY(1) scaleX(0.95); }
+            33% { transform: translateX(8px) scaleY(0.92) scaleX(1.05); }
+            66% { transform: translateX(3px) scaleY(1.08) scaleX(0.9); }
+        }
+
+        @keyframes flicker3 {
+            0%, 100% { transform: translateX(0px) scaleY(0.98); }
+            20% { transform: translateX(-3px) scaleY(1.05); }
+            40% { transform: translateX(4px) scaleY(0.92); }
+            60% { transform: translateX(-2px) scaleY(1.03); }
+            80% { transform: translateX(3px) scaleY(0.95); }
+        }
+
+        @keyframes flicker4 {
+            0%, 100% { transform: translateX(10px) scaleY(1.02); }
+            30% { transform: translateX(12px) scaleY(0.95); }
+            70% { transform: translateX(8px) scaleY(1.08); }
+        }
+
+        /* Logs with glow */
+        .log {
+            position: absolute;
+            background: linear-gradient(90deg, #2a1810 0%, #1a1008 100%);
+            border-radius: 5px;
+            bottom: 0;
+            z-index: 14;
+            box-shadow: inset 0 0 10px rgba(255, 100, 0, calc(var(--fire-intensity) * 0.5));
+            transition: box-shadow 0.3s ease;
+        }
+
+        #log1 {
+            width: 50px;
+            height: 12px;
+            left: 25px;
+            transform: rotate(-15deg);
+        }
+
+        #log2 {
+            width: 45px;
+            height: 10px;
+            right: 30px;
+            transform: rotate(20deg);
+        }
+
+        #log3 {
+            width: 40px;
+            height: 11px;
+            left: 40px;
+            bottom: -5px;
+            transform: rotate(5deg);
+        }
+
+        /* Ember particles */
+        .ember {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--fire-color-4);
+            border-radius: 50%;
+            animation: ember-rise linear forwards;
+            box-shadow: 0 0 4px var(--fire-color-2);
+            z-index: 13;
+        }
+
+        @keyframes ember-rise {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--drift-x), -200px) scale(0.2);
+                opacity: 0;
+            }
+        }
+
+        /* Smoke */
+        .smoke {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(200, 200, 220, calc(0.25 * var(--smoke-density)));
+            filter: blur(10px);
+            animation: smoke-drift ease-out forwards;
+            z-index: 12;
+        }
+
+        @keyframes smoke-drift {
+            0% {
+                transform: translate(0, 0) scale(0.5);
+                opacity: calc(var(--smoke-density) * 0.6);
+            }
+            50% {
+                opacity: calc(var(--smoke-density) * 0.4);
+            }
+            100% {
+                transform: translate(var(--drift-x), -350px) scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Tent */
+        #tent {
+            position: absolute;
+            bottom: 22%;
+            left: 25%;
+            width: 80px;
+            height: 60px;
+            z-index: 8;
+            transition: transform 0.3s ease;
+        }
+
+        #tent:hover {
+            transform: translateY(-5px);
+        }
+
+        #tent-body {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 60px solid #2d1810;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        #tent-flap {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 30px solid #3d2820;
+            left: 25px;
+            top: 30px;
+            z-index: 1;
+        }
+
+        #tent-pole {
+            position: absolute;
+            width: 2px;
+            height: 50px;
+            background: #5a4830;
+            left: 39px;
+            top: 5px;
+        }
+
+        #tent-glow {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background: radial-gradient(circle at 40px 60px, var(--fire-color-2) 0%, transparent 70%);
+            opacity: calc(var(--fire-intensity) * 0.25);
+            filter: blur(20px);
+        }
+
+        /* Moonlight */
+        #moonlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 80% 20%, rgba(200, 220, 255, calc(var(--moonlight-intensity) * 0.15)) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        /* Ambient Overlay */
+        #ambient-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--ambient-color);
+            pointer-events: none;
+            z-index: 19;
+            transition: background 0.5s ease;
+        }
+
+        /* Fireflies */
+        #fireflies-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 7;
+        }
+
+        .firefly {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #aaffaa;
+            border-radius: 50%;
+            filter: blur(1px);
+            box-shadow: 0 0 8px 2px #aaffaa;
+            animation: firefly-float ease-in-out infinite;
+        }
+
+        @keyframes firefly-float {
+            0%, 100% { transform: translate(0, 0); opacity: 0.7; }
+            25% { transform: translate(10px, -10px); opacity: 1; }
+            50% { transform: translate(-5px, 5px); opacity: 0.8; }
+            75% { transform: translate(-10px, -5px); opacity: 0.9; }
+        }
+
+        /* Controls */
+        #controls-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-family: var(--font-family-base);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        #controls-toggle:hover {
+            background: rgba(0, 0, 0, 0.85);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        #fullscreen-btn {
+            position: fixed;
+            top: 20px;
+            right: 140px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 16px;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        #fullscreen-btn:hover {
+            background: rgba(0, 0, 0, 0.85);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        #controls-panel {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 340px;
+            max-height: calc(100vh - 100px);
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-20);
+            z-index: 99;
+            backdrop-filter: blur(10px);
+            overflow-y: auto;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        #controls-panel.hidden {
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
+        }
+
+        .control-group {
+            margin-bottom: var(--space-20);
+        }
+
+        .control-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            margin-bottom: var(--space-8);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff6b1b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: #ff8833;
+            transform: scale(1.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff6b1b;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .slider::-moz-range-thumb:hover {
+            background: #ff8833;
+            transform: scale(1.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: var(--space-8);
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            flex: 1;
+            min-width: 70px;
+            padding: var(--space-8) var(--space-12);
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-family: var(--font-family-base);
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .control-btn.active {
+            background: #ff6b1b;
+            color: white;
+            border-color: #ff6b1b;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: var(--space-12);
+            background: rgba(255, 107, 27, 0.2);
+            color: #ff6b1b;
+            border: 1px solid #ff6b1b;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-family: var(--font-family-base);
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-top: var(--space-12);
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 107, 27, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: var(--space-20) 0;
+        }
+
+        .keyboard-hint {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: var(--font-size-xs);
+            margin-top: var(--space-4);
+            font-style: italic;
+        }
+
+        /* Scrollbar */
+        #controls-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #controls-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        #controls-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        #controls-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Info overlay */
+        #info-overlay {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 16px;
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-sm);
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #info-overlay.show {
+            opacity: 1;
+        }
+
+        /* Loading Screen */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            transition: opacity 1s ease;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 18px;
+            margin-top: 20px;
+            font-family: var(--font-family-base);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 107, 27, 0.3);
+            border-radius: 50%;
+            border-top-color: #ff6b1b;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            #controls-panel {
+                width: calc(100vw - 40px);
+                right: 20px;
+                left: 20px;
+            }
+
+            #fullscreen-btn {
+                right: 110px;
+                padding: 12px;
+            }
+
+            #controls-toggle {
+                padding: 12px 16px;
+            }
+
+            #info-overlay {
+                bottom: 80px;
+                font-size: var(--font-size-xs);
+            }
+
+            #moon {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading Campfire Experience...</div>
+    </div>
+
+    <div id="scene-container">
+        <!-- Sky -->
+        <div id="sky"></div>
+        
+        <!-- Moon -->
+        <div id="moon"></div>
+        
+        <!-- Constellation -->
+        <div id="constellation" class="constellation"></div>
+        
+        <!-- Clouds -->
+        <div id="clouds-container"></div>
+        
+        <!-- Stars -->
+        <div id="stars-container"></div>
+        
+        <!-- Fireflies -->
+        <div id="fireflies-container"></div>
+        
+        <!-- Canyon Walls -->
+        <div id="far-wall" class="canyon-wall"></div>
+        <div id="mid-wall" class="canyon-wall"></div>
+        <div id="near-wall" class="canyon-wall"></div>
+        
+        <!-- Moonlight -->
+        <div id="moonlight"></div>
+        
+        <!-- Ground -->
+        <div id="ground"></div>
+        <div id="ground-shadow"></div>
+        
+        <!-- Tent -->
+        <div id="tent">
+            <div id="tent-glow"></div>
+            <div id="tent-body"></div>
+            <div id="tent-pole"></div>
+            <div id="tent-flap"></div>
+        </div>
+        
+        <!-- Rocks -->
+        <div id="rock1" class="rock"></div>
+        <div id="rock2" class="rock"></div>
+        <div id="rock3" class="rock"></div>
+        
+        <!-- Campfire -->
+        <div id="campfire">
+            <div id="fire-glow"></div>
+            <div id="flame1" class="flame"></div>
+            <div id="flame2" class="flame"></div>
+            <div id="flame3" class="flame"></div>
+            <div id="flame4" class="flame"></div>
+            <div id="log1" class="log"></div>
+            <div id="log2" class="log"></div>
+            <div id="log3" class="log"></div>
+        </div>
+        
+        <!-- Smoke Container -->
+        <div id="smoke-container"></div>
+        
+        <!-- Ember Container -->
+        <div id="ember-container"></div>
+        
+        <!-- Ambient Overlay -->
+        <div id="ambient-overlay"></div>
+    </div>
+
+    <!-- Controls -->
+    <button id="fullscreen-btn">⛶</button>
+    <button id="controls-toggle">⚙️ Controls</button>
+    <div id="controls-panel" class="hidden">
+        <div class="control-group">
+            <label class="control-label">Fire Intensity</label>
+            <input type="range" id="fire-intensity" class="slider" min="0" max="100" value="60">
+            <div class="keyboard-hint">Keyboard: ↑↓ or +/-</div>
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">Moonlight</label>
+            <input type="range" id="moonlight" class="slider" min="0" max="100" value="40">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">Smoke Density</label>
+            <input type="range" id="smoke-density" class="slider" min="0" max="100" value="50">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">Animation Speed</label>
+            <input type="range" id="animation-speed" class="slider" min="30" max="200" value="100">
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">Fireflies</label>
+            <input type="range" id="fireflies-density" class="slider" min="0" max="100" value="30">
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="control-group">
+            <label class="control-label">Scene Presets</label>
+            <div class="button-group">
+                <button class="control-btn" data-preset="cozy">🏕️ Cozy</button>
+                <button class="control-btn" data-preset="dramatic">🔥 Dramatic</button>
+                <button class="control-btn" data-preset="moonlit">🌙 Moonlit</button>
+                <button class="control-btn" data-preset="mysterious">🌑 Mysterious</button>
+            </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="control-group">
+            <label class="control-label">Color Palette</label>
+            <div class="button-group">
+                <button class="control-btn active" data-palette="warm">Warm</button>
+                <button class="control-btn" data-palette="cool">Cool</button>
+                <button class="control-btn" data-palette="muted">Muted</button>
+                <button class="control-btn" data-palette="deep">Deep</button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">Time of Day</label>
+            <div class="button-group">
+                <button class="control-btn" data-time="dusk">Dusk</button>
+                <button class="control-btn active" data-time="night">Night</button>
+                <button class="control-btn" data-time="predawn">Pre-Dawn</button>
+            </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="control-group">
+            <label class="control-label">Sound</label>
+            <button id="sound-toggle" class="control-btn">🔇 Sound Off</button>
+            <div class="keyboard-hint">Keyboard: S</div>
+        </div>
+        
+        <button id="reset-btn" class="reset-btn">Reset to Defaults</button>
+        
+        <div class="keyboard-hint" style="margin-top: 16px; text-align: center;">
+            Press H for keyboard shortcuts
+        </div>
+    </div>
+
+    <div id="info-overlay"></div>
+
+    <script>
+        // State management
+        const state = {
+            fireIntensity: 0.6,
+            moonlightIntensity: 0.4,
+            smokeDensity: 0.5,
+            animationSpeed: 1,
+            firefliesDensity: 0.3,
+            soundEnabled: false,
+            currentPalette: 'warm',
+            currentTime: 'night'
+        };
+
+        // Color palettes
+        const palettes = {
+            warm: {
+                colors: ['#ff4500', '#ff6b1b', '#ffaa33', '#ffdd55'],
+                ambient: 'rgba(255, 140, 0, 0.15)'
+            },
+            cool: {
+                colors: ['#ff5533', '#ff7755', '#ffaa88', '#ffccaa'],
+                ambient: 'rgba(100, 150, 255, 0.1)'
+            },
+            muted: {
+                colors: ['#cc6633', '#dd8844', '#ee9955', '#ffaa77'],
+                ambient: 'rgba(180, 160, 140, 0.1)'
+            },
+            deep: {
+                colors: ['#dd4411', '#ff5522', '#ff8833', '#ffaa44'],
+                ambient: 'rgba(20, 30, 60, 0.2)'
+            }
+        };
+
+        // Time of day settings
+        const timeSettings = {
+            dusk: {
+                skyGradient: 'linear-gradient(180deg, #7a5c5c 0%, #4a3a3a 100%)',
+                moonGlow: 'rgba(255, 200, 150, 0.3)'
+            },
+            night: {
+                skyGradient: 'linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 100%)',
+                moonGlow: 'rgba(200, 220, 255, 0.3)'
+            },
+            predawn: {
+                skyGradient: 'linear-gradient(180deg, #2a3a4a 0%, #1a2a3a 100%)',
+                moonGlow: 'rgba(180, 200, 240, 0.3)'
+            }
+        };
+
+        // Scene presets
+        const presets = {
+            cozy: { fire: 80, moonlight: 30, smoke: 60, speed: 100, fireflies: 40 },
+            dramatic: { fire: 95, moonlight: 20, smoke: 80, speed: 150, fireflies: 10 },
+            moonlit: { fire: 40, moonlight: 80, smoke: 30, speed: 80, fireflies: 20 },
+            mysterious: { fire: 30, moonlight: 60, smoke: 90, speed: 60, fireflies: 50 }
+        };
+
+        // Audio context for sound
+        let audioContext;
+        let fireOscillator;
+        let fireGain;
+        let windOscillator;
+        let windGain;
+
+        // Animation intervals
+        let smokeInterval;
+        let emberInterval;
+        let shootingStarInterval;
+        let firefliesInterval;
+
+        // Initialize scene
+        function init() {
+            createStars();
+            createClouds();
+            createConstellation();
+            startSmokeAnimation();
+            startEmberAnimation();
+            startShootingStars();
+            startFireflies();
+            setupControls();
+            setupKeyboardShortcuts();
+            setupAudio();
+            
+            // Hide loading screen after a short delay
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+            }, 1500);
+        }
+
+        // Create stars
+        function createStars() {
+            const container = document.getElementById('stars-container');
+            const starCount = 120; // Increased for more immersive night sky
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 80 + '%';
+                star.style.animationDuration = (2 + Math.random() * 4) + 's';
+                star.style.animationDelay = Math.random() * 4 + 's';
+                
+                // Some stars are bigger and brighter
+                if (Math.random() > 0.8) {
+                    star.style.width = '3px';
+                    star.style.height = '3px';
+                    star.style.boxShadow = '0 0 4px white';
+                }
+                
+                container.appendChild(star);
+            }
+        }
+
+        // Create constellation
+        function createConstellation() {
+            const container = document.getElementById('constellation');
+            const dotCount = 15;
+            const dots = [];
+            
+            // Create constellation dots
+            for (let i = 0; i < dotCount; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'constellation-dot';
+                dot.style.left = Math.random() * 80 + 10 + '%';
+                dot.style.top = Math.random() * 60 + 10 + '%';
+                
+                // Make some dots brighter
+                if (Math.random() > 0.7) {
+                    dot.style.width = '3px';
+                    dot.style.height = '3px';
+                    dot.style.boxShadow = '0 0 4px white';
+                }
+                
+                container.appendChild(dot);
+                dots.push(dot);
+            }
+            
+            // Create connections between dots
+            for (let i = 0; i < dotCount; i++) {
+                for (let j = i + 1; j < dotCount; j++) {
+                    if (Math.random() > 0.8) {
+                        const line = document.createElement('div');
+                        line.className = 'constellation-line';
+                        
+                        const dot1 = dots[i];
+                        const dot2 = dots[j];
+                        
+                        const x1 = parseFloat(dot1.style.left);
+                        const y1 = parseFloat(dot1.style.top);
+                        const x2 = parseFloat(dot2.style.left);
+                        const y2 = parseFloat(dot2.style.top);
+                        
+                        const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                        
+                        if (distance < 30) {
+                            line.style.width = distance + '%';
+                            line.style.left = x1 + '%';
+                            line.style.top = y1 + '%';
+                            
+                            const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+                            line.style.transform = `rotate(${angle}deg)`;
+                            
+                            container.appendChild(line);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Create clouds
+        function createClouds() {
+            const container = document.getElementById('clouds-container');
+            const cloudCount = 8; // Increased for more atmosphere
+            
+            for (let i = 0; i < cloudCount; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                
+                const width = 80 + Math.random() * 120;
+                const height = 30 + Math.random() * 40;
+                cloud.style.width = width + 'px';
+                cloud.style.height = height + 'px';
+                cloud.style.top = (5 + Math.random() * 50) + '%';
+                cloud.style.left = '-' + width + 'px';
+                
+                const duration = 60 + Math.random() * 60;
+                cloud.style.animationDuration = duration + 's';
+                cloud.style.animationDelay = Math.random() * 30 + 's';
+                
+                container.appendChild(cloud);
+            }
+        }
+
+        // Shooting stars
+        function startShootingStars() {
+            function createShootingStar() {
+                const star = document.createElement('div');
+                star.className = 'shooting-star';
+                
+                star.style.left = (10 + Math.random() * 80) + '%';
+                star.style.top = (5 + Math.random() * 40) + '%';
+                
+                const duration = 0.8 + Math.random() * 1.2;
+                star.style.animationDuration = duration + 's';
+                
+                document.getElementById('stars-container').appendChild(star);
+                
+                setTimeout(() => star.remove(), duration * 1000);
+            }
+            
+            // Create shooting star every 8-15 seconds
+            shootingStarInterval = setInterval(() => {
+                if (Math.random() > 0.7) {
+                    createShootingStar();
+                }
+            }, 8000);
+        }
+
+        // Fireflies animation
+        function startFireflies() {
+            const container = document.getElementById('fireflies-container');
+            
+            function createFirefly() {
+                if (state.firefliesDensity < 0.1) return;
+                
+                const firefly = document.createElement('div');
+                firefly.className = 'firefly';
+                
+                firefly.style.left = Math.random() * 100 + '%';
+                firefly.style.top = (30 + Math.random() * 60) + '%';
+                
+                const duration = 8 + Math.random() * 12;
+                firefly.style.animationDuration = duration + 's';
+                firefly.style.animationDelay = Math.random() * 5 + 's';
+                
+                container.appendChild(firefly);
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                    if (firefly.parentNode) {
+                        firefly.parentNode.removeChild(firefly);
+                    }
+                }, duration * 1000);
+            }
+            
+            clearInterval(firefliesInterval);
+            const interval = 1000 / Math.max(state.firefliesDensity, 0.2);
+            firefliesInterval = setInterval(createFirefly, interval);
+        }
+
+        // Smoke animation
+        function startSmokeAnimation() {
+            const container = document.getElementById('smoke-container');
+            
+            function createSmoke() {
+                if (state.smokeDensity < 0.1) return;
+                
+                const smoke = document.createElement('div');
+                smoke.className = 'smoke';
+                
+                const size = 25 + Math.random() * 35;
+                smoke.style.width = size + 'px';
+                smoke.style.height = size + 'px';
+                
+                const campfire = document.getElementById('campfire');
+                const rect = campfire.getBoundingClientRect();
+                smoke.style.left = (rect.left + rect.width / 2 - size / 2 + (Math.random() - 0.5) * 20) + 'px';
+                smoke.style.bottom = (window.innerHeight - rect.top + 20) + 'px';
+                
+                const driftX = (Math.random() - 0.3) * 120;
+                smoke.style.setProperty('--drift-x', driftX + 'px');
+                
+                const duration = 10 + Math.random() * 5;
+                smoke.style.animationDuration = (duration / state.animationSpeed) + 's';
+                
+                container.appendChild(smoke);
+                
+                setTimeout(() => smoke.remove(), duration * 1000);
+            }
+            
+            clearInterval(smokeInterval);
+            const interval = 1000 / Math.max(state.smokeDensity, 0.2);
+            smokeInterval = setInterval(createSmoke, interval);
+        }
+
+        // Ember animation
+        function startEmberAnimation() {
+            const container = document.getElementById('ember-container');
+            
+            function createEmber() {
+                if (state.fireIntensity < 0.2) return;
+                
+                const ember = document.createElement('div');
+                ember.className = 'ember';
+                
+                const campfire = document.getElementById('campfire');
+                const rect = campfire.getBoundingClientRect();
+                ember.style.left = (rect.left + rect.width / 2 + (Math.random() - 0.5) * 40) + 'px';
+                ember.style.bottom = (window.innerHeight - rect.top) + 'px';
+                
+                const driftX = (Math.random() - 0.5) * 60;
+                ember.style.setProperty('--drift-x', driftX + 'px');
+                
+                const duration = 3 + Math.random() * 2;
+                ember.style.animationDuration = (duration / state.animationSpeed) + 's';
+                
+                container.appendChild(ember);
+                
+                setTimeout(() => ember.remove(), duration * 1000);
+            }
+            
+            clearInterval(emberInterval);
+            const frequency = Math.max(400 - state.fireIntensity * 300, 100);
+            emberInterval = setInterval(createEmber, frequency);
+        }
+
+        // Setup audio
+        function setupAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.log('Web Audio API not supported');
+            }
+        }
+
+        // Generate procedural fire and wind sounds
+        function startAudio() {
+            if (!audioContext) return;
+            
+            // Fire crackling (pink noise with modulation)
+            fireOscillator = audioContext.createOscillator();
+            fireGain = audioContext.createGain();
+            
+            fireOscillator.type = 'square';
+            fireOscillator.frequency.setValueAtTime(80, audioContext.currentTime);
+            fireGain.gain.setValueAtTime(0.03 * state.fireIntensity, audioContext.currentTime);
+            
+            fireOscillator.connect(fireGain);
+            fireGain.connect(audioContext.destination);
+            fireOscillator.start();
+            
+            // Modulate fire frequency for crackling effect
+            setInterval(() => {
+                if (fireOscillator && state.soundEnabled) {
+                    const freq = 60 + Math.random() * 100;
+                    fireOscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                    fireGain.gain.setValueAtTime(0.02 + Math.random() * 0.04 * state.fireIntensity, audioContext.currentTime);
+                }
+            }, 100);
+            
+            // Wind sound (low frequency oscillator)
+            windOscillator = audioContext.createOscillator();
+            windGain = audioContext.createGain();
+            
+            windOscillator.type = 'sine';
+            windOscillator.frequency.setValueAtTime(120, audioContext.currentTime);
+            windGain.gain.setValueAtTime(0.015, audioContext.currentTime);
+            
+            windOscillator.connect(windGain);
+            windGain.connect(audioContext.destination);
+            windOscillator.start();
+            
+            // Modulate wind
+            setInterval(() => {
+                if (windOscillator && state.soundEnabled) {
+                    const freq = 100 + Math.random() * 60;
+                    windOscillator.frequency.linearRampToValueAtTime(freq, audioContext.currentTime + 2);
+                }
+            }, 2000);
+        }
+
+        function stopAudio() {
+            if (fireOscillator) {
+                fireGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+                windGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+                setTimeout(() => {
+                    fireOscillator.stop();
+                    windOscillator.stop();
+                    fireOscillator = null;
+                    windOscillator = null;
+                }, 500);
+            }
+        }
+
+        // Toggle sound
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            const btn = document.getElementById('sound-toggle');
+            
+            if (state.soundEnabled) {
+                btn.textContent = '🔊 Sound On';
+                btn.classList.add('active');
+                startAudio();
+                showInfo('Sound enabled');
+            } else {
+                btn.textContent = '🔇 Sound Off';
+                btn.classList.remove('active');
+                stopAudio();
+                showInfo('Sound disabled');
+            }
+        }
+
+        // Update CSS variables
+        function updateSceneVariables() {
+            const root = document.documentElement;
+            root.style.setProperty('--fire-intensity', state.fireIntensity);
+            root.style.setProperty('--moonlight-intensity', state.moonlightIntensity);
+            root.style.setProperty('--smoke-density', state.smokeDensity);
+            root.style.setProperty('--animation-speed', state.animationSpeed);
+            
+            const palette = palettes[state.currentPalette];
+            root.style.setProperty('--fire-color-1', palette.colors[0]);
+            root.style.setProperty('--fire-color-2', palette.colors[1]);
+            root.style.setProperty('--fire-color-3', palette.colors[2]);
+            root.style.setProperty('--fire-color-4', palette.colors[3]);
+            root.style.setProperty('--ambient-color', palette.ambient);
+            
+            const time = timeSettings[state.currentTime];
+            root.style.setProperty('--sky-gradient', time.skyGradient);
+            root.style.setProperty('--moon-glow', time.moonGlow);
+            
+            // Update audio if enabled
+            if (state.soundEnabled && fireGain) {
+                fireGain.gain.setValueAtTime(0.03 * state.fireIntensity, audioContext.currentTime);
+            }
+        }
+
+        // Apply preset
+        function applyPreset(presetName) {
+            const preset = presets[presetName];
+            state.fireIntensity = preset.fire / 100;
+            state.moonlightIntensity = preset.moonlight / 100;
+            state.smokeDensity = preset.smoke / 100;
+            state.animationSpeed = preset.speed / 100;
+            state.firefliesDensity = preset.fireflies / 100;
+            
+            document.getElementById('fire-intensity').value = preset.fire;
+            document.getElementById('moonlight').value = preset.moonlight;
+            document.getElementById('smoke-density').value = preset.smoke;
+            document.getElementById('animation-speed').value = preset.speed;
+            document.getElementById('fireflies-density').value = preset.fireflies;
+            
+            updateSceneVariables();
+            startSmokeAnimation();
+            startEmberAnimation();
+            startFireflies();
+            
+            showInfo(`Preset: ${presetName.charAt(0).toUpperCase() + presetName.slice(1)}`);
+        }
+
+        // Show info overlay
+        function showInfo(text, duration = 2000) {
+            const overlay = document.getElementById('info-overlay');
+            overlay.textContent = text;
+            overlay.classList.add('show');
+            
+            setTimeout(() => {
+                overlay.classList.remove('show');
+            }, duration);
+        }
+
+        // Adjust fire intensity
+        function adjustFire(delta) {
+            const newValue = Math.max(0, Math.min(100, parseInt(document.getElementById('fire-intensity').value) + delta));
+            document.getElementById('fire-intensity').value = newValue;
+            state.fireIntensity = newValue / 100;
+            updateSceneVariables();
+            startEmberAnimation();
+        }
+
+        // Reset to defaults
+        function resetToDefaults() {
+            state.fireIntensity = 0.6;
+            state.moonlightIntensity = 0.4;
+            state.smokeDensity = 0.5;
+            state.animationSpeed = 1;
+            state.firefliesDensity = 0.3;
+            state.currentPalette = 'warm';
+            state.currentTime = 'night';
+            
+            document.getElementById('fire-intensity').value = 60;
+            document.getElementById('moonlight').value = 40;
+            document.getElementById('smoke-density').value = 50;
+            document.getElementById('animation-speed').value = 100;
+            document.getElementById('fireflies-density').value = 30;
+            
+            // Reset palette buttons
+            document.querySelectorAll('[data-palette]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.palette === 'warm');
+            });
+            
+            // Reset time buttons
+            document.querySelectorAll('[data-time]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.time === 'night');
+            });
+            
+            updateSceneVariables();
+            startSmokeAnimation();
+            startEmberAnimation();
+            startFireflies();
+            
+            showInfo('Reset to defaults');
+        }
+
+        // Toggle fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Setup controls
+        function setupControls() {
+            // Fire intensity
+            document.getElementById('fire-intensity').addEventListener('input', (e) => {
+                state.fireIntensity = e.target.value / 100;
+                updateSceneVariables();
+                startEmberAnimation();
+            });
+            
+            // Moonlight
+            document.getElementById('moonlight').addEventListener('input', (e) => {
+                state.moonlightIntensity = e.target.value / 100;
+                updateSceneVariables();
+            });
+            
+            // Smoke density
+            document.getElementById('smoke-density').addEventListener('input', (e) => {
+                state.smokeDensity = e.target.value / 100;
+                updateSceneVariables();
+                startSmokeAnimation();
+            });
+            
+            // Animation speed
+            document.getElementById('animation-speed').addEventListener('input', (e) => {
+                state.animationSpeed = e.target.value / 100;
+                updateSceneVariables();
+                startSmokeAnimation();
+                startEmberAnimation();
+            });
+            
+            // Fireflies density
+            document.getElementById('fireflies-density').addEventListener('input', (e) => {
+                state.firefliesDensity = e.target.value / 100;
+                startFireflies();
+            });
+            
+            // Preset buttons
+            document.querySelectorAll('[data-preset]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    applyPreset(btn.dataset.preset);
+                });
+            });
+            
+            // Palette buttons
+            document.querySelectorAll('[data-palette]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-palette]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.currentPalette = btn.dataset.palette;
+                    updateSceneVariables();
+                    showInfo(`Color palette: ${btn.dataset.palette}`);
+                });
+            });
+            
+            // Time buttons
+            document.querySelectorAll('[data-time]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.currentTime = btn.dataset.time;
+                    updateSceneVariables();
+                    showInfo(`Time: ${btn.dataset.time}`);
+                });
+            });
+            
+            // Sound toggle
+            document.getElementById('sound-toggle').addEventListener('click', toggleSound);
+            
+            // Reset button
+            document.getElementById('reset-btn').addEventListener('click', resetToDefaults);
+            
+            // Controls toggle
+            document.getElementById('controls-toggle').addEventListener('click', () => {
+                document.getElementById('controls-panel').classList.toggle('hidden');
+            });
+            
+            // Fullscreen button
+            document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
+        }
+
+        // Keyboard shortcuts
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                switch(e.key.toLowerCase()) {
+                    case 'h':
+                        showInfo('Shortcuts: S-Sound | F-Fullscreen | C-Controls | +/- or ↑↓ Fire | R-Reset | 1-4 Presets', 5000);
+                        break;
+                    case 's':
+                        toggleSound();
+                        break;
+                    case 'f':
+                        toggleFullscreen();
+                        break;
+                    case 'c':
+                        document.getElementById('controls-panel').classList.toggle('hidden');
+                        break;
+                    case 'r':
+                        resetToDefaults();
+                        break;
+                    case '+':
+                    case '=':
+                    case 'arrowup':
+                        adjustFire(10);
+                        break;
+                    case '-':
+                    case '_':
+                    case 'arrowdown':
+                        adjustFire(-10);
+                        break;
+                    case '1':
+                        applyPreset('cozy');
+                        break;
+                    case '2':
+                        applyPreset('dramatic');
+                        break;
+                    case '3':
+                        applyPreset('moonlit');
+                        break;
+                    case '4':
+                        applyPreset('mysterious');
+                        break;
+                }
+            });
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
