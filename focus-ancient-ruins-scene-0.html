@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ancient Ruins - Calming Experience</title>
+    <style>
+        :root {
+            /* Primitive Color Tokens */
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+
+            /* Font */
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 550;
+
+            /* Spacing */
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+
+            /* Border Radius */
+            --radius-base: 8px;
+            --radius-lg: 12px;
+
+            /* Scene colors - dynamically updated */
+            --sky-color-1: #87CEEB;
+            --sky-color-2: #E0F6FF;
+            --light-beam-color: rgba(255, 215, 100, 0.4);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --mist-color: rgba(200, 200, 220, 0.3);
+        }
+
+        @font-face {
+            font-family: 'FKGroteskNeue';
+            src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Scene Container */
+        #scene {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to bottom, var(--sky-color-1), var(--sky-color-2));
+            transition: background 1.5s ease;
+        }
+
+        /* Sky and atmosphere layers */
+        .sky-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70%;
+            background: linear-gradient(to bottom, var(--sky-color-1), var(--sky-color-2));
+            transition: background 1.5s ease;
+        }
+
+        .mist-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--mist-color);
+            pointer-events: none;
+            opacity: 0.5;
+            transition: opacity 1s ease, background 1s ease;
+        }
+
+        /* Ground */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(to bottom, #6B5D4F, #4A3F35);
+            border-top: 3px solid #8B7355;
+        }
+
+        .ground::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(0,0,0,0.05) 50px, rgba(0,0,0,0.05) 51px),
+                repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(0,0,0,0.05) 50px, rgba(0,0,0,0.05) 51px);
+            opacity: 0.3;
+        }
+
+        /* Moss patches on ground */
+        .moss {
+            position: absolute;
+            bottom: 5%;
+            background: radial-gradient(circle, rgba(90, 120, 60, 0.4), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .moss:nth-child(1) { left: 10%; width: 150px; height: 80px; }
+        .moss:nth-child(2) { left: 40%; width: 120px; height: 60px; }
+        .moss:nth-child(3) { left: 70%; width: 180px; height: 90px; }
+
+        /* Columns */
+        .column {
+            position: absolute;
+            bottom: 30%;
+            width: 80px;
+            background: linear-gradient(to right, #A09080, #C0B0A0, #A09080);
+            border-radius: 4px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            transition: box-shadow 1s ease;
+        }
+
+        .column::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(0,0,0,0.1) 20px, rgba(0,0,0,0.1) 22px);
+        }
+
+        .column::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(to bottom, #B0A090, #A09080);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .column.broken::after {
+            height: 15px;
+            background: linear-gradient(135deg, #B0A090, #8B7355);
+        }
+
+        .column-1 { left: 15%; height: 350px; }
+        .column-2 { left: 30%; height: 280px; }
+        .column-3 { left: 50%; height: 320px; }
+        .column-4 { left: 70%; height: 250px; }
+        .column-5 { left: 85%; height: 300px; }
+
+        /* Arches */
+        .arch {
+            position: absolute;
+            bottom: 30%;
+            width: 200px;
+            height: 250px;
+            pointer-events: none;
+        }
+
+        .arch-left {
+            left: 10%;
+        }
+
+        .arch-right {
+            right: 15%;
+        }
+
+        .arch-pillar {
+            position: absolute;
+            bottom: 0;
+            width: 60px;
+            height: 200px;
+            background: linear-gradient(to right, #A09080, #C0B0A0, #A09080);
+            box-shadow: 0 5px 20px var(--shadow-color);
+            transition: box-shadow 1s ease;
+        }
+
+        .arch-pillar.left { left: 0; }
+        .arch-pillar.right { right: 0; }
+
+        .arch-top {
+            position: absolute;
+            top: 50px;
+            left: 30px;
+            width: 140px;
+            height: 100px;
+            border: 60px solid #B0A090;
+            border-bottom: none;
+            border-radius: 140px 140px 0 0;
+            box-shadow: 0 -5px 20px var(--shadow-color);
+            transition: box-shadow 1s ease;
+        }
+
+        /* Vines */
+        .vine {
+            position: absolute;
+            width: 8px;
+            background: linear-gradient(to bottom, #5A7A3A, #4A6A2A, #3A5A1A);
+            border-radius: 4px;
+            transform-origin: top center;
+            animation: sway 6s ease-in-out infinite;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(3deg); }
+            75% { transform: rotate(-3deg); }
+        }
+
+        .vine-1 { left: 16%; top: 20%; height: 300px; animation-delay: 0s; }
+        .vine-2 { left: 31%; top: 25%; height: 250px; animation-delay: 1s; }
+        .vine-3 { left: 51%; top: 22%; height: 280px; animation-delay: 2s; }
+        .vine-4 { left: 71%; top: 28%; height: 220px; animation-delay: 0.5s; }
+        .vine-5 { left: 86%; top: 24%; height: 260px; animation-delay: 1.5s; }
+        .vine-6 { left: 12%; top: 15%; height: 320px; animation-delay: 3s; }
+        .vine-7 { right: 18%; top: 18%; height: 290px; animation-delay: 2.5s; }
+
+        .vine-leaf {
+            position: absolute;
+            width: 20px;
+            height: 30px;
+            background: radial-gradient(ellipse at center, #6A9A4A, #4A7A2A);
+            border-radius: 50% 50% 50% 0;
+            left: -6px;
+        }
+
+        /* Light beams */
+        .light-beam {
+            position: absolute;
+            top: -10%;
+            width: 150px;
+            height: 80%;
+            background: linear-gradient(to bottom, var(--light-beam-color), transparent);
+            opacity: 0.6;
+            animation: flicker 4s ease-in-out infinite;
+            pointer-events: none;
+            transform-origin: top center;
+            transition: opacity 0.8s ease;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.4; }
+        }
+
+        .light-beam-1 { left: 20%; animation-delay: 0s; transform: rotate(-5deg); }
+        .light-beam-2 { left: 45%; animation-delay: 1.5s; transform: rotate(3deg); }
+        .light-beam-3 { left: 75%; animation-delay: 3s; transform: rotate(-2deg); }
+        .light-beam-4 { left: 60%; animation-delay: 2s; transform: rotate(4deg); }
+
+        /* Particles */
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 15s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        /* Birds */
+        .bird {
+            position: absolute;
+            top: 20%;
+            font-size: 24px;
+            opacity: 0.7;
+            animation: fly 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes fly {
+            0% {
+                left: -5%;
+                transform: translateY(0);
+            }
+            25% {
+                transform: translateY(-30px);
+            }
+            50% {
+                transform: translateY(0);
+            }
+            75% {
+                transform: translateY(20px);
+            }
+            100% {
+                left: 105%;
+                transform: translateY(0);
+            }
+        }
+
+        .bird-1 { animation-delay: 0s; top: 15%; }
+        .bird-2 { animation-delay: 7s; top: 25%; }
+        .bird-3 { animation-delay: 14s; top: 20%; }
+
+        /* Shadows */
+        .shadow-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 100%, transparent 20%, var(--shadow-color) 80%);
+            pointer-events: none;
+            opacity: 0.5;
+            transition: opacity 1s ease;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            max-height: calc(100vh - 40px);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-lg);
+            padding: var(--space-20);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .control-panel.hidden {
+            transform: translateX(calc(100% + 20px));
+        }
+
+        .control-panel h2 {
+            font-size: 20px;
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-20);
+            color: #2C2416;
+        }
+
+        .control-group {
+            margin-bottom: var(--space-24);
+        }
+
+        .control-group label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: #4A3F35;
+            margin-bottom: var(--space-8);
+        }
+
+        .control-group select,
+        .control-group input[type="range"] {
+            width: 100%;
+            padding: var(--space-8);
+            border: 1px solid rgba(94, 82, 64, 0.3);
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-sm);
+            background: white;
+        }
+
+        .control-group input[type="range"] {
+            padding: 0;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #E0D5C7;
+            outline: none;
+            border: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #5A7A3A;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #5A7A3A;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: var(--space-12);
+            flex-wrap: wrap;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: var(--space-8) var(--space-12);
+            background: #E0D5C7;
+            border: 2px solid transparent;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: #4A3F35;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn:hover {
+            background: #D0C5B7;
+        }
+
+        .toggle-btn.active {
+            background: #5A7A3A;
+            color: white;
+            border-color: #4A6A2A;
+        }
+
+        .preset-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-8);
+        }
+
+        .preset-btn {
+            width: 100%;
+            padding: var(--space-12);
+            background: linear-gradient(135deg, #8B7355, #6B5D4F);
+            color: white;
+            border: none;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .preset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .preset-btn:active {
+            transform: translateY(0);
+        }
+
+        .toggle-panel-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-panel-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .fullscreen-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .fullscreen-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .slider-value {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            color: #6B5D4F;
+            margin-left: var(--space-8);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .control-panel {
+                width: calc(100% - 40px);
+                top: auto;
+                bottom: 20px;
+                right: 20px;
+                max-height: 50vh;
+            }
+
+            .control-panel.hidden {
+                transform: translateY(calc(100% + 20px));
+            }
+
+            .toggle-panel-btn {
+                top: auto;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .column {
+                width: 60px;
+            }
+
+            .column-1 { height: 250px; }
+            .column-2 { height: 200px; }
+            .column-3 { height: 230px; }
+            .column-4 { height: 180px; }
+            .column-5 { height: 210px; }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .control-panel {
+                background: rgba(38, 40, 40, 0.95);
+            }
+
+            .control-panel h2 {
+                color: #E0D5C7;
+            }
+
+            .control-group label {
+                color: #C0B0A0;
+            }
+
+            .control-group select {
+                background: #2C2416;
+                color: #E0D5C7;
+                border-color: rgba(160, 144, 128, 0.3);
+            }
+
+            .toggle-btn {
+                background: #4A3F35;
+                color: #C0B0A0;
+            }
+
+            .toggle-btn:hover {
+                background: #5A4F45;
+            }
+
+            .toggle-panel-btn,
+            .fullscreen-btn {
+                background: rgba(38, 40, 40, 0.95);
+                color: #E0D5C7;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Scene Container -->
+    <div id="scene">
+        <!-- Sky Layer -->
+        <div class="sky-layer"></div>
+
+        <!-- Light Beams -->
+        <div class="light-beam light-beam-1"></div>
+        <div class="light-beam light-beam-2"></div>
+        <div class="light-beam light-beam-3"></div>
+        <div class="light-beam light-beam-4"></div>
+
+        <!-- Mist Layer -->
+        <div class="mist-layer"></div>
+
+        <!-- Arches -->
+        <div class="arch arch-left">
+            <div class="arch-pillar left"></div>
+            <div class="arch-pillar right"></div>
+            <div class="arch-top"></div>
+        </div>
+
+        <div class="arch arch-right">
+            <div class="arch-pillar left"></div>
+            <div class="arch-pillar right"></div>
+            <div class="arch-top"></div>
+        </div>
+
+        <!-- Columns -->
+        <div class="column column-1 broken"></div>
+        <div class="column column-2"></div>
+        <div class="column column-3 broken"></div>
+        <div class="column column-4"></div>
+        <div class="column column-5 broken"></div>
+
+        <!-- Vines -->
+        <div class="vine vine-1">
+            <div class="vine-leaf" style="top: 20%;"></div>
+            <div class="vine-leaf" style="top: 40%;"></div>
+            <div class="vine-leaf" style="top: 60%;"></div>
+            <div class="vine-leaf" style="top: 80%;"></div>
+        </div>
+        <div class="vine vine-2">
+            <div class="vine-leaf" style="top: 15%;"></div>
+            <div class="vine-leaf" style="top: 45%;"></div>
+            <div class="vine-leaf" style="top: 75%;"></div>
+        </div>
+        <div class="vine vine-3">
+            <div class="vine-leaf" style="top: 25%;"></div>
+            <div class="vine-leaf" style="top: 50%;"></div>
+            <div class="vine-leaf" style="top: 85%;"></div>
+        </div>
+        <div class="vine vine-4">
+            <div class="vine-leaf" style="top: 30%;"></div>
+            <div class="vine-leaf" style="top: 60%;"></div>
+        </div>
+        <div class="vine vine-5">
+            <div class="vine-leaf" style="top: 20%;"></div>
+            <div class="vine-leaf" style="top: 55%;"></div>
+            <div class="vine-leaf" style="top: 80%;"></div>
+        </div>
+        <div class="vine vine-6">
+            <div class="vine-leaf" style="top: 35%;"></div>
+            <div class="vine-leaf" style="top: 70%;"></div>
+        </div>
+        <div class="vine vine-7">
+            <div class="vine-leaf" style="top: 25%;"></div>
+            <div class="vine-leaf" style="top: 60%;"></div>
+            <div class="vine-leaf" style="top: 90%;"></div>
+        </div>
+
+        <!-- Ground -->
+        <div class="ground">
+            <div class="moss"></div>
+            <div class="moss"></div>
+            <div class="moss"></div>
+        </div>
+
+        <!-- Birds (Wildlife) -->
+        <div class="bird bird-1">🦅</div>
+        <div class="bird bird-2">🦅</div>
+        <div class="bird bird-3">🦅</div>
+
+        <!-- Shadow Overlay -->
+        <div class="shadow-overlay"></div>
+
+        <!-- Particles Container -->
+        <div id="particles-container"></div>
+    </div>
+
+    <!-- Toggle Panel Button -->
+    <button class="toggle-panel-btn" id="togglePanelBtn" aria-label="Toggle control panel">⚙️</button>
+
+    <!-- Fullscreen Button -->
+    <button class="fullscreen-btn" id="fullscreenBtn" aria-label="Toggle fullscreen">⛶</button>
+
+    <!-- Control Panel -->
+    <div class="control-panel" id="controlPanel">
+        <h2>Ancient Ruins Controls</h2>
+
+        <!-- Time of Day -->
+        <div class="control-group">
+            <label for="timeOfDay">Time of Day</label>
+            <select id="timeOfDay">
+                <option value="dawn">Dawn</option>
+                <option value="day" selected>Day</option>
+                <option value="dusk">Dusk</option>
+                <option value="night">Night</option>
+            </select>
+        </div>
+
+        <!-- Atmosphere -->
+        <div class="control-group">
+            <label for="atmosphere">Atmosphere</label>
+            <select id="atmosphere">
+                <option value="clear" selected>Clear</option>
+                <option value="misty">Misty</option>
+                <option value="foggy">Foggy</option>
+                <option value="stormy">Stormy</option>
+            </select>
+        </div>
+
+        <!-- Light Beam Intensity -->
+        <div class="control-group">
+            <label for="lightBeamIntensity">Light Beam Intensity <span class="slider-value" id="lightBeamValue">60%</span></label>
+            <input type="range" id="lightBeamIntensity" min="0" max="100" value="60">
+        </div>
+
+        <!-- Shadow Intensity -->
+        <div class="control-group">
+            <label for="shadowIntensity">Shadow Intensity <span class="slider-value" id="shadowValue">50%</span></label>
+            <input type="range" id="shadowIntensity" min="0" max="100" value="50">
+        </div>
+
+        <!-- Vine Growth -->
+        <div class="control-group">
+            <label for="vineGrowth">Vine Growth <span class="slider-value" id="vineValue">100%</span></label>
+            <input type="range" id="vineGrowth" min="0" max="100" value="100">
+        </div>
+
+        <!-- Particle Density -->
+        <div class="control-group">
+            <label for="particleDensity">Particle Density <span class="slider-value" id="particleValue">50%</span></label>
+            <input type="range" id="particleDensity" min="0" max="100" value="50">
+        </div>
+
+        <!-- Animation Speed -->
+        <div class="control-group">
+            <label for="animationSpeed">Animation Speed <span class="slider-value" id="speedValue">1.0x</span></label>
+            <input type="range" id="animationSpeed" min="50" max="200" value="100">
+        </div>
+
+        <!-- Toggles -->
+        <div class="control-group">
+            <label>Features</label>
+            <div class="toggle-group">
+                <button class="toggle-btn active" id="wildlifeToggle">Wildlife</button>
+                <button class="toggle-btn active" id="particlesToggle">Particles</button>
+            </div>
+        </div>
+
+        <!-- Preset Scenes -->
+        <div class="control-group">
+            <label>Preset Scenes</label>
+            <div class="preset-buttons">
+                <button class="preset-btn" data-preset="mystical-dawn">🌅 Mystical Dawn</button>
+                <button class="preset-btn" data-preset="peaceful-afternoon">☀️ Peaceful Afternoon</button>
+                <button class="preset-btn" data-preset="stormy-dusk">⛈️ Stormy Dusk</button>
+                <button class="preset-btn" data-preset="enchanted-night">🌙 Enchanted Night</button>
+                <button class="preset-btn" data-preset="overgrown-abandon">🌿 Overgrown Abandon</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+const state = {
+    timeOfDay: 'day',
+    atmosphere: 'clear',
+    lightBeamIntensity: 60,
+    shadowIntensity: 50,
+    vineGrowth: 100,
+    particleDensity: 50,
+    animationSpeed: 100,
+    wildlifeEnabled: true,
+    particlesEnabled: true,
+    panelVisible: true
+};
+
+// DOM Elements
+const scene = document.getElementById('scene');
+const controlPanel = document.getElementById('controlPanel');
+const togglePanelBtn = document.getElementById('togglePanelBtn');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+const timeOfDaySelect = document.getElementById('timeOfDay');
+const atmosphereSelect = document.getElementById('atmosphere');
+const lightBeamSlider = document.getElementById('lightBeamIntensity');
+const shadowSlider = document.getElementById('shadowIntensity');
+const vineSlider = document.getElementById('vineGrowth');
+const particleSlider = document.getElementById('particleDensity');
+const speedSlider = document.getElementById('animationSpeed');
+const wildlifeToggle = document.getElementById('wildlifeToggle');
+const particlesToggle = document.getElementById('particlesToggle');
+const presetButtons = document.querySelectorAll('.preset-btn');
+
+// Value display elements
+const lightBeamValue = document.getElementById('lightBeamValue');
+const shadowValue = document.getElementById('shadowValue');
+const vineValue = document.getElementById('vineValue');
+const particleValue = document.getElementById('particleValue');
+const speedValue = document.getElementById('speedValue');
+
+// Scene elements
+const skyLayer = document.querySelector('.sky-layer');
+const mistLayer = document.querySelector('.mist-layer');
+const lightBeams = document.querySelectorAll('.light-beam');
+const shadowOverlay = document.querySelector('.shadow-overlay');
+const vines = document.querySelectorAll('.vine');
+const birds = document.querySelectorAll('.bird');
+const columns = document.querySelectorAll('.column');
+const archPillars = document.querySelectorAll('.arch-pillar');
+const archTops = document.querySelectorAll('.arch-top');
+const particlesContainer = document.getElementById('particles-container');
+
+// Time of Day Color Schemes
+const timeSchemes = {
+    dawn: {
+        sky1: '#FFB88C',
+        sky2: '#FFE5B4',
+        lightBeam: 'rgba(255, 200, 120, 0.5)',
+        shadow: 'rgba(0, 0, 0, 0.2)',
+        mist: 'rgba(255, 220, 180, 0.2)'
+    },
+    day: {
+        sky1: '#87CEEB',
+        sky2: '#E0F6FF',
+        lightBeam: 'rgba(255, 215, 100, 0.4)',
+        shadow: 'rgba(0, 0, 0, 0.3)',
+        mist: 'rgba(200, 200, 220, 0.3)'
+    },
+    dusk: {
+        sky1: '#FF6B35',
+        sky2: '#F8B195',
+        lightBeam: 'rgba(255, 140, 80, 0.5)',
+        shadow: 'rgba(0, 0, 0, 0.5)',
+        mist: 'rgba(255, 180, 150, 0.3)'
+    },
+    night: {
+        sky1: '#1A1A2E',
+        sky2: '#16213E',
+        lightBeam: 'rgba(180, 200, 255, 0.3)',
+        shadow: 'rgba(0, 0, 0, 0.7)',
+        mist: 'rgba(100, 100, 150, 0.4)'
+    }
+};
+
+// Initialize particles
+let particlesArray = [];
+
+function createParticles(count) {
+    // Clear existing particles
+    particlesContainer.innerHTML = '';
+    particlesArray = [];
+
+    for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+        particlesContainer.appendChild(particle);
+        particlesArray.push(particle);
+    }
+}
+
+// Update scene based on state
+function updateScene() {
+    // Update time of day colors
+    const scheme = timeSchemes[state.timeOfDay];
+    scene.style.background = `linear-gradient(to bottom, ${scheme.sky1}, ${scheme.sky2})`;
+    skyLayer.style.background = `linear-gradient(to bottom, ${scheme.sky1}, ${scheme.sky2})`;
+    
+    document.documentElement.style.setProperty('--sky-color-1', scheme.sky1);
+    document.documentElement.style.setProperty('--sky-color-2', scheme.sky2);
+    document.documentElement.style.setProperty('--light-beam-color', scheme.lightBeam);
+    document.documentElement.style.setProperty('--shadow-color', scheme.shadow);
+    document.documentElement.style.setProperty('--mist-color', scheme.mist);
+
+    // Update atmosphere
+    switch (state.atmosphere) {
+        case 'clear':
+            mistLayer.style.opacity = '0.1';
+            break;
+        case 'misty':
+            mistLayer.style.opacity = '0.4';
+            break;
+        case 'foggy':
+            mistLayer.style.opacity = '0.7';
+            break;
+        case 'stormy':
+            mistLayer.style.opacity = '0.5';
+            mistLayer.style.background = 'rgba(80, 80, 100, 0.4)';
+            break;
+    }
+
+    // Update light beams
+    const lightOpacity = state.lightBeamIntensity / 100;
+    lightBeams.forEach(beam => {
+        beam.style.opacity = lightOpacity * 0.6;
+    });
+
+    // Update shadows
+    const shadowOpacity = state.shadowIntensity / 100;
+    shadowOverlay.style.opacity = shadowOpacity;
+    
+    // Update column and arch shadows
+    const shadowBlur = 10 + (state.shadowIntensity / 100) * 40;
+    columns.forEach(column => {
+        column.style.boxShadow = `0 ${shadowBlur / 2}px ${shadowBlur}px ${scheme.shadow}`;
+    });
+    archPillars.forEach(pillar => {
+        pillar.style.boxShadow = `0 5px ${shadowBlur}px ${scheme.shadow}`;
+    });
+    archTops.forEach(top => {
+        top.style.boxShadow = `0 -5px ${shadowBlur}px ${scheme.shadow}`;
+    });
+
+    // Update vines
+    const vineOpacity = state.vineGrowth / 100;
+    vines.forEach(vine => {
+        vine.style.opacity = vineOpacity;
+        vine.style.transform = `scaleY(${vineOpacity})`;
+    });
+
+    // Update wildlife
+    birds.forEach(bird => {
+        bird.style.display = state.wildlifeEnabled ? 'block' : 'none';
+    });
+
+    // Update particles
+    if (state.particlesEnabled) {
+        const particleCount = Math.floor(state.particleDensity / 10) * 5;
+        if (particlesArray.length !== particleCount) {
+            createParticles(particleCount);
+        }
+        particlesArray.forEach(p => p.style.display = 'block');
+    } else {
+        particlesArray.forEach(p => p.style.display = 'none');
+    }
+
+    // Update animation speed
+    const speedMultiplier = state.animationSpeed / 100;
+    vines.forEach(vine => {
+        const duration = 6 / speedMultiplier;
+        vine.style.animationDuration = `${duration}s`;
+    });
+    lightBeams.forEach(beam => {
+        const duration = 4 / speedMultiplier;
+        beam.style.animationDuration = `${duration}s`;
+    });
+    birds.forEach(bird => {
+        const duration = 20 / speedMultiplier;
+        bird.style.animationDuration = `${duration}s`;
+    });
+    particlesArray.forEach(particle => {
+        const baseDuration = parseFloat(particle.style.animationDuration) || 15;
+        const newDuration = baseDuration / speedMultiplier;
+        particle.style.animationDuration = `${newDuration}s`;
+    });
+}
+
+// Event Listeners
+timeOfDaySelect.addEventListener('change', (e) => {
+    state.timeOfDay = e.target.value;
+    updateScene();
+});
+
+atmosphereSelect.addEventListener('change', (e) => {
+    state.atmosphere = e.target.value;
+    updateScene();
+});
+
+lightBeamSlider.addEventListener('input', (e) => {
+    state.lightBeamIntensity = parseInt(e.target.value);
+    lightBeamValue.textContent = state.lightBeamIntensity + '%';
+    updateScene();
+});
+
+shadowSlider.addEventListener('input', (e) => {
+    state.shadowIntensity = parseInt(e.target.value);
+    shadowValue.textContent = state.shadowIntensity + '%';
+    updateScene();
+});
+
+vineSlider.addEventListener('input', (e) => {
+    state.vineGrowth = parseInt(e.target.value);
+    vineValue.textContent = state.vineGrowth + '%';
+    updateScene();
+});
+
+particleSlider.addEventListener('input', (e) => {
+    state.particleDensity = parseInt(e.target.value);
+    particleValue.textContent = state.particleDensity + '%';
+    updateScene();
+});
+
+speedSlider.addEventListener('input', (e) => {
+    state.animationSpeed = parseInt(e.target.value);
+    speedValue.textContent = (state.animationSpeed / 100).toFixed(1) + 'x';
+    updateScene();
+});
+
+wildlifeToggle.addEventListener('click', () => {
+    state.wildlifeEnabled = !state.wildlifeEnabled;
+    wildlifeToggle.classList.toggle('active');
+    updateScene();
+});
+
+particlesToggle.addEventListener('click', () => {
+    state.particlesEnabled = !state.particlesEnabled;
+    particlesToggle.classList.toggle('active');
+    updateScene();
+});
+
+togglePanelBtn.addEventListener('click', () => {
+    state.panelVisible = !state.panelVisible;
+    controlPanel.classList.toggle('hidden');
+});
+
+fullscreenBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.log('Fullscreen request failed:', err);
+        });
+    } else {
+        document.exitFullscreen();
+    }
+});
+
+// Preset configurations
+const presets = {
+    'mystical-dawn': {
+        timeOfDay: 'dawn',
+        atmosphere: 'misty',
+        lightBeamIntensity: 80,
+        shadowIntensity: 30,
+        vineGrowth: 100,
+        particleDensity: 70,
+        animationSpeed: 80,
+        wildlifeEnabled: true,
+        particlesEnabled: true
+    },
+    'peaceful-afternoon': {
+        timeOfDay: 'day',
+        atmosphere: 'clear',
+        lightBeamIntensity: 60,
+        shadowIntensity: 40,
+        vineGrowth: 60,
+        particleDensity: 30,
+        animationSpeed: 100,
+        wildlifeEnabled: true,
+        particlesEnabled: true
+    },
+    'stormy-dusk': {
+        timeOfDay: 'dusk',
+        atmosphere: 'stormy',
+        lightBeamIntensity: 40,
+        shadowIntensity: 80,
+        vineGrowth: 90,
+        particleDensity: 20,
+        animationSpeed: 150,
+        wildlifeEnabled: false,
+        particlesEnabled: true
+    },
+    'enchanted-night': {
+        timeOfDay: 'night',
+        atmosphere: 'foggy',
+        lightBeamIntensity: 70,
+        shadowIntensity: 70,
+        vineGrowth: 85,
+        particleDensity: 90,
+        animationSpeed: 70,
+        wildlifeEnabled: false,
+        particlesEnabled: true
+    },
+    'overgrown-abandon': {
+        timeOfDay: 'day',
+        atmosphere: 'misty',
+        lightBeamIntensity: 50,
+        shadowIntensity: 60,
+        vineGrowth: 100,
+        particleDensity: 40,
+        animationSpeed: 60,
+        wildlifeEnabled: false,
+        particlesEnabled: true
+    }
+};
+
+presetButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const presetName = btn.dataset.preset;
+        const preset = presets[presetName];
+        
+        if (preset) {
+            // Update state
+            Object.assign(state, preset);
+            
+            // Update UI controls
+            timeOfDaySelect.value = preset.timeOfDay;
+            atmosphereSelect.value = preset.atmosphere;
+            lightBeamSlider.value = preset.lightBeamIntensity;
+            shadowSlider.value = preset.shadowIntensity;
+            vineSlider.value = preset.vineGrowth;
+            particleSlider.value = preset.particleDensity;
+            speedSlider.value = preset.animationSpeed;
+            
+            // Update value displays
+            lightBeamValue.textContent = preset.lightBeamIntensity + '%';
+            shadowValue.textContent = preset.shadowIntensity + '%';
+            vineValue.textContent = preset.vineGrowth + '%';
+            particleValue.textContent = preset.particleDensity + '%';
+            speedValue.textContent = (preset.animationSpeed / 100).toFixed(1) + 'x';
+            
+            // Update toggles
+            if (preset.wildlifeEnabled) {
+                wildlifeToggle.classList.add('active');
+            } else {
+                wildlifeToggle.classList.remove('active');
+            }
+            
+            if (preset.particlesEnabled) {
+                particlesToggle.classList.add('active');
+            } else {
+                particlesToggle.classList.remove('active');
+            }
+            
+            // Update scene
+            updateScene();
+        }
+    });
+});
+
+// Initialize on page load
+window.addEventListener('load', () => {
+    createParticles(25);
+    updateScene();
+});
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    // Recreate particles on resize to maintain proper distribution
+    if (state.particlesEnabled) {
+        const particleCount = Math.floor(state.particleDensity / 10) * 5;
+        createParticles(particleCount);
+    }
+});
+
+// Add subtle interaction - make columns slightly react to mouse movement
+let mouseX = 0;
+let mouseY = 0;
+
+document.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+function animateParallax() {
+    // Subtle parallax effect on light beams
+    lightBeams.forEach((beam, index) => {
+        const offset = (index + 1) * 2;
+        const moveX = mouseX * offset;
+        beam.style.transform = `translateX(${moveX}px) rotate(${beam.style.transform.match(/rotate\((.+?)\)/)?.[1] || '0deg'})`;
+    });
+    
+    requestAnimationFrame(animateParallax);
+}
+
+animateParallax();
+    </script>
+</body>
+</html>
