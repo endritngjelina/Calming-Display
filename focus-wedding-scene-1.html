@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immersive Wedding Experience | Professional 3D Scene</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
+    <style>
+        :root {
+            /* Color System */
+            --color-primary: #3498db;
+            --color-primary-dark: #2980b9;
+            --color-secondary: #9b59b6;
+            --color-accent: #e74c3c;
+            --color-success: #2ecc71;
+            --color-warning: #f39c12;
+            --color-background: #1a1a2e;
+            --color-surface: #16213e;
+            --color-surface-light: #2d3748;
+            --color-text: #ffffff;
+            --color-text-secondary: #a0aec0;
+            --color-border: #4a5568;
+            
+            /* Typography */
+            --font-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-heading: 'Playfair Display', serif;
+            
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-xxl: 3rem;
+            
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.15), 0 5px 10px rgba(0,0,0,0.05);
+            --shadow-xl: 0 20px 40px rgba(0,0,0,0.2);
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            
+            /* Z-index layers */
+            --z-background: -1;
+            --z-base: 1;
+            --z-overlay: 10;
+            --z-modal: 100;
+            --z-tooltip: 1000;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-primary);
+            color: var(--color-text);
+            background: var(--color-background);
+            overflow: hidden;
+            line-height: 1.6;
+        }
+        
+        .app-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Canvas Container */
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: var(--z-background);
+        }
+        
+        /* UI Overlay */
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: var(--z-overlay);
+        }
+        
+        .ui-overlay > * {
+            pointer-events: auto;
+        }
+        
+        /* Header */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: var(--space-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: var(--z-overlay);
+        }
+        
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        
+        .logo i {
+            color: var(--color-primary);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: var(--space-sm);
+        }
+        
+        /* Control Panel */
+        .control-panel {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            width: 360px;
+            max-height: 90vh;
+            background: rgba(22, 33, 62, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            transition: transform var(--transition-normal);
+            z-index: var(--z-modal);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .control-panel.collapsed {
+            transform: translate(calc(100% - 60px), -50%);
+        }
+        
+        .panel-toggle {
+            position: absolute;
+            left: -50px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: var(--color-primary);
+            border: none;
+            border-radius: var(--radius-md) 0 0 var(--radius-md);
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background var(--transition-fast);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .panel-toggle:hover {
+            background: var(--color-primary-dark);
+        }
+        
+        .panel-content {
+            padding: var(--space-xl);
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+        
+        .panel-title {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            margin-bottom: var(--space-lg);
+            text-align: center;
+            color: var(--color-text);
+            position: relative;
+        }
+        
+        .panel-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--color-primary);
+            border-radius: 2px;
+        }
+        
+        /* Control Sections */
+        .control-section {
+            margin-bottom: var(--space-xl);
+            padding-bottom: var(--space-lg);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: var(--space-md);
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        
+        .section-title i {
+            color: var(--color-primary);
+        }
+        
+        /* Button Groups */
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: var(--space-sm);
+        }
+        
+        .btn {
+            padding: var(--space-sm) var(--space-md);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-xs);
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .btn.active {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn-icon {
+            font-size: 1.1rem;
+        }
+        
+        /* Sliders */
+        .slider-container {
+            margin-bottom: var(--space-md);
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--space-sm);
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: all var(--transition-fast);
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            background: var(--color-primary-dark);
+            transform: scale(1.1);
+        }
+        
+        /* Visualizer */
+        .visualizer {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            gap: 4px;
+        }
+        
+        .visualizer-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--color-primary), var(--color-secondary));
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            min-height: 10px;
+            animation: visualizerPulse 0.8s ease-in-out infinite alternate;
+        }
+        
+        .visualizer-bar:nth-child(1) { animation-delay: 0s; }
+        .visualizer-bar:nth-child(2) { animation-delay: 0.1s; }
+        .visualizer-bar:nth-child(3) { animation-delay: 0.2s; }
+        .visualizer-bar:nth-child(4) { animation-delay: 0.3s; }
+        .visualizer-bar:nth-child(5) { animation-delay: 0.4s; }
+        .visualizer-bar:nth-child(6) { animation-delay: 0.5s; }
+        .visualizer-bar:nth-child(7) { animation-delay: 0.6s; }
+        .visualizer-bar:nth-child(8) { animation-delay: 0.7s; }
+        
+        /* Effect Buttons */
+        .effect-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-sm);
+        }
+        
+        .effect-btn {
+            padding: var(--space-md);
+            background: rgba(155, 89, 182, 0.1);
+            border: 1px solid rgba(155, 89, 182, 0.3);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+        
+        .effect-btn:hover {
+            background: rgba(155, 89, 182, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .effect-btn:active {
+            transform: translateY(0);
+        }
+        
+        .effect-icon {
+            font-size: 1.5rem;
+        }
+        
+        /* Footer */
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: var(--space-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: var(--z-overlay);
+        }
+        
+        .scene-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            background: rgba(22, 33, 62, 0.7);
+            backdrop-filter: blur(5px);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+        }
+        
+        .info-item i {
+            color: var(--color-primary);
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: var(--z-tooltip);
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-xl);
+            transform: translateY(20px);
+            transition: transform var(--transition-normal);
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .modal-title {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color var(--transition-fast);
+        }
+        
+        .modal-close:hover {
+            color: var(--color-text);
+        }
+        
+        /* Animations */
+        @keyframes visualizerPulse {
+            0% { height: 20%; }
+            100% { height: 80%; }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .control-panel {
+                width: 300px;
+            }
+            
+            .header, .footer {
+                padding: var(--space-sm);
+            }
+            
+            .scene-info {
+                flex-direction: column;
+                gap: var(--space-xs);
+                align-items: flex-start;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .control-panel {
+                width: 280px;
+            }
+            
+            .panel-content {
+                padding: var(--space-lg);
+            }
+            
+            .button-group {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Three.js Canvas Container -->
+        <div id="canvas-container"></div>
+        
+        <!-- UI Overlay -->
+        <div class="ui-overlay">
+            <!-- Header -->
+            <header class="header">
+                <div class="logo">
+                    <i class="fas fa-heart"></i>
+                    <span>Eternal Vows</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn" id="fullscreen-btn">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <button class="btn" id="help-btn">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Control Panel -->
+            <div class="control-panel" id="control-panel">
+                <button class="panel-toggle" id="panel-toggle">
+                    <i class="fas fa-cog"></i>
+                </button>
+                
+                <div class="panel-content">
+                    <h2 class="panel-title">Scene Controls</h2>
+                    
+                    <!-- Scenery Selection -->
+                    <div class="control-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-mountain"></i>
+                            <span>Scenery</span>
+                        </h3>
+                        <div class="button-group">
+                            <button class="btn active" data-scene="garden">
+                                <i class="fas fa-seedling btn-icon"></i>
+                                <span>Garden</span>
+                            </button>
+                            <button class="btn" data-scene="beach">
+                                <i class="fas fa-umbrella-beach btn-icon"></i>
+                                <span>Beach</span>
+                            </button>
+                            <button class="btn" data-scene="chapel">
+                                <i class="fas fa-church btn-icon"></i>
+                                <span>Chapel</span>
+                            </button>
+                            <button class="btn" data-scene="ballroom">
+                                <i class="fas fa-glass-cheers btn-icon"></i>
+                                <span>Ballroom</span>
+                            </button>
+                            <button class="btn" data-scene="forest">
+                                <i class="fas fa-tree btn-icon"></i>
+                                <span>Forest</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Time of Day -->
+                    <div class="control-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-clock"></i>
+                            <span>Time of Day</span>
+                        </h3>
+                        <div class="button-group">
+                            <button class="btn" data-time="morning">
+                                <i class="fas fa-sun btn-icon"></i>
+                                <span>Morning</span>
+                            </button>
+                            <button class="btn" data-time="afternoon">
+                                <i class="fas fa-sun btn-icon"></i>
+                                <span>Afternoon</span>
+                            </button>
+                            <button class="btn active" data-time="sunset">
+                                <i class="fas fa-sun btn-icon"></i>
+                                <span>Sunset</span>
+                            </button>
+                            <button class="btn" data-time="evening">
+                                <i class="fas fa-moon btn-icon"></i>
+                                <span>Evening</span>
+                            </button>
+                            <button class="btn" data-time="night">
+                                <i class="fas fa-moon btn-icon"></i>
+                                <span>Night</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Weather Effects -->
+                    <div class="control-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-cloud"></i>
+                            <span>Weather</span>
+                        </h3>
+                        <div class="button-group">
+                            <button class="btn active" data-weather="clear">
+                                <i class="fas fa-sun btn-icon"></i>
+                                <span>Clear</span>
+                            </button>
+                            <button class="btn" data-weather="rain">
+                                <i class="fas fa-cloud-rain btn-icon"></i>
+                                <span>Rain</span>
+                            </button>
+                            <button class="btn" data-weather="snow">
+                                <i class="fas fa-snowflake btn-icon"></i>
+                                <span>Snow</span>
+                            </button>
+                            <button class="btn" data-weather="fog">
+                                <i class="fas fa-smog btn-icon"></i>
+                                <span>Fog</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Environment Controls -->
+                    <div class="control-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-sliders-h"></i>
+                            <span>Environment</span>
+                        </h3>
+                        
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>Particle Intensity</span>
+                                <span id="particle-value">50%</span>
+                            </div>
+                            <input type="range" class="slider" id="particle-intensity" min="0" max="100" value="50">
+                        </div>
+                        
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>Guest Count</span>
+                                <span id="guest-value">25</span>
+                            </div>
+                            <input type="range" class="slider" id="guest-count" min="5" max="50" value="25">
+                        </div>
+                        
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>Light Intensity</span>
+                                <span id="light-value">75%</span>
+                            </div>
+                            <input type="range" class="slider" id="light-intensity" min="0" max="100" value="75">
+                        </div>
+                    </div>
+                    
+                    <!-- Special Effects -->
+                    <div class="control-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-magic"></i>
+                            <span>Special Effects</span>
+                        </h3>
+                        <div class="effect-buttons">
+                            <button class="effect-btn" id="confetti-btn">
+                                <i class="fas fa-birthday-cake effect-icon"></i>
+                                <span>Confetti</span>
+                            </button>
+                            <button class="effect-btn" id="fireworks-btn">
+                                <i class="fas fa-fire effect-icon"></i>
+                                <span>Fireworks</span>
+                            </button>
+                            <button class="effect-btn" id="hearts-btn">
+                                <i class="fas fa-heart effect-icon"></i>
+                                <span>Hearts</span>
+                            </button>
+                            <button class="effect-btn" id="doves-btn">
+                                <i class="fas fa-dove effect-icon"></i>
+                                <span>Doves</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Music Visualizer -->
+                    <div class="control-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-music"></i>
+                            <span>Music Visualizer</span>
+                        </h3>
+                        <div class="visualizer" id="visualizer">
+                            <div class="visualizer-bar"></div>
+                            <div class="visualizer-bar"></div>
+                            <div class="visualizer-bar"></div>
+                            <div class="visualizer-bar"></div>
+                            <div class="visualizer-bar"></div>
+                            <div class="visualizer-bar"></div>
+                            <div class="visualizer-bar"></div>
+                            <div class="visualizer-bar"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="control-section">
+                        <button class="btn" id="save-scene-btn" style="width: 100%; margin-bottom: var(--space-sm);">
+                            <i class="fas fa-save"></i>
+                            <span>Save Scene</span>
+                        </button>
+                        <button class="btn" id="reset-scene-btn" style="width: 100%;">
+                            <i class="fas fa-redo"></i>
+                            <span>Reset to Defaults</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="scene-info">
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Garden Wedding</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Sunset</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-cloud"></i>
+                        <span>Clear Sky</span>
+                    </div>
+                </div>
+                
+                <button class="btn" id="camera-toggle">
+                    <i class="fas fa-camera"></i>
+                    <span>Toggle View</span>
+                </button>
+            </footer>
+        </div>
+        
+        <!-- Help Modal -->
+        <div class="modal" id="help-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Wedding Scene Controls</h3>
+                    <button class="modal-close" id="modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Welcome to the Immersive Wedding Experience! Here's how to use the controls:</p>
+                    <ul style="margin-top: var(--space-md); padding-left: var(--space-lg);">
+                        <li><strong>Scenery:</strong> Change the wedding venue between Garden, Beach, Chapel, Ballroom, and Forest.</li>
+                        <li><strong>Time of Day:</strong> Adjust the lighting and atmosphere for different times.</li>
+                        <li><strong>Weather:</strong> Add environmental effects like rain, snow, or fog.</li>
+                        <li><strong>Special Effects:</strong> Trigger celebratory effects like confetti, fireworks, hearts, and doves.</li>
+                        <li><strong>Sliders:</strong> Fine-tune particle intensity, guest count, and lighting.</li>
+                    </ul>
+                    <p style="margin-top: var(--space-md);">Click and drag to rotate the view, scroll to zoom, and use the camera toggle for different perspectives.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Main Wedding Scene Application
+        class WeddingScene {
+            constructor() {
+                // Scene state
+                this.currentScene = 'garden';
+                this.currentTime = 'sunset';
+                this.currentWeather = 'clear';
+                this.particleIntensity = 50;
+                this.guestCount = 25;
+                this.lightIntensity = 75;
+                
+                // Three.js elements
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.controls = null;
+                
+                // Scene objects
+                this.environment = null;
+                this.lights = {};
+                this.particles = {};
+                this.specialEffects = {};
+                
+                // UI elements
+                this.controlPanel = document.getElementById('control-panel');
+                this.panelToggle = document.getElementById('panel-toggle');
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupThreeJS();
+                this.setupEventListeners();
+                this.createEnvironment();
+                this.createParticleSystems();
+                this.animate();
+            }
+            
+            setupThreeJS() {
+                // Create scene
+                this.scene = new THREE.Scene();
+                this.scene.fog = new THREE.Fog(0x1a1a2e, 10, 50);
+                
+                // Create camera
+                this.camera = new THREE.PerspectiveCamera(
+                    60, 
+                    window.innerWidth / window.innerHeight, 
+                    0.1, 
+                    1000
+                );
+                this.camera.position.set(0, 5, 10);
+                
+                // Create renderer
+                this.renderer = new THREE.WebGLRenderer({ 
+                    antialias: true,
+                    alpha: true
+                });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                this.renderer.toneMappingExposure = 1;
+                
+                document.getElementById('canvas-container').appendChild(this.renderer.domElement);
+                
+                // Add orbit controls
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.minDistance = 5;
+                this.controls.maxDistance = 30;
+                this.controls.maxPolarAngle = Math.PI / 2;
+                
+                // Handle window resize
+                window.addEventListener('resize', () => this.onWindowResize());
+            }
+            
+            setupEventListeners() {
+                // Panel toggle
+                this.panelToggle.addEventListener('click', () => {
+                    this.controlPanel.classList.toggle('collapsed');
+                    this.panelToggle.innerHTML = this.controlPanel.classList.contains('collapsed') 
+                        ? '<i class="fas fa-chevron-left"></i>' 
+                        : '<i class="fas fa-cog"></i>';
+                });
+                
+                // Scenery buttons
+                document.querySelectorAll('[data-scene]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('[data-scene]').forEach(b => b.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        this.currentScene = e.currentTarget.dataset.scene;
+                        this.changeScene();
+                        this.updateSceneInfo();
+                    });
+                });
+                
+                // Time buttons
+                document.querySelectorAll('[data-time]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        this.currentTime = e.currentTarget.dataset.time;
+                        this.updateLighting();
+                        this.updateSceneInfo();
+                    });
+                });
+                
+                // Weather buttons
+                document.querySelectorAll('[data-weather]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('[data-weather]').forEach(b => b.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        this.currentWeather = e.currentTarget.dataset.weather;
+                        this.updateWeather();
+                        this.updateSceneInfo();
+                    });
+                });
+                
+                // Sliders
+                document.getElementById('particle-intensity').addEventListener('input', (e) => {
+                    this.particleIntensity = parseInt(e.target.value);
+                    document.getElementById('particle-value').textContent = e.target.value + '%';
+                    this.updateParticleIntensity();
+                });
+                
+                document.getElementById('guest-count').addEventListener('input', (e) => {
+                    this.guestCount = parseInt(e.target.value);
+                    document.getElementById('guest-value').textContent = e.target.value;
+                    this.updateGuestCount();
+                });
+                
+                document.getElementById('light-intensity').addEventListener('input', (e) => {
+                    this.lightIntensity = parseInt(e.target.value);
+                    document.getElementById('light-value').textContent = e.target.value + '%';
+                    this.updateLighting();
+                });
+                
+                // Effect buttons
+                document.getElementById('confetti-btn').addEventListener('click', () => {
+                    this.triggerConfetti();
+                });
+                
+                document.getElementById('fireworks-btn').addEventListener('click', () => {
+                    this.triggerFireworks();
+                });
+                
+                document.getElementById('hearts-btn').addEventListener('click', () => {
+                    this.triggerHearts();
+                });
+                
+                document.getElementById('doves-btn').addEventListener('click', () => {
+                    this.triggerDoves();
+                });
+                
+                // Action buttons
+                document.getElementById('save-scene-btn').addEventListener('click', () => {
+                    this.saveScene();
+                });
+                
+                document.getElementById('reset-scene-btn').addEventListener('click', () => {
+                    this.resetToDefaults();
+                });
+                
+                // Other UI elements
+                document.getElementById('camera-toggle').addEventListener('click', () => {
+                    this.toggleCameraView();
+                });
+                
+                document.getElementById('fullscreen-btn').addEventListener('click', () => {
+                    this.toggleFullscreen();
+                });
+                
+                document.getElementById('help-btn').addEventListener('click', () => {
+                    document.getElementById('help-modal').classList.add('active');
+                });
+                
+                document.getElementById('modal-close').addEventListener('click', () => {
+                    document.getElementById('help-modal').classList.remove('active');
+                });
+            }
+            
+            createEnvironment() {
+                // Create ground
+                const groundGeometry = new THREE.PlaneGeometry(50, 50);
+                const groundMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x3a7d5a,
+                    roughness: 0.8,
+                    metalness: 0.2
+                });
+                const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+                ground.rotation.x = -Math.PI / 2;
+                ground.receiveShadow = true;
+                this.scene.add(ground);
+                
+                // Create decorative arch
+                const archGroup = new THREE.Group();
+                
+                // Arch structure
+                const archGeometry = new THREE.TorusGeometry(3, 0.3, 16, 100, Math.PI);
+                const archMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0xdeb887,
+                    roughness: 0.7,
+                    metalness: 0.3
+                });
+                const arch = new THREE.Mesh(archGeometry, archMaterial);
+                arch.rotation.x = Math.PI / 2;
+                arch.position.y = 4;
+                arch.castShadow = true;
+                archGroup.add(arch);
+                
+                // Flowers on arch
+                const flowerGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+                const flowerMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0xff69b4,
+                    roughness: 0.9
+                });
+                
+                for (let i = 0; i < 20; i++) {
+                    const flower = new THREE.Mesh(flowerGeometry, flowerMaterial);
+                    const angle = (i / 20) * Math.PI;
+                    const radius = 3;
+                    
+                    flower.position.x = Math.cos(angle) * radius;
+                    flower.position.z = Math.sin(angle) * radius;
+                    flower.position.y = 4 + Math.sin(angle * 3) * 0.5;
+                    
+                    flower.castShadow = true;
+                    archGroup.add(flower);
+                }
+                
+                this.scene.add(archGroup);
+                
+                // Create lighting
+                this.createLighting();
+                
+                // Add some decorative elements
+                this.addDecorativeElements();
+            }
+            
+            createLighting() {
+                // Ambient light
+                this.lights.ambient = new THREE.AmbientLight(0x404040, 0.4);
+                this.scene.add(this.lights.ambient);
+                
+                // Directional light (sun/moon)
+                this.lights.directional = new THREE.DirectionalLight(0xffebc3, 1);
+                this.lights.directional.position.set(10, 10, 5);
+                this.lights.directional.castShadow = true;
+                this.lights.directional.shadow.mapSize.width = 2048;
+                this.lights.directional.shadow.mapSize.height = 2048;
+                this.lights.directional.shadow.camera.near = 0.5;
+                this.lights.directional.shadow.camera.far = 50;
+                this.lights.directional.shadow.camera.left = -20;
+                this.lights.directional.shadow.camera.right = 20;
+                this.lights.directional.shadow.camera.top = 20;
+                this.lights.directional.shadow.camera.bottom = -20;
+                this.scene.add(this.lights.directional);
+                
+                // Point lights for ambiance
+                this.lights.point1 = new THREE.PointLight(0xff7b54, 0.5, 10);
+                this.lights.point1.position.set(-5, 3, -5);
+                this.scene.add(this.lights.point1);
+                
+                this.lights.point2 = new THREE.PointLight(0x4d8bff, 0.5, 10);
+                this.lights.point2.position.set(5, 3, 5);
+                this.scene.add(this.lights.point2);
+                
+                this.updateLighting();
+            }
+            
+            updateLighting() {
+                const intensity = this.lightIntensity / 100;
+                
+                // Update directional light based on time of day
+                switch(this.currentTime) {
+                    case 'morning':
+                        this.lights.directional.color.setHex(0xffebc3);
+                        this.lights.directional.intensity = 0.8 * intensity;
+                        this.lights.directional.position.set(5, 8, 5);
+                        this.scene.fog.near = 15;
+                        this.scene.fog.far = 40;
+                        break;
+                    case 'afternoon':
+                        this.lights.directional.color.setHex(0xffffff);
+                        this.lights.directional.intensity = 1.0 * intensity;
+                        this.lights.directional.position.set(10, 10, 0);
+                        this.scene.fog.near = 20;
+                        this.scene.fog.far = 50;
+                        break;
+                    case 'sunset':
+                        this.lights.directional.color.setHex(0xff7b54);
+                        this.lights.directional.intensity = 0.7 * intensity;
+                        this.lights.directional.position.set(-5, 5, -5);
+                        this.scene.fog.near = 10;
+                        this.scene.fog.far = 30;
+                        break;
+                    case 'evening':
+                        this.lights.directional.color.setHex(0x4d8bff);
+                        this.lights.directional.intensity = 0.4 * intensity;
+                        this.lights.directional.position.set(0, 5, 10);
+                        this.scene.fog.near = 5;
+                        this.scene.fog.far = 25;
+                        break;
+                    case 'night':
+                        this.lights.directional.color.setHex(0x0011ff);
+                        this.lights.directional.intensity = 0.2 * intensity;
+                        this.lights.directional.position.set(0, 3, 10);
+                        this.scene.fog.near = 5;
+                        this.scene.fog.far = 20;
+                        break;
+                }
+                
+                // Update ambient light
+                this.lights.ambient.intensity = 0.3 * intensity;
+                
+                // Update point lights
+                this.lights.point1.intensity = 0.5 * intensity;
+                this.lights.point2.intensity = 0.5 * intensity;
+            }
+            
+            addDecorativeElements() {
+                // Add some decorative flowers
+                const flowerGeometry = new THREE.SphereGeometry(0.3, 8, 8);
+                const flowerMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0xff69b4,
+                    roughness: 0.9
+                });
+                
+                for (let i = 0; i < 15; i++) {
+                    const flower = new THREE.Mesh(flowerGeometry, flowerMaterial);
+                    flower.position.x = (Math.random() - 0.5) * 20;
+                    flower.position.z = (Math.random() - 0.5) * 20;
+                    flower.position.y = 0.3;
+                    
+                    flower.castShadow = true;
+                    this.scene.add(flower);
+                }
+                
+                // Add some decorative bushes
+                const bushGeometry = new THREE.SphereGeometry(1, 8, 8);
+                const bushMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x3a7d5a,
+                    roughness: 0.9
+                });
+                
+                for (let i = 0; i < 8; i++) {
+                    const bush = new THREE.Mesh(bushGeometry, bushMaterial);
+                    bush.position.x = (Math.random() - 0.5) * 40;
+                    bush.position.z = (Math.random() - 0.5) * 40;
+                    bush.position.y = 1;
+                    
+                    bush.castShadow = true;
+                    this.scene.add(bush);
+                }
+            }
+            
+            createParticleSystems() {
+                // Create particle system for environmental effects
+                const particleCount = 100;
+                const particles = new THREE.BufferGeometry();
+                const positions = new Float32Array(particleCount * 3);
+                const colors = new Float32Array(particleCount * 3);
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const i3 = i * 3;
+                    
+                    // Random positions
+                    positions[i3] = (Math.random() - 0.5) * 50;
+                    positions[i3 + 1] = Math.random() * 20;
+                    positions[i3 + 2] = (Math.random() - 0.5) * 50;
+                    
+                    // Random colors
+                    colors[i3] = Math.random();
+                    colors[i3 + 1] = Math.random();
+                    colors[i3 + 2] = Math.random();
+                }
+                
+                particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                
+                const particleMaterial = new THREE.PointsMaterial({
+                    size: 0.1,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.6
+                });
+                
+                this.particles.environmental = new THREE.Points(particles, particleMaterial);
+                this.scene.add(this.particles.environmental);
+            }
+            
+            updateParticleIntensity() {
+                if (this.particles.environmental) {
+                    this.particles.environmental.material.opacity = this.particleIntensity / 100 * 0.6;
+                    this.particles.environmental.material.size = this.particleIntensity / 100 * 0.2;
+                }
+            }
+            
+            updateGuestCount() {
+                // In a real implementation, this would update the number of guest models
+                console.log(`Guest count updated to: ${this.guestCount}`);
+            }
+            
+            changeScene() {
+                // In a full implementation, this would change the entire environment
+                console.log(`Scene changed to: ${this.currentScene}`);
+                
+                // Update fog color based on scene
+                switch(this.currentScene) {
+                    case 'garden':
+                        this.scene.fog.color.setHex(0x1a1a2e);
+                        break;
+                    case 'beach':
+                        this.scene.fog.color.setHex(0x87CEEB);
+                        break;
+                    case 'chapel':
+                        this.scene.fog.color.setHex(0x2c3e50);
+                        break;
+                    case 'ballroom':
+                        this.scene.fog.color.setHex(0x34495e);
+                        break;
+                    case 'forest':
+                        this.scene.fog.color.setHex(0x2d3748);
+                        break;
+                }
+            }
+            
+            updateWeather() {
+                // In a full implementation, this would add weather effects
+                console.log(`Weather changed to: ${this.currentWeather}`);
+            }
+            
+            triggerConfetti() {
+                // Create confetti particles
+                const confettiCount = 150;
+                const confettiGeometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(confettiCount * 3);
+                const colors = new Float32Array(confettiCount * 3);
+                const velocities = [];
+                
+                for (let i = 0; i < confettiCount; i++) {
+                    const i3 = i * 3;
+                    
+                    // Start position at the arch
+                    positions[i3] = 0;
+                    positions[i3 + 1] = 5;
+                    positions[i3 + 2] = 0;
+                    
+                    // Random colors
+                    const color = new THREE.Color();
+                    color.setHSL(Math.random(), 1, 0.7);
+                    colors[i3] = color.r;
+                    colors[i3 + 1] = color.g;
+                    colors[i3 + 2] = color.b;
+                    
+                    // Random velocities
+                    velocities.push({
+                        x: (Math.random() - 0.5) * 0.2,
+                        y: Math.random() * 0.1 + 0.05,
+                        z: (Math.random() - 0.5) * 0.2,
+                        rotation: (Math.random() - 0.5) * 0.1
+                    });
+                }
+                
+                confettiGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                confettiGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                
+                const confettiMaterial = new THREE.PointsMaterial({
+                    size: 0.2,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 1
+                });
+                
+                const confetti = new THREE.Points(confettiGeometry, confettiMaterial);
+                this.scene.add(confetti);
+                
+                // Animate confetti
+                const confettiAnimation = {
+                    object: confetti,
+                    velocities: velocities,
+                    age: 0,
+                    maxAge: 200
+                };
+                
+                if (!this.specialEffects.confetti) {
+                    this.specialEffects.confetti = [];
+                }
+                
+                this.specialEffects.confetti.push(confettiAnimation);
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                    this.scene.remove(confetti);
+                    confettiGeometry.dispose();
+                    confettiMaterial.dispose();
+                }, 3000);
+            }
+            
+            triggerFireworks() {
+                // Create firework explosion
+                const fireworkCount = 50;
+                const fireworkGeometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(fireworkCount * 3);
+                const colors = new Float32Array(fireworkCount * 3);
+                const velocities = [];
+                
+                const centerX = (Math.random() - 0.5) * 20;
+                const centerY = Math.random() * 5 + 5;
+                const centerZ = (Math.random() - 0.5) * 20;
+                
+                for (let i = 0; i < fireworkCount; i++) {
+                    const i3 = i * 3;
+                    
+                    // Start position
+                    positions[i3] = centerX;
+                    positions[i3 + 1] = centerY;
+                    positions[i3 + 2] = centerZ;
+                    
+                    // Random colors
+                    const color = new THREE.Color();
+                    color.setHSL(Math.random(), 1, 0.7);
+                    colors[i3] = color.r;
+                    colors[i3 + 1] = color.g;
+                    colors[i3 + 2] = color.b;
+                    
+                    // Random velocities (explosion)
+                    const speed = Math.random() * 0.3 + 0.1;
+                    const angle1 = Math.random() * Math.PI * 2;
+                    const angle2 = Math.random() * Math.PI;
+                    
+                    velocities.push({
+                        x: Math.sin(angle2) * Math.cos(angle1) * speed,
+                        y: Math.cos(angle2) * speed,
+                        z: Math.sin(angle2) * Math.sin(angle1) * speed
+                    });
+                }
+                
+                fireworkGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                fireworkGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                
+                const fireworkMaterial = new THREE.PointsMaterial({
+                    size: 0.15,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 1
+                });
+                
+                const firework = new THREE.Points(fireworkGeometry, fireworkMaterial);
+                this.scene.add(firework);
+                
+                // Animate firework
+                const fireworkAnimation = {
+                    object: firework,
+                    velocities: velocities,
+                    age: 0,
+                    maxAge: 100
+                };
+                
+                if (!this.specialEffects.fireworks) {
+                    this.specialEffects.fireworks = [];
+                }
+                
+                this.specialEffects.fireworks.push(fireworkAnimation);
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                    this.scene.remove(firework);
+                    fireworkGeometry.dispose();
+                    fireworkMaterial.dispose();
+                }, 2000);
+            }
+            
+            triggerHearts() {
+                // Create floating hearts
+                const heartCount = 20;
+                
+                for (let i = 0; i < heartCount; i++) {
+                    // Create a simple heart shape using a custom shape
+                    const x = 0, y = 0;
+                    const heartShape = new THREE.Shape();
+                    
+                    heartShape.moveTo(x + 0.25, y + 0.25);
+                    heartShape.bezierCurveTo(x + 0.25, y + 0.25, x + 0.2, y, x, y);
+                    heartShape.bezierCurveTo(x - 0.3, y, x - 0.3, y + 0.35, x - 0.3, y + 0.35);
+                    heartShape.bezierCurveTo(x - 0.3, y + 0.55, x - 0.1, y + 0.77, x + 0.25, y + 0.95);
+                    heartShape.bezierCurveTo(x + 0.6, y + 0.77, x + 0.8, y + 0.55, x + 0.8, y + 0.35);
+                    heartShape.bezierCurveTo(x + 0.8, y + 0.35, x + 0.8, y, x + 0.5, y);
+                    heartShape.bezierCurveTo(x + 0.35, y, x + 0.25, y + 0.25, x + 0.25, y + 0.25);
+                    
+                    const heartGeometry = new THREE.ShapeGeometry(heartShape);
+                    const heartMaterial = new THREE.MeshBasicMaterial({
+                        color: 0xff69b4,
+                        side: THREE.DoubleSide
+                    });
+                    
+                    const heart = new THREE.Mesh(heartGeometry, heartMaterial);
+                    
+                    // Position and scale
+                    heart.position.x = (Math.random() - 0.5) * 10;
+                    heart.position.y = Math.random() * 5;
+                    heart.position.z = (Math.random() - 0.5) * 10;
+                    
+                    heart.scale.set(0.5, 0.5, 0.5);
+                    heart.rotation.x = Math.PI / 2;
+                    
+                    this.scene.add(heart);
+                    
+                    // Animate heart
+                    const heartAnimation = {
+                        object: heart,
+                        startY: heart.position.y,
+                        phase: Math.random() * Math.PI * 2,
+                        speed: Math.random() * 0.02 + 0.01
+                    };
+                    
+                    if (!this.specialEffects.hearts) {
+                        this.specialEffects.hearts = [];
+                    }
+                    
+                    this.specialEffects.hearts.push(heartAnimation);
+                    
+                    // Remove after some time
+                    setTimeout(() => {
+                        this.scene.remove(heart);
+                        heartGeometry.dispose();
+                        heartMaterial.dispose();
+                    }, 5000);
+                }
+            }
+            
+            triggerDoves() {
+                // Create simple dove shapes
+                const doveCount = 5;
+                
+                for (let i = 0; i < doveCount; i++) {
+                    // Create a simple dove using a combination of geometries
+                    const bodyGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+                    const wingGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+                    wingGeometry.scale(2, 0.5, 1);
+                    
+                    const doveMaterial = new THREE.MeshStandardMaterial({
+                        color: 0xffffff,
+                        roughness: 0.8
+                    });
+                    
+                    const dove = new THREE.Group();
+                    
+                    const body = new THREE.Mesh(bodyGeometry, doveMaterial);
+                    dove.add(body);
+                    
+                    const leftWing = new THREE.Mesh(wingGeometry, doveMaterial);
+                    leftWing.position.set(-0.3, 0, 0);
+                    leftWing.rotation.z = Math.PI / 4;
+                    dove.add(leftWing);
+                    
+                    const rightWing = new THREE.Mesh(wingGeometry, doveMaterial);
+                    rightWing.position.set(0.3, 0, 0);
+                    rightWing.rotation.z = -Math.PI / 4;
+                    dove.add(rightWing);
+                    
+                    // Position dove
+                    dove.position.set(0, 3, 0);
+                    dove.scale.set(1.5, 1.5, 1.5);
+                    
+                    this.scene.add(dove);
+                    
+                    // Animate dove
+                    const doveAnimation = {
+                        object: dove,
+                        startX: dove.position.x,
+                        startZ: dove.position.z,
+                        phase: Math.random() * Math.PI * 2,
+                        wingPhase: 0,
+                        flightPath: Math.random() * Math.PI * 2
+                    };
+                    
+                    if (!this.specialEffects.doves) {
+                        this.specialEffects.doves = [];
+                    }
+                    
+                    this.specialEffects.doves.push(doveAnimation);
+                    
+                    // Remove after some time
+                    setTimeout(() => {
+                        this.scene.remove(dove);
+                        bodyGeometry.dispose();
+                        wingGeometry.dispose();
+                        doveMaterial.dispose();
+                    }, 8000);
+                }
+            }
+            
+            updateSpecialEffects() {
+                // Update confetti
+                if (this.specialEffects.confetti) {
+                    this.specialEffects.confetti.forEach((confetti, index) => {
+                        const positions = confetti.object.geometry.attributes.position.array;
+                        const velocities = confetti.velocities;
+                        
+                        for (let i = 0; i < positions.length / 3; i++) {
+                            const i3 = i * 3;
+                            
+                            // Apply velocity
+                            positions[i3] += velocities[i].x;
+                            positions[i3 + 1] += velocities[i].y;
+                            positions[i3 + 2] += velocities[i].z;
+                            
+                            // Apply gravity
+                            velocities[i].y -= 0.005;
+                        }
+                        
+                        confetti.object.geometry.attributes.position.needsUpdate = true;
+                        confetti.age++;
+                        
+                        // Fade out
+                        if (confetti.age > confetti.maxAge * 0.7) {
+                            confetti.object.material.opacity = 1 - (confetti.age - confetti.maxAge * 0.7) / (confetti.maxAge * 0.3);
+                        }
+                    });
+                    
+                    // Remove old confetti
+                    this.specialEffects.confetti = this.specialEffects.confetti.filter(
+                        confetti => confetti.age < confetti.maxAge
+                    );
+                }
+                
+                // Update fireworks
+                if (this.specialEffects.fireworks) {
+                    this.specialEffects.fireworks.forEach((firework, index) => {
+                        const positions = firework.object.geometry.attributes.position.array;
+                        const velocities = firework.velocities;
+                        
+                        for (let i = 0; i < positions.length / 3; i++) {
+                            const i3 = i * 3;
+                            
+                            // Apply velocity
+                            positions[i3] += velocities[i].x;
+                            positions[i3 + 1] += velocities[i].y;
+                            positions[i3 + 2] += velocities[i].z;
+                            
+                            // Slow down
+                            velocities[i].x *= 0.98;
+                            velocities[i].y *= 0.98;
+                            velocities[i].z *= 0.98;
+                        }
+                        
+                        firework.object.geometry.attributes.position.needsUpdate = true;
+                        firework.age++;
+                        
+                        // Fade out
+                        firework.object.material.opacity = 1 - firework.age / firework.maxAge;
+                    });
+                    
+                    // Remove old fireworks
+                    this.specialEffects.fireworks = this.specialEffects.fireworks.filter(
+                        firework => firework.age < firework.maxAge
+                    );
+                }
+                
+                // Update hearts
+                if (this.specialEffects.hearts) {
+                    this.specialEffects.hearts.forEach((heart, index) => {
+                        // Float up and down
+                        heart.object.position.y = heart.startY + Math.sin(heart.phase) * 0.5;
+                        heart.phase += heart.speed;
+                        
+                        // Rotate slowly
+                        heart.object.rotation.z += 0.01;
+                    });
+                }
+                
+                // Update doves
+                if (this.specialEffects.doves) {
+                    this.specialEffects.doves.forEach((dove, index) => {
+                        // Flap wings
+                        dove.wingPhase += 0.2;
+                        dove.object.children[1].rotation.z = Math.PI / 4 + Math.sin(dove.wingPhase) * 0.3;
+                        dove.object.children[2].rotation.z = -Math.PI / 4 - Math.sin(dove.wingPhase) * 0.3;
+                        
+                        // Fly in a circular path
+                        dove.flightPath += 0.02;
+                        dove.object.position.x = dove.startX + Math.cos(dove.flightPath) * 5;
+                        dove.object.position.z = dove.startZ + Math.sin(dove.flightPath) * 5;
+                        dove.object.position.y = 3 + Math.sin(dove.flightPath * 2) * 1;
+                        
+                        // Rotate to face direction of movement
+                        dove.object.rotation.y = dove.flightPath + Math.PI / 2;
+                    });
+                }
+            }
+            
+            toggleCameraView() {
+                // Toggle between different camera angles
+                if (this.camera.position.y > 5) {
+                    // Switch to ground level view
+                    this.camera.position.set(0, 1.5, 8);
+                } else {
+                    // Switch to aerial view
+                    this.camera.position.set(0, 10, 15);
+                }
+            }
+            
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            }
+            
+            saveScene() {
+                // In a real implementation, this would save the current scene configuration
+                const sceneData = {
+                    scene: this.currentScene,
+                    time: this.currentTime,
+                    weather: this.currentWeather,
+                    particleIntensity: this.particleIntensity,
+                    guestCount: this.guestCount,
+                    lightIntensity: this.lightIntensity
+                };
+                
+                localStorage.setItem('weddingScene', JSON.stringify(sceneData));
+                
+                // Show success message
+                alert('Scene saved successfully!');
+            }
+            
+            resetToDefaults() {
+                // Reset all controls to default values
+                this.currentScene = 'garden';
+                this.currentTime = 'sunset';
+                this.currentWeather = 'clear';
+                this.particleIntensity = 50;
+                this.guestCount = 25;
+                this.lightIntensity = 75;
+                
+                // Update UI
+                document.querySelectorAll('[data-scene]').forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-scene="garden"]').classList.add('active');
+                
+                document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-time="sunset"]').classList.add('active');
+                
+                document.querySelectorAll('[data-weather]').forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-weather="clear"]').classList.add('active');
+                
+                document.getElementById('particle-intensity').value = 50;
+                document.getElementById('particle-value').textContent = '50%';
+                
+                document.getElementById('guest-count').value = 25;
+                document.getElementById('guest-value').textContent = '25';
+                
+                document.getElementById('light-intensity').value = 75;
+                document.getElementById('light-value').textContent = '75%';
+                
+                // Update scene
+                this.changeScene();
+                this.updateLighting();
+                this.updateParticleIntensity();
+                this.updateGuestCount();
+                this.updateSceneInfo();
+            }
+            
+            updateSceneInfo() {
+                // Update the scene info in the footer
+                const sceneInfo = document.querySelector('.scene-info');
+                const sceneText = sceneInfo.querySelector('.info-item:nth-child(1) span');
+                const timeText = sceneInfo.querySelector('.info-item:nth-child(2) span');
+                const weatherText = sceneInfo.querySelector('.info-item:nth-child(3) span');
+                
+                // Format scene name
+                const sceneName = this.currentScene.charAt(0).toUpperCase() + this.currentScene.slice(1);
+                sceneText.textContent = `${sceneName} Wedding`;
+                
+                // Format time
+                timeText.textContent = this.currentTime.charAt(0).toUpperCase() + this.currentTime.slice(1);
+                
+                // Format weather
+                weatherText.textContent = this.currentWeather === 'clear' ? 'Clear Sky' : 
+                                         this.currentWeather.charAt(0).toUpperCase() + this.currentWeather.slice(1);
+            }
+            
+            onWindowResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+            
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                // Update controls
+                this.controls.update();
+                
+                // Update special effects
+                this.updateSpecialEffects();
+                
+                // Rotate environmental particles
+                if (this.particles.environmental) {
+                    this.particles.environmental.rotation.y += 0.002;
+                }
+                
+                // Render scene
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+        
+        // Initialize the application when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            const weddingScene = new WeddingScene();
+            
+            // Add visualizer animation
+            const visualizerBars = document.querySelectorAll('.visualizer-bar');
+            setInterval(() => {
+                visualizerBars.forEach(bar => {
+                    bar.style.height = `${Math.random() * 80 + 20}%`;
+                });
+            }, 200);
+        });
+    </script>
+</body>
+</html>
