@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Tunnel - Mesmerizing Visual Experience</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --color-slate-500-rgb: 98, 108, 113;
+            --color-red-500-rgb: 192, 21, 47;
+            --color-red-400-rgb: 255, 84, 89;
+            --color-orange-500-rgb: 168, 75, 47;
+            --color-orange-400-rgb: 230, 129, 97;
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-primary-active: var(--color-teal-700);
+            --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+            --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-btn-primary-text: var(--color-cream-50);
+            --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-error: var(--color-red-500);
+            --color-success: var(--color-teal-500);
+            --color-warning: var(--color-orange-500);
+            --color-info: var(--color-slate-500);
+            --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+            --color-select-caret: rgba(var(--color-slate-900-rgb), 0.8);
+            --focus-ring: 0 0 0 3px var(--color-focus-ring);
+            --focus-outline: 2px solid var(--color-primary);
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-md: 14px;
+            --font-size-lg: 16px;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 550;
+            --space-4: 4px;
+            --space-6: 6px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --radius-sm: 6px;
+            --radius-base: 8px;
+            --radius-md: 10px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --duration-fast: 150ms;
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-gray-400-rgb: 119, 124, 124;
+                --color-teal-300-rgb: 50, 184, 198;
+                --color-gray-300-rgb: 167, 169, 169;
+                --color-gray-200-rgb: 245, 245, 245;
+                --color-background: var(--color-charcoal-700);
+                --color-surface: var(--color-charcoal-800);
+                --color-text: var(--color-gray-200);
+                --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
+                --color-primary: var(--color-teal-300);
+                --color-primary-hover: var(--color-teal-400);
+                --color-primary-active: var(--color-teal-800);
+                --color-secondary: rgba(var(--color-gray-400-rgb), 0.15);
+                --color-secondary-hover: rgba(var(--color-gray-400-rgb), 0.25);
+                --color-secondary-active: rgba(var(--color-gray-400-rgb), 0.3);
+                --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+                --color-error: var(--color-red-400);
+                --color-success: var(--color-teal-300);
+                --color-warning: var(--color-orange-400);
+                --color-info: var(--color-gray-300);
+                --color-focus-ring: rgba(var(--color-teal-300-rgb), 0.4);
+                --color-btn-primary-text: var(--color-slate-900);
+                --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
+                --color-card-border-inner: rgba(var(--color-gray-400-rgb), 0.15);
+                --color-select-caret: rgba(var(--color-gray-200-rgb), 0.8);
+            }
+        }
+
+        @font-face {
+            font-family: 'FKGroteskNeue';
+            src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            overflow: hidden;
+            background: #000;
+            color: var(--color-text);
+        }
+
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            padding: var(--space-20);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-16);
+            z-index: 100;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-16);
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-8);
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .control-label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: rgba(255, 255, 255, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: var(--space-8);
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: var(--space-8) var(--space-16);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            transition: all var(--duration-normal) var(--ease-standard);
+            font-family: var(--font-family-base);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn.active {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: var(--color-btn-primary-text);
+        }
+
+        .btn:focus-visible {
+            outline: none;
+            box-shadow: var(--focus-ring);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-12);
+        }
+
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: none;
+            transition: all var(--duration-fast);
+        }
+
+        .slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .slider-value {
+            min-width: 40px;
+            text-align: center;
+            font-size: var(--font-size-sm);
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .toggle-btn {
+            padding: var(--space-8) var(--space-20);
+        }
+
+        .reset-btn {
+            background: rgba(255, 84, 89, 0.2);
+            border-color: rgba(255, 84, 89, 0.5);
+            color: #fff;
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 84, 89, 0.3);
+            border-color: rgba(255, 84, 89, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                padding: var(--space-12);
+                max-height: 70vh;
+            }
+
+            .control-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .control-group {
+                min-width: 100%;
+            }
+
+            .button-group {
+                justify-content: center;
+            }
+
+            .btn {
+                flex: 1;
+                min-width: 80px;
+            }
+        }
+
+        .title {
+            position: fixed;
+            top: var(--space-20);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            z-index: 101;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">Infinity Tunnel</div>
+    <canvas id="canvas"></canvas>
+    
+    <div class="controls">
+        <div class="control-row">
+            <div class="control-group">
+                <div class="control-label">Tunnel Type</div>
+                <div class="button-group">
+                    <button class="btn tunnel-btn active" data-type="triangles">Triangles</button>
+                    <button class="btn tunnel-btn" data-type="circles">Circles</button>
+                    <button class="btn tunnel-btn" data-type="rectangles">Rectangles</button>
+                    <button class="btn tunnel-btn" data-type="wave">Color Wave</button>
+                    <button class="btn tunnel-btn" data-type="mixed">Mixed</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-row">
+            <div class="control-group">
+                <div class="control-label">Color Scheme</div>
+                <div class="button-group">
+                    <button class="btn color-btn active" data-scheme="rainbow">Rainbow</button>
+                    <button class="btn color-btn" data-scheme="monochrome">Mono</button>
+                    <button class="btn color-btn" data-scheme="pastel">Pastel</button>
+                    <button class="btn color-btn" data-scheme="neon">Neon</button>
+                    <button class="btn color-btn" data-scheme="earth">Earth</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-row">
+            <div class="control-group">
+                <div class="control-label">Animation Style</div>
+                <div class="button-group">
+                    <button class="btn anim-btn active" data-style="zoomIn">Zoom In</button>
+                    <button class="btn anim-btn" data-style="zoomOut">Zoom Out</button>
+                    <button class="btn anim-btn" data-style="spiral">Spiral</button>
+                    <button class="btn anim-btn" data-style="pulse">Pulse</button>
+                    <button class="btn anim-btn" data-style="wave">Wave</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-row">
+            <div class="control-group">
+                <div class="control-label">Speed</div>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="speed" min="0.1" max="3" step="0.1" value="1">
+                    <span class="slider-value" id="speed-value">1.0</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">Density</div>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="density" min="3" max="15" step="1" value="8">
+                    <span class="slider-value" id="density-value">8</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-row">
+            <button class="btn toggle-btn" id="particles-toggle">Particles: ON</button>
+            <button class="btn reset-btn" id="reset">Reset to Defaults</button>
+        </div>
+    </div>
+
+    <script>
+        // Canvas setup
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// Set canvas size
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Color schemes
+const colorSchemes = {
+    rainbow: ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'],
+    monochrome: ['#000000', '#333333', '#666666', '#999999', '#CCCCCC', '#FFFFFF'],
+    pastel: ['#FFB3D9', '#B3D9FF', '#B3FFBA', '#FFFAB3', '#FFD9B3'],
+    neon: ['#00FF00', '#FF00FF', '#00FFFF', '#FFFF00', '#FF0080'],
+    earth: ['#8B4513', '#D2691E', '#CD853F', '#DAA520', '#B8860B']
+};
+
+// Application state
+let state = {
+    tunnelType: 'triangles',
+    colorScheme: 'rainbow',
+    animationStyle: 'zoomIn',
+    speed: 1,
+    density: 8,
+    particlesEnabled: true,
+    animationOffset: 0,
+    rotation: 0,
+    pulse: 0
+};
+
+// Particle system
+class Particle {
+    constructor() {
+        this.reset();
+    }
+
+    reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.z = Math.random() * 1000;
+        this.size = Math.random() * 2 + 1;
+        this.speed = Math.random() * 0.5 + 0.2;
+    }
+
+    update() {
+        this.z -= this.speed * state.speed * 5;
+        if (this.z <= 0) {
+            this.reset();
+            this.z = 1000;
+        }
+    }
+
+    draw() {
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const scale = 500 / this.z;
+        const x = centerX + (this.x - centerX) * scale;
+        const y = centerY + (this.y - centerY) * scale;
+        const size = this.size * scale;
+        const opacity = 1 - this.z / 1000;
+
+        ctx.fillStyle = `rgba(255, 255, 255, ${opacity * 0.6})`;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+let particles = [];
+for (let i = 0; i < 100; i++) {
+    particles.push(new Particle());
+}
+
+// Get current colors
+function getColors() {
+    return colorSchemes[state.colorScheme];
+}
+
+// Draw geometric triangles tunnel
+function drawTrianglesTunnel() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const colors = getColors();
+    const layers = state.density;
+
+    for (let i = layers; i >= 0; i--) {
+        const progress = (i + state.animationOffset) % layers;
+        const scale = progress / layers;
+        const size = Math.min(canvas.width, canvas.height) * scale;
+        const colorIndex = Math.floor(progress) % colors.length;
+        const angle = state.rotation + (i * 60);
+
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate((angle * Math.PI) / 180);
+
+        // Draw triangle
+        ctx.beginPath();
+        for (let j = 0; j < 3; j++) {
+            const a = (j * 120 + 90) * Math.PI / 180;
+            const x = Math.cos(a) * size;
+            const y = Math.sin(a) * size;
+            if (j === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+
+        const opacity = 0.3 + scale * 0.7;
+        ctx.strokeStyle = colors[colorIndex] + Math.floor(opacity * 255).toString(16).padStart(2, '0');
+        ctx.lineWidth = 3 + scale * 5;
+        ctx.stroke();
+
+        ctx.restore();
+    }
+}
+
+// Draw circular rings tunnel
+function drawCirclesTunnel() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const colors = getColors();
+    const layers = state.density;
+    const maxRadius = Math.min(canvas.width, canvas.height) * 0.6;
+
+    for (let i = 0; i < layers; i++) {
+        const progress = (i + state.animationOffset) % layers;
+        const scale = progress / layers;
+        const radius = maxRadius * scale;
+        const colorIndex = i % colors.length;
+        const opacity = 0.3 + scale * 0.7;
+        const pulseScale = state.animationStyle === 'pulse' ? 1 + Math.sin(state.pulse + i * 0.5) * 0.1 : 1;
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius * pulseScale, 0, Math.PI * 2);
+        ctx.strokeStyle = colors[colorIndex] + Math.floor(opacity * 255).toString(16).padStart(2, '0');
+        ctx.lineWidth = 3 + scale * 5;
+        ctx.stroke();
+    }
+}
+
+// Draw rectangular spiral tunnel
+function drawRectanglesTunnel() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const colors = getColors();
+    const layers = state.density;
+
+    for (let i = layers; i >= 0; i--) {
+        const progress = (i + state.animationOffset) % layers;
+        const scale = progress / layers;
+        const size = Math.min(canvas.width, canvas.height) * scale * 0.8;
+        const colorIndex = Math.floor(progress) % colors.length;
+        const angle = state.rotation + (i * 15);
+
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate((angle * Math.PI) / 180);
+
+        const opacity = 0.3 + scale * 0.7;
+        ctx.strokeStyle = colors[colorIndex] + Math.floor(opacity * 255).toString(16).padStart(2, '0');
+        ctx.lineWidth = 3 + scale * 5;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+
+        ctx.restore();
+    }
+}
+
+// Draw color wave tunnel
+function drawWaveTunnel() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const colors = getColors();
+    const layers = state.density * 2;
+
+    for (let i = 0; i < layers; i++) {
+        const progress = (i + state.animationOffset * 2) % layers;
+        const scale = progress / layers;
+        const radius = Math.min(canvas.width, canvas.height) * scale * 0.6;
+        const waveOffset = Math.sin(state.pulse + i * 0.3) * 20;
+        
+        // Create gradient
+        const gradient = ctx.createRadialGradient(
+            centerX, centerY, radius * 0.8,
+            centerX, centerY, radius
+        );
+        
+        const colorIndex = Math.floor((progress + state.animationOffset) * colors.length / 2) % colors.length;
+        const nextColorIndex = (colorIndex + 1) % colors.length;
+        
+        gradient.addColorStop(0, colors[colorIndex] + '00');
+        gradient.addColorStop(1, colors[nextColorIndex] + Math.floor((0.3 + scale * 0.5) * 255).toString(16).padStart(2, '0'));
+
+        ctx.beginPath();
+        ctx.arc(centerX + waveOffset, centerY, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 4 + scale * 8;
+        ctx.stroke();
+    }
+}
+
+// Draw mixed patterns tunnel
+function drawMixedTunnel() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const colors = getColors();
+    const layers = state.density;
+
+    for (let i = 0; i < layers; i++) {
+        const progress = (i + state.animationOffset) % layers;
+        const scale = progress / layers;
+        const size = Math.min(canvas.width, canvas.height) * scale * 0.7;
+        const colorIndex = i % colors.length;
+        const opacity = 0.3 + scale * 0.7;
+        const angle = state.rotation + (i * 30);
+
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate((angle * Math.PI) / 180);
+
+        ctx.strokeStyle = colors[colorIndex] + Math.floor(opacity * 255).toString(16).padStart(2, '0');
+        ctx.lineWidth = 2 + scale * 4;
+
+        // Alternate between shapes
+        if (i % 3 === 0) {
+            // Circle
+            ctx.beginPath();
+            ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
+            ctx.stroke();
+        } else if (i % 3 === 1) {
+            // Triangle
+            ctx.beginPath();
+            for (let j = 0; j < 3; j++) {
+                const a = (j * 120 + 90) * Math.PI / 180;
+                const x = Math.cos(a) * size / 2;
+                const y = Math.sin(a) * size / 2;
+                if (j === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.stroke();
+        } else {
+            // Rectangle
+            ctx.strokeRect(-size / 2, -size / 2, size, size);
+        }
+
+        ctx.restore();
+    }
+}
+
+// Main animation loop
+function animate() {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Update animation offset based on style
+    switch (state.animationStyle) {
+        case 'zoomIn':
+            state.animationOffset += 0.05 * state.speed;
+            state.rotation += 0.2 * state.speed;
+            break;
+        case 'zoomOut':
+            state.animationOffset -= 0.05 * state.speed;
+            state.rotation -= 0.2 * state.speed;
+            break;
+        case 'spiral':
+            state.animationOffset += 0.03 * state.speed;
+            state.rotation += 1.5 * state.speed;
+            break;
+        case 'pulse':
+            state.animationOffset += 0.02 * state.speed;
+            state.pulse += 0.05 * state.speed;
+            break;
+        case 'wave':
+            state.animationOffset += 0.04 * state.speed;
+            state.pulse += 0.08 * state.speed;
+            break;
+    }
+
+    // Draw tunnel based on type
+    switch (state.tunnelType) {
+        case 'triangles':
+            drawTrianglesTunnel();
+            break;
+        case 'circles':
+            drawCirclesTunnel();
+            break;
+        case 'rectangles':
+            drawRectanglesTunnel();
+            break;
+        case 'wave':
+            drawWaveTunnel();
+            break;
+        case 'mixed':
+            drawMixedTunnel();
+            break;
+    }
+
+    // Draw particles if enabled
+    if (state.particlesEnabled) {
+        particles.forEach(particle => {
+            particle.update();
+            particle.draw();
+        });
+    }
+
+    requestAnimationFrame(animate);
+}
+
+// Event listeners for controls
+document.querySelectorAll('.tunnel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tunnel-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.tunnelType = btn.dataset.type;
+    });
+});
+
+document.querySelectorAll('.color-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.colorScheme = btn.dataset.scheme;
+    });
+});
+
+document.querySelectorAll('.anim-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.anim-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.animationStyle = btn.dataset.style;
+    });
+});
+
+const speedSlider = document.getElementById('speed');
+const speedValue = document.getElementById('speed-value');
+speedSlider.addEventListener('input', (e) => {
+    state.speed = parseFloat(e.target.value);
+    speedValue.textContent = state.speed.toFixed(1);
+});
+
+const densitySlider = document.getElementById('density');
+const densityValue = document.getElementById('density-value');
+densitySlider.addEventListener('input', (e) => {
+    state.density = parseInt(e.target.value);
+    densityValue.textContent = state.density;
+});
+
+const particlesToggle = document.getElementById('particles-toggle');
+particlesToggle.addEventListener('click', () => {
+    state.particlesEnabled = !state.particlesEnabled;
+    particlesToggle.textContent = `Particles: ${state.particlesEnabled ? 'ON' : 'OFF'}`;
+});
+
+const resetBtn = document.getElementById('reset');
+resetBtn.addEventListener('click', () => {
+    // Reset to defaults
+    state.speed = 1;
+    state.density = 8;
+    state.tunnelType = 'triangles';
+    state.colorScheme = 'rainbow';
+    state.animationStyle = 'zoomIn';
+    state.particlesEnabled = true;
+    state.animationOffset = 0;
+    state.rotation = 0;
+    state.pulse = 0;
+
+    // Update UI
+    speedSlider.value = 1;
+    speedValue.textContent = '1.0';
+    densitySlider.value = 8;
+    densityValue.textContent = '8';
+    particlesToggle.textContent = 'Particles: ON';
+
+    document.querySelectorAll('.tunnel-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-type="triangles"]').classList.add('active');
+
+    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-scheme="rainbow"]').classList.add('active');
+
+    document.querySelectorAll('.anim-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-style="zoomIn"]').classList.add('active');
+});
+
+// Start animation
+animate();
+    </script>
+</body>
+</html>
