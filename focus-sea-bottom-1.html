@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Underwater Reef - Immersive Experience</title>
+    <style>
+        :root {
+            --ocean-start: #001f3f;
+            --ocean-end: #4ECDC4;
+            --fish-colors: #FFD700, #FF6B35, #FF006E, #8338EC, #00F5FF;
+            --coral-colors: #FF006E, #8338EC, #FB5607, #06FFA5;
+            --seaweed-dark: #0A5F38;
+            --seaweed-light: #134D2B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+        }
+
+        #ocean-scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #001f3f 0%, #003d5c 30%, #4ECDC4 100%);
+            transition: background 1s ease;
+            overflow: hidden;
+        }
+
+        .light-rays {
+            position: absolute;
+            top: -10%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .light-ray {
+            position: absolute;
+            top: -50%;
+            width: 100px;
+            height: 200%;
+            background: linear-gradient(to bottom, 
+                rgba(255, 255, 255, 0.4) 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                rgba(255, 255, 255, 0) 100%);
+            filter: blur(20px);
+            animation: rayFloat 12s ease-in-out infinite;
+            transform-origin: top center;
+        }
+
+        @keyframes rayFloat {
+            0%, 100% { opacity: 0.2; transform: translateX(0) rotate(-5deg); }
+            50% { opacity: 0.4; transform: translateX(30px) rotate(5deg); }
+        }
+
+        .ocean-floor {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 25%;
+            background: linear-gradient(to bottom, transparent, rgba(0, 20, 40, 0.6));
+        }
+
+        .coral-container, .seaweed-container, .bubble-container, #fishContainer {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .coral-container {
+            bottom: 0;
+            width: 100%;
+            height: 20%;
+        }
+
+        .coral {
+            position: absolute;
+            bottom: 0;
+        }
+
+        .seaweed-container {
+            bottom: 0;
+            width: 100%;
+            height: 40%;
+        }
+
+        .seaweed {
+            position: absolute;
+            bottom: 0;
+            width: 40px;
+            background: linear-gradient(to top, #0A5F38, #134D2B);
+            border-radius: 20px;
+            transform-origin: bottom center;
+        }
+
+        .seaweed.tall { height: 150px; }
+        .seaweed.medium { height: 100px; }
+        .seaweed.short { height: 60px; }
+
+        .seaweed-1 { animation: sway1 4s ease-in-out infinite; }
+        .seaweed-2 { animation: sway2 3.5s ease-in-out infinite; }
+        .seaweed-3 { animation: sway3 4.5s ease-in-out infinite; }
+
+        @keyframes sway1 {
+            0%, 100% { transform: rotate(-8deg); }
+            50% { transform: rotate(8deg); }
+        }
+
+        @keyframes sway2 {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
+        }
+
+        @keyframes sway3 {
+            0%, 100% { transform: rotate(-6deg); }
+            50% { transform: rotate(6deg); }
+        }
+
+        .bubble-container {
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -50px;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .fish {
+            position: absolute;
+            font-size: 40px;
+            transition: transform 0.3s ease;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: particleFloat 20s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translate(0, 100vh) scale(1); opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { transform: translate(50px, -100px) scale(0.5); opacity: 0; }
+        }
+
+        .settings-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .settings-toggle:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100%;
+            background: rgba(0, 31, 63, 0.9);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            overflow-y: auto;
+            transition: right 0.4s ease;
+            z-index: 999;
+            color: white;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-panel h2 {
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4ECDC4;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4ECDC4;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-group select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .control-group select option {
+            background: #001f3f;
+            color: white;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: rgba(78, 205, 196, 0.3);
+            border: 1px solid rgba(78, 205, 196, 0.5);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: rgba(78, 205, 196, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: rgba(78, 205, 196, 0.5);
+            border: 1px solid rgba(78, 205, 196, 0.7);
+        }
+
+        .btn-primary:hover {
+            background: rgba(78, 205, 196, 0.7);
+        }
+
+        .value-display {
+            display: inline-block;
+            margin-left: 10px;
+            color: #4ECDC4;
+            font-weight: 600;
+        }
+
+        .scenery-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .scenery-btn {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .scenery-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #4ECDC4;
+        }
+
+        .scenery-btn.active {
+            background: rgba(78, 205, 196, 0.3);
+            border-color: #4ECDC4;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 31, 63, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 14px;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+
+        .webgl-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .info-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 31, 63, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            color: white;
+            font-size: 14px;
+            z-index: 998;
+            max-width: 300px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .info-panel:hover {
+            opacity: 1;
+        }
+
+        .info-panel h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .info-panel p {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .info-panel .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .settings-panel {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .info-panel {
+                max-width: calc(100% - 40px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="webgl-canvas" class="webgl-canvas"></canvas>
+    
+    <div id="ocean-scene">
+        <div class="light-rays" id="lightRays"></div>
+        <div class="particles" id="particles"></div>
+        <div class="bubble-container" id="bubbleContainer"></div>
+        <div id="fishContainer"></div>
+        <div class="seaweed-container" id="seaweedContainer"></div>
+        <div class="coral-container" id="coralContainer"></div>
+        <div class="ocean-floor"></div>
+    </div>
+
+    <div class="settings-toggle" id="settingsToggle">⚙️</div>
+
+    <div class="settings-panel" id="settingsPanel">
+        <h2>Reef Settings</h2>
+
+        <div class="control-group">
+            <label>Fish Count <span class="value-display" id="fishCountValue">8</span></label>
+            <input type="range" id="fishCount" min="0" max="20" value="8">
+        </div>
+
+        <div class="control-group">
+            <label>Bubble Intensity <span class="value-display" id="bubbleIntensityValue">Medium</span></label>
+            <input type="range" id="bubbleIntensity" min="1" max="3" value="2">
+        </div>
+
+        <div class="control-group">
+            <label>Animation Speed <span class="value-display" id="animSpeedValue">Normal</span></label>
+            <input type="range" id="animSpeed" min="0.5" max="2" step="0.5" value="1">
+        </div>
+
+        <div class="control-group">
+            <label>Light Intensity <span class="value-display" id="lightIntensityValue">Normal</span></label>
+            <input type="range" id="lightIntensity" min="1" max="3" value="2">
+        </div>
+
+        <div class="control-group">
+            <label>Seaweed Density <span class="value-display" id="seaweedDensityValue">5</span></label>
+            <input type="range" id="seaweedDensity" min="0" max="10" value="5">
+        </div>
+
+        <div class="control-group">
+            <label>Background Theme</label>
+            <select id="bgTheme">
+                <option value="deep-blue">Deep Blue</option>
+                <option value="turquoise">Turquoise</option>
+                <option value="twilight">Twilight</option>
+                <option value="clear-water">Clear Water</option>
+                <option value="bioluminescent">Bioluminescent</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Fish Behavior</label>
+            <select id="fishBehavior">
+                <option value="swarm">Swarm</option>
+                <option value="school">School</option>
+                <option value="solitary">Solitary</option>
+                <option value="predator">Predator/Prey</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Sound Effects</label>
+            <button class="btn" id="soundToggle">🔇 Sound Off</button>
+        </div>
+
+        <div class="control-group">
+            <label>Enable WebGL Effects</label>
+            <button class="btn" id="webglToggle">✅ WebGL On</button>
+        </div>
+
+        <h2 style="margin-top: 30px; margin-bottom: 15px; font-size: 18px;">Change Scenery</h2>
+        <div class="scenery-buttons">
+            <button class="scenery-btn active" data-scenery="tropical">🐠 Tropical Reef</button>
+            <button class="scenery-btn" data-scenery="deep">🌊 Deep Ocean</button>
+            <button class="scenery-btn" data-scenery="kelp">🌿 Kelp Forest</button>
+            <button class="scenery-btn" data-scenery="sunset">🌅 Sunset Reef</button>
+            <button class="scenery-btn" data-scenery="arctic">🧊 Arctic</button>
+            <button class="scenery-btn" data-scenery="bioluminescent">✨ Bioluminescent</button>
+        </div>
+
+        <button class="btn btn-primary" id="fullscreenBtn">⛶ Toggle Fullscreen</button>
+        <button class="btn" id="resetBtn">🔄 Reset to Defaults</button>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+        <button class="close-btn" id="closeInfo">✕</button>
+        <h3>Interactive Reef Experience</h3>
+        <p>• Click and drag to interact with fish</p>
+        <p>• Use mouse wheel to zoom in/out</p>
+        <p>• Press Space to toggle day/night cycle</p>
+        <p>• Double-click to create feeding spot</p>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Advanced Configuration with enhanced options
+        const config = {
+            fishCount: 8,
+            bubbleIntensity: 2,
+            animSpeed: 1,
+            lightIntensity: 2,
+            seaweedDensity: 5,
+            soundEnabled: false,
+            webglEnabled: true,
+            currentScenery: 'tropical',
+            fishBehavior: 'swarm',
+            dayNightCycle: true,
+            timeOfDay: 0.5, // 0 = night, 1 = day
+            physicsEnabled: true
+        };
+
+        const fishEmojis = ['🐠', '🐟', '🐡', '🦈', '🐙', '🪼', '🐚', '🦀', '🦐', '🐬'];
+        const fishColors = ['#FFD700', '#FF6B35', '#FF006E', '#8338EC', '#00F5FF', '#FF9E00', '#00FF88', '#FF4081'];
+        
+        let fishes = [];
+        let bubbles = [];
+        let audioContext = null;
+        let isAudioPlaying = false;
+        let mouseX = 0, mouseY = 0;
+        let isMouseDown = false;
+        let canvas, gl;
+        let webglScene = null;
+        let lastTime = 0;
+        let dayNightTransition = 0;
+
+        // Advanced Scenery themes with more parameters
+        const sceneryThemes = {
+            tropical: {
+                background: 'linear-gradient(to bottom, #001f3f 0%, #003d5c 30%, #4ECDC4 100%)',
+                lightIntensity: 0.4,
+                colors: 'vibrant',
+                particleDensity: 30,
+                bubbleColor: 'rgba(255, 255, 255, 0.8)'
+            },
+            deep: {
+                background: 'linear-gradient(to bottom, #000814 0%, #001d3d 50%, #003566 100%)',
+                lightIntensity: 0.15,
+                colors: 'muted',
+                particleDensity: 20,
+                bubbleColor: 'rgba(200, 230, 255, 0.7)'
+            },
+            kelp: {
+                background: 'linear-gradient(to bottom, #0a4d3c 0%, #1a5f4f 40%, #2d8b70 100%)',
+                lightIntensity: 0.25,
+                colors: 'cool',
+                particleDensity: 25,
+                bubbleColor: 'rgba(180, 255, 230, 0.7)'
+            },
+            sunset: {
+                background: 'linear-gradient(to bottom, #d4145a 0%, #fbb034 40%, #9b59b6 100%)',
+                lightIntensity: 0.5,
+                colors: 'warm',
+                particleDensity: 35,
+                bubbleColor: 'rgba(255, 220, 180, 0.8)'
+            },
+            arctic: {
+                background: 'linear-gradient(to bottom, #1e3c72 0%, #2a5298 30%, #a8c0ff 100%)',
+                lightIntensity: 0.3,
+                colors: 'icy',
+                particleDensity: 20,
+                bubbleColor: 'rgba(230, 240, 255, 0.9)'
+            },
+            bioluminescent: {
+                background: 'linear-gradient(to bottom, #0d1b2a 0%, #1b263b 40%, #415a77 100%)',
+                lightIntensity: 0.1,
+                colors: 'neon',
+                particleDensity: 40,
+                bubbleColor: 'rgba(0, 255, 255, 0.6)'
+            }
+        };
+
+        // Advanced fish behaviors
+        const behaviorPatterns = {
+            swarm: {
+                cohesion: 0.05,
+                separation: 0.1,
+                alignment: 0.05,
+                maxSpeed: 3,
+                perception: 100
+            },
+            school: {
+                cohesion: 0.1,
+                separation: 0.05,
+                alignment: 0.1,
+                maxSpeed: 2,
+                perception: 150
+            },
+            solitary: {
+                cohesion: 0.01,
+                separation: 0.2,
+                alignment: 0.01,
+                maxSpeed: 1.5,
+                perception: 50
+            },
+            predator: {
+                cohesion: 0.02,
+                separation: 0.15,
+                alignment: 0.03,
+                maxSpeed: 4,
+                perception: 200
+            }
+        };
+
+        // Initialize scene
+        function init() {
+            createLightRays();
+            createParticles();
+            createSeaweed();
+            createCoral();
+            createFish();
+            startBubbles();
+            setupEventListeners();
+            animateFish();
+            setupMouseInteraction();
+            initWebGL();
+            showNotification('Welcome to the Advanced Underwater Reef!', 3000);
+            
+            // Start day/night cycle if enabled
+            if (config.dayNightCycle) {
+                startDayNightCycle();
+            }
+        }
+
+        // Initialize WebGL for advanced graphics
+        function initWebGL() {
+            if (!config.webglEnabled) return;
+            
+            canvas = document.getElementById('webgl-canvas');
+            gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            
+            if (!gl) {
+                console.warn('WebGL not supported, falling back to 2D rendering');
+                config.webglEnabled = false;
+                document.getElementById('webglToggle').textContent = '❌ WebGL Off';
+                return;
+            }
+            
+            // Set canvas size
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Set viewport
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            
+            // Create a simple shader program for water caustics
+            const vertexShaderSource = `
+                attribute vec2 a_position;
+                varying vec2 v_texCoord;
+                
+                void main() {
+                    gl_Position = vec4(a_position, 0.0, 1.0);
+                    v_texCoord = a_position * 0.5 + 0.5;
+                }
+            `;
+            
+            const fragmentShaderSource = `
+                precision mediump float;
+                uniform float u_time;
+                uniform vec2 u_resolution;
+                varying vec2 v_texCoord;
+                
+                void main() {
+                    vec2 uv = v_texCoord;
+                    
+                    // Create water caustics effect
+                    float caustic = 0.0;
+                    for (float i = 0.0; i < 3.0; i++) {
+                        vec2 offset = vec2(sin(u_time * 0.5 + i * 2.0), cos(u_time * 0.3 + i * 1.5));
+                        caustic += sin((uv.x + offset.x) * 20.0 + u_time) * 
+                                  cos((uv.y + offset.y) * 15.0 + u_time) * 0.1;
+                    }
+                    
+                    // Create light rays
+                    float ray = 0.0;
+                    for (float i = 0.0; i < 5.0; i++) {
+                        float rayPos = (uv.x * 2.0 - 1.0) + sin(u_time * 0.2 + i) * 0.5;
+                        ray += max(0.0, 1.0 - abs(rayPos) * 5.0) * 0.1;
+                    }
+                    
+                    // Combine effects
+                    vec3 color = vec3(0.1, 0.2, 0.4) + 
+                                vec3(0.3, 0.5, 0.7) * caustic + 
+                                vec3(0.8, 0.9, 1.0) * ray;
+                    
+                    gl_FragColor = vec4(color, 0.3);
+                }
+            `;
+            
+            // Compile shaders
+            const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+            const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+            const program = createProgram(gl, vertexShader, fragmentShader);
+            
+            // Create a fullscreen quad
+            const positionBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+                -1, -1,
+                1, -1,
+                -1, 1,
+                1, 1
+            ]), gl.STATIC_DRAW);
+            
+            // Set up attributes
+            const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+            gl.enableVertexAttribArray(positionAttributeLocation);
+            gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+            
+            // Get uniform locations
+            const timeUniformLocation = gl.getUniformLocation(program, "u_time");
+            const resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
+            
+            // Store WebGL state
+            webglScene = {
+                program,
+                timeUniformLocation,
+                resolutionUniformLocation,
+                startTime: Date.now()
+            };
+            
+            // Start rendering
+            renderWebGL();
+        }
+
+        function createShader(gl, type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Shader compilation error:', gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            
+            return shader;
+        }
+
+        function createProgram(gl, vertexShader, fragmentShader) {
+            const program = gl.createProgram();
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+            
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error('Program linking error:', gl.getProgramInfoLog(program));
+                return null;
+            }
+            
+            return program;
+        }
+
+        function renderWebGL() {
+            if (!config.webglEnabled || !webglScene) return;
+            
+            const currentTime = (Date.now() - webglScene.startTime) / 1000;
+            
+            gl.useProgram(webglScene.program);
+            gl.uniform1f(webglScene.timeUniformLocation, currentTime);
+            gl.uniform2f(webglScene.resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+            
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            
+            requestAnimationFrame(renderWebGL);
+        }
+
+        // Create light rays
+        function createLightRays() {
+            const container = document.getElementById('lightRays');
+            container.innerHTML = '';
+            const rayCount = 5;
+            for (let i = 0; i < rayCount; i++) {
+                const ray = document.createElement('div');
+                ray.className = 'light-ray';
+                ray.style.left = `${(i * 20) + Math.random() * 10}%`;
+                ray.style.animationDelay = `${i * -2}s`;
+                ray.style.animationDuration = `${10 + Math.random() * 4}s`;
+                container.appendChild(ray);
+            }
+        }
+
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            container.innerHTML = '';
+            const theme = sceneryThemes[config.currentScenery];
+            for (let i = 0; i < theme.particleDensity; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 20}s`;
+                particle.style.animationDuration = `${15 + Math.random() * 10}s`;
+                
+                // Adjust particle appearance based on theme
+                if (config.currentScenery === 'bioluminescent') {
+                    particle.style.background = `rgba(${Math.random() * 100 + 155}, ${Math.random() * 100 + 155}, 255, 0.6)`;
+                    particle.style.boxShadow = '0 0 8px rgba(100, 200, 255, 0.8)';
+                }
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // Create seaweed
+        function createSeaweed() {
+            const container = document.getElementById('seaweedContainer');
+            container.innerHTML = '';
+            const heights = ['tall', 'medium', 'short'];
+            const anims = ['seaweed-1', 'seaweed-2', 'seaweed-3'];
+            
+            for (let i = 0; i < config.seaweedDensity; i++) {
+                const seaweed = document.createElement('div');
+                seaweed.className = `seaweed ${heights[Math.floor(Math.random() * heights.length)]} ${anims[Math.floor(Math.random() * anims.length)]}`;
+                seaweed.style.left = `${(i / config.seaweedDensity) * 100 + Math.random() * 5}%`;
+                seaweed.style.animationDuration = `${3 + Math.random() * 2}s`;
+                
+                // Adjust seaweed color based on theme
+                if (config.currentScenery === 'kelp') {
+                    seaweed.style.background = 'linear-gradient(to top, #1a5f4f, #2d8b70)';
+                } else if (config.currentScenery === 'arctic') {
+                    seaweed.style.background = 'linear-gradient(to top, #2a5298, #a8c0ff)';
+                } else if (config.currentScenery === 'bioluminescent') {
+                    seaweed.style.background = 'linear-gradient(to top, #0d1b2a, #1b263b)';
+                    seaweed.style.boxShadow = '0 0 10px rgba(0, 200, 255, 0.5)';
+                }
+                
+                container.appendChild(seaweed);
+            }
+        }
+
+        // Create coral
+        function createCoral() {
+            const container = document.getElementById('coralContainer');
+            container.innerHTML = '';
+            const coralShapes = ['🪸', '🐚', '⭐', '🧽', '🪼'];
+            const coralColors = ['#FF006E', '#8338EC', '#FB5607', '#06FFA5', '#00F5FF'];
+            
+            for (let i = 0; i < 8; i++) {
+                const coral = document.createElement('div');
+                coral.className = 'coral';
+                coral.textContent = coralShapes[Math.floor(Math.random() * coralShapes.length)];
+                coral.style.left = `${i * 12 + Math.random() * 8}%`;
+                coral.style.fontSize = `${30 + Math.random() * 40}px`;
+                
+                // Apply theme-based styling
+                if (config.currentScenery === 'deep') {
+                    coral.style.filter = `brightness(0.7) hue-rotate(200deg) drop-shadow(0 0 10px rgba(0, 255, 255, 0.5))`;
+                } else if (config.currentScenery === 'bioluminescent') {
+                    coral.style.filter = `hue-rotate(${Math.random() * 360}deg) brightness(1.5) drop-shadow(0 0 15px rgba(100, 200, 255, 0.8))`;
+                } else {
+                    coral.style.filter = `hue-rotate(${Math.random() * 360}deg) drop-shadow(0 2px 4px rgba(0,0,0,0.3))`;
+                }
+                
+                container.appendChild(coral);
+            }
+        }
+
+        // Create fish with advanced behaviors
+        function createFish() {
+            const container = document.getElementById('fishContainer');
+            container.innerHTML = '';
+            fishes = [];
+            
+            for (let i = 0; i < config.fishCount; i++) {
+                const fish = document.createElement('div');
+                fish.className = 'fish';
+                fish.textContent = fishEmojis[Math.floor(Math.random() * fishEmojis.length)];
+                
+                const behavior = behaviorPatterns[config.fishBehavior];
+                const fishData = {
+                    element: fish,
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * (window.innerHeight * 0.7) + 50,
+                    vx: (Math.random() * 2 - 1) * behavior.maxSpeed,
+                    vy: (Math.random() * 2 - 1) * behavior.maxSpeed * 0.5,
+                    size: 30 + Math.random() * 30,
+                    direction: Math.random() > 0.5 ? 1 : -1,
+                    behavior: behavior,
+                    type: Math.floor(Math.random() * fishEmojis.length),
+                    group: Math.floor(Math.random() * 3), // Group fish into small schools
+                    isPredator: Math.random() < 0.1 && config.fishBehavior === 'predator'
+                };
+                
+                fish.style.fontSize = `${fishData.size}px`;
+                fish.style.left = `${fishData.x}px`;
+                fish.style.top = `${fishData.y}px`;
+                fish.style.transform = fishData.direction === -1 ? 'scaleX(-1)' : 'scaleX(1)';
+                
+                // Apply theme-based styling
+                applyFishStyling(fishData);
+                
+                container.appendChild(fish);
+                fishes.push(fishData);
+            }
+        }
+
+        function applyFishStyling(fish) {
+            if (config.currentScenery === 'deep') {
+                fish.element.style.filter = 'brightness(0.7) hue-rotate(200deg) drop-shadow(0 0 10px rgba(0, 255, 255, 0.5))';
+            } else if (config.currentScenery === 'kelp') {
+                fish.element.style.filter = 'hue-rotate(120deg) saturate(0.8) drop-shadow(2px 2px 4px rgba(0,0,0,0.3))';
+            } else if (config.currentScenery === 'sunset') {
+                fish.element.style.filter = 'hue-rotate(30deg) saturate(1.3) brightness(1.1) drop-shadow(2px 2px 4px rgba(0,0,0,0.3))';
+            } else if (config.currentScenery === 'arctic') {
+                fish.element.style.filter = 'brightness(1.2) hue-rotate(180deg) saturate(0.8) drop-shadow(0 0 8px rgba(200, 230, 255, 0.5))';
+            } else if (config.currentScenery === 'bioluminescent') {
+                const hue = Math.random() * 60 + 180; // Blue to cyan range
+                fish.element.style.filter = `hue-rotate(${hue}deg) brightness(1.5) drop-shadow(0 0 15px rgba(100, 200, 255, 0.8))`;
+            } else {
+                fish.element.style.filter = `hue-rotate(${Math.random() * 360}deg) drop-shadow(2px 2px 4px rgba(0,0,0,0.3))`;
+            }
+            
+            // Special styling for predators
+            if (fish.isPredator) {
+                fish.element.style.filter += ' brightness(1.3)';
+                fish.element.style.zIndex = '10';
+            }
+        }
+
+        // Advanced fish animation with behavioral patterns
+        function animateFish() {
+            const currentTime = Date.now();
+            const deltaTime = lastTime ? (currentTime - lastTime) / 1000 : 0.016;
+            lastTime = currentTime;
+            
+            fishes.forEach(fish => {
+                // Apply behavioral rules
+                if (config.fishBehavior !== 'solitary' && fishes.length > 1) {
+                    applyFlockingBehavior(fish, deltaTime);
+                }
+                
+                // Apply physics
+                if (config.physicsEnabled) {
+                    applyPhysics(fish, deltaTime);
+                }
+                
+                // Update position
+                fish.x += fish.vx * config.animSpeed;
+                fish.y += fish.vy * config.animSpeed;
+                
+                // Wrap around screen
+                if (fish.direction === 1 && fish.x > window.innerWidth + 100) {
+                    fish.x = -100;
+                    fish.y = Math.random() * (window.innerHeight * 0.7) + 50;
+                } else if (fish.direction === -1 && fish.x < -100) {
+                    fish.x = window.innerWidth + 100;
+                    fish.y = Math.random() * (window.innerHeight * 0.7) + 50;
+                }
+                
+                // Bounce off top and bottom
+                if (fish.y < 50 || fish.y > window.innerHeight * 0.8) {
+                    fish.vy *= -0.8;
+                }
+                
+                // Update direction based on velocity
+                if (fish.vx > 0.1 && fish.direction === -1) {
+                    fish.direction = 1;
+                    fish.element.style.transform = 'scaleX(1)';
+                } else if (fish.vx < -0.1 && fish.direction === 1) {
+                    fish.direction = -1;
+                    fish.element.style.transform = 'scaleX(-1)';
+                }
+                
+                fish.element.style.left = `${fish.x}px`;
+                fish.element.style.top = `${fish.y}px`;
+            });
+            
+            requestAnimationFrame(animateFish);
+        }
+
+        function applyFlockingBehavior(fish, deltaTime) {
+            let separation = { x: 0, y: 0 };
+            let alignment = { x: 0, y: 0 };
+            let cohesion = { x: 0, y: 0 };
+            let totalNeighbors = 0;
+            
+            fishes.forEach(other => {
+                if (other === fish) return;
+                
+                const dx = other.x - fish.x;
+                const dy = other.y - fish.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < fish.behavior.perception) {
+                    // Separation: avoid crowding neighbors
+                    if (distance < 50) {
+                        separation.x -= dx / (distance * distance);
+                        separation.y -= dy / (distance * distance);
+                    }
+                    
+                    // Alignment: steer towards average heading of neighbors
+                    alignment.x += other.vx;
+                    alignment.y += other.vy;
+                    
+                    // Cohesion: steer towards average position of neighbors
+                    cohesion.x += other.x;
+                    cohesion.y += other.y;
+                    
+                    totalNeighbors++;
+                }
+            });
+            
+            if (totalNeighbors > 0) {
+                // Average the alignment and cohesion
+                alignment.x /= totalNeighbors;
+                alignment.y /= totalNeighbors;
+                
+                cohesion.x /= totalNeighbors;
+                cohesion.y /= totalNeighbors;
+                
+                // Steer towards cohesion point
+                cohesion.x -= fish.x;
+                cohesion.y -= fish.y;
+                
+                // Apply the behaviors
+                fish.vx += separation.x * fish.behavior.separation;
+                fish.vy += separation.y * fish.behavior.separation;
+                
+                fish.vx += alignment.x * fish.behavior.alignment;
+                fish.vy += alignment.y * fish.behavior.alignment;
+                
+                fish.vx += cohesion.x * fish.behavior.cohesion;
+                fish.vy += cohesion.y * fish.behavior.cohesion;
+            }
+            
+            // Limit speed
+            const speed = Math.sqrt(fish.vx * fish.vx + fish.vy * fish.vy);
+            if (speed > fish.behavior.maxSpeed) {
+                fish.vx = (fish.vx / speed) * fish.behavior.maxSpeed;
+                fish.vy = (fish.vy / speed) * fish.behavior.maxSpeed;
+            }
+        }
+
+        function applyPhysics(fish, deltaTime) {
+            // Apply simple drag
+            fish.vx *= 0.99;
+            fish.vy *= 0.99;
+            
+            // Add some randomness to movement
+            fish.vx += (Math.random() - 0.5) * 0.1;
+            fish.vy += (Math.random() - 0.5) * 0.05;
+        }
+
+        // Create bubbles
+        function startBubbles() {
+            const container = document.getElementById('bubbleContainer');
+            const bubbleCount = config.bubbleIntensity * 3;
+            
+            setInterval(() => {
+                if (bubbles.length < bubbleCount) {
+                    createBubble();
+                }
+            }, 1000 / bubbleCount);
+            
+            animateBubbles();
+        }
+
+        function createBubble() {
+            const container = document.getElementById('bubbleContainer');
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            
+            const theme = sceneryThemes[config.currentScenery];
+            
+            const bubbleData = {
+                element: bubble,
+                x: Math.random() * window.innerWidth,
+                y: window.innerHeight + 50,
+                speedY: (Math.random() * 2 + 1) * config.animSpeed,
+                wobble: Math.random() * 2 - 1,
+                size: Math.random() * 8 + 4
+            };
+            
+            bubble.style.width = `${bubbleData.size}px`;
+            bubble.style.height = `${bubbleData.size}px`;
+            bubble.style.left = `${bubbleData.x}px`;
+            
+            // Apply theme-based bubble styling
+            if (theme.bubbleColor) {
+                bubble.style.background = `radial-gradient(circle at 30% 30%, ${theme.bubbleColor}, rgba(255, 255, 255, 0.3))`;
+            }
+            
+            container.appendChild(bubble);
+            bubbles.push(bubbleData);
+        }
+
+        function animateBubbles() {
+            bubbles = bubbles.filter(bubble => {
+                bubble.y -= bubble.speedY * config.animSpeed;
+                bubble.x += Math.sin(bubble.y * 0.01) * bubble.wobble;
+                
+                bubble.element.style.bottom = `${window.innerHeight - bubble.y}px`;
+                bubble.element.style.left = `${bubble.x}px`;
+                
+                if (bubble.y < -50) {
+                    bubble.element.remove();
+                    return false;
+                }
+                return true;
+            });
+            
+            requestAnimationFrame(animateBubbles);
+        }
+
+        // Advanced mouse interaction
+        function setupMouseInteraction() {
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                
+                // Fish avoid cursor
+                fishes.forEach(fish => {
+                    const dx = fish.x - mouseX;
+                    const dy = fish.y - mouseY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 150) {
+                        const angle = Math.atan2(dy, dx);
+                        const force = isMouseDown ? 5 : 2;
+                        fish.vx += Math.cos(angle) * force;
+                        fish.vy += Math.sin(angle) * force;
+                    }
+                });
+                
+                // Light rays follow cursor slightly
+                const rays = document.querySelectorAll('.light-ray');
+                rays.forEach((ray, index) => {
+                    const offset = (mouseX / window.innerWidth - 0.5) * 30;
+                    ray.style.transform = `translateX(${offset}px) rotate(${offset * 0.1}deg)`;
+                });
+            });
+            
+            document.addEventListener('mousedown', () => {
+                isMouseDown = true;
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isMouseDown = false;
+            });
+            
+            document.addEventListener('dblclick', (e) => {
+                // Create a feeding spot on double click
+                createFeedingSpot(e.clientX, e.clientY);
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    config.dayNightCycle = !config.dayNightCycle;
+                    showNotification(config.dayNightCycle ? 'Day/Night cycle enabled' : 'Day/Night cycle disabled', 2000);
+                    
+                    if (config.dayNightCycle) {
+                        startDayNightCycle();
+                    }
+                }
+            });
+            
+            // Mouse wheel zoom (conceptual - would need more complex implementation)
+            document.addEventListener('wheel', (e) => {
+                // This is a placeholder for zoom functionality
+                // In a full implementation, this would adjust the scale of the scene
+            });
+        }
+
+        function createFeedingSpot(x, y) {
+            // Create a visual effect at the feeding spot
+            const spot = document.createElement('div');
+            spot.style.position = 'absolute';
+            spot.style.left = `${x - 25}px`;
+            spot.style.top = `${y - 25}px`;
+            spot.style.width = '50px';
+            spot.style.height = '50px';
+            spot.style.borderRadius = '50%';
+            spot.style.background = 'radial-gradient(circle, rgba(255,255,200,0.8) 0%, rgba(255,255,200,0) 70%)';
+            spot.style.pointerEvents = 'none';
+            spot.style.zIndex = '5';
+            spot.style.animation = 'pulse 2s ease-out forwards';
+            
+            document.getElementById('ocean-scene').appendChild(spot);
+            
+            // Attract fish to the feeding spot
+            fishes.forEach(fish => {
+                const dx = fish.x - x;
+                const dy = fish.y - y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 300) {
+                    const angle = Math.atan2(dy, dx);
+                    // Fish swim toward the food
+                    fish.vx -= Math.cos(angle) * 2;
+                    fish.vy -= Math.sin(angle) * 2;
+                }
+            });
+            
+            // Remove the spot after animation
+            setTimeout(() => {
+                spot.remove();
+            }, 2000);
+            
+            // Add CSS for pulse animation if not already present
+            if (!document.querySelector('style#feeding-animation')) {
+                const style = document.createElement('style');
+                style.id = 'feeding-animation';
+                style.textContent = `
+                    @keyframes pulse {
+                        0% { transform: scale(0.5); opacity: 1; }
+                        100% { transform: scale(2); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        function startDayNightCycle() {
+            if (!config.dayNightCycle) return;
+            
+            const cycleDuration = 60000; // 60 seconds for a full day/night cycle
+            const startTime = Date.now();
+            
+            function updateDayNight() {
+                if (!config.dayNightCycle) return;
+                
+                const elapsed = Date.now() - startTime;
+                config.timeOfDay = (elapsed % cycleDuration) / cycleDuration;
+                
+                // Calculate transition value (0 = day, 1 = night)
+                dayNightTransition = Math.sin(config.timeOfDay * Math.PI * 2) * 0.5 + 0.5;
+                
+                // Update scene based on time of day
+                updateSceneForTimeOfDay();
+                
+                requestAnimationFrame(updateDayNight);
+            }
+            
+            updateDayNight();
+        }
+
+        function updateSceneForTimeOfDay() {
+            const scene = document.getElementById('ocean-scene');
+            const lightRays = document.querySelector('.light-rays');
+            
+            // Adjust background based on time of day
+            if (config.currentScenery !== 'bioluminescent') {
+                const dayColor = sceneryThemes[config.currentScenery].background;
+                const nightColor = 'linear-gradient(to bottom, #000814 0%, #001d3d 50%, #003566 100%)';
+                
+                // Interpolate between day and night backgrounds
+                if (dayNightTransition > 0.5) {
+                    // Night time
+                    const nightness = (dayNightTransition - 0.5) * 2;
+                    scene.style.background = nightColor;
+                    lightRays.style.opacity = 0.1 * (1 - nightness);
+                } else {
+                    // Day time
+                    const dayness = 1 - (dayNightTransition * 2);
+                    scene.style.background = dayColor;
+                    lightRays.style.opacity = sceneryThemes[config.currentScenery].lightIntensity * dayness;
+                }
+            } else {
+                // Bioluminescent scene is always dark with glowing elements
+                lightRays.style.opacity = 0.05;
+            }
+            
+            // Adjust fish appearance for night
+            fishes.forEach(fish => {
+                if (dayNightTransition > 0.7 && config.currentScenery !== 'bioluminescent') {
+                    // Night time - make fish darker
+                    fish.element.style.filter += ' brightness(0.6)';
+                } else if (config.currentScenery === 'bioluminescent') {
+                    // Always glowing in bioluminescent scene
+                    const hue = Math.random() * 60 + 180;
+                    fish.element.style.filter = `hue-rotate(${hue}deg) brightness(1.5) drop-shadow(0 0 15px rgba(100, 200, 255, 0.8))`;
+                }
+            });
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            // Settings toggle
+            document.getElementById('settingsToggle').addEventListener('click', () => {
+                document.getElementById('settingsPanel').classList.toggle('open');
+            });
+
+            // Fish count
+            document.getElementById('fishCount').addEventListener('input', (e) => {
+                config.fishCount = parseInt(e.target.value);
+                document.getElementById('fishCountValue').textContent = config.fishCount;
+                createFish();
+            });
+
+            // Bubble intensity
+            document.getElementById('bubbleIntensity').addEventListener('input', (e) => {
+                config.bubbleIntensity = parseInt(e.target.value);
+                const labels = ['Low', 'Medium', 'High'];
+                document.getElementById('bubbleIntensityValue').textContent = labels[config.bubbleIntensity - 1];
+            });
+
+            // Animation speed
+            document.getElementById('animSpeed').addEventListener('input', (e) => {
+                config.animSpeed = parseFloat(e.target.value);
+                const labels = { 0.5: 'Slow', 1: 'Normal', 1.5: 'Fast', 2: 'Very Fast' };
+                document.getElementById('animSpeedValue').textContent = labels[config.animSpeed];
+                updateAnimationSpeed();
+            });
+
+            // Light intensity
+            document.getElementById('lightIntensity').addEventListener('input', (e) => {
+                config.lightIntensity = parseInt(e.target.value);
+                const labels = ['Dim', 'Normal', 'Bright'];
+                document.getElementById('lightIntensityValue').textContent = labels[config.lightIntensity - 1];
+                updateLightIntensity();
+            });
+
+            // Seaweed density
+            document.getElementById('seaweedDensity').addEventListener('input', (e) => {
+                config.seaweedDensity = parseInt(e.target.value);
+                document.getElementById('seaweedDensityValue').textContent = config.seaweedDensity;
+                createSeaweed();
+            });
+
+            // Background theme
+            document.getElementById('bgTheme').addEventListener('change', (e) => {
+                updateBackgroundTheme(e.target.value);
+            });
+
+            // Fish behavior
+            document.getElementById('fishBehavior').addEventListener('change', (e) => {
+                config.fishBehavior = e.target.value;
+                createFish();
+                showNotification(`Fish behavior: ${e.target.value}`, 2000);
+            });
+
+            // Sound toggle
+            document.getElementById('soundToggle').addEventListener('click', () => {
+                config.soundEnabled = !config.soundEnabled;
+                const btn = document.getElementById('soundToggle');
+                btn.textContent = config.soundEnabled ? '🔊 Sound On' : '🔇 Sound Off';
+                if (config.soundEnabled) {
+                    playAmbientSound();
+                } else {
+                    stopAmbientSound();
+                }
+            });
+
+            // WebGL toggle
+            document.getElementById('webglToggle').addEventListener('click', () => {
+                config.webglEnabled = !config.webglEnabled;
+                const btn = document.getElementById('webglToggle');
+                btn.textContent = config.webglEnabled ? '✅ WebGL On' : '❌ WebGL Off';
+                
+                if (config.webglEnabled) {
+                    initWebGL();
+                } else {
+                    // Clean up WebGL resources
+                    if (gl) {
+                        gl.getExtension('WEBGL_lose_context')?.loseContext();
+                    }
+                    webglScene = null;
+                }
+            });
+
+            // Scenery buttons
+            document.querySelectorAll('.scenery-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.scenery-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const scenery = btn.dataset.scenery;
+                    applyScenery(scenery);
+                });
+            });
+
+            // Fullscreen
+            document.getElementById('fullscreenBtn').addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+
+            // Reset button
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                resetToDefaults();
+            });
+
+            // Info panel close button
+            document.getElementById('closeInfo').addEventListener('click', () => {
+                document.getElementById('infoPanel').style.display = 'none';
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (canvas) {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                    
+                    if (gl) {
+                        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+                    }
+                }
+            });
+        }
+
+        function updateAnimationSpeed() {
+            const seaweeds = document.querySelectorAll('.seaweed');
+            seaweeds.forEach(seaweed => {
+                const baseDuration = parseFloat(seaweed.style.animationDuration) || 4;
+                seaweed.style.animationDuration = `${baseDuration / config.animSpeed}s`;
+            });
+        }
+
+        function updateLightIntensity() {
+            const lightRays = document.querySelector('.light-rays');
+            const intensities = [0.15, 0.3, 0.5];
+            lightRays.style.opacity = intensities[config.lightIntensity - 1];
+        }
+
+        function updateBackgroundTheme(theme) {
+            const scene = document.getElementById('ocean-scene');
+            const themes = {
+                'deep-blue': 'linear-gradient(to bottom, #001f3f 0%, #003d5c 30%, #4ECDC4 100%)',
+                'turquoise': 'linear-gradient(to bottom, #00a8cc 0%, #4ECDC4 50%, #a8e6cf 100%)',
+                'twilight': 'linear-gradient(to bottom, #2c3e50 0%, #34495e 50%, #5d6d7e 100%)',
+                'clear-water': 'linear-gradient(to bottom, #87ceeb 0%, #4fc3f7 50%, #29b6f6 100%)',
+                'bioluminescent': 'linear-gradient(to bottom, #0d1b2a 0%, #1b263b 40%, #415a77 100%)'
+            };
+            scene.style.background = themes[theme];
+        }
+
+        function applyScenery(scenery) {
+            config.currentScenery = scenery;
+            const scene = document.getElementById('ocean-scene');
+            const theme = sceneryThemes[scenery];
+            
+            scene.style.background = theme.background;
+            
+            const lightRays = document.querySelector('.light-rays');
+            lightRays.style.opacity = theme.lightIntensity;
+            
+            // Update all scene elements for the new theme
+            createParticles();
+            createSeaweed();
+            createCoral();
+            fishes.forEach(fish => applyFishStyling(fish));
+            
+            showNotification(`Scenery: ${scenery}`, 2000);
+        }
+
+        function resetToDefaults() {
+            config.fishCount = 8;
+            config.bubbleIntensity = 2;
+            config.animSpeed = 1;
+            config.lightIntensity = 2;
+            config.seaweedDensity = 5;
+            config.soundEnabled = false;
+            config.webglEnabled = true;
+            config.currentScenery = 'tropical';
+            config.fishBehavior = 'swarm';
+            config.dayNightCycle = true;
+            
+            // Update UI elements
+            document.getElementById('fishCount').value = config.fishCount;
+            document.getElementById('fishCountValue').textContent = config.fishCount;
+            document.getElementById('bubbleIntensity').value = config.bubbleIntensity;
+            document.getElementById('bubbleIntensityValue').textContent = 'Medium';
+            document.getElementById('animSpeed').value = config.animSpeed;
+            document.getElementById('animSpeedValue').textContent = 'Normal';
+            document.getElementById('lightIntensity').value = config.lightIntensity;
+            document.getElementById('lightIntensityValue').textContent = 'Normal';
+            document.getElementById('seaweedDensity').value = config.seaweedDensity;
+            document.getElementById('seaweedDensityValue').textContent = config.seaweedDensity;
+            document.getElementById('bgTheme').value = 'deep-blue';
+            document.getElementById('fishBehavior').value = config.fishBehavior;
+            document.getElementById('soundToggle').textContent = '🔇 Sound Off';
+            document.getElementById('webglToggle').textContent = '✅ WebGL On';
+            
+            // Reset scenery buttons
+            document.querySelectorAll('.scenery-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.scenery === 'tropical') {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Reinitialize scene
+            createFish();
+            createSeaweed();
+            createCoral();
+            createParticles();
+            updateBackgroundTheme('deep-blue');
+            
+            showNotification('Settings reset to defaults', 2000);
+        }
+
+        function showNotification(message, duration = 3000) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, duration);
+        }
+
+        // Audio functions
+        function playAmbientSound() {
+            if (isAudioPlaying) return;
+            
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                isAudioPlaying = true;
+                
+                // Create gentle ocean ambient sound
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(100, audioContext.currentTime);
+                
+                gainNode.gain.setValueAtTime(0.01, audioContext.currentTime);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start();
+                
+                // Store for cleanup
+                window.ambientOscillator = oscillator;
+                window.ambientGain = gainNode;
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
+        function stopAmbientSound() {
+            if (window.ambientOscillator) {
+                window.ambientOscillator.stop();
+                window.ambientOscillator = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            isAudioPlaying = false;
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
