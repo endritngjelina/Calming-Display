@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shooting Stars - Meditative Experience</title>
+    <style>
+:root {
+  --color-white: rgba(255, 255, 255, 1);
+  --color-black: rgba(0, 0, 0, 1);
+  --color-cream-50: rgba(252, 252, 249, 1);
+  --color-cream-100: rgba(255, 255, 253, 1);
+  --color-gray-200: rgba(245, 245, 245, 1);
+  --color-gray-300: rgba(167, 169, 169, 1);
+  --color-gray-400: rgba(119, 124, 124, 1);
+  --color-slate-500: rgba(98, 108, 113, 1);
+  --color-brown-600: rgba(94, 82, 64, 1);
+  --color-charcoal-700: rgba(31, 33, 33, 1);
+  --color-charcoal-800: rgba(38, 40, 40, 1);
+  --color-slate-900: rgba(19, 52, 59, 1);
+  --color-teal-300: rgba(50, 184, 198, 1);
+  --color-teal-400: rgba(45, 166, 178, 1);
+  --color-teal-500: rgba(33, 128, 141, 1);
+  --color-teal-600: rgba(29, 116, 128, 1);
+  --color-teal-700: rgba(26, 104, 115, 1);
+  --color-teal-800: rgba(41, 150, 161, 1);
+  --color-red-400: rgba(255, 84, 89, 1);
+  --color-red-500: rgba(192, 21, 47, 1);
+  --color-orange-400: rgba(230, 129, 97, 1);
+  --color-orange-500: rgba(168, 75, 47, 1);
+  --color-brown-600-rgb: 94, 82, 64;
+  --color-teal-500-rgb: 33, 128, 141;
+  --color-slate-900-rgb: 19, 52, 59;
+  --color-slate-500-rgb: 98, 108, 113;
+  --color-red-500-rgb: 192, 21, 47;
+  --color-red-400-rgb: 255, 84, 89;
+  --color-orange-500-rgb: 168, 75, 47;
+  --color-orange-400-rgb: 230, 129, 97;
+  --color-bg-1: rgba(59, 130, 246, 0.08);
+  --color-bg-2: rgba(245, 158, 11, 0.08);
+  --color-bg-3: rgba(34, 197, 94, 0.08);
+  --color-bg-4: rgba(239, 68, 68, 0.08);
+  --color-bg-5: rgba(147, 51, 234, 0.08);
+  --color-bg-6: rgba(249, 115, 22, 0.08);
+  --color-bg-7: rgba(236, 72, 153, 0.08);
+  --color-bg-8: rgba(6, 182, 212, 0.08);
+  --color-background: var(--color-cream-50);
+  --color-surface: var(--color-cream-100);
+  --color-text: var(--color-slate-900);
+  --color-text-secondary: var(--color-slate-500);
+  --color-primary: var(--color-teal-500);
+  --color-primary-hover: var(--color-teal-600);
+  --color-primary-active: var(--color-teal-700);
+  --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+  --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+  --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+  --color-btn-primary-text: var(--color-cream-50);
+  --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-error: var(--color-red-500);
+  --color-success: var(--color-teal-500);
+  --color-warning: var(--color-orange-500);
+  --color-info: var(--color-slate-500);
+  --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+  --color-select-caret: rgba(var(--color-slate-900-rgb), 0.8);
+  --focus-ring: 0 0 0 3px var(--color-focus-ring);
+  --focus-outline: 2px solid var(--color-primary);
+  --status-bg-opacity: 0.15;
+  --status-border-opacity: 0.25;
+  --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  --color-success-rgb: 33, 128, 141;
+  --color-error-rgb: 192, 21, 47;
+  --color-warning-rgb: 168, 75, 47;
+  --color-info-rgb: 98, 108, 113;
+  --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, monospace;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 20px;
+  --font-size-3xl: 24px;
+  --font-size-4xl: 30px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 550;
+  --font-weight-bold: 600;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --letter-spacing-tight: -0.01em;
+  --space-0: 0;
+  --space-1: 1px;
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --radius-sm: 6px;
+  --radius-base: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04),
+    0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04),
+    0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.03);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+}
+
+@font-face {
+  font-family: 'FKGroteskNeue';
+  src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2')
+    format('woff2');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family-base);
+    overflow: hidden;
+    background: #000;
+    color: #fff;
+}
+
+#app-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: background 1s ease;
+}
+
+#starfield {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 3s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+.star.no-twinkle {
+    animation: none;
+    opacity: 0.7;
+}
+
+#canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    padding: var(--space-20);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-20);
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+#controls.hidden {
+    transform: translateY(100%);
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    min-width: 150px;
+}
+
+.control-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+select, input[type="range"] {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: var(--space-8) var(--space-12);
+    border-radius: var(--radius-base);
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family-base);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+select:hover, input[type="range"]:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+select:focus, input[type="range"]:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+select {
+    appearance: none;
+    background-image: var(--select-caret-dark);
+    background-repeat: no-repeat;
+    background-position: right var(--space-12) center;
+    background-size: 16px;
+    padding-right: var(--space-32);
+}
+
+select option {
+    background: #1a1a1a;
+    color: #fff;
+}
+
+input[type="range"] {
+    width: 150px;
+    height: 6px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-full);
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-btn, .action-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: var(--space-8) var(--space-16);
+    border-radius: var(--radius-base);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: var(--font-family-base);
+}
+
+.toggle-btn:hover, .action-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.toggle-btn.active {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+#toggle-controls-btn {
+    position: fixed;
+    bottom: var(--space-20);
+    right: var(--space-20);
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: var(--space-12) var(--space-16);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1001;
+    font-family: var(--font-family-base);
+}
+
+#toggle-controls-btn:hover {
+    background: rgba(0, 0, 0, 0.85);
+    transform: scale(1.05);
+}
+
+.slider-value {
+    font-size: var(--font-size-xs);
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    margin-top: var(--space-4);
+}
+
+@media (max-width: 768px) {
+    #controls {
+        padding: var(--space-12);
+        gap: var(--space-12);
+    }
+    
+    .control-group {
+        min-width: 120px;
+    }
+    
+    input[type="range"] {
+        width: 120px;
+    }
+}
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <div id="starfield"></div>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <div id="controls">
+        <div class="control-group">
+            <label class="control-label">Scenery</label>
+            <select id="scenery-select">
+                <option value="Deep Space">Deep Space</option>
+                <option value="Aurora Borealis">Aurora Borealis</option>
+                <option value="Cosmic Ocean">Cosmic Ocean</option>
+                <option value="Twilight">Twilight</option>
+                <option value="Midnight">Midnight</option>
+                <option value="Stardust Nebula">Stardust Nebula</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Shooting Star Frequency</label>
+            <input type="range" id="frequency-slider" min="1" max="5" value="3" step="1">
+            <div class="slider-value" id="frequency-value">Normal</div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Animation Speed</label>
+            <input type="range" id="speed-slider" min="0.5" max="2" value="1" step="0.1">
+            <div class="slider-value" id="speed-value">Normal</div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Brightness</label>
+            <input type="range" id="brightness-slider" min="0.5" max="1.5" value="1" step="0.1">
+            <div class="slider-value" id="brightness-value">Normal</div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Effects</label>
+            <button class="toggle-btn active" id="twinkle-toggle">Twinkle</button>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">&nbsp;</label>
+            <button class="toggle-btn active" id="particles-toggle">Particles</button>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Control</label>
+            <button class="action-btn" id="pause-btn">Pause</button>
+        </div>
+    </div>
+
+    <button id="toggle-controls-btn">Hide Controls</button>
+
+    <script>
+        // Scenery themes data
+const sceneryThemes = {
+    'Deep Space': {
+        background_gradient: 'linear-gradient(180deg, #000814 0%, #001d3d 50%, #000000 100%)',
+        star_color: '#ffffff',
+        shooting_star_colors: ['#00d4ff', '#00e5ff', '#0099ff'],
+        accent_color: '#0099ff',
+        aurora_enabled: false,
+        nebula_enabled: false
+    },
+    'Aurora Borealis': {
+        background_gradient: 'linear-gradient(180deg, #0a0e27 0%, #1a3a3a 40%, #1a2a3a 100%)',
+        star_color: '#ffffff',
+        shooting_star_colors: ['#00ff88', '#00ffaa', '#00ccff'],
+        accent_color: '#00ff88',
+        aurora_enabled: true,
+        nebula_enabled: false,
+        aurora_colors: ['#00ff88', '#00ccff', '#6600ff']
+    },
+    'Cosmic Ocean': {
+        background_gradient: 'linear-gradient(180deg, #001a4d 0%, #003d7a 50%, #000033 100%)',
+        star_color: '#ffffff',
+        shooting_star_colors: ['#00e5ff', '#0099ff', '#00d4ff'],
+        accent_color: '#00e5ff',
+        aurora_enabled: false,
+        nebula_enabled: true,
+        nebula_colors: ['#003d7a', '#005a99']
+    },
+    'Twilight': {
+        background_gradient: 'linear-gradient(180deg, #6b2d7d 0%, #9d4edd 30%, #3c096c 70%, #1a0033 100%)',
+        star_color: '#ffffcc',
+        shooting_star_colors: ['#ffcc00', '#ffdd00', '#ffaa00'],
+        accent_color: '#ffcc00',
+        aurora_enabled: false,
+        nebula_enabled: false
+    },
+    'Midnight': {
+        background_gradient: 'linear-gradient(180deg, #0d1b2a 0%, #1b263b 50%, #0a0e1a 100%)',
+        star_color: '#ffffff',
+        shooting_star_colors: ['#c0c0c0', '#e8e8e8', '#b0b0b0'],
+        accent_color: '#c0c0c0',
+        aurora_enabled: false,
+        nebula_enabled: false
+    },
+    'Stardust Nebula': {
+        background_gradient: 'linear-gradient(180deg, #2d0a4e 0%, #5a189a 40%, #1a0033 100%)',
+        star_color: '#ffffff',
+        shooting_star_colors: ['#ff00ff', '#ff0088', '#ff6600', '#00ffff'],
+        accent_color: '#ff00ff',
+        aurora_enabled: true,
+        nebula_enabled: true,
+        nebula_colors: ['#ff00ff', '#ff0088', '#ff6600']
+    }
+};
+
+// Application state
+const state = {
+    currentScenery: 'Deep Space',
+    shootingStarFrequency: 3,
+    animationSpeed: 1,
+    brightness: 1,
+    twinkleEnabled: true,
+    particlesEnabled: true,
+    isPaused: false,
+    controlsVisible: true
+};
+
+// Canvas and context
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// Resize canvas
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Shooting stars array
+let shootingStars = [];
+let particles = [];
+let auroraWaves = [];
+
+// Shooting star class
+class ShootingStar {
+    constructor() {
+        this.reset();
+    }
+
+    reset() {
+        const theme = sceneryThemes[state.currentScenery];
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height * 0.6;
+        this.length = Math.random() * 80 + 60;
+        this.speed = (Math.random() * 3 + 2) * state.animationSpeed;
+        this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.5;
+        this.opacity = 1;
+        this.color = theme.shooting_star_colors[Math.floor(Math.random() * theme.shooting_star_colors.length)];
+        this.tailLength = this.length;
+        this.life = 0;
+        this.maxLife = 100;
+    }
+
+    update() {
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+        this.life++;
+
+        // Fade in and out
+        if (this.life < 10) {
+            this.opacity = this.life / 10;
+        } else if (this.life > this.maxLife - 20) {
+            this.opacity = (this.maxLife - this.life) / 20;
+        }
+
+        // Reset if off screen or life expired
+        if (this.x > canvas.width + 100 || this.y > canvas.height + 100 || this.life > this.maxLife) {
+            this.reset();
+        }
+    }
+
+    draw() {
+        ctx.save();
+        ctx.globalAlpha = this.opacity * state.brightness;
+        
+        // Create gradient for tail
+        const gradient = ctx.createLinearGradient(
+            this.x,
+            this.y,
+            this.x - Math.cos(this.angle) * this.tailLength,
+            this.y - Math.sin(this.angle) * this.tailLength
+        );
+        
+        gradient.addColorStop(0, this.color);
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(
+            this.x - Math.cos(this.angle) * this.tailLength,
+            this.y - Math.sin(this.angle) * this.tailLength
+        );
+        ctx.stroke();
+        
+        // Draw bright head
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.restore();
+    }
+}
+
+// Particle class for nebula/aurora effects
+class Particle {
+    constructor() {
+        this.reset();
+    }
+
+    reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.radius = Math.random() * 2 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.5 * state.animationSpeed;
+        this.speedY = (Math.random() - 0.5) * 0.5 * state.animationSpeed;
+        this.opacity = Math.random() * 0.3 + 0.1;
+        
+        const theme = sceneryThemes[state.currentScenery];
+        if (theme.nebula_enabled && theme.nebula_colors) {
+            this.color = theme.nebula_colors[Math.floor(Math.random() * theme.nebula_colors.length)];
+        } else {
+            this.color = theme.accent_color;
+        }
+    }
+
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+
+    draw() {
+        ctx.save();
+        ctx.globalAlpha = this.opacity * state.brightness;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+// Aurora wave class
+class AuroraWave {
+    constructor(y, color) {
+        this.y = y;
+        this.color = color;
+        this.offset = Math.random() * Math.PI * 2;
+        this.speed = 0.02;
+        this.amplitude = 50;
+        this.frequency = 0.01;
+    }
+
+    update() {
+        this.offset += this.speed * state.animationSpeed;
+    }
+
+    draw() {
+        ctx.save();
+        ctx.globalAlpha = 0.1 * state.brightness;
+        
+        const gradient = ctx.createLinearGradient(0, this.y - 50, 0, this.y + 50);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        gradient.addColorStop(0.5, this.color);
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.moveTo(0, this.y);
+        
+        for (let x = 0; x <= canvas.width; x += 10) {
+            const y = this.y + Math.sin(x * this.frequency + this.offset) * this.amplitude;
+            ctx.lineTo(x, y);
+        }
+        
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.lineTo(0, canvas.height);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+// Initialize shooting stars
+function initShootingStars() {
+    shootingStars = [];
+    const count = state.shootingStarFrequency + 2;
+    for (let i = 0; i < count; i++) {
+        const star = new ShootingStar();
+        star.life = Math.random() * star.maxLife;
+        shootingStars.push(star);
+    }
+}
+
+// Initialize particles
+function initParticles() {
+    particles = [];
+    if (state.particlesEnabled) {
+        for (let i = 0; i < 50; i++) {
+            particles.push(new Particle());
+        }
+    }
+}
+
+// Initialize aurora waves
+function initAuroraWaves() {
+    auroraWaves = [];
+    const theme = sceneryThemes[state.currentScenery];
+    if (theme.aurora_enabled && theme.aurora_colors) {
+        for (let i = 0; i < 3; i++) {
+            const y = canvas.height * 0.3 + i * 100;
+            const color = theme.aurora_colors[i % theme.aurora_colors.length];
+            auroraWaves.push(new AuroraWave(y, color));
+        }
+    }
+}
+
+// Create starfield
+function createStarfield() {
+    const starfield = document.getElementById('starfield');
+    starfield.innerHTML = '';
+    
+    const theme = sceneryThemes[state.currentScenery];
+    const starCount = 300;
+    
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        if (!state.twinkleEnabled) {
+            star.classList.add('no-twinkle');
+        }
+        
+        const size = Math.random() * 2 + 0.5;
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.background = theme.star_color;
+        star.style.animationDelay = Math.random() * 3 + 's';
+        star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        
+        starfield.appendChild(star);
+    }
+}
+
+// Update starfield twinkle
+function updateStarfieldTwinkle() {
+    const stars = document.querySelectorAll('.star');
+    stars.forEach(star => {
+        if (state.twinkleEnabled) {
+            star.classList.remove('no-twinkle');
+        } else {
+            star.classList.add('no-twinkle');
+        }
+    });
+}
+
+// Change scenery
+function changeScenery(sceneryName) {
+    state.currentScenery = sceneryName;
+    const theme = sceneryThemes[sceneryName];
+    
+    // Update background
+    const container = document.getElementById('app-container');
+    container.style.background = theme.background_gradient;
+    
+    // Recreate starfield
+    createStarfield();
+    
+    // Reinitialize effects
+    initShootingStars();
+    initParticles();
+    initAuroraWaves();
+}
+
+// Animation loop
+function animate() {
+    if (!state.isPaused) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw aurora waves
+        if (auroraWaves.length > 0) {
+            auroraWaves.forEach(wave => {
+                wave.update();
+                wave.draw();
+            });
+        }
+        
+        // Draw particles
+        if (state.particlesEnabled && particles.length > 0) {
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+        }
+        
+        // Draw shooting stars
+        shootingStars.forEach(star => {
+            star.update();
+            star.draw();
+        });
+    }
+    
+    requestAnimationFrame(animate);
+}
+
+// Event listeners
+document.getElementById('scenery-select').addEventListener('change', (e) => {
+    changeScenery(e.target.value);
+});
+
+document.getElementById('frequency-slider').addEventListener('input', (e) => {
+    state.shootingStarFrequency = parseInt(e.target.value);
+    const labels = ['Rare', 'Occasional', 'Normal', 'Frequent', 'Very Frequent'];
+    document.getElementById('frequency-value').textContent = labels[state.shootingStarFrequency - 1];
+    initShootingStars();
+});
+
+document.getElementById('speed-slider').addEventListener('input', (e) => {
+    state.animationSpeed = parseFloat(e.target.value);
+    const value = state.animationSpeed;
+    let label = 'Normal';
+    if (value < 0.8) label = 'Slow';
+    else if (value > 1.3) label = 'Fast';
+    document.getElementById('speed-value').textContent = label;
+});
+
+document.getElementById('brightness-slider').addEventListener('input', (e) => {
+    state.brightness = parseFloat(e.target.value);
+    const value = state.brightness;
+    let label = 'Normal';
+    if (value < 0.8) label = 'Dim';
+    else if (value > 1.2) label = 'Bright';
+    document.getElementById('brightness-value').textContent = label;
+});
+
+document.getElementById('twinkle-toggle').addEventListener('click', (e) => {
+    state.twinkleEnabled = !state.twinkleEnabled;
+    e.target.classList.toggle('active');
+    updateStarfieldTwinkle();
+});
+
+document.getElementById('particles-toggle').addEventListener('click', (e) => {
+    state.particlesEnabled = !state.particlesEnabled;
+    e.target.classList.toggle('active');
+    initParticles();
+});
+
+document.getElementById('pause-btn').addEventListener('click', (e) => {
+    state.isPaused = !state.isPaused;
+    e.target.textContent = state.isPaused ? 'Resume' : 'Pause';
+});
+
+document.getElementById('toggle-controls-btn').addEventListener('click', (e) => {
+    state.controlsVisible = !state.controlsVisible;
+    const controls = document.getElementById('controls');
+    controls.classList.toggle('hidden');
+    e.target.textContent = state.controlsVisible ? 'Hide Controls' : 'Show Controls';
+});
+
+// Initialize
+changeScenery('Deep Space');
+animate();
+    </script>
+</body>
+</html>
