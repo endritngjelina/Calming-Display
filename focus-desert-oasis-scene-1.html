@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desert Oasis - Immersive Experience</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sky-color-1: #FFE5B4;
+            --sky-color-2: #87CEEB;
+            --sand-color: #D4A574;
+            --vegetation-color: #228B22;
+            --animation-speed: 1;
+            --brightness: 1;
+            --shimmer-intensity: 0.8;
+            --time-of-day: 0.5;
+            --temperature: 25;
+            --humidity: 30;
+            --wind-speed: 1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            background: #000;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        #scene-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            filter: brightness(var(--brightness));
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+
+        #sky {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, 
+                color-mix(in srgb, var(--sky-color-1) calc(100% - (var(--time-of-day) * 100%)), #191970 calc(var(--time-of-day) * 100%)) 0%, 
+                color-mix(in srgb, var(--sky-color-2) calc(100% - (var(--time-of-day) * 100%)), #2F4F4F calc(var(--time-of-day) * 100%)) 100%);
+            transition: background 1.5s ease;
+            z-index: 1;
+        }
+
+        .sun-moon-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .sun {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #FFD700, #FF8C00);
+            border-radius: 50%;
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.7);
+            top: calc(10% + (var(--time-of-day) * 80%));
+            left: calc(10% + (var(--time-of-day) * 80%));
+            transform: translate(-50%, -50%);
+            transition: all 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 3;
+        }
+
+        .moon {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #F4F1DE, #E0E0E0);
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(244, 241, 222, 0.6);
+            top: calc(90% - (var(--time-of-day) * 80%));
+            left: calc(90% - (var(--time-of-day) * 80%));
+            transform: translate(-50%, -50%);
+            transition: all 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 3;
+        }
+
+        .stars {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: calc(var(--time-of-day) * 0.8);
+            animation: twinkle 3s infinite ease-in-out;
+            z-index: 1;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: calc(var(--time-of-day) * 0.3); }
+            50% { opacity: calc(var(--time-of-day) * 0.9); }
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 100px;
+            opacity: calc(0.7 - (var(--time-of-day) * 0.3));
+            will-change: transform;
+            z-index: 2;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 100px;
+        }
+
+        .cloud-1 {
+            width: 100px;
+            height: 40px;
+            top: 15%;
+            left: -100px;
+            animation: float-cloud-1 calc(60s / var(--animation-speed)) linear infinite;
+        }
+
+        .cloud-1::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud-1::after {
+            width: 60px;
+            height: 40px;
+            top: -15px;
+            right: 10px;
+        }
+
+        .cloud-2 {
+            width: 120px;
+            height: 50px;
+            top: 25%;
+            left: -120px;
+            animation: float-cloud-2 calc(80s / var(--animation-speed)) linear infinite;
+        }
+
+        .cloud-2::before {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            left: 15px;
+        }
+
+        .cloud-2::after {
+            width: 70px;
+            height: 50px;
+            top: -20px;
+            right: 15px;
+        }
+
+        .cloud-3 {
+            width: 80px;
+            height: 35px;
+            top: 35%;
+            left: -80px;
+            animation: float-cloud-3 calc(70s / var(--animation-speed)) linear infinite;
+        }
+
+        .cloud-3::before {
+            width: 40px;
+            height: 40px;
+            top: -20px;
+            left: 10px;
+        }
+
+        .cloud-3::after {
+            width: 50px;
+            height: 35px;
+            top: -15px;
+            right: 10px;
+        }
+
+        @keyframes float-cloud-1 {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+
+        @keyframes float-cloud-2 {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 120px)); }
+        }
+
+        @keyframes float-cloud-3 {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 80px)); }
+        }
+
+        #sand-dunes {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60%;
+            z-index: 4;
+        }
+
+        .dune {
+            position: absolute;
+            bottom: 0;
+            border-radius: 50% 50% 0 0;
+            transition: background 1s ease;
+            transform-style: preserve-3d;
+        }
+
+        .dune-back-1 {
+            width: 600px;
+            height: 200px;
+            left: -100px;
+            background: linear-gradient(to bottom, 
+                color-mix(in srgb, var(--sand-color) 60%, #000 40%) 0%, 
+                color-mix(in srgb, var(--sand-color) 80%, #000 20%) 100%);
+            transform: translateZ(-20px);
+        }
+
+        .dune-back-2 {
+            width: 700px;
+            height: 180px;
+            right: -50px;
+            background: linear-gradient(to bottom, 
+                color-mix(in srgb, var(--sand-color) 60%, #000 40%) 0%, 
+                color-mix(in srgb, var(--sand-color) 80%, #000 20%) 100%);
+            transform: translateZ(-15px);
+        }
+
+        .dune-mid-1 {
+            width: 800px;
+            height: 250px;
+            left: 10%;
+            background: linear-gradient(to bottom, 
+                color-mix(in srgb, var(--sand-color) 80%, #000 20%) 0%, 
+                color-mix(in srgb, var(--sand-color) 95%, #000 5%) 100%);
+            transform: translateZ(-10px);
+        }
+
+        .dune-mid-2 {
+            width: 750px;
+            height: 230px;
+            right: 5%;
+            background: linear-gradient(to bottom, 
+                color-mix(in srgb, var(--sand-color) 80%, #000 20%) 0%, 
+                color-mix(in srgb, var(--sand-color) 95%, #000 5%) 100%);
+            transform: translateZ(-5px);
+        }
+
+        .dune-front {
+            width: 100%;
+            height: 300px;
+            left: 0;
+            background: linear-gradient(to bottom, var(--sand-color), #C19A6B);
+            transform: translateZ(0);
+        }
+
+        .sand-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        #oasis-water {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 150px;
+            background: linear-gradient(135deg, 
+                color-mix(in srgb, #1E90FF calc(100% - (var(--time-of-day) * 50%)), #0000FF calc(var(--time-of-day) * 50%)), 
+                color-mix(in srgb, #4682B4 calc(100% - (var(--time-of-day) * 50%)), #191970 calc(var(--time-of-day) * 50%)), 
+                color-mix(in srgb, #5F9EA0 calc(100% - (var(--time-of-day) * 50%)), #2F4F4F calc(var(--time-of-day) * 50%)));
+            border-radius: 50%;
+            box-shadow: inset 0 -20px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            z-index: 6;
+            transform-style: preserve-3d;
+        }
+
+        .water-shimmer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+            animation: shimmer calc(3s / var(--animation-speed)) linear infinite;
+            opacity: var(--shimmer-intensity);
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .water-sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 6px white;
+            animation: sparkle-twinkle 2s infinite ease-in-out;
+        }
+
+        @keyframes sparkle-twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .ripple {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: ripple-expand 3s ease-out infinite;
+        }
+
+        @keyframes ripple-expand {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.8;
+            }
+            100% {
+                width: 200px;
+                height: 100px;
+                opacity: 0;
+            }
+        }
+
+        .palm-tree {
+            position: absolute;
+            bottom: 25%;
+            z-index: 7;
+            transform-style: preserve-3d;
+            transition: all 0.5s ease;
+        }
+
+        .palm-trunk {
+            position: relative;
+            width: 30px;
+            height: 200px;
+            background: linear-gradient(to right, #8B7355, #A0826D, #8B7355);
+            border-radius: 10px;
+            margin: 0 auto;
+            transform: translateZ(10px);
+        }
+
+        .palm-trunk::before,
+        .palm-trunk::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 15px;
+            background: #6B5844;
+            border-radius: 50%;
+        }
+
+        .palm-trunk::before { top: 30%; }
+        .palm-trunk::after { top: 60%; }
+
+        .palm-fronds {
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+            transform-style: preserve-3d;
+        }
+
+        .frond {
+            position: absolute;
+            width: 100px;
+            height: 120px;
+            background: var(--vegetation-color);
+            clip-path: ellipse(30% 50% at 50% 100%);
+            transform-origin: bottom center;
+            left: 50%;
+            bottom: 50%;
+            transition: background 1s ease;
+            transform-style: preserve-3d;
+        }
+
+        .frond-1 {
+            transform: translateX(-50%) rotate(-45deg);
+            animation: sway-1 calc(4s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        .frond-2 {
+            transform: translateX(-50%) rotate(-20deg);
+            animation: sway-2 calc(4.5s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        .frond-3 {
+            transform: translateX(-50%) rotate(0deg);
+            animation: sway-3 calc(4.2s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        .frond-4 {
+            transform: translateX(-50%) rotate(20deg);
+            animation: sway-4 calc(4.3s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        .frond-5 {
+            transform: translateX(-50%) rotate(45deg);
+            animation: sway-5 calc(4.6s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        @keyframes sway-1 {
+            0%, 100% { transform: translateX(-50%) rotate(-45deg) rotateY(0deg); }
+            50% { transform: translateX(-50%) rotate(-40deg) rotateY(10deg); }
+        }
+
+        @keyframes sway-2 {
+            0%, 100% { transform: translateX(-50%) rotate(-20deg) rotateY(0deg); }
+            50% { transform: translateX(-50%) rotate(-15deg) rotateY(8deg); }
+        }
+
+        @keyframes sway-3 {
+            0%, 100% { transform: translateX(-50%) rotate(0deg) rotateY(0deg); }
+            50% { transform: translateX(-50%) rotate(5deg) rotateY(5deg); }
+        }
+
+        @keyframes sway-4 {
+            0%, 100% { transform: translateX(-50%) rotate(20deg) rotateY(0deg); }
+            50% { transform: translateX(-50%) rotate(15deg) rotateY(-8deg); }
+        }
+
+        @keyframes sway-5 {
+            0%, 100% { transform: translateX(-50%) rotate(45deg) rotateY(0deg); }
+            50% { transform: translateX(-50%) rotate(40deg) rotateY(-10deg); }
+        }
+
+        .palm-tree-left { 
+            left: 30%; 
+            transform: translateZ(15px);
+        }
+        
+        .palm-tree-right { 
+            right: 25%; 
+            transform: translateZ(15px);
+        }
+
+        .grass {
+            position: absolute;
+            width: 50px;
+            height: 60px;
+            bottom: 22%;
+            transform-style: preserve-3d;
+        }
+
+        .grass-blade {
+            position: absolute;
+            width: 4px;
+            height: 40px;
+            background: var(--vegetation-color);
+            border-radius: 2px;
+            bottom: 0;
+            transform-origin: bottom center;
+            animation: grass-sway calc(3s / var(--animation-speed)) ease-in-out infinite;
+            transition: background 1s ease;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes grass-sway {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(3deg); }
+            75% { transform: rotate(-3deg); }
+        }
+
+        .grass-1 { left: 25%; transform: translateZ(5px); }
+        .grass-2 { left: 40%; transform: translateZ(10px); }
+        .grass-3 { right: 35%; transform: translateZ(5px); }
+        .grass-4 { right: 20%; transform: translateZ(10px); }
+
+        .heat-wave {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, transparent, rgba(255, 200, 100, 0.1) 50%, transparent);
+            animation: heat-distortion 4s ease-in-out infinite;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 8;
+        }
+
+        @keyframes heat-distortion {
+            0%, 100% { transform: translateY(0) scaleY(1); }
+            50% { transform: translateY(-10px) scaleY(1.02); }
+        }
+
+        .floating-camel {
+            position: absolute;
+            bottom: 27%;
+            left: 10%;
+            width: 100px;
+            height: 80px;
+            z-index: 6;
+            animation: camel-walk calc(30s / var(--animation-speed)) linear infinite;
+            transform-style: preserve-3d;
+        }
+
+        .camel-body {
+            position: absolute;
+            width: 60px;
+            height: 40px;
+            background: #A0522D;
+            border-radius: 20px 20px 10px 10px;
+            top: 20px;
+            left: 20px;
+        }
+
+        .camel-neck {
+            position: absolute;
+            width: 30px;
+            height: 50px;
+            background: #8B4513;
+            border-radius: 15px;
+            top: 0;
+            left: 40px;
+            transform: rotate(-10deg);
+        }
+
+        .camel-head {
+            position: absolute;
+            width: 25px;
+            height: 20px;
+            background: #8B4513;
+            border-radius: 10px 10px 5px 5px;
+            top: -15px;
+            left: 60px;
+        }
+
+        .camel-leg {
+            position: absolute;
+            width: 8px;
+            height: 30px;
+            background: #8B4513;
+            border-radius: 4px;
+            bottom: 0;
+        }
+
+        .camel-leg-1 { left: 25px; animation: leg-walk 1s infinite ease-in-out; }
+        .camel-leg-2 { left: 45px; animation: leg-walk 1s infinite ease-in-out 0.5s; }
+        .camel-leg-3 { left: 65px; animation: leg-walk 1s infinite ease-in-out; }
+        .camel-leg-4 { left: 85px; animation: leg-walk 1s infinite ease-in-out 0.5s; }
+
+        @keyframes camel-walk {
+            0% { transform: translateX(-150px) translateZ(10px); }
+            100% { transform: translateX(calc(100vw + 150px)) translateZ(10px); }
+        }
+
+        @keyframes leg-walk {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        #controls {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            padding: 24px;
+            border-radius: 16px;
+            color: white;
+            font-size: 14px;
+            width: 320px;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        #controls.collapsed {
+            width: 60px;
+            padding: 15px;
+        }
+
+        #controls.collapsed .control-content {
+            display: none;
+        }
+
+        #controls.collapsed #toggle-controls {
+            transform: rotate(180deg);
+        }
+
+        #controls::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #controls::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        #controls::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        #controls h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 35px;
+        }
+
+        select:focus, input[type="range"]:focus {
+            outline: 2px solid rgba(135, 206, 235, 0.5);
+            outline-offset: 2px;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        button {
+            padding: 12px;
+            margin-top: 8px;
+            background: rgba(135, 206, 235, 0.3);
+            border: 1px solid rgba(135, 206, 235, 0.5);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .full-width {
+            width: 100%;
+        }
+
+        button:hover {
+            background: rgba(135, 206, 235, 0.5);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.active {
+            background: rgba(135, 206, 235, 0.6);
+            border-color: rgba(135, 206, 235, 0.8);
+        }
+
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .toggle-btn.active {
+            background: rgba(76, 175, 80, 0.5);
+            border-color: rgba(76, 175, 80, 0.7);
+        }
+
+        .control-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-row button {
+            flex: 1;
+        }
+
+        .environment-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        #toggle-controls {
+            position: absolute;
+            left: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #toggle-fullscreen {
+            position: absolute;
+            left: -40px;
+            top: calc(50% + 40px);
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            #controls {
+                right: 10px;
+                left: 10px;
+                width: auto;
+                top: auto;
+                bottom: 10px;
+                transform: none;
+                max-height: 60vh;
+            }
+
+            #toggle-controls, #toggle-fullscreen {
+                display: none;
+            }
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            z-index: 9;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="scene-container">
+        <div id="sky">
+            <div class="sun-moon-container">
+                <div class="sun"></div>
+                <div class="moon"></div>
+            </div>
+        </div>
+        
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+        
+        <div id="sand-dunes">
+            <div class="dune dune-back-1"></div>
+            <div class="dune dune-back-2"></div>
+            <div class="dune dune-mid-1"></div>
+            <div class="dune dune-mid-2"></div>
+            <div class="dune dune-front"></div>
+        </div>
+        
+        <div id="oasis-water">
+            <div class="water-shimmer"></div>
+        </div>
+        
+        <div class="palm-tree palm-tree-left">
+            <div class="palm-fronds">
+                <div class="frond frond-1"></div>
+                <div class="frond frond-2"></div>
+                <div class="frond frond-3"></div>
+                <div class="frond frond-4"></div>
+                <div class="frond frond-5"></div>
+            </div>
+            <div class="palm-trunk"></div>
+        </div>
+        
+        <div class="palm-tree palm-tree-right">
+            <div class="palm-fronds">
+                <div class="frond frond-1"></div>
+                <div class="frond frond-2"></div>
+                <div class="frond frond-3"></div>
+                <div class="frond frond-4"></div>
+                <div class="frond frond-5"></div>
+            </div>
+            <div class="palm-trunk"></div>
+        </div>
+        
+        <div class="grass grass-1">
+            <div class="grass-blade" style="left: 0; animation-delay: 0s;"></div>
+            <div class="grass-blade" style="left: 10px; animation-delay: 0.2s;"></div>
+            <div class="grass-blade" style="left: 20px; animation-delay: 0.4s;"></div>
+            <div class="grass-blade" style="left: 30px; animation-delay: 0.1s;"></div>
+        </div>
+        
+        <div class="grass grass-2">
+            <div class="grass-blade" style="left: 0; animation-delay: 0.3s;"></div>
+            <div class="grass-blade" style="left: 10px; animation-delay: 0.5s;"></div>
+            <div class="grass-blade" style="left: 20px; animation-delay: 0.1s;"></div>
+            <div class="grass-blade" style="left: 30px; animation-delay: 0.4s;"></div>
+        </div>
+        
+        <div class="grass grass-3">
+            <div class="grass-blade" style="left: 0; animation-delay: 0.2s;"></div>
+            <div class="grass-blade" style="left: 10px; animation-delay: 0.4s;"></div>
+            <div class="grass-blade" style="left: 20px; animation-delay: 0s;"></div>
+            <div class="grass-blade" style="left: 30px; animation-delay: 0.3s;"></div>
+        </div>
+        
+        <div class="grass grass-4">
+            <div class="grass-blade" style="left: 0; animation-delay: 0.1s;"></div>
+            <div class="grass-blade" style="left: 10px; animation-delay: 0.3s;"></div>
+            <div class="grass-blade" style="left: 20px; animation-delay: 0.5s;"></div>
+            <div class="grass-blade" style="left: 30px; animation-delay: 0.2s;"></div>
+        </div>
+        
+        <div class="floating-camel">
+            <div class="camel-body"></div>
+            <div class="camel-neck"></div>
+            <div class="camel-head"></div>
+            <div class="camel-leg camel-leg-1"></div>
+            <div class="camel-leg camel-leg-2"></div>
+            <div class="camel-leg camel-leg-3"></div>
+            <div class="camel-leg camel-leg-4"></div>
+        </div>
+        
+        <div class="heat-wave"></div>
+    </div>
+    
+    <div id="controls">
+        <div id="toggle-controls">
+            <i class="fas fa-chevron-right"></i>
+        </div>
+        <div id="toggle-fullscreen">
+            <i class="fas fa-expand"></i>
+        </div>
+        
+        <div class="control-content">
+            <h1>🌴 Desert Oasis</h1>
+            
+            <div class="control-group">
+                <label for="theme-select">Scenery Theme</label>
+                <select id="theme-select">
+                    <option value="classic">Classic Oasis</option>
+                    <option value="sunset">Sunset Oasis</option>
+                    <option value="night">Night Oasis</option>
+                    <option value="mirage">Mirage Mode</option>
+                    <option value="storm">Desert Storm</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="time-slider">Time of Day <span class="slider-value" id="time-value">12:00 PM</span></label>
+                <input type="range" id="time-slider" min="0" max="1" step="0.01" value="0.5">
+            </div>
+            
+            <div class="control-group">
+                <label for="speed-slider">Animation Speed <span class="slider-value" id="speed-value">1.0x</span></label>
+                <input type="range" id="speed-slider" min="0.3" max="2" step="0.1" value="1">
+            </div>
+            
+            <div class="control-group">
+                <label for="brightness-slider">Brightness <span class="slider-value" id="brightness-value">100%</span></label>
+                <input type="range" id="brightness-slider" min="0.5" max="1.5" step="0.05" value="1">
+            </div>
+            
+            <div class="control-group">
+                <label for="shimmer-slider">Water Shimmer <span class="slider-value" id="shimmer-value">80%</span></label>
+                <input type="range" id="shimmer-slider" min="0" max="1" step="0.1" value="0.8">
+            </div>
+            
+            <div class="control-group">
+                <label>Interactive Elements</label>
+                <div class="control-row">
+                    <button id="vegetation-toggle" class="toggle-btn active">🌿 Vegetation</button>
+                    <button id="camel-toggle" class="toggle-btn active">🐫 Camel</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Environment Modes</label>
+                <div class="control-row">
+                    <button id="auto-toggle" class="toggle-btn">🔄 Auto Cycle</button>
+                    <button id="storm-toggle" class="toggle-btn">🌪️ Storm</button>
+                </div>
+            </div>
+            
+            <div class="environment-info">
+                <div class="info-item">
+                    <span>Temperature:</span>
+                    <span id="temp-value">25°C</span>
+                </div>
+                <div class="info-item">
+                    <span>Humidity:</span>
+                    <span id="humidity-value">30%</span>
+                </div>
+                <div class="info-item">
+                    <span>Wind Speed:</span>
+                    <span id="wind-value">5 km/h</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <button id="reset-btn" class="full-width">↻ Reset All Settings</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        // Enhanced Desert Oasis Scene Controller
+
+        const themes = {
+            classic: {
+                skyGradient: ['#FFE5B4', '#87CEEB'],
+                sandColor: '#D4A574',
+                sandRgb: '212, 165, 116',
+                vegetationColor: '#228B22',
+                moonVisible: false,
+                starsVisible: false,
+                heatWave: false,
+                storm: false
+            },
+            sunset: {
+                skyGradient: ['#FF8C42', '#FF6B35', '#87CEEB'],
+                sandColor: '#CD853F',
+                sandRgb: '205, 133, 63',
+                vegetationColor: '#1F4620',
+                moonVisible: false,
+                starsVisible: false,
+                heatWave: false,
+                storm: false
+            },
+            night: {
+                skyGradient: ['#191970', '#483D8B', '#2F4F4F'],
+                sandColor: '#8B7355',
+                sandRgb: '139, 115, 85',
+                vegetationColor: '#1C3A1C',
+                moonVisible: true,
+                starsVisible: true,
+                heatWave: false,
+                storm: false
+            },
+            mirage: {
+                skyGradient: ['#FFD700', '#FFA500', '#87CEEB'],
+                sandColor: '#DEB887',
+                sandRgb: '222, 184, 135',
+                vegetationColor: '#3CB371',
+                moonVisible: false,
+                starsVisible: false,
+                heatWave: true,
+                storm: false
+            },
+            storm: {
+                skyGradient: ['#4A4A4A', '#696969', '#2F4F4F'],
+                sandColor: '#A0522D',
+                sandRgb: '160, 82, 45',
+                vegetationColor: '#1C3A1C',
+                moonVisible: false,
+                starsVisible: false,
+                heatWave: false,
+                storm: true
+            }
+        };
+
+        let currentTheme = 'classic';
+        let vegetationVisible = true;
+        let camelVisible = true;
+        let autoModeActive = false;
+        let stormModeActive = false;
+        let autoModeInterval = null;
+        let stormInterval = null;
+        let sandParticles = [];
+        let isFullscreen = false;
+
+        // DOM Elements
+        const sceneContainer = document.getElementById('scene-container');
+        const sky = document.getElementById('sky');
+        const oasisWater = document.getElementById('oasis-water');
+        const themeSelect = document.getElementById('theme-select');
+        const timeSlider = document.getElementById('time-slider');
+        const speedSlider = document.getElementById('speed-slider');
+        const brightnessSlider = document.getElementById('brightness-slider');
+        const shimmerSlider = document.getElementById('shimmer-slider');
+        const vegetationToggle = document.getElementById('vegetation-toggle');
+        const camelToggle = document.getElementById('camel-toggle');
+        const autoToggle = document.getElementById('auto-toggle');
+        const stormToggle = document.getElementById('storm-toggle');
+        const resetBtn = document.getElementById('reset-btn');
+        const timeValue = document.getElementById('time-value');
+        const speedValue = document.getElementById('speed-value');
+        const brightnessValue = document.getElementById('brightness-value');
+        const shimmerValue = document.getElementById('shimmer-value');
+        const tempValue = document.getElementById('temp-value');
+        const humidityValue = document.getElementById('humidity-value');
+        const windValue = document.getElementById('wind-value');
+        const toggleControls = document.getElementById('toggle-controls');
+        const toggleFullscreen = document.getElementById('toggle-fullscreen');
+        const controls = document.getElementById('controls');
+        const notification = document.getElementById('notification');
+
+        // Initialize stars and sparkles
+        function initializeStars() {
+            // Remove existing stars
+            const existingStars = sky.querySelectorAll('.stars');
+            existingStars.forEach(star => star.remove());
+            
+            // Create stars
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.className = 'stars';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 60 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.width = Math.random() * 2 + 1 + 'px';
+                star.style.height = star.style.width;
+                sky.appendChild(star);
+            }
+        }
+
+        function initializeWaterEffects() {
+            // Remove existing sparkles
+            const existingSparkles = oasisWater.querySelectorAll('.water-sparkle');
+            existingSparkles.forEach(sparkle => sparkle.remove());
+            
+            // Create water sparkles
+            for (let i = 0; i < 20; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'water-sparkle';
+                sparkle.style.left = Math.random() * 90 + 5 + '%';
+                sparkle.style.top = Math.random() * 80 + 10 + '%';
+                sparkle.style.animationDelay = Math.random() * 2 + 's';
+                oasisWater.appendChild(sparkle);
+            }
+            
+            // Create ripples
+            const existingRipples = oasisWater.querySelectorAll('.ripple');
+            existingRipples.forEach(ripple => ripple.remove());
+            
+            for (let i = 0; i < 5; i++) {
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple';
+                ripple.style.left = Math.random() * 60 + 20 + '%';
+                ripple.style.top = Math.random() * 60 + 20 + '%';
+                ripple.style.animationDelay = i * 1 + 's';
+                oasisWater.appendChild(ripple);
+            }
+        }
+
+        initializeStars();
+        initializeWaterEffects();
+
+        // Apply theme
+        function applyTheme(themeName) {
+            const theme = themes[themeName];
+            currentTheme = themeName;
+            
+            // Update sky gradient
+            if (theme.skyGradient.length === 2) {
+                sky.style.background = `linear-gradient(to top, ${theme.skyGradient[0]} 0%, ${theme.skyGradient[1]} 100%)`;
+            } else if (theme.skyGradient.length === 3) {
+                sky.style.background = `linear-gradient(to top, ${theme.skyGradient[0]} 0%, ${theme.skyGradient[1]} 40%, ${theme.skyGradient[2]} 100%)`;
+            }
+            
+            // Update CSS variables
+            document.documentElement.style.setProperty('--sky-color-1', theme.skyGradient[0]);
+            document.documentElement.style.setProperty('--sky-color-2', theme.skyGradient[theme.skyGradient.length - 1]);
+            document.documentElement.style.setProperty('--sand-color', theme.sandColor);
+            document.documentElement.style.setProperty('--sand-rgb', theme.sandRgb);
+            document.documentElement.style.setProperty('--vegetation-color', theme.vegetationColor);
+            
+            // Show/hide moon
+            const moon = document.querySelector('.moon');
+            moon.style.opacity = theme.moonVisible ? '1' : '0';
+            
+            // Show/hide stars
+            const stars = document.querySelectorAll('.stars');
+            stars.forEach(star => {
+                star.style.opacity = theme.starsVisible ? '1' : '0';
+            });
+            
+            // Show/hide heat wave
+            const heatWave = document.querySelector('.heat-wave');
+            heatWave.style.opacity = theme.heatWave ? '0.6' : '0';
+            
+            // Update environment info based on theme
+            updateEnvironmentInfo(themeName);
+            
+            // Handle storm mode
+            if (themeName === 'storm') {
+                startStorm();
+            } else {
+                stopStorm();
+            }
+        }
+
+        // Update time of day
+        function updateTimeOfDay(time) {
+            document.documentElement.style.setProperty('--time-of-day', time);
+            
+            // Calculate time string
+            const hours = Math.floor(time * 24);
+            const minutes = Math.floor((time * 24 * 60) % 60);
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+            const timeString = `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+            timeValue.textContent = timeString;
+            
+            // Update environment info based on time
+            updateEnvironmentInfo(currentTheme, time);
+        }
+
+        // Update animation speed
+        function updateAnimationSpeed(speed) {
+            document.documentElement.style.setProperty('--animation-speed', speed);
+            speedValue.textContent = speed + 'x';
+        }
+
+        // Update brightness
+        function updateBrightness(brightness) {
+            document.documentElement.style.setProperty('--brightness', brightness);
+            brightnessValue.textContent = Math.round(brightness * 100) + '%';
+        }
+
+        // Update shimmer intensity
+        function updateShimmer(intensity) {
+            document.documentElement.style.setProperty('--shimmer-intensity', intensity);
+            shimmerValue.textContent = Math.round(intensity * 100) + '%';
+        }
+
+        // Update environment information
+        function updateEnvironmentInfo(theme, time = parseFloat(timeSlider.value)) {
+            let temp, humidity, wind;
+            
+            switch(theme) {
+                case 'classic':
+                    temp = 25 + (time * 15); // 25-40°C
+                    humidity = 30 - (time * 10); // 30-20%
+                    wind = 5 + (time * 5); // 5-10 km/h
+                    break;
+                case 'sunset':
+                    temp = 30 - (time * 10); // 30-20°C
+                    humidity = 25 + (time * 15); // 25-40%
+                    wind = 8 - (time * 4); // 8-4 km/h
+                    break;
+                case 'night':
+                    temp = 15 + (time * 5); // 15-20°C
+                    humidity = 40 - (time * 10); // 40-30%
+                    wind = 3 + (time * 2); // 3-5 km/h
+                    break;
+                case 'mirage':
+                    temp = 35 + (time * 10); // 35-45°C
+                    humidity = 20 - (time * 10); // 20-10%
+                    wind = 10 + (time * 5); // 10-15 km/h
+                    break;
+                case 'storm':
+                    temp = 20 - (time * 5); // 20-15°C
+                    humidity = 60 + (time * 20); // 60-80%
+                    wind = 20 + (time * 10); // 20-30 km/h
+                    break;
+                default:
+                    temp = 25;
+                    humidity = 30;
+                    wind = 5;
+            }
+            
+            tempValue.textContent = Math.round(temp) + '°C';
+            humidityValue.textContent = Math.round(humidity) + '%';
+            windValue.textContent = Math.round(wind) + ' km/h';
+            
+            // Update CSS variables for wind
+            document.documentElement.style.setProperty('--wind-speed', wind / 10);
+        }
+
+        // Toggle vegetation
+        function toggleVegetation() {
+            vegetationVisible = !vegetationVisible;
+            const palmTrees = document.querySelectorAll('.palm-tree');
+            const grass = document.querySelectorAll('.grass');
+            
+            const opacity = vegetationVisible ? '1' : '0';
+            const pointerEvents = vegetationVisible ? 'auto' : 'none';
+            
+            palmTrees.forEach(tree => {
+                tree.style.opacity = opacity;
+                tree.style.pointerEvents = pointerEvents;
+            });
+            
+            grass.forEach(g => {
+                g.style.opacity = opacity;
+                g.style.pointerEvents = pointerEvents;
+            });
+            
+            vegetationToggle.textContent = vegetationVisible ? '🌿 Vegetation' : '🌿 Hidden';
+            vegetationToggle.classList.toggle('active', vegetationVisible);
+        }
+
+        // Toggle camel
+        function toggleCamel() {
+            camelVisible = !camelVisible;
+            const camel = document.querySelector('.floating-camel');
+            
+            camel.style.opacity = camelVisible ? '1' : '0';
+            camel.style.pointerEvents = camelVisible ? 'auto' : 'none';
+            
+            camelToggle.textContent = camelVisible ? '🐫 Camel' : '🐫 Hidden';
+            camelToggle.classList.toggle('active', camelVisible);
+        }
+
+        // Auto mode - cycles through themes
+        function toggleAutoMode() {
+            autoModeActive = !autoModeActive;
+            
+            if (autoModeActive) {
+                autoToggle.textContent = '🔄 Auto Cycle';
+                autoToggle.classList.add('active');
+                showNotification('Auto cycle mode activated');
+                
+                const themeKeys = Object.keys(themes);
+                let currentIndex = 0;
+                
+                autoModeInterval = setInterval(() => {
+                    currentIndex = (currentIndex + 1) % themeKeys.length;
+                    const nextTheme = themeKeys[currentIndex];
+                    themeSelect.value = nextTheme;
+                    applyTheme(nextTheme);
+                }, 10000); // Change theme every 10 seconds
+            } else {
+                autoToggle.textContent = '🔄 Auto Cycle';
+                autoToggle.classList.remove('active');
+                showNotification('Auto cycle mode deactivated');
+                
+                if (autoModeInterval) {
+                    clearInterval(autoModeInterval);
+                    autoModeInterval = null;
+                }
+            }
+        }
+
+        // Storm mode
+        function toggleStormMode() {
+            if (currentTheme === 'storm') {
+                themeSelect.value = 'classic';
+                applyTheme('classic');
+                stormToggle.textContent = '🌪️ Storm';
+                stormToggle.classList.remove('active');
+                showNotification('Storm mode deactivated');
+            } else {
+                themeSelect.value = 'storm';
+                applyTheme('storm');
+                stormToggle.textContent = '🌪️ Storm';
+                stormToggle.classList.add('active');
+                showNotification('Storm mode activated');
+            }
+        }
+
+        // Start storm effects
+        function startStorm() {
+            // Create lightning effect
+            function lightningFlash() {
+                sceneContainer.style.filter = 'brightness(2)';
+                setTimeout(() => {
+                    sceneContainer.style.filter = 'brightness(var(--brightness))';
+                }, 100);
+                
+                setTimeout(() => {
+                    sceneContainer.style.filter = 'brightness(1.5)';
+                    setTimeout(() => {
+                        sceneContainer.style.filter = 'brightness(var(--brightness))';
+                    }, 50);
+                }, 200);
+            }
+            
+            // Create sand particles
+            function createSandParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'sand-particle';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = Math.random() * 100 + 'vh';
+                particle.style.animation = `blow-sand ${2 + Math.random() * 3}s linear forwards`;
+                
+                document.getElementById('sand-dunes').appendChild(particle);
+                sandParticles.push(particle);
+                
+                // Remove particle after animation
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                        sandParticles = sandParticles.filter(p => p !== particle);
+                    }
+                }, 5000);
+            }
+            
+            // Add CSS for sand animation
+            if (!document.getElementById('storm-styles')) {
+                const style = document.createElement('style');
+                style.id = 'storm-styles';
+                style.textContent = `
+                    @keyframes blow-sand {
+                        0% { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+                        100% { transform: translate(${100 + Math.random() * 100}px, ${-50 - Math.random() * 100}px) rotate(${180 + Math.random() * 180}deg); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Start storm effects
+            stormInterval = setInterval(() => {
+                // Lightning
+                if (Math.random() > 0.7) {
+                    lightningFlash();
+                }
+                
+                // Sand particles
+                for (let i = 0; i < 5; i++) {
+                    createSandParticle();
+                }
+            }, 500);
+        }
+
+        // Stop storm effects
+        function stopStorm() {
+            if (stormInterval) {
+                clearInterval(stormInterval);
+                stormInterval = null;
+            }
+            
+            // Remove all sand particles
+            sandParticles.forEach(particle => {
+                if (particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            });
+            sandParticles = [];
+        }
+
+        // Reset all settings
+        function resetSettings() {
+            // Stop auto mode
+            if (autoModeActive) {
+                toggleAutoMode();
+            }
+            
+            // Stop storm mode
+            if (currentTheme === 'storm') {
+                toggleStormMode();
+            }
+            
+            // Reset controls
+            themeSelect.value = 'classic';
+            timeSlider.value = 0.5;
+            speedSlider.value = 1;
+            brightnessSlider.value = 1;
+            shimmerSlider.value = 0.8;
+            
+            // Apply reset values
+            applyTheme('classic');
+            updateTimeOfDay(0.5);
+            updateAnimationSpeed(1);
+            updateBrightness(1);
+            updateShimmer(0.8);
+            
+            // Ensure vegetation and camel are visible
+            if (!vegetationVisible) {
+                toggleVegetation();
+            }
+            if (!camelVisible) {
+                toggleCamel();
+            }
+            
+            showNotification('All settings reset to default');
+        }
+
+        // Show notification
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Toggle controls visibility
+        function toggleControlsVisibility() {
+            controls.classList.toggle('collapsed');
+        }
+
+        // Toggle fullscreen
+        function toggleFullscreenMode() {
+            if (!isFullscreen) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                }
+                isFullscreen = true;
+                toggleFullscreen.innerHTML = '<i class="fas fa-compress"></i>';
+                showNotification('Fullscreen mode activated');
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                isFullscreen = false;
+                toggleFullscreen.innerHTML = '<i class="fas fa-expand"></i>';
+                showNotification('Fullscreen mode deactivated');
+            }
+        }
+
+        // Event Listeners
+        themeSelect.addEventListener('change', (e) => {
+            applyTheme(e.target.value);
+            showNotification(`Theme changed to ${e.target.options[e.target.selectedIndex].text}`);
+        });
+
+        timeSlider.addEventListener('input', (e) => {
+            updateTimeOfDay(parseFloat(e.target.value));
+        });
+
+        speedSlider.addEventListener('input', (e) => {
+            updateAnimationSpeed(parseFloat(e.target.value));
+        });
+
+        brightnessSlider.addEventListener('input', (e) => {
+            updateBrightness(parseFloat(e.target.value));
+        });
+
+        shimmerSlider.addEventListener('input', (e) => {
+            updateShimmer(parseFloat(e.target.value));
+        });
+
+        vegetationToggle.addEventListener('click', toggleVegetation);
+        camelToggle.addEventListener('click', toggleCamel);
+        autoToggle.addEventListener('click', toggleAutoMode);
+        stormToggle.addEventListener('click', toggleStormMode);
+        resetBtn.addEventListener('click', resetSettings);
+        toggleControls.addEventListener('click', toggleControlsVisibility);
+        toggleFullscreen.addEventListener('click', toggleFullscreenMode);
+
+        // Initialize with default theme
+        applyTheme('classic');
+        updateTimeOfDay(0.5);
+
+        // Add interactive particles on click
+        sceneContainer.addEventListener('click', (e) => {
+            if (e.target === sceneContainer) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = e.clientX + 'px';
+                particle.style.top = e.clientY + 'px';
+                particle.style.width = '10px';
+                particle.style.height = '10px';
+                particle.style.background = 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%)';
+                particle.style.borderRadius = '50%';
+                particle.style.animation = 'ripple-expand 1s ease-out forwards';
+                
+                sceneContainer.appendChild(particle);
+                
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 1000);
+            }
+        });
+
+        // Add parallax effect on mouse move
+        sceneContainer.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) * 2 - 1;
+            const y = (e.clientY / window.innerHeight) * 2 - 1;
+            
+            const dunes = document.getElementById('sand-dunes');
+            const water = document.getElementById('oasis-water');
+            const palmTrees = document.querySelectorAll('.palm-tree');
+            const grass = document.querySelectorAll('.grass');
+            const camel = document.querySelector('.floating-camel');
+            
+            dunes.style.transform = `translateX(${x * 5}px) translateY(${y * 5}px)`;
+            water.style.transform = `translateX(calc(-50% + ${x * 10}px)) translateY(${y * 5}px)`;
+            
+            palmTrees.forEach(tree => {
+                tree.style.transform = `translateZ(15px) translateX(${x * 8}px) translateY(${y * 8}px)`;
+            });
+            
+            grass.forEach(g => {
+                g.style.transform = `translateZ(10px) translateX(${x * 6}px) translateY(${y * 6}px)`;
+            });
+            
+            if (camel) {
+                camel.style.transform = `translateZ(10px) translateX(${x * 12}px) translateY(${y * 12}px)`;
+            }
+        });
+
+        // Reset parallax when mouse leaves
+        sceneContainer.addEventListener('mouseleave', () => {
+            const dunes = document.getElementById('sand-dunes');
+            const water = document.getElementById('oasis-water');
+            const palmTrees = document.querySelectorAll('.palm-tree');
+            const grass = document.querySelectorAll('.grass');
+            const camel = document.querySelector('.floating-camel');
+            
+            dunes.style.transform = '';
+            water.style.transform = 'translateX(-50%)';
+            
+            palmTrees.forEach(tree => {
+                tree.style.transform = 'translateZ(15px)';
+            });
+            
+            grass.forEach(g => {
+                g.style.transform = 'translateZ(10px)';
+            });
+            
+            if (camel) {
+                camel.style.transform = 'translateZ(10px)';
+            }
+        });
+
+        console.log('🌴 Enhanced Desert Oasis loaded successfully! Enjoy the immersive experience...');
+    </script>
+</body>
+</html>
