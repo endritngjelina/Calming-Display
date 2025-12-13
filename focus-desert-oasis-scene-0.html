@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desert Oasis - Calming Scene</title>
+    <style>
+        :root {
+            --sky-color-1: #FFE5B4;
+            --sky-color-2: #87CEEB;
+            --sand-color: #D4A574;
+            --vegetation-color: #228B22;
+            --animation-speed: 1;
+            --brightness: 1;
+            --shimmer-intensity: 0.8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #scene-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            filter: brightness(var(--brightness));
+        }
+
+        #sky {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, var(--sky-color-1) 0%, var(--sky-color-2) 100%);
+            transition: background 1s ease;
+        }
+
+        .stars {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .moon {
+            position: absolute;
+            top: 15%;
+            right: 20%;
+            width: 80px;
+            height: 80px;
+            background: #F4F1DE;
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(244, 241, 222, 0.8);
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 100px;
+            opacity: 0.7;
+            will-change: transform;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 100px;
+        }
+
+        .cloud-1 {
+            width: 100px;
+            height: 40px;
+            top: 15%;
+            left: -100px;
+            animation: float-cloud-1 calc(60s / var(--animation-speed)) linear infinite;
+        }
+
+        .cloud-1::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud-1::after {
+            width: 60px;
+            height: 40px;
+            top: -15px;
+            right: 10px;
+        }
+
+        .cloud-2 {
+            width: 120px;
+            height: 50px;
+            top: 25%;
+            left: -120px;
+            animation: float-cloud-2 calc(80s / var(--animation-speed)) linear infinite;
+        }
+
+        .cloud-2::before {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            left: 15px;
+        }
+
+        .cloud-2::after {
+            width: 70px;
+            height: 50px;
+            top: -20px;
+            right: 15px;
+        }
+
+        .cloud-3 {
+            width: 80px;
+            height: 35px;
+            top: 35%;
+            left: -80px;
+            animation: float-cloud-3 calc(70s / var(--animation-speed)) linear infinite;
+        }
+
+        .cloud-3::before {
+            width: 40px;
+            height: 40px;
+            top: -20px;
+            left: 10px;
+        }
+
+        .cloud-3::after {
+            width: 50px;
+            height: 35px;
+            top: -15px;
+            right: 10px;
+        }
+
+        @keyframes float-cloud-1 {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+
+        @keyframes float-cloud-2 {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 120px)); }
+        }
+
+        @keyframes float-cloud-3 {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 80px)); }
+        }
+
+        #sand-dunes {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60%;
+        }
+
+        .dune {
+            position: absolute;
+            bottom: 0;
+            border-radius: 50% 50% 0 0;
+            transition: background 1s ease;
+        }
+
+        .dune-back-1 {
+            width: 600px;
+            height: 200px;
+            left: -100px;
+            background: linear-gradient(to bottom, rgba(var(--sand-rgb), 0.6), rgba(var(--sand-rgb), 0.8));
+        }
+
+        .dune-back-2 {
+            width: 700px;
+            height: 180px;
+            right: -50px;
+            background: linear-gradient(to bottom, rgba(var(--sand-rgb), 0.6), rgba(var(--sand-rgb), 0.8));
+        }
+
+        .dune-mid-1 {
+            width: 800px;
+            height: 250px;
+            left: 10%;
+            background: linear-gradient(to bottom, rgba(var(--sand-rgb), 0.8), rgba(var(--sand-rgb), 0.95));
+        }
+
+        .dune-mid-2 {
+            width: 750px;
+            height: 230px;
+            right: 5%;
+            background: linear-gradient(to bottom, rgba(var(--sand-rgb), 0.8), rgba(var(--sand-rgb), 0.95));
+        }
+
+        .dune-front {
+            width: 100%;
+            height: 300px;
+            left: 0;
+            background: linear-gradient(to bottom, var(--sand-color), #C19A6B);
+        }
+
+        #oasis-water {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 150px;
+            background: linear-gradient(135deg, #1E90FF, #4682B4, #5F9EA0);
+            border-radius: 50%;
+            box-shadow: inset 0 -20px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            z-index: 5;
+        }
+
+        .water-shimmer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+            animation: shimmer calc(3s / var(--animation-speed)) linear infinite;
+            opacity: var(--shimmer-intensity);
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .water-sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 6px white;
+            animation: sparkle-twinkle 2s infinite ease-in-out;
+        }
+
+        @keyframes sparkle-twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .ripple {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: ripple-expand 3s ease-out infinite;
+        }
+
+        @keyframes ripple-expand {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.8;
+            }
+            100% {
+                width: 200px;
+                height: 100px;
+                opacity: 0;
+            }
+        }
+
+        .palm-tree {
+            position: absolute;
+            bottom: 25%;
+            z-index: 10;
+        }
+
+        .palm-trunk {
+            position: relative;
+            width: 30px;
+            height: 200px;
+            background: linear-gradient(to right, #8B7355, #A0826D, #8B7355);
+            border-radius: 10px;
+            margin: 0 auto;
+        }
+
+        .palm-trunk::before,
+        .palm-trunk::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 15px;
+            background: #6B5844;
+            border-radius: 50%;
+        }
+
+        .palm-trunk::before { top: 30%; }
+        .palm-trunk::after { top: 60%; }
+
+        .palm-fronds {
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+        }
+
+        .frond {
+            position: absolute;
+            width: 100px;
+            height: 120px;
+            background: var(--vegetation-color);
+            clip-path: ellipse(30% 50% at 50% 100%);
+            transform-origin: bottom center;
+            left: 50%;
+            bottom: 50%;
+            transition: background 1s ease;
+        }
+
+        .frond-1 {
+            transform: translateX(-50%) rotate(-45deg);
+            animation: sway-1 calc(4s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        .frond-2 {
+            transform: translateX(-50%) rotate(-20deg);
+            animation: sway-2 calc(4.5s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        .frond-3 {
+            transform: translateX(-50%) rotate(0deg);
+            animation: sway-3 calc(4.2s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        .frond-4 {
+            transform: translateX(-50%) rotate(20deg);
+            animation: sway-4 calc(4.3s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        .frond-5 {
+            transform: translateX(-50%) rotate(45deg);
+            animation: sway-5 calc(4.6s / var(--animation-speed)) ease-in-out infinite;
+        }
+
+        @keyframes sway-1 {
+            0%, 100% { transform: translateX(-50%) rotate(-45deg) rotateY(0deg); }
+            50% { transform: translateX(-50%) rotate(-40deg) rotateY(10deg); }
+        }
+
+        @keyframes sway-2 {
+            0%, 100% { transform: translateX(-50%) rotate(-20deg) rotateY(0deg); }
+            50% { transform: translateX(-50%) rotate(-15deg) rotateY(8deg); }
+        }
+
+        @keyframes sway-3 {
+            0%, 100% { transform: translateX(-50%) rotate(0deg) rotateY(0deg); }
+            50% { transform: translateX(-50%) rotate(5deg) rotateY(5deg); }
+        }
+
+        @keyframes sway-4 {
+            0%, 100% { transform: translateX(-50%) rotate(20deg) rotateY(0deg); }
+            50% { transform: translateX(-50%) rotate(15deg) rotateY(-8deg); }
+        }
+
+        @keyframes sway-5 {
+            0%, 100% { transform: translateX(-50%) rotate(45deg) rotateY(0deg); }
+            50% { transform: translateX(-50%) rotate(40deg) rotateY(-10deg); }
+        }
+
+        .palm-tree-left { left: 30%; }
+        .palm-tree-right { right: 25%; }
+
+        .grass {
+            position: absolute;
+            width: 50px;
+            height: 60px;
+            bottom: 22%;
+        }
+
+        .grass-blade {
+            position: absolute;
+            width: 4px;
+            height: 40px;
+            background: var(--vegetation-color);
+            border-radius: 2px;
+            bottom: 0;
+            transform-origin: bottom center;
+            animation: grass-sway calc(3s / var(--animation-speed)) ease-in-out infinite;
+            transition: background 1s ease;
+        }
+
+        @keyframes grass-sway {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(3deg); }
+            75% { transform: rotate(-3deg); }
+        }
+
+        .grass-1 { left: 25%; }
+        .grass-2 { left: 40%; }
+        .grass-3 { right: 35%; }
+        .grass-4 { right: 20%; }
+
+        .heat-wave {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, transparent, rgba(255, 200, 100, 0.1) 50%, transparent);
+            animation: heat-distortion 4s ease-in-out infinite;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes heat-distortion {
+            0%, 100% { transform: translateY(0) scaleY(1); }
+            50% { transform: translateY(-10px) scaleY(1.02); }
+        }
+
+        #controls {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            padding: 24px;
+            border-radius: 16px;
+            color: white;
+            font-size: 14px;
+            width: 280px;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        #controls::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #controls::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        #controls::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        #controls h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 35px;
+        }
+
+        select:focus, input[type="range"]:focus {
+            outline: 2px solid rgba(135, 206, 235, 0.5);
+            outline-offset: 2px;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            background: rgba(135, 206, 235, 0.3);
+            border: 1px solid rgba(135, 206, 235, 0.5);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: rgba(135, 206, 235, 0.5);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.active {
+            background: rgba(135, 206, 235, 0.6);
+            border-color: rgba(135, 206, 235, 0.8);
+        }
+
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .toggle-btn.active {
+            background: rgba(76, 175, 80, 0.5);
+            border-color: rgba(76, 175, 80, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            #controls {
+                right: 10px;
+                left: 10px;
+                width: auto;
+                top: auto;
+                bottom: 10px;
+                transform: none;
+                max-height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="scene-container">
+        <div id="sky">
+            <div class="moon"></div>
+        </div>
+        
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+        
+        <div id="sand-dunes">
+            <div class="dune dune-back-1"></div>
+            <div class="dune dune-back-2"></div>
+            <div class="dune dune-mid-1"></div>
+            <div class="dune dune-mid-2"></div>
+            <div class="dune dune-front"></div>
+        </div>
+        
+        <div id="oasis-water">
+            <div class="water-shimmer"></div>
+        </div>
+        
+        <div class="palm-tree palm-tree-left">
+            <div class="palm-fronds">
+                <div class="frond frond-1"></div>
+                <div class="frond frond-2"></div>
+                <div class="frond frond-3"></div>
+                <div class="frond frond-4"></div>
+                <div class="frond frond-5"></div>
+            </div>
+            <div class="palm-trunk"></div>
+        </div>
+        
+        <div class="palm-tree palm-tree-right">
+            <div class="palm-fronds">
+                <div class="frond frond-1"></div>
+                <div class="frond frond-2"></div>
+                <div class="frond frond-3"></div>
+                <div class="frond frond-4"></div>
+                <div class="frond frond-5"></div>
+            </div>
+            <div class="palm-trunk"></div>
+        </div>
+        
+        <div class="grass grass-1">
+            <div class="grass-blade" style="left: 0; animation-delay: 0s;"></div>
+            <div class="grass-blade" style="left: 10px; animation-delay: 0.2s;"></div>
+            <div class="grass-blade" style="left: 20px; animation-delay: 0.4s;"></div>
+            <div class="grass-blade" style="left: 30px; animation-delay: 0.1s;"></div>
+        </div>
+        
+        <div class="grass grass-2">
+            <div class="grass-blade" style="left: 0; animation-delay: 0.3s;"></div>
+            <div class="grass-blade" style="left: 10px; animation-delay: 0.5s;"></div>
+            <div class="grass-blade" style="left: 20px; animation-delay: 0.1s;"></div>
+            <div class="grass-blade" style="left: 30px; animation-delay: 0.4s;"></div>
+        </div>
+        
+        <div class="grass grass-3">
+            <div class="grass-blade" style="left: 0; animation-delay: 0.2s;"></div>
+            <div class="grass-blade" style="left: 10px; animation-delay: 0.4s;"></div>
+            <div class="grass-blade" style="left: 20px; animation-delay: 0s;"></div>
+            <div class="grass-blade" style="left: 30px; animation-delay: 0.3s;"></div>
+        </div>
+        
+        <div class="grass grass-4">
+            <div class="grass-blade" style="left: 0; animation-delay: 0.1s;"></div>
+            <div class="grass-blade" style="left: 10px; animation-delay: 0.3s;"></div>
+            <div class="grass-blade" style="left: 20px; animation-delay: 0.5s;"></div>
+            <div class="grass-blade" style="left: 30px; animation-delay: 0.2s;"></div>
+        </div>
+        
+        <div class="heat-wave"></div>
+    </div>
+    
+    <div id="controls">
+        <h1>🌴 Desert Oasis</h1>
+        
+        <div class="control-group">
+            <label for="theme-select">Scenery Theme</label>
+            <select id="theme-select">
+                <option value="classic">Classic Oasis</option>
+                <option value="sunset">Sunset Oasis</option>
+                <option value="night">Night Oasis</option>
+                <option value="mirage">Mirage Mode</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="speed-slider">Animation Speed <span class="slider-value" id="speed-value">1.0x</span></label>
+            <input type="range" id="speed-slider" min="0.3" max="2" step="0.1" value="1">
+        </div>
+        
+        <div class="control-group">
+            <label for="brightness-slider">Brightness <span class="slider-value" id="brightness-value">100%</span></label>
+            <input type="range" id="brightness-slider" min="0.5" max="1.5" step="0.05" value="1">
+        </div>
+        
+        <div class="control-group">
+            <label for="shimmer-slider">Water Shimmer <span class="slider-value" id="shimmer-value">80%</span></label>
+            <input type="range" id="shimmer-slider" min="0" max="1" step="0.1" value="0.8">
+        </div>
+        
+        <div class="control-group">
+            <label>Vegetation</label>
+            <button id="vegetation-toggle" class="toggle-btn active">🌿 Visible</button>
+        </div>
+        
+        <div class="control-group">
+            <label>Auto Mode</label>
+            <button id="auto-toggle" class="toggle-btn">🔄 Off</button>
+        </div>
+        
+        <div class="control-group">
+            <button id="reset-btn">↻ Reset All Settings</button>
+        </div>
+    </div>
+    
+    <script>
+        // Desert Oasis Scene Controller
+
+const themes = {
+    classic: {
+        skyGradient: ['#FFE5B4', '#87CEEB'],
+        sandColor: '#D4A574',
+        sandRgb: '212, 165, 116',
+        vegetationColor: '#228B22',
+        moonVisible: false,
+        starsVisible: false,
+        heatWave: false
+    },
+    sunset: {
+        skyGradient: ['#FF8C42', '#FF6B35', '#87CEEB'],
+        sandColor: '#CD853F',
+        sandRgb: '205, 133, 63',
+        vegetationColor: '#1F4620',
+        moonVisible: false,
+        starsVisible: false,
+        heatWave: false
+    },
+    night: {
+        skyGradient: ['#191970', '#483D8B', '#2F4F4F'],
+        sandColor: '#8B7355',
+        sandRgb: '139, 115, 85',
+        vegetationColor: '#1C3A1C',
+        moonVisible: true,
+        starsVisible: true,
+        heatWave: false
+    },
+    mirage: {
+        skyGradient: ['#FFD700', '#FFA500', '#87CEEB'],
+        sandColor: '#DEB887',
+        sandRgb: '222, 184, 135',
+        vegetationColor: '#3CB371',
+        moonVisible: false,
+        starsVisible: false,
+        heatWave: true
+    }
+};
+
+let currentTheme = 'classic';
+let vegetationVisible = true;
+let autoModeActive = false;
+let autoModeInterval = null;
+
+// DOM Elements
+const sceneContainer = document.getElementById('scene-container');
+const sky = document.getElementById('sky');
+const oasisWater = document.getElementById('oasis-water');
+const themeSelect = document.getElementById('theme-select');
+const speedSlider = document.getElementById('speed-slider');
+const brightnessSlider = document.getElementById('brightness-slider');
+const shimmerSlider = document.getElementById('shimmer-slider');
+const vegetationToggle = document.getElementById('vegetation-toggle');
+const autoToggle = document.getElementById('auto-toggle');
+const resetBtn = document.getElementById('reset-btn');
+const speedValue = document.getElementById('speed-value');
+const brightnessValue = document.getElementById('brightness-value');
+const shimmerValue = document.getElementById('shimmer-value');
+
+// Initialize stars and sparkles
+function initializeStars() {
+    // Remove existing stars
+    const existingStars = sky.querySelectorAll('.stars');
+    existingStars.forEach(star => star.remove());
+    
+    // Create stars
+    for (let i = 0; i < 100; i++) {
+        const star = document.createElement('div');
+        star.className = 'stars';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 60 + '%';
+        star.style.animationDelay = Math.random() * 3 + 's';
+        sky.appendChild(star);
+    }
+}
+
+function initializeWaterEffects() {
+    // Remove existing sparkles
+    const existingSparkles = oasisWater.querySelectorAll('.water-sparkle');
+    existingSparkles.forEach(sparkle => sparkle.remove());
+    
+    // Create water sparkles
+    for (let i = 0; i < 12; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'water-sparkle';
+        sparkle.style.left = Math.random() * 90 + 5 + '%';
+        sparkle.style.top = Math.random() * 80 + 10 + '%';
+        sparkle.style.animationDelay = Math.random() * 2 + 's';
+        oasisWater.appendChild(sparkle);
+    }
+    
+    // Create ripples
+    const existingRipples = oasisWater.querySelectorAll('.ripple');
+    existingRipples.forEach(ripple => ripple.remove());
+    
+    for (let i = 0; i < 3; i++) {
+        const ripple = document.createElement('div');
+        ripple.className = 'ripple';
+        ripple.style.left = Math.random() * 60 + 20 + '%';
+        ripple.style.top = Math.random() * 60 + 20 + '%';
+        ripple.style.animationDelay = i * 1 + 's';
+        oasisWater.appendChild(ripple);
+    }
+}
+
+initializeStars();
+initializeWaterEffects();
+
+// Apply theme
+function applyTheme(themeName) {
+    const theme = themes[themeName];
+    currentTheme = themeName;
+    
+    // Update sky gradient
+    if (theme.skyGradient.length === 2) {
+        sky.style.background = `linear-gradient(to top, ${theme.skyGradient[0]} 0%, ${theme.skyGradient[1]} 100%)`;
+    } else if (theme.skyGradient.length === 3) {
+        sky.style.background = `linear-gradient(to top, ${theme.skyGradient[0]} 0%, ${theme.skyGradient[1]} 40%, ${theme.skyGradient[2]} 100%)`;
+    }
+    
+    // Update CSS variables
+    document.documentElement.style.setProperty('--sky-color-1', theme.skyGradient[0]);
+    document.documentElement.style.setProperty('--sky-color-2', theme.skyGradient[theme.skyGradient.length - 1]);
+    document.documentElement.style.setProperty('--sand-color', theme.sandColor);
+    document.documentElement.style.setProperty('--sand-rgb', theme.sandRgb);
+    document.documentElement.style.setProperty('--vegetation-color', theme.vegetationColor);
+    
+    // Show/hide moon
+    const moon = document.querySelector('.moon');
+    moon.style.opacity = theme.moonVisible ? '1' : '0';
+    
+    // Show/hide stars
+    const stars = document.querySelectorAll('.stars');
+    stars.forEach(star => {
+        star.style.opacity = theme.starsVisible ? '1' : '0';
+    });
+    
+    // Show/hide heat wave
+    const heatWave = document.querySelector('.heat-wave');
+    heatWave.style.opacity = theme.heatWave ? '0.6' : '0';
+}
+
+// Update animation speed
+function updateAnimationSpeed(speed) {
+    document.documentElement.style.setProperty('--animation-speed', speed);
+    speedValue.textContent = speed + 'x';
+}
+
+// Update brightness
+function updateBrightness(brightness) {
+    document.documentElement.style.setProperty('--brightness', brightness);
+    brightnessValue.textContent = Math.round(brightness * 100) + '%';
+}
+
+// Update shimmer intensity
+function updateShimmer(intensity) {
+    document.documentElement.style.setProperty('--shimmer-intensity', intensity);
+    shimmerValue.textContent = Math.round(intensity * 100) + '%';
+}
+
+// Toggle vegetation
+function toggleVegetation() {
+    vegetationVisible = !vegetationVisible;
+    const palmTrees = document.querySelectorAll('.palm-tree');
+    const grass = document.querySelectorAll('.grass');
+    
+    const opacity = vegetationVisible ? '1' : '0';
+    const pointerEvents = vegetationVisible ? 'auto' : 'none';
+    
+    palmTrees.forEach(tree => {
+        tree.style.opacity = opacity;
+        tree.style.pointerEvents = pointerEvents;
+    });
+    
+    grass.forEach(g => {
+        g.style.opacity = opacity;
+        g.style.pointerEvents = pointerEvents;
+    });
+    
+    vegetationToggle.textContent = vegetationVisible ? '🌿 Visible' : '🌿 Hidden';
+    vegetationToggle.classList.toggle('active', vegetationVisible);
+}
+
+// Auto mode - cycles through themes
+function toggleAutoMode() {
+    autoModeActive = !autoModeActive;
+    
+    if (autoModeActive) {
+        autoToggle.textContent = '🔄 On';
+        autoToggle.classList.add('active');
+        
+        const themeKeys = Object.keys(themes);
+        let currentIndex = 0;
+        
+        autoModeInterval = setInterval(() => {
+            currentIndex = (currentIndex + 1) % themeKeys.length;
+            const nextTheme = themeKeys[currentIndex];
+            themeSelect.value = nextTheme;
+            applyTheme(nextTheme);
+        }, 8000); // Change theme every 8 seconds
+    } else {
+        autoToggle.textContent = '🔄 Off';
+        autoToggle.classList.remove('active');
+        
+        if (autoModeInterval) {
+            clearInterval(autoModeInterval);
+            autoModeInterval = null;
+        }
+    }
+}
+
+// Reset all settings
+function resetSettings() {
+    // Stop auto mode
+    if (autoModeActive) {
+        toggleAutoMode();
+    }
+    
+    // Reset controls
+    themeSelect.value = 'classic';
+    speedSlider.value = 1;
+    brightnessSlider.value = 1;
+    shimmerSlider.value = 0.8;
+    
+    // Apply reset values
+    applyTheme('classic');
+    updateAnimationSpeed(1);
+    updateBrightness(1);
+    updateShimmer(0.8);
+    
+    // Ensure vegetation is visible
+    if (!vegetationVisible) {
+        toggleVegetation();
+    }
+}
+
+// Event Listeners
+themeSelect.addEventListener('change', (e) => {
+    applyTheme(e.target.value);
+});
+
+speedSlider.addEventListener('input', (e) => {
+    updateAnimationSpeed(parseFloat(e.target.value));
+});
+
+brightnessSlider.addEventListener('input', (e) => {
+    updateBrightness(parseFloat(e.target.value));
+});
+
+shimmerSlider.addEventListener('input', (e) => {
+    updateShimmer(parseFloat(e.target.value));
+});
+
+vegetationToggle.addEventListener('click', toggleVegetation);
+
+autoToggle.addEventListener('click', toggleAutoMode);
+
+resetBtn.addEventListener('click', resetSettings);
+
+// Initialize with default theme
+applyTheme('classic');
+
+// Add dynamic cloud repositioning to create endless loop
+function resetCloudPosition(cloud, delay = 0) {
+    setTimeout(() => {
+        const cloudWidth = cloud.offsetWidth;
+        cloud.style.left = `-${cloudWidth}px`;
+    }, delay);
+}
+
+// Monitor clouds and reset when they go off screen
+const clouds = document.querySelectorAll('.cloud');
+clouds.forEach((cloud, index) => {
+    cloud.addEventListener('animationiteration', () => {
+        resetCloudPosition(cloud);
+    });
+});
+
+console.log('🌴 Desert Oasis loaded successfully! Enjoy the tranquility...');
+    </script>
+</body>
+</html>
