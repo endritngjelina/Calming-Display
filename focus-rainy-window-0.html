@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rainy Window - Calming Scenery</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-size-2xl: 20px;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 550;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --radius-base: 8px;
+            --radius-lg: 12px;
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+        }
+
+        #app {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Background scenery layer */
+        #scenery {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: all 1.5s var(--ease-standard);
+            filter: blur(8px);
+        }
+
+        /* Canvas for raindrops */
+        #rainCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        /* Lightning flash overlay */
+        #lightning {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0);
+            z-index: 3;
+            pointer-events: none;
+            transition: background 0.05s ease-out;
+        }
+
+        /* Window frame effect */
+        .window-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 4;
+            pointer-events: none;
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Control panel */
+        #controlPanel {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%) translateX(320px);
+            width: 320px;
+            max-height: 90vh;
+            background: rgba(20, 20, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+            padding: var(--space-24);
+            z-index: 10;
+            transition: transform 0.4s var(--ease-standard);
+            overflow-y: auto;
+            box-shadow: -10px 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        #controlPanel.open {
+            transform: translateY(-50%) translateX(0);
+        }
+
+        #togglePanel {
+            position: absolute;
+            left: -50px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 120px;
+            background: rgba(20, 20, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+            border: none;
+            color: var(--color-gray-200);
+            font-size: var(--font-size-2xl);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        #togglePanel:hover {
+            background: rgba(30, 30, 40, 0.95);
+        }
+
+        .control-section {
+            margin-bottom: var(--space-24);
+        }
+
+        .control-section h3 {
+            color: var(--color-teal-300);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-16);
+            letter-spacing: -0.01em;
+        }
+
+        .control-label {
+            display: block;
+            color: var(--color-gray-200);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--space-8);
+            opacity: 0.9;
+        }
+
+        .slider-container {
+            margin-bottom: var(--space-20);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-teal-300);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--color-teal-400);
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-teal-300);
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: var(--color-teal-400);
+            transform: scale(1.2);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-8);
+            margin-bottom: var(--space-16);
+        }
+
+        .control-button {
+            padding: var(--space-12);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-base);
+            color: var(--color-gray-200);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all 0.3s var(--ease-standard);
+            text-align: center;
+        }
+
+        .control-button:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(50, 184, 198, 0.5);
+        }
+
+        .control-button.active {
+            background: rgba(50, 184, 198, 0.2);
+            border-color: var(--color-teal-300);
+            color: var(--color-teal-300);
+        }
+
+        .scenery-button {
+            padding: var(--space-12);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-base);
+            color: var(--color-gray-200);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all 0.3s var(--ease-standard);
+            margin-bottom: var(--space-8);
+            text-align: left;
+        }
+
+        .scenery-button:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(50, 184, 198, 0.5);
+        }
+
+        .scenery-button.active {
+            background: rgba(50, 184, 198, 0.2);
+            border-color: var(--color-teal-300);
+            color: var(--color-teal-300);
+        }
+
+        .scenery-button .scenery-name {
+            display: block;
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .scenery-button .scenery-desc {
+            display: block;
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-16);
+        }
+
+        .toggle-switch input[type="checkbox"] {
+            width: 50px;
+            height: 26px;
+            position: relative;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch input[type="checkbox"]:checked {
+            background: var(--color-teal-500);
+        }
+
+        .toggle-switch input[type="checkbox"]:before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            background: white;
+            transition: left 0.3s;
+        }
+
+        .toggle-switch input[type="checkbox"]:checked:before {
+            left: 27px;
+        }
+
+        /* Scrollbar styling */
+        #controlPanel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #controlPanel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        #controlPanel::-webkit-scrollbar-thumb {
+            background: rgba(50, 184, 198, 0.5);
+            border-radius: 3px;
+        }
+
+        #controlPanel::-webkit-scrollbar-thumb:hover {
+            background: rgba(50, 184, 198, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            #controlPanel {
+                width: 280px;
+                transform: translateY(-50%) translateX(280px);
+            }
+        }
+
+        @font-face {
+            font-family: 'FKGroteskNeue';
+            src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="scenery"></div>
+        <canvas id="rainCanvas"></canvas>
+        <div id="lightning"></div>
+        <div class="window-frame"></div>
+        
+        <div id="controlPanel">
+            <button id="togglePanel">⚙️</button>
+            
+            <div class="control-section">
+                <h3>Scenery</h3>
+                <div id="sceneryButtons"></div>
+            </div>
+
+            <div class="control-section">
+                <h3>Weather Mood</h3>
+                <div class="button-group" id="moodButtons"></div>
+            </div>
+
+            <div class="control-section">
+                <h3>Rain Settings</h3>
+                <div class="slider-container">
+                    <label class="control-label">Rain Intensity</label>
+                    <input type="range" id="rainIntensity" min="0" max="100" value="30" />
+                </div>
+                <div class="slider-container">
+                    <label class="control-label">Rain Speed</label>
+                    <input type="range" id="rainSpeed" min="10" max="150" value="50" />
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Lightning &amp; Effects</h3>
+                <div class="slider-container">
+                    <label class="control-label">Lightning Frequency</label>
+                    <input type="range" id="lightningFreq" min="0" max="30" value="2" />
+                </div>
+                <div class="slider-container">
+                    <label class="control-label">Background Blur</label>
+                    <input type="range" id="blurAmount" min="0" max="20" value="8" />
+                </div>
+                <div class="slider-container">
+                    <label class="control-label">Scene Brightness</label>
+                    <input type="range" id="brightness" min="20" max="100" value="80" />
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Audio</h3>
+                <div class="toggle-switch">
+                    <label class="control-label">Thunder Sound</label>
+                    <input type="checkbox" id="soundToggle" checked />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application state
+        const state = {
+            scenery: 'city',
+            mood: 'Calm',
+            rainIntensity: 0.3,
+            rainSpeed: 0.5,
+            lightningFrequency: 0.02,
+            blur: 8,
+            brightness: 0.8,
+            soundEnabled: true,
+            panelOpen: false
+        };
+
+        // Scenery data
+        const sceneries = [
+            {
+                name: 'City at Night',
+                id: 'city',
+                description: 'Urban skyline with city lights',
+                gradient: 'linear-gradient(180deg, #0f3460 0%, #1a1a2e 50%, #533483 100%)'
+            },
+            {
+                name: 'Mountain Landscape',
+                id: 'mountains',
+                description: 'Misty mountains and forest',
+                gradient: 'linear-gradient(180deg, #4a5f7f 0%, #2c2c3c 50%, #1a1a1a 100%)'
+            },
+            {
+                name: 'Nature Forest',
+                id: 'forest',
+                description: 'Dense forest with waterfall',
+                gradient: 'linear-gradient(180deg, #3d5f3d 0%, #1a2e1a 50%, #0d1a0d 100%)'
+            },
+            {
+                name: 'Ocean View',
+                id: 'ocean',
+                description: 'Stormy ocean horizon',
+                gradient: 'linear-gradient(180deg, #1a3a52 0%, #0a1628 50%, #051015 100%)'
+            },
+            {
+                name: 'Countryside',
+                id: 'countryside',
+                description: 'Rolling hills and farmland',
+                gradient: 'linear-gradient(180deg, #5a5a3a 0%, #2a2a1a 50%, #1a1a0a 100%)'
+            }
+        ];
+
+        // Mood presets
+        const moods = {
+            Calm: { rainIntensity: 0.3, rainSpeed: 0.5, lightningFrequency: 0.02, blur: 8, brightness: 0.8 },
+            Cozy: { rainIntensity: 0.5, rainSpeed: 0.6, lightningFrequency: 0.05, blur: 10, brightness: 0.6 },
+            Stormy: { rainIntensity: 0.9, rainSpeed: 1.2, lightningFrequency: 0.15, blur: 6, brightness: 0.4 }
+        };
+
+        // DOM Elements
+        const canvas = document.getElementById('rainCanvas');
+        const ctx = canvas.getContext('2d');
+        const sceneryEl = document.getElementById('scenery');
+        const lightningEl = document.getElementById('lightning');
+        const controlPanel = document.getElementById('controlPanel');
+        const toggleBtn = document.getElementById('togglePanel');
+
+        // Canvas setup
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Raindrop class
+        class Raindrop {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * -canvas.height;
+                this.length = Math.random() * 20 + 10;
+                this.speed = Math.random() * 3 + 2;
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.width = Math.random() * 1.5 + 0.5;
+            }
+
+            update() {
+                this.y += this.speed * state.rainSpeed * 2;
+                this.x += Math.sin(Date.now() / 1000) * 0.5;
+
+                if (this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(174, 194, 224, ${this.opacity})`;
+                ctx.lineWidth = this.width;
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x, this.y + this.length);
+                ctx.stroke();
+            }
+        }
+
+        // Initialize raindrops
+        let raindrops = [];
+        function updateRaindrops() {
+            const targetCount = Math.floor(state.rainIntensity * 500);
+            if (raindrops.length < targetCount) {
+                for (let i = raindrops.length; i < targetCount; i++) {
+                    raindrops.push(new Raindrop());
+                }
+            } else if (raindrops.length > targetCount) {
+                raindrops.splice(targetCount);
+            }
+        }
+        updateRaindrops();
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            raindrops.forEach(drop => {
+                drop.update();
+                drop.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Lightning and Thunder
+        let lightningTimer = 0;
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function generateThunder() {
+            if (!state.soundEnabled) return;
+
+            const duration = 2;
+            const now = audioContext.currentTime;
+
+            // Create noise buffer for thunder
+            const bufferSize = audioContext.sampleRate * duration;
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            // Create nodes
+            const noise = audioContext.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = audioContext.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(100, now);
+            filter.frequency.exponentialRampToValueAtTime(30, now + duration);
+
+            const gainNode = audioContext.createGain();
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.3, now + 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+            // Connect and play
+            noise.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            noise.start(now);
+            noise.stop(now + duration);
+        }
+
+        function triggerLightning() {
+            // Multiple flashes
+            const flashes = Math.floor(Math.random() * 3) + 1;
+            let delay = 0;
+
+            for (let i = 0; i < flashes; i++) {
+                setTimeout(() => {
+                    const intensity = Math.random() * 0.3 + 0.2;
+                    lightningEl.style.background = `rgba(255, 255, 255, ${intensity})`;
+                    
+                    setTimeout(() => {
+                        lightningEl.style.background = 'rgba(255, 255, 255, 0)';
+                    }, 50 + Math.random() * 100);
+                }, delay);
+                
+                delay += 100 + Math.random() * 200;
+            }
+
+            // Thunder with realistic delay
+            setTimeout(() => {
+                generateThunder();
+            }, 300 + Math.random() * 500);
+        }
+
+        function checkLightning() {
+            if (Math.random() < state.lightningFrequency / 100) {
+                triggerLightning();
+            }
+        }
+        setInterval(checkLightning, 1000);
+
+        // Update scenery
+        function updateScenery() {
+            const scenery = sceneries.find(s => s.id === state.scenery);
+            sceneryEl.style.background = scenery.gradient;
+            sceneryEl.style.filter = `blur(${state.blur}px) brightness(${state.brightness})`;
+        }
+
+        // Control panel toggle
+        toggleBtn.addEventListener('click', () => {
+            state.panelOpen = !state.panelOpen;
+            controlPanel.classList.toggle('open', state.panelOpen);
+        });
+
+        // Build scenery buttons
+        const sceneryButtonsContainer = document.getElementById('sceneryButtons');
+        sceneries.forEach(scenery => {
+            const btn = document.createElement('button');
+            btn.className = 'scenery-button';
+            btn.innerHTML = `
+                <span class="scenery-name">${scenery.name}</span>
+                <span class="scenery-desc">${scenery.description}</span>
+            `;
+            btn.addEventListener('click', () => {
+                state.scenery = scenery.id;
+                updateScenery();
+                updateActiveButtons();
+            });
+            sceneryButtonsContainer.appendChild(btn);
+        });
+
+        // Build mood buttons
+        const moodButtonsContainer = document.getElementById('moodButtons');
+        Object.keys(moods).forEach(moodName => {
+            const btn = document.createElement('button');
+            btn.className = 'control-button';
+            btn.textContent = moodName;
+            btn.addEventListener('click', () => {
+                state.mood = moodName;
+                const mood = moods[moodName];
+                state.rainIntensity = mood.rainIntensity;
+                state.rainSpeed = mood.rainSpeed;
+                state.lightningFrequency = mood.lightningFrequency;
+                state.blur = mood.blur;
+                state.brightness = mood.brightness;
+                
+                // Update UI controls
+                document.getElementById('rainIntensity').value = mood.rainIntensity * 100;
+                document.getElementById('rainSpeed').value = mood.rainSpeed * 100;
+                document.getElementById('lightningFreq').value = mood.lightningFrequency * 100;
+                document.getElementById('blurAmount').value = mood.blur;
+                document.getElementById('brightness').value = mood.brightness * 100;
+                
+                updateRaindrops();
+                updateScenery();
+                updateActiveButtons();
+            });
+            moodButtonsContainer.appendChild(btn);
+        });
+
+        // Update active button states
+        function updateActiveButtons() {
+            // Scenery buttons
+            document.querySelectorAll('.scenery-button').forEach((btn, idx) => {
+                btn.classList.toggle('active', sceneries[idx].id === state.scenery);
+            });
+            
+            // Mood buttons
+            document.querySelectorAll('#moodButtons .control-button').forEach((btn, idx) => {
+                btn.classList.toggle('active', btn.textContent === state.mood);
+            });
+        }
+
+        // Control listeners
+        document.getElementById('rainIntensity').addEventListener('input', (e) => {
+            state.rainIntensity = e.target.value / 100;
+            updateRaindrops();
+        });
+
+        document.getElementById('rainSpeed').addEventListener('input', (e) => {
+            state.rainSpeed = e.target.value / 100;
+        });
+
+        document.getElementById('lightningFreq').addEventListener('input', (e) => {
+            state.lightningFrequency = e.target.value / 100;
+        });
+
+        document.getElementById('blurAmount').addEventListener('input', (e) => {
+            state.blur = parseFloat(e.target.value);
+            updateScenery();
+        });
+
+        document.getElementById('brightness').addEventListener('input', (e) => {
+            state.brightness = e.target.value / 100;
+            updateScenery();
+        });
+
+        document.getElementById('soundToggle').addEventListener('change', (e) => {
+            state.soundEnabled = e.target.checked;
+        });
+
+        // Initialize
+        updateScenery();
+        updateActiveButtons();
+    </script>
+</body>
+</html>
