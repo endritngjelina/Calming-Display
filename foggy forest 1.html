@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foggy Forest Road - Calming Experience</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-background: var(--color-charcoal-700);
+                --color-surface: var(--color-charcoal-800);
+                --color-text: var(--color-gray-200);
+                --color-primary: var(--color-teal-300);
+                --color-primary-hover: var(--color-teal-400);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(180deg, #1a2a2a 0%, #0a1a1a 100%);
+            display: flex;
+            flex-direction: column;
+            color: #e0e0e0;
+        }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls-panel {
+            background: rgba(15, 20, 25, 0.85);
+            border-top: 1px solid rgba(80, 120, 160, 0.4);
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(100, 150, 200, 0.25);
+            transition: all 0.2s ease;
+        }
+
+        .control-group:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(120, 170, 220, 0.4);
+        }
+
+        .control-group label {
+            font-weight: 500;
+            color: #c8d8e8;
+            min-width: 100px;
+            font-size: 14px;
+        }
+
+        select, input[type="range"], input[type="checkbox"] {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(100, 150, 200, 0.4);
+            background: rgba(30, 40, 50, 0.8);
+            color: #e0e0e0;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 150ms ease;
+        }
+
+        select:hover, input[type="range"]:hover {
+            border-color: rgba(120, 170, 220, 0.6);
+            background: rgba(40, 50, 60, 0.9);
+        }
+
+        input[type="range"] {
+            width: 160px;
+            cursor: pointer;
+            height: 6px;
+            -webkit-appearance: none;
+            background: rgba(70, 90, 110, 0.6);
+            border-radius: 3px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4a9ebd;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(74, 158, 189, 0.5);
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #4a9ebd;
+        }
+
+        .info-text {
+            color: #a0b0c0;
+            font-size: 13px;
+            text-align: center;
+            padding: 8px;
+            margin-top: 5px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #2a7a8f, #1e5f6f);
+            color: #fff;
+            border: 1px solid rgba(100, 150, 200, 0.4);
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #3a8a9f, #2e6f7f);
+            box-shadow: 0 0 12px rgba(100, 150, 200, 0.4);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .scenery-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .scenery-buttons button {
+            padding: 10px 16px;
+            font-size: 12px;
+            flex: 0 1 auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .title-section {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .title-section h2 {
+            font-weight: 300;
+            font-size: 18px;
+            color: #c8d8e8;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .control-row {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .control-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .scenery-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .scenery-buttons button {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls-panel">
+        <div class="title-section">
+            <h2>Foggy Forest Road</h2>
+        </div>
+        
+        <div class="control-row">
+            <div class="control-group">
+                <label>Scenery:</label>
+                <div class="scenery-buttons">
+                    <button onclick="changeScenery('forest')">🌲 Forest</button>
+                    <button onclick="changeScenery('cave')">🏔️ Canyon</button>
+                    <button onclick="changeScenery('mountains')">⛰️ Mountains</button>
+                    <button onclick="changeScenery('abstract')">✨ Abstract</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="control-row">
+            <div class="control-group">
+                <label>Fog Density:</label>
+                <input type="range" id="fogDensity" min="0.05" max="0.8" step="0.05" value="0.3" oninput="updateSettings()">
+            </div>
+
+            <div class="control-group">
+                <label>Wind Speed:</label>
+                <input type="range" id="windSpeed" min="0" max="0.5" step="0.05" value="0.15" oninput="updateSettings()">
+            </div>
+
+            <div class="control-group">
+                <label>Depth Layers:</label>
+                <input type="range" id="depthLayers" min="4" max="15" step="1" value="10" oninput="updateSettings()">
+            </div>
+
+            <div class="control-group">
+                <label>Speed:</label>
+                <input type="range" id="speed" min="0.2" max="2" step="0.1" value="0.8" oninput="updateSettings()">
+            </div>
+
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="soundToggle" onchange="toggleSound()"> Sound
+                </label>
+            </div>
+
+            <div class="control-group">
+                <button onclick="randomizeSettings()">🎲 Randomize</button>
+            </div>
+        </div>
+
+        <div class="info-text">Move your mouse for parallax effect • Adjust controls to customize your experience</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight - 150;
+
+        let currentScenery = 'forest';
+        let settings = {
+            fogDensity: 0.3,
+            windSpeed: 0.15,
+            depthLayers: 10,
+            speed: 0.8,
+            soundEnabled: false
+        };
+
+        let mouseX = canvas.width / 2;
+        let mouseY = canvas.height / 2;
+        let time = 0;
+        let trees = [];
+        let particles = [];
+
+        class Tree {
+            constructor(x, depth) {
+                this.x = x;
+                this.baseDepth = depth;
+                this.offset = Math.random() * Math.PI * 2;
+                this.width = Math.max(4, 120 / (depth + 1));
+                this.height = Math.max(50, 600 / (depth + 1));
+                this.sway = Math.sin(this.offset + time * 0.001) * 5;
+            }
+
+            draw(ctx, scenery) {
+                const depth = this.baseDepth;
+                const alpha = Math.max(0.2, 1 - (depth / settings.depthLayers) * 0.8);
+                const y = canvas.height - this.height;
+
+                ctx.save();
+                ctx.globalAlpha = alpha;
+
+                // Tree trunk
+                ctx.fillStyle = `rgba(${scenery.trunkColor[0]}, ${scenery.trunkColor[1]}, ${scenery.trunkColor[2]}, ${alpha * 0.9})`;
+                ctx.fillRect(this.x + this.sway, y + this.height * 0.3, this.width, this.height * 0.7);
+
+                // Tree canopy
+                ctx.fillStyle = `rgba(${scenery.foliageColor[0]}, ${scenery.foliageColor[1]}, ${scenery.foliageColor[2]}, ${alpha * 0.8})`;
+                for (let i = 0; i < 3; i++) {
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.sway + this.width / 2, y + this.height * 0.2 - i * 40, this.width * (2.5 - i * 0.6), 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        class Particle {
+            constructor(x, y, scenery) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 0.3 + settings.windSpeed * 0.5;
+                this.vy = Math.random() * 0.1 - 0.05;
+                this.life = 1;
+                this.maxLife = Math.random() * 100 + 50;
+                this.size = Math.random() * 4 + 1;
+                this.color = scenery.fogColor;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life -= 1 / this.maxLife;
+                this.vy -= 0.005;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = Math.min(this.life * 0.4, 0.2);
+                ctx.fillStyle = `rgb(${this.color[0]}, ${this.color[1]}, ${this.color[2]})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        const sceneries = {
+            forest: {
+                name: 'Foggy Forest Road',
+                backgroundColor: [40, 50, 60],
+                fogColor: [220, 220, 220],
+                trunkColor: [80, 60, 40],
+                foliageColor: [50, 100, 60],
+                roadColor: [100, 90, 70],
+                skyGradient: [[60, 80, 100], [30, 40, 60]]
+            },
+            cave: {
+                name: 'Canyon Mist',
+                backgroundColor: [60, 55, 50],
+                fogColor: [180, 170, 160],
+                trunkColor: [100, 85, 70],
+                foliageColor: [80, 70, 60],
+                roadColor: [120, 110, 90],
+                skyGradient: [[70, 60, 50], [50, 45, 40]]
+            },
+            mountains: {
+                name: 'Mountain Fog',
+                backgroundColor: [55, 60, 70],
+                fogColor: [200, 200, 210],
+                trunkColor: [70, 65, 60],
+                foliageColor: [40, 80, 50],
+                roadColor: [90, 85, 75],
+                skyGradient: [[60, 70, 85], [40, 50, 65]]
+            },
+            abstract: {
+                name: 'Abstract Mist',
+                backgroundColor: [35, 40, 45],
+                fogColor: [170, 140, 200],
+                trunkColor: [120, 90, 140],
+                foliageColor: [100, 60, 120],
+                roadColor: [80, 60, 90],
+                skyGradient: [[45, 40, 60], [30, 25, 40]]
+            }
+        };
+
+        function generateTrees(scenery) {
+            trees = [];
+            const treesPerLayer = Math.floor(canvas.width / 50);
+            for (let depth = 0; depth < settings.depthLayers; depth++) {
+                for (let i = 0; i < treesPerLayer; i++) {
+                    const x = (i * canvas.width / treesPerLayer + Math.sin(depth * 0.5 + i) * 80) % canvas.width;
+                    trees.push(new Tree(x, depth));
+                }
+            }
+            trees.sort((a, b) => a.baseDepth - b.baseDepth);
+        }
+
+        function drawRoad(scenery) {
+            const roadTop = canvas.height * 0.4;
+            const roadBottom = canvas.height;
+
+            // Road perspective
+            const leftOffset = canvas.width * 0.15;
+            const rightOffset = canvas.width * 0.85;
+            const narrowLeft = canvas.width * 0.3;
+            const narrowRight = canvas.width * 0.7;
+
+            // Road base
+            ctx.fillStyle = `rgba(${scenery.roadColor[0]}, ${scenery.roadColor[1]}, ${scenery.roadColor[2]}, 0.7)`;
+            ctx.beginPath();
+            ctx.moveTo(leftOffset, roadBottom);
+            ctx.lineTo(rightOffset, roadBottom);
+            ctx.lineTo(narrowRight, roadTop);
+            ctx.lineTo(narrowLeft, roadTop);
+            ctx.closePath();
+            ctx.fill();
+
+            // Road lines
+            ctx.strokeStyle = `rgba(230, 230, 230, 0.3)`;
+            ctx.lineWidth = 3;
+            ctx.setLineDash([25, 35]);
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, roadBottom);
+            ctx.lineTo(canvas.width / 2, roadTop);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function drawSky(scenery) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.5);
+            gradient.addColorStop(0, `rgb(${scenery.skyGradient[0][0]}, ${scenery.skyGradient[0][1]}, ${scenery.skyGradient[0][2]})`);
+            gradient.addColorStop(1, `rgb(${scenery.skyGradient[1][0]}, ${scenery.skyGradient[1][1]}, ${scenery.skyGradient[1][2]})`);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.5);
+        }
+
+        function drawFog(scenery) {
+            const fogAlpha = settings.fogDensity;
+            ctx.fillStyle = `rgba(${scenery.fogColor[0]}, ${scenery.fogColor[1]}, ${scenery.fogColor[2]}, ${fogAlpha * 0.3})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Additional fog layers
+            for (let i = 0; i < 3; i++) {
+                const offset = (time * settings.windSpeed * settings.speed + i * 200) % canvas.width;
+                ctx.fillStyle = `rgba(${scenery.fogColor[0]}, ${scenery.fogColor[1]}, ${scenery.fogColor[2]}, ${fogAlpha * 0.1})`;
+                ctx.fillRect(offset - canvas.width, canvas.height * 0.3, canvas.width * 2, canvas.height * 0.7);
+            }
+        }
+
+        function update() {
+            time += settings.speed;
+
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                if (particles[i].life <= 0 || particles[i].y > canvas.height) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            // Add new particles
+            if (Math.random() < 0.6) {
+                const scenery = sceneries[currentScenery];
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height * 0.7;
+                particles.push(new Particle(x, y, scenery));
+            }
+
+            // Update trees sway
+            trees.forEach(tree => {
+                tree.sway = Math.sin(tree.offset + time * 0.001) * 8 + (mouseX - canvas.width / 2) * 0.03;
+            });
+        }
+
+        function draw() {
+            const scenery = sceneries[currentScenery];
+
+            ctx.fillStyle = `rgb(${scenery.backgroundColor[0]}, ${scenery.backgroundColor[1]}, ${scenery.backgroundColor[2]})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawSky(scenery);
+            drawRoad(scenery);
+
+            trees.forEach(tree => tree.draw(ctx, scenery));
+            particles.forEach(p => p.draw(ctx));
+
+            drawFog(scenery);
+        }
+
+        function animate() {
+            update();
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        function changeScenery(scenery) {
+            currentScenery = scenery;
+            generateTrees(sceneries[currentScenery]);
+        }
+
+        function updateSettings() {
+            settings.fogDensity = parseFloat(document.getElementById('fogDensity').value);
+            settings.windSpeed = parseFloat(document.getElementById('windSpeed').value);
+            settings.depthLayers = parseInt(document.getElementById('depthLayers').value);
+            settings.speed = parseFloat(document.getElementById('speed').value);
+            generateTrees(sceneries[currentScenery]);
+        }
+
+        function randomizeSettings() {
+            document.getElementById('fogDensity').value = (Math.random() * 0.7 + 0.1).toFixed(2);
+            document.getElementById('windSpeed').value = (Math.random() * 0.4).toFixed(2);
+            document.getElementById('depthLayers').value = Math.floor(Math.random() * 11 + 4);
+            document.getElementById('speed').value = (Math.random() * 1.6 + 0.2).toFixed(1);
+            updateSettings();
+        }
+
+        function toggleSound() {
+            settings.soundEnabled = document.getElementById('soundToggle').checked;
+            if (settings.soundEnabled) {
+                playAmbientSound();
+            }
+        }
+
+        function playAmbientSound() {
+            // Create a simple ambient wind sound using Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+
+            oscillator.frequency.setValueAtTime(80, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(120, audioContext.currentTime + 4);
+
+            gain.gain.setValueAtTime(0.03, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 4);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 4);
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - 150;
+            generateTrees(sceneries[currentScenery]);
+        });
+
+        // Initialize
+        generateTrees(sceneries[currentScenery]);
+        animate();
+    </script>
+</body>
+</html>
