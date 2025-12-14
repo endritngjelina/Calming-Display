@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Mesmerizing Calming Zoo Experience</title>
+  <link rel="preconnect" href="https://r2cdn.perplexity.ai" crossorigin />
+  <style>
+    :root {
+      /* Extra zoo palette variables */
+      --sky-gradient-main-zoo: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+      --ground-main-zoo: #5D9C59;
+      --sky-gradient-african-savanna: linear-gradient(to bottom, #FDB44B 0%, #FF6B35 100%);
+      --ground-african-savanna: #D4A574;
+      --sky-gradient-asian-bamboo: linear-gradient(to bottom, #A8E6CF 0%, #6BCB77 100%);
+      --ground-asian-bamboo: #4D774E;
+      --sky-gradient-arctic: linear-gradient(to bottom, #B8E6F0 0%, #E3F4F8 100%);
+      --ground-arctic: #F0F8FF;
+      --sky-gradient-tropical: linear-gradient(to bottom, #00B4D8 0%, #48CAE4 100%);
+      --ground-tropical: #2D6A4F;
+      --sky-gradient-aquarium: linear-gradient(to bottom, #023E8A 0%, #0077B6 100%);
+      --ground-aquarium: #03045E;
+      --time-gradient-dawn: linear-gradient(to bottom, #FFB5A7 0%, #FEC89A 50%, #B5E7A0 100%);
+      --time-gradient-day: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+      --time-gradient-dusk: linear-gradient(to bottom, #FF6B6B 0%, #FFE66D 50%, #4ECDC4 100%);
+      --time-gradient-night: linear-gradient(to bottom, #0B132B 0%, #1C2541 50%, #3A506B 100%);
+
+      --scene-transition: 0.7s cubic-bezier(0.16,1,0.3,1);
+      --anim-speed: 1;
+      --control-bar-bg: rgba(255,255,253,0.85);
+      --control-bar-border: rgba(98, 108, 113, 0.15);
+      --control-bar-radius: var(--radius-lg);
+    }
+    /* Perplexity Design System - see system prompt for full vars! (inserted above) */
+    html {
+      font-size: var(--font-size-base);
+    }
+    body {
+      background: var(--sky-gradient-main-zoo);
+      min-height: 100vh;
+      font-family: var(--font-family-base);
+      transition: background var(--scene-transition);
+      overflow: hidden;
+    }
+    #scene-root {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      z-index: 0;
+      background: var(--sky-gradient-main-zoo);
+      transition: background var(--scene-transition);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    /* Ground layer */
+    .scene__ground {
+      width: 100vw;
+      height: 19vh;
+      background: var(--ground-main-zoo);
+      border-top-left-radius: 48% 20%;
+      border-top-right-radius: 52% 22%;
+      box-shadow: 0 -8px 32px 0 rgba(31,33,33,0.10);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      z-index: 10;
+    }
+    /* Sky layers with parallax clouds */
+    .scene__cloud {
+      position: absolute;
+      top: 10%;
+      left: 5%;
+      width: 120px;
+      height: 60px;
+      background: #fff;
+      border-radius: 60px 60px 40px 50px;
+      opacity: 0.8;
+      filter: blur(1px);
+      animation: move-cloud 60s linear infinite;
+    }
+    .scene__cloud--2 {
+      top: 20%; left: 35%; width: 100px; height: 45px; opacity: 0.7; animation-duration: 80s; }
+    .scene__cloud--3 {
+      top: 14%; left: 70%; width: 90px; height: 44px; opacity: 0.6; animation-duration: 72s; }
+    @keyframes move-cloud {
+      0% { transform: translateX(0); }
+      50% { filter: blur(2px); }
+      100% { transform: translateX(60vw); }
+    }
+    /* Sun or moon */
+    .scene__sun {
+      position: absolute;
+      top: 7%;
+      right: 12%;
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle at 55% 53%, #fffde6 0%, #ffe58a 60%, #ffd700 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 60px 12px rgba(255,200,100,0.48);
+      animation: sun-glow 4s ease-in-out infinite alternate;
+      z-index: 14;
+      opacity: 0.95;
+    }
+    @keyframes sun-glow {
+      0% { filter: brightness(1) drop-shadow(0 0 40px #ffd70077); }
+      100% { filter: brightness(1.12) drop-shadow(0 0 60px #ffe58a88); }
+    }
+    /* Parallax trees */
+    .scene__tree { position: absolute; bottom: 15vh; z-index: 20; }
+    .scene__tree--1 { left: 7vw; width: 44px; height: 102px;}
+    .scene__tree--2 { left: 30vw; width: 68px; height: 130px; bottom: 16vh;}
+    .scene__tree--3 { right: 11vw; width: 50px; height: 110px;}
+    /* Tree trunk and leaves */
+    .tree__trunk { position: absolute; bottom: 0; left: 45%; width: 10px; height: 50px; background: #955c21; border-radius: 5px; }
+    .tree__foliage { position: absolute; left: 0; top: -18px; width: 44px; height: 38px; background: #33691e; border-radius: 50% 40% 48% 53% / 65% 70% 45% 62%; filter: blur(1px); opacity: 0.9; animation: sway-leaves 7s ease-in-out infinite alternate; }
+    @keyframes sway-leaves {
+      0% { transform: rotate(-1deg) scale(1.02); }
+      100% { transform: rotate(2deg) scale(1.04); }
+    }
+    /* Bushes and foliage - repeat similar structure */
+    .scene__bush { position: absolute; bottom: 12vh; background: #4CAF50; width: 60px; height: 22px; border-radius: 29px 31px 40px 30px; filter: blur(0.5px); z-index: 19; opacity: 0.7; animation: sway-bush 10s ease-in-out infinite alternate; }
+    .scene__bush--2 { left: 60vw; width: 45px; height: 18px; }
+    .scene__bush--3 { right: 15vw; width: 48px; height: 19px; }
+    @keyframes sway-bush { 0% { transform: scaleX(1.01); } 100% { transform: scaleX(0.98); } }
+
+    /* Pathways and benches */
+    .scene__pathway { position: absolute; bottom: 0; left: 23vw; width: 43vw; height: 40px; background: #e2d6be;
+      border-radius: 30% 45% 10% 55%/130% 150% 45% 55%; opacity: 0.52;
+      box-shadow: 0 5px 36px 18px rgba(31,33,33,0.12); z-index: 12; }
+    /* Exhibits fence/barriers (simple lines) */
+    .scene__fence { position: absolute; border-bottom: 2px dashed #bba179; opacity: 0.6; z-index: 18; height: 22px; width: 20vw; top: 68vh; left: 20vw; }
+
+    /* Exhibit signs */
+    .scene__sign { position: absolute; top: 66vh; left: 22vw; background: #fff7e5; border: 1px solid #fedc97; color: #715c37; padding: 2px 12px; font-size: 13px; border-radius: 7px; box-shadow: 0 2px 8px 1px #efc89838; opacity: 0.89; z-index: 30; }
+
+    /* Benches */
+    .scene__bench { position: absolute; bottom: 5vh; left: 28vw; width: 39px; height: 18px; background: #b8865f; border-radius: 8px 9px 6px 6px; box-shadow: 0 2px 12px 5px #462e1585; z-index: 30; }
+    .scene__lamp { position: absolute; bottom: 6vh; left: 43vw; width: 6px; height: 34px; background: #d8e4ea; border-radius: 50%; box-shadow: 0 0 10px #fff88888;}
+
+    /* Particle effects */
+    .scene__particles { position: absolute; left: 0; top: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 99; }
+    .particle { position: absolute; border-radius: 50%; opacity: 0.6; background: #ffe699; width: 4px; height: 4px; box-shadow: 0 0 8px 2px #ffd05c86; filter: blur(0.5px); animation: particle-float 18s linear infinite;
+    }
+    @keyframes particle-float {
+      0% {transform:translateY(0) scale(1); opacity:0.8;}
+      60% {transform:translateY(-40vh) scale(1.2); opacity:0.7;}
+      100% {transform:translateY(-120vh) scale(0.8); opacity:0.15;}
+    }
+
+    /* Animal density controls: density classes are handled by JS! */
+    /* =============== ANIMALS ================ */
+    /* Lion */
+    .zoo-animal.lion {
+      position: absolute;
+      bottom: 15vh; left: 26vw;
+      width: 68px; height: 48px;
+      z-index: 45;
+      display: flex; align-items: center;
+      animation: animal-breath var(--anim-speed, 1)s ease-in-out infinite alternate;
+    }
+    .lion__body { width: 48px; height: 32px; background: #f9ba57; border-radius: 75% 60% 88% 60% / 90% 80% 80% 100%; position:relative; }
+    .lion__mane {
+      position: absolute;
+      left: 30px; top: -8px;
+      width: 36px; height: 38px;
+      background: rgba(137,78,42,0.18);
+      border-radius: 50%;
+      z-index: 1;
+      box-shadow: 0 0 8px #b98b4a33;
+      border: 2px solid #b47c4a18;
+    }
+    .lion__face {
+      position: absolute; left: 38px; top: 4px;
+      width: 20px; height: 18px;
+      background: #fff2cb; border-radius: 60%; z-index: 5;
+      border: 1.5px solid #b47c4a41;
+      box-shadow: 0 2px 7px #ffeeba23;
+    }
+    .lion__eye {
+      position: absolute; left: 42px; top: 10px;
+      width: 3px; height: 3px; background: #7a4d2c; border-radius: 50%; opacity: 0.8;
+      animation: lion-blink calc(var(--anim-speed,1)*3.2s) infinite;
+    }
+    @keyframes lion-blink {
+      95% { opacity:0; }
+      100% { opacity: 1; }
+    }
+    .lion__ear {
+      position: absolute; left: 40px; top: 0px;
+      width: 6px; height: 7px; background: #f9dfbc; border-radius: 70%; border: 1px solid #b47c4a30; }
+    /* Elephant */
+    .zoo-animal.elephant{
+      position:absolute; bottom:16vh; left:36vw; width:72px; height:46px; z-index:44;
+      animation: animal-breath var(--anim-speed,1)s ease-in-out infinite alternate;
+    }
+    .elephant__body{position:absolute; left:12px; top:17px; width:44px; height:25px; background:#afb7bd; border-radius:54% 60% 60% 48%/50% 66% 70% 55%;}
+    .elephant__head{position:absolute; left:48px; top:21px; width:26px; height:21px; background:#b1cbd1; border-radius:70% 60% 90% 80%/95% 90% 80% 80%;}
+    .elephant__ear{position:absolute; left:54px; top:15px; width:18px; height:15px; background:#d7e2e7; border-radius:80%; opacity:0.81; animation: elephant-ear-flap calc(var(--anim-speed,1)*3s) infinite alternate;}
+    @keyframes elephant-ear-flap { 0%{transform: scaleX(1) rotate(2deg);}100%{transform:scaleX(1.13) rotate(-5deg);} }
+    .elephant__trunk{position:absolute; left:72px; top:20px; width:21px; height:12px; background:#b1cbd1; border-radius:24px 14px 16px 44px/44px 23px 44px 34px; transform:rotate(19deg);}
+    /* Giraffe */
+    .zoo-animal.giraffe{position:absolute; bottom:16.5vh; left:48vw; width:53px; height:98px; z-index:43; animation: giraffe-neck-sway calc(var(--anim-speed,1)*4.5s) ease-in-out infinite alternate;}
+    .giraffe__neck{position:absolute; left:19px; top:36px; width:11px; height:46px; background:#fed966; border-radius:8px; box-shadow:0 0 14px #d68f264e;}
+    .giraffe__spots{position:absolute; left:21px; top:56px; width:8px; height:5px; background:#ad7c3d; border-radius:50%;}
+    .giraffe__body{position:absolute; left:3px; top:80px; width:29px; height:15px; background:#fed966; border-radius:14px 19px 17px 14px;}
+    .giraffe__face{position:absolute; left:18px; top:29px; width:13px; height:17px; background:#feedb0; border-radius:50%; border:1px solid #ad7c3d30;}
+    @keyframes giraffe-neck-sway { 0%{transform:rotate(-2deg);}100%{transform:rotate(4deg);} }
+    /* Zebra */
+    .zoo-animal.zebra{position:absolute; bottom:15vh; left:62vw; width:49px; height:37px; z-index:41; animation: zebra-graze calc(var(--anim-speed,1)*3s) infinite alternate;}
+    .zebra__body{position:absolute; left:8px; top:16px; width:27px; height:18px; background:#f7f6fc; border-radius:16px; box-shadow:0 0 8px #e5e5ea44;}
+    .zebra__stripes{position:absolute; left:8px; top:16px; width:27px; height:18px; background:repeating-linear-gradient(-75deg,#222 0px,#222 2px,#fff 2px,#fff 6px); border-radius:16px; opacity:0.62;}
+    .zebra__head{position:absolute; left:24px; top:9px; width:9px; height:11px; background:#f7f6fc; border-radius:60% 60% 90% 80%; border:1px solid #23292b28;}
+    @keyframes zebra-graze{0%{top:0;}100%{top:4px;}}
+    /* Monkey */
+    .zoo-animal.monkey{position:absolute; bottom:33vh; left:25vw; width:39px; height:41px; z-index:46; animation: monkey-swing calc(var(--anim-speed,1)*2s) ease-in-out infinite alternate;}
+    .monkey__body{position:absolute; left:12px; top:17px; width:14px; height:19px; background:#9c5d3f; border-radius:80%;}
+    .monkey__head{position:absolute; left:10px; top:2px; width:16px; height:14px; background:#c69d7b; border-radius:50%; border:1px solid #542a1e20;}
+    .monkey__tail{position:absolute; left:5px; top:32px; width:18px; height:7px; background:#7d5132; border-radius:14px 18px 21px 12px / 12px 18px 16px 14px;}
+    @keyframes monkey-swing{0%{transform:rotate(-26deg);}100%{transform:rotate(23deg);}}
+    /* Bird */
+    .scene__bird{position:absolute; width:18px; height:10px; background:#4DB6AC;border-radius:60% 100% 65% 42% /70% 44% 70% 44%;box-shadow:2px 3px 11px #01656c2c;left:12vw;top:23vh;z-index:70;animation: bird-fly 19.7s cubic-bezier(.22,1.1,.13,.87) infinite;}
+    .scene__bird--2{left:60vw;top:16vh;background:#FFC185;animation-duration:21.3s;}
+    .scene__bird--3{left:80vw;top:11vh;background:#DB4545;animation-duration:23.8s;}
+    @keyframes bird-fly{0%{left:-8vw;}100%{left:110vw;} }
+
+    /* Control Bar */
+    #controls-panel {
+      position: fixed;
+      top: 32px;
+      right: 34px;
+      z-index: 888;
+      background: var(--control-bar-bg);
+      padding: 24px 14px;
+      border-radius: var(--control-bar-radius);
+      border: 1px solid var(--control-bar-border);
+      box-shadow: var(--shadow-lg);
+      min-width: 260px;
+      max-width: 350px;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      opacity: 0.98;
+      backdrop-filter: blur(8px);
+      font-size: 15px;
+    }
+    #controls-panel label, #controls-panel select, #controls-panel input[type=range]{ font-size:15px; color:var(--color-text); }
+    #controls-panel .controls__group{
+      display:flex;flex-direction:row;align-items:center;gap:12px;margin-bottom:10px;
+    }
+    #controls-panel .controls__label{
+      min-width:62px;
+    }
+    #controls-panel .controls__slider{
+      flex:1;
+    }
+    #controls-panel button, #controls-panel select {
+      background: var(--color-secondary);
+      color:var(--color-text);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-base);
+      padding: 4px 12px;
+      cursor:pointer;
+      font-size:var(--font-size-base);
+      transition:background .3s;
+    }
+    #controls-panel button:hover, #controls-panel select:hover {
+      background: var(--color-secondary-hover);
+    }
+    #controls-panel .toggle-btn.active {
+      background: var(--color-primary);
+      color: var(--color-btn-primary-text);
+      border: 1.5px solid var(--color-primary);
+    }
+    #controls-panel .controls__icon{
+      width:24px;height:24px;display:inline-block;vertical-align:middle;opacity:0.8;
+    }
+    #controls-panel .sound-btn{background: none; border:none;}
+    #controls-panel .sound-btn .controls__icon{filter: drop-shadow(0 0 3px #57aecb88);}
+    #controls-panel .controls__slider {-webkit-appearance: none; width:100%; height:5px; background:var(--color-secondary); border-radius:3px;}
+    #controls-panel .controls__slider::-webkit-slider-thumb {width:16px;height:16px;background:var(--color-primary); border-radius:50%; cursor:pointer;}
+    /* Responsive (bottom for mobile) */
+    @media (max-width:650px){
+      #controls-panel {top:auto; bottom:20px; right:20px; min-width:180px; padding:14px 6px;}
+      #scene-root,body{font-size:12px;}
+    }
+    /* Subtle transition on scene classes */
+    .scene-main-zoo { background: var(--sky-gradient-main-zoo) !important; }
+    .scene-african-savanna { background: var(--sky-gradient-african-savanna) !important; }
+    .scene-asian-bamboo { background: var(--sky-gradient-asian-bamboo) !important; }
+    .scene-arctic { background: var(--sky-gradient-arctic) !important; }
+    .scene-tropical { background: var(--sky-gradient-tropical) !important; }
+    .scene-aquarium { background: var(--sky-gradient-aquarium) !important; }
+    /* Time of Day classes (overlays gradient) */
+    .time-dawn { background: var(--time-gradient-dawn) !important; }
+    .time-day { background: var(--time-gradient-day) !important; }
+    .time-dusk { background: var(--time-gradient-dusk) !important; }
+    .time-night { background: var(--time-gradient-night) !important; }
+    /* Control for ground color */
+    .scene__ground.main-zoo { background: var(--ground-main-zoo); }
+    .scene__ground.african-savanna { background: var(--ground-african-savanna); }
+    .scene__ground.asian-bamboo { background: var(--ground-asian-bamboo); }
+    .scene__ground.arctic { background: var(--ground-arctic); }
+    .scene__ground.tropical { background: var(--ground-tropical); }
+    .scene__ground.aquarium { background: var(--ground-aquarium); }
+    /* Scene fade transitions */
+    #scene-root {transition: background var(--scene-transition), filter .8s;} 
+    .fade-scene {filter:brightness(0.92) blur(4px);} 
+    /* Animal density classes: "low", "normal", "high" handled via JS: changes # of nodes in scene! */
+     
+  </style>
+</head>
+<body>
+  <div id="scene-root">
+    <!-- Sky layers: clouds/parallax -->
+    <div class="scene__cloud" style="top:11%;left:7%;"></div>
+    <div class="scene__cloud scene__cloud--2"></div>
+    <div class="scene__cloud scene__cloud--3"></div>
+    <!-- Sun/Moon -->
+    <div class="scene__sun"></div>
+    <!-- Trees and foliage for main zoo -->
+    <div class="scene__tree scene__tree--1">
+      <div class="tree__trunk"></div>
+      <div class="tree__foliage"></div>
+    </div>
+    <div class="scene__tree scene__tree--2">
+      <div class="tree__trunk"></div>
+      <div class="tree__foliage"></div>
+    </div>
+    <div class="scene__tree scene__tree--3">
+      <div class="tree__trunk"></div>
+      <div class="tree__foliage"></div>
+    </div>
+    <!-- Bushes -->
+    <div class="scene__bush" style="left:38vw;"></div>
+    <div class="scene__bush scene__bush--2"></div>
+    <div class="scene__bush scene__bush--3"></div>
+    <!-- Pathways -->
+    <div class="scene__pathway"></div>
+    <!-- Fences/Enclosures -->
+    <div class="scene__fence"></div>
+    <!-- Exhibit sign -->
+    <div class="scene__sign">Lion Enclosure</div>
+    <!-- Benches and Lamp -->
+    <div class="scene__bench"></div>
+    <div class="scene__lamp"></div>
+    <!-- Particle effects -->
+    <div class="scene__particles" id="particles-container"></div>
+    <!-- Animals (default: main zoo) -->
+    <div class="zoo-animal lion">
+      <div class="lion__body"></div>
+      <div class="lion__mane"></div>
+      <div class="lion__face"></div>
+      <div class="lion__eye"></div>
+      <div class="lion__ear"></div>
+    </div>
+    <div class="zoo-animal elephant">
+      <div class="elephant__body"></div>
+      <div class="elephant__head"></div>
+      <div class="elephant__ear"></div>
+      <div class="elephant__trunk"></div>
+    </div>
+    <div class="zoo-animal giraffe">
+      <div class="giraffe__neck"></div>
+      <div class="giraffe__spots"></div>
+      <div class="giraffe__body"></div>
+      <div class="giraffe__face"></div>
+    </div>
+    <div class="zoo-animal zebra">
+      <div class="zebra__body"></div>
+      <div class="zebra__stripes"></div>
+      <div class="zebra__head"></div>
+    </div>
+    <div class="zoo-animal monkey">
+      <div class="monkey__body"></div>
+      <div class="monkey__head"></div>
+      <div class="monkey__tail"></div>
+    </div>
+    <!-- Flying birds -->
+    <div class="scene__bird"></div>
+    <div class="scene__bird scene__bird--2"></div>
+    <div class="scene__bird scene__bird--3"></div>
+    <!-- Ground layer always last for masking-->
+    <div class="scene__ground main-zoo"></div>
+  </div>
+  <!-- Elegant Controls Panel -->
+  <div id="controls-panel">
+    <div class="controls__group">
+      <span class="controls__label">Scenery</span>
+      <select id="scenery-select">
+        <option value="main-zoo">Main Zoo</option>
+        <option value="african-savanna">African Savanna</option>
+        <option value="asian-bamboo">Asian Bamboo Forest</option>
+        <option value="arctic">Arctic Exhibit</option>
+        <option value="tropical">Tropical Rainforest</option>
+        <option value="aquarium">Aquarium View</option>
+      </select>
+    </div>
+    <div class="controls__group">
+      <span class="controls__label">Time</span>
+      <select id="time-select">
+        <option value="dawn">Dawn</option>
+        <option value="day" selected>Day</option>
+        <option value="dusk">Dusk</option>
+        <option value="night">Night</option>
+      </select>
+    </div>
+    <div class="controls__group">
+      <span class="controls__label">Animation</span>
+      <input type="range" id="anim-speed" class="controls__slider" min="0.3" max="1.5" step="0.01" value="1" />
+    </div>
+    <div class="controls__group">
+      <span class="controls__label">Particles</span>
+      <button class="toggle-btn" id="particles-toggle">On</button>
+    </div>
+    <div class="controls__group">
+      <span class="controls__label">Animal Count</span>
+      <input type="range" id="density-slider" class="controls__slider" min="1" max="6" value="5" />
+    </div>
+    <div class="controls__group">
+      <span class="controls__label">Sound</span>
+      <button class="sound-btn" id="sound-btn">
+        <span class="controls__icon" id="sound-icon">
+          <!-- Visual icon: default on -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1FB8CD" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="10 7 5 12 10 17 10 7"/><rect x="11" y="9" width="8" height="6" rx="2"/></svg>
+        </span>
+      </button>
+    </div>
+  </div>
+  <script>
+    // --- App State --- //
+    const sceneries = {
+      'main-zoo': {
+        skyGradient: 'scene-main-zoo', groundClass: 'main-zoo', animals: ['lion','elephant','giraffe','zebra','monkey']
+      },
+      'african-savanna': {
+        skyGradient: 'scene-african-savanna', groundClass: 'african-savanna', animals: ['lion','elephant','giraffe','zebra']
+      },
+      'asian-bamboo': {
+        skyGradient: 'scene-asian-bamboo', groundClass: 'asian-bamboo', animals: ['panda','red_panda','monkey']
+      },
+      'arctic': {
+        skyGradient: 'scene-arctic', groundClass: 'arctic', animals: ['polar_bear','penguin','seal']
+      },
+      'tropical': {
+        skyGradient: 'scene-tropical', groundClass: 'tropical', animals: ['monkey','parrot','toucan','butterfly']
+      },
+      'aquarium': {
+        skyGradient: 'scene-aquarium', groundClass: 'aquarium', animals: ['fish','jellyfish','ray']
+      },
+    };
+    const timesOfDay = {
+      'dawn':'time-dawn', 'day':'time-day', 'dusk':'time-dusk', 'night':'time-night'
+    };
+    // Animation speeds
+    const animationSpeeds = {
+      'very_slow':0.3, 'slow':0.6, 'normal':1, 'fast':1.5
+    };
+    let appState = {
+      scenery: 'main-zoo',
+      time: 'day',
+      particles: true,
+      animSpeed: 1,
+      animalDensity: 5,
+      sound: true, // UI only
+    };
+    const sceneRoot = document.getElementById('scene-root');
+    const groundLayer = sceneRoot.querySelector('.scene__ground');
+    const particlesContainer = document.getElementById('particles-container');
+    // --- Controls Panel Events --- //
+    document.getElementById('scenery-select').addEventListener('change',e=>{
+      switchScenery(e.target.value);
+    });
+    document.getElementById('time-select').addEventListener('change',e=>{
+      switchTime(e.target.value);
+    });
+    document.getElementById('anim-speed').addEventListener('input',e=>{
+      setAnimSpeed(Number(e.target.value));
+    });
+    document.getElementById('particles-toggle').addEventListener('click',e=>{
+      toggleParticles();
+    });
+    document.getElementById('density-slider').addEventListener('input',e=>{
+      setAnimalDensity(Number(e.target.value));
+    });
+    document.getElementById('sound-btn').addEventListener('click',e=>{
+      toggleSound();
+    });
+    // --- Scene Switchers --- //
+    function switchScenery(sceneryKey){
+      appState.scenery = sceneryKey;
+      // Remove any previous scene classes
+      Object.values(sceneries).forEach(({skyGradient})=>sceneRoot.classList.remove(skyGradient));
+      sceneRoot.classList.add(sceneries[sceneryKey].skyGradient);
+      // Change ground color
+      groundLayer.className = `scene__ground ${sceneries[sceneryKey].groundClass}`;
+      // Fade-out animal scene for smooth transition effect
+      sceneRoot.classList.add('fade-scene');
+      setTimeout(()=>{
+        sceneRoot.classList.remove('fade-scene');
+        renderAnimals();
+      },400);
+    }
+    function switchTime(timeKey){
+      appState.time = timeKey;
+      // Remove any previous time classes
+      Object.values(timesOfDay).forEach(className=>sceneRoot.classList.remove(className));
+      sceneRoot.classList.add(timesOfDay[timeKey]);
+    }
+    function setAnimSpeed(speed){
+      appState.animSpeed = speed;
+      document.documentElement.style.setProperty('--anim-speed',speed);
+    }
+    function toggleParticles(){
+      appState.particles = !appState.particles;
+      updateParticles();
+      document.getElementById('particles-toggle').classList.toggle('active',appState.particles);
+      document.getElementById('particles-toggle').textContent = appState.particles?'On':'Off';
+    }
+    function setAnimalDensity(density){
+      appState.animalDensity = density;
+      renderAnimals();
+    }
+    function toggleSound(){
+      appState.sound = !appState.sound;
+      renderSoundIcon();
+    }
+    function renderSoundIcon(){
+      const soundIcon = document.getElementById('sound-icon');
+      soundIcon.innerHTML = appState.sound ? `<svg viewBox="0 0 24 24" fill="none" stroke="#1FB8CD" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="10 7 5 12 10 17 10 7"/><rect x="11" y="9" width="8" height="6" rx="2"/></svg>` : `<svg viewBox="0 0 24 24" fill="none" stroke="#DB4545" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="10 7 5 12 10 17 10 7"/><rect x="11" y="9" width="8" height="6" rx="2"/><line x1="4" y1="4" x2="20" y2="20"/></svg>`;
+    }
+
+    // Particles (floating fireflies/dust motes)
+    function updateParticles(){
+      particlesContainer.innerHTML = '';
+      if(!appState.particles) return;
+      for(let i=0; i<16; ++i){
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random()*95+'vw';
+        p.style.top = (Math.random()*88+4)+'vh';
+        p.style.animationDuration = (9+Math.random()*13)*appState.animSpeed + 's';
+        particlesContainer.appendChild(p);
+      }
+    }
+
+    // Animals rendering
+    function renderAnimals(){
+      // Remove previous animals
+      Array.from(sceneRoot.querySelectorAll('.zoo-animal,.scene__bird,.scene__bench,.scene__sign')).forEach(e=>{
+        if(!['scene__ground','scene__tree','scene__bush','scene__lamp','scene__cloud','scene__pathway','scene__fence','scene__particles'].some(c=>e.classList.contains(c)))
+          e.remove();
+      });
+      // Add benches/sign (main zoo only)
+      if(appState.scenery==='main-zoo'){
+        let bench=document.createElement('div');bench.className='scene__bench';sceneRoot.appendChild(bench);
+        let sign=document.createElement('div');sign.className='scene__sign';sign.textContent='Lion Enclosure';sceneRoot.appendChild(sign);
+      }
+      // Add animals based on density (round robin from animal list)
+      let animals = sceneries[appState.scenery].animals;
+      for(let i=0; i<appState.animalDensity; ++i){
+        let type = animals[i%animals.length];
+        let el = buildAnimal(type, i);
+        if(el)sceneRoot.appendChild(el);
+      }
+      // Add birds (flying only for day/dawn)
+      if(appState.time==='day'||appState.time==='dawn'){
+        for(let i=0; i<3; ++i){
+          let bird=document.createElement('div');bird.className='scene__bird';if(i)bird.classList.add('scene__bird--'+(i+1));sceneRoot.appendChild(bird);
+        }
+      }
+    }
+    function buildAnimal(type,i){
+      let elem=document.createElement('div');elem.className='zoo-animal '+type;
+      // Position animals spaced across width, random within their habitat
+      let lefts=[26,36,48,62,25,32,44,55];
+      let bottoms=[15,16,16.5,15,33,21,24,19];
+      elem.style.left = lefts[i%lefts.length]+(i*7)+'vw';
+      elem.style.bottom = bottoms[i%bottoms.length]+(i*2)+'vh';
+      // Return different structures for animals
+      if(type==='lion'){
+        elem.innerHTML = `<div class="lion__body"></div><div class="lion__mane"></div><div class="lion__face"></div><div class="lion__eye"></div><div class="lion__ear"></div>`;
+      }
+      else if(type==='elephant'){
+        elem.innerHTML = `<div class="elephant__body"></div><div class="elephant__head"></div><div class="elephant__ear"></div><div class="elephant__trunk"></div>`;
+      }
+      else if(type==='giraffe'){
+        elem.innerHTML = `<div class="giraffe__neck"></div><div class="giraffe__spots"></div><div class="giraffe__body"></div><div class="giraffe__face"></div>`;
+      }
+      else if(type==='zebra'){
+        elem.innerHTML = `<div class="zebra__body"></div><div class="zebra__stripes"></div><div class="zebra__head"></div>`;
+      }
+      else if(type==='monkey'){
+        elem.innerHTML = `<div class="monkey__body"></div><div class="monkey__head"></div><div class="monkey__tail"></div>`;
+      }
+      else if(type==='panda'){
+        elem.innerHTML = `<div style='position:absolute;left:8px;top:18px;width:24px;height:15px;background:#fff;border-radius:17px;'></div><div style='position:absolute;left:19px;top:7px;width:18px;height:17px;background:#fff;border-radius:10px;'></div><div style='position:absolute;left:21px;top:11px;width:8px;height:8px;background:#222;border-radius:50%;'></div>`;
+      }
+      else if(type==='red_panda'){
+        elem.innerHTML = `<div style='position:absolute;left:8px;top:18px;width:24px;height:15px;background:#f9a86a;border-radius:17px;'></div><div style='position:absolute;left:19px;top:7px;width:18px;height:17px;background:#fff2cb;border-radius:10px;'></div>`;
+      }
+      else if(type==='polar_bear'){
+        elem.innerHTML = `<div style='position:absolute;left:8px;top:18px;width:24px;height:15px;background:#f2f5fa;border-radius:17px;'></div><div style='position:absolute;left:19px;top:7px;width:18px;height:17px;background:#e4ecf5;border-radius:10px;'></div>`;
+      }
+      else if(type==='penguin'){
+        elem.innerHTML = `<div style='position:absolute;left:6px;top:18px;width:18px;height:26px;background:#fff;border-radius:17px;'></div><div style='position:absolute;left:18px;top:11px;width:17px;height:34px;background:#222;border-radius:50%;'></div>`;
+      }
+      else if(type==='seal'){
+        elem.innerHTML = `<div style='position:absolute;left:8px;top:21px;width:21px;height:13px;background:#c1d7e3;border-radius:19px;'></div><div style='position:absolute;left:16px;top:10px;width:14px;height:16px;background:#ebf7fa;border-radius:19px;'></div>`;
+      }
+      else if(type==='parrot'){
+        elem.innerHTML = `<div style='position:absolute;left:8px;top:19px;width:24px;height:15px;background:#ff3385;border-radius:17px;'></div>`;
+      }
+      else if(type==='toucan'){
+        elem.innerHTML = `<div style='position:absolute;left:13px;top:23px;width:18px;height:11px;background:#edc32c;border-radius:17px;'></div><div style='position:absolute;left:25px;top:14px;width:13px;height:17px;background:#222;border-radius:50%;'></div>`;
+      }
+      else if(type==='butterfly'){
+        elem.innerHTML = `<div style='position:absolute;left:17px;top:23px;width:14px;height:14px;background:#f5eefc;border-radius:60% 60% 70% 65%/80% 80% 85% 89%;filter:drop-shadow(0 0 6px #6a4ee4);'></div><div style='position:absolute;left:27px;top:23px;width:14px;height:14px;background:#f9dd4a;border-radius:60% 60% 75% 67%/70% 78% 92% 66%;filter:drop-shadow(0 0 9px #d0962a);'></div>`;
+      }
+      else if(type==='fish'){
+        elem.innerHTML = `<div style='position:absolute;left:10px;top:20px;width:20px;height:10px;background:#0099ff;border-radius:14px;'></div><div style='position:absolute;left:14px;top:15px;width:11px;height:8px;background:#fffc00;border-radius:30px;'></div>`;
+      }
+      else if(type==='jellyfish'){
+        elem.innerHTML = `<div style='position:absolute;left:13px;top:18px;width:18px;height:12px;background:#d9f1fc;border-radius:60%;filter:drop-shadow(0 0 9px #b6eafc);'></div>`;
+      }
+      else if(type==='ray'){
+        elem.innerHTML = `<div style='position:absolute;left:7px;top:15px;width:28px;height:13px;background:#4340b7;border-radius:33% 55% 60% 39%;filter:drop-shadow(0 0 8px #82a1fb);'></div>`;
+      }
+      return elem;
+    }
+    // Initial render
+    updateParticles();
+    renderSoundIcon();
+    renderAnimals();
+    document.getElementById('particles-toggle').classList.toggle('active',appState.particles);
+    // Day/night sync controls panel bg for effect
+    document.getElementById('time-select').addEventListener('change',function(){
+      let t = this.value;
+      if(t==="night"){
+        document.getElementById('controls-panel').style.background = "rgba(50,52,80, 0.79)";
+      }else{
+        document.getElementById('controls-panel').style.background = "rgba(255,255,253,0.85)";
+      }
+    });
+  </script>
+</body>
+</html>
