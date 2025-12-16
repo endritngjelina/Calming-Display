@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subway Entrance - Calming Scene</title>
+    <style>
+        :root {
+            --color-primary: #00a8cc;
+            --color-secondary: #0a1929;
+            --color-accent: #ff6b6b;
+            --color-text: #e0e0e0;
+            --color-surface: #121212;
+            --glow-intensity: 1;
+            --rain-speed: 3;
+            --ambient-glow: 0.7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--color-surface);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--color-text);
+        }
+
+        .scene-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #0a0e1a 0%, #1a1a2e 40%, #0f0f1e 100%);
+            overflow: hidden;
+        }
+
+        /* Background and Sky */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(180deg, #0a0e1a 0%, rgba(10, 14, 26, 0.6) 50%, transparent 100%);
+            pointer-events: none;
+        }
+
+        /* Distant City Lights */
+        .city-lights {
+            position: absolute;
+            top: 5%;
+            width: 100%;
+            height: 30%;
+            opacity: 0.3;
+            filter: blur(8px);
+            pointer-events: none;
+        }
+
+        .light-building {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,200,87,0.4) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        /* Pavement and Ground */
+        .pavement {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 55%;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 50%, #050505 100%);
+            overflow: hidden;
+        }
+
+        /* Rain Effect */
+        .rain-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: var(--ambient-glow);
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            height: 15px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.8), transparent);
+            opacity: 0.6;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        /* Subway Entrance Stairs */
+        .subway-entrance {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            max-width: 90%;
+            z-index: 10;
+        }
+
+        .stair-set {
+            perspective: 1000px;
+        }
+
+        .stair {
+            height: 15px;
+            background: linear-gradient(90deg, #2a2a3e 0%, #1a1a2e 50%, #0f0f1e 100%);
+            margin: 3px 0;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            border-right: 1px solid rgba(0,0,0,0.5);
+            position: relative;
+            transform: perspective(800px) rotateX(-15deg);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            animation: stair-glow 4s ease-in-out infinite;
+        }
+
+        .stair:nth-child(odd) {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes stair-glow {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        /* Subway Tunnel Glow */
+        .tunnel-glow {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 450px;
+            max-width: 95%;
+            height: 200px;
+            background: radial-gradient(ellipse at center, rgba(0,168,204,0.4) 0%, transparent 70%);
+            filter: blur(40px);
+            animation: pulse-glow 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+            50% { opacity: 0.9; transform: translateX(-50%) scale(1.1); }
+        }
+
+        /* Subway Sign */
+        .subway-sign {
+            position: absolute;
+            bottom: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #00a8cc, #0088aa);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: white;
+            text-shadow: 0 0 10px rgba(0,168,204,0.8);
+            box-shadow: 0 0 20px rgba(0,168,204,0.6);
+            animation: sign-flicker 3s ease-in-out infinite;
+            z-index: 11;
+        }
+
+        @keyframes sign-flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Reflections on Pavement */
+        .reflection-layer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 55%;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .reflection {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(0,168,204,0.3), transparent);
+            animation: reflection-flicker 2s ease-in-out infinite;
+        }
+
+        @keyframes reflection-flicker {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(18, 18, 18, 0.95);
+            border: 1px solid rgba(0,168,204,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 1000;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+
+        .controls-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--color-primary);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            font-size: 12px;
+            color: var(--color-text);
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, rgba(0,168,204,0.2), rgba(0,168,204,0.5));
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,168,204,0.6);
+            transition: all 0.2s;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(0,168,204,0.8);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(0,168,204,0.6);
+            transition: all 0.2s;
+        }
+
+        .slider::-moz-range-thumb:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(0,168,204,0.8);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 70px;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, rgba(0,168,204,0.3), rgba(0,168,204,0.1));
+            border: 1px solid rgba(0,168,204,0.5);
+            color: var(--color-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, rgba(0,168,204,0.5), rgba(0,168,204,0.3));
+            box-shadow: 0 0 15px rgba(0,168,204,0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.active {
+            background: linear-gradient(135deg, rgba(0,168,204,0.8), rgba(0,168,204,0.6));
+            box-shadow: 0 0 20px rgba(0,168,204,0.6);
+        }
+
+        /* Toggle Switches */
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: rgba(0,168,204,0.2);
+            border: 1px solid rgba(0,168,204,0.3);
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+            box-shadow: 0 0 8px rgba(0,168,204,0.4);
+        }
+
+        .toggle-switch.active .switch {
+            background: rgba(0,168,204,0.5);
+            border-color: var(--color-primary);
+        }
+
+        .toggle-switch.active .switch::after {
+            transform: translateX(20px);
+            box-shadow: 0 0 12px rgba(0,168,204,0.8);
+        }
+
+        /* Ambient Light Presets */
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            background: rgba(0,168,204,0.15);
+            border: 1px solid rgba(0,168,204,0.3);
+            border-radius: 6px;
+            color: var(--color-text);
+            cursor: pointer;
+            font-size: 11px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .preset-btn:hover {
+            background: rgba(0,168,204,0.3);
+            box-shadow: 0 0 12px rgba(0,168,204,0.3);
+        }
+
+        .preset-btn.active {
+            background: linear-gradient(135deg, rgba(0,168,204,0.6), rgba(0,168,204,0.4));
+            border-color: var(--color-primary);
+            box-shadow: 0 0 15px rgba(0,168,204,0.5);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .controls-panel {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+
+            .subway-entrance {
+                width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <!-- Sky and Distant City -->
+        <div class="sky"></div>
+        <div class="city-lights" id="cityLights"></div>
+
+        <!-- Rain Effect -->
+        <div class="rain-container" id="rainContainer"></div>
+
+        <!-- Pavement -->
+        <div class="pavement">
+            <div class="reflection-layer" id="reflectionLayer"></div>
+        </div>
+
+        <!-- Subway Tunnel Glow -->
+        <div class="tunnel-glow" id="tunnelGlow"></div>
+
+        <!-- Subway Sign -->
+        <div class="subway-sign" id="subwaySign">METRO</div>
+
+        <!-- Subway Stairs -->
+        <div class="subway-entrance">
+            <div class="stair-set" id="stairSet"></div>
+        </div>
+
+        <!-- Controls Panel -->
+        <div class="controls-panel">
+            <div class="controls-title">Scene Controls</div>
+
+            <!-- Glow Intensity -->
+            <div class="control-group">
+                <label class="control-label">Glow Intensity</label>
+                <input type="range" class="slider" id="glowSlider" min="0" max="2" step="0.1" value="1">
+            </div>
+
+            <!-- Rain Speed -->
+            <div class="control-group">
+                <label class="control-label">Rain Speed</label>
+                <input type="range" class="slider" id="rainSpeedSlider" min="1" max="10" step="0.5" value="3">
+            </div>
+
+            <!-- Ambient Glow -->
+            <div class="control-group">
+                <label class="control-label">Ambient Opacity</label>
+                <input type="range" class="slider" id="ambientSlider" min="0" max="1" step="0.1" value="0.7">
+            </div>
+
+            <!-- Rain Toggle -->
+            <div class="control-group">
+                <div class="toggle-switch" id="rainToggle">
+                    <div class="switch"></div>
+                    <span style="font-size: 12px;">Rain</span>
+                </div>
+            </div>
+
+            <!-- Stair Animation Toggle -->
+            <div class="control-group">
+                <div class="toggle-switch active" id="animToggle">
+                    <div class="switch"></div>
+                    <span style="font-size: 12px;">Animations</span>
+                </div>
+            </div>
+
+            <!-- Lighting Presets -->
+            <div class="control-group">
+                <label class="control-label">Lighting Presets</label>
+                <div class="preset-buttons">
+                    <button class="preset-btn active" data-preset="normal">Normal</button>
+                    <button class="preset-btn" data-preset="deep">Deep</button>
+                    <button class="preset-btn" data-preset="bright">Bright</button>
+                </div>
+            </div>
+
+            <!-- Theme Toggle -->
+            <div class="control-group">
+                <div class="button-group">
+                    <button class="btn active" data-theme="blue">Cool</button>
+                    <button class="btn" data-theme="purple">Purple</button>
+                    <button class="btn" data-theme="green">Green</button>
+                </div>
+            </div>
+
+            <!-- Reset Button -->
+            <div class="control-group">
+                <button class="btn" style="width: 100%;" id="resetBtn">Reset All</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sceneContainer = document.querySelector('.scene-container');
+        const rainContainer = document.getElementById('rainContainer');
+        const stairSet = document.getElementById('stairSet');
+        const tunnelGlow = document.getElementById('tunnelGlow');
+        const cityLights = document.getElementById('cityLights');
+        const reflectionLayer = document.getElementById('reflectionLayer');
+
+        // Initialize stairs
+        function generateStairs() {
+            stairSet.innerHTML = '';
+            for (let i = 0; i < 12; i++) {
+                const stair = document.createElement('div');
+                stair.className = 'stair';
+                stair.style.width = (100 - i * 3) + '%';
+                stair.style.marginLeft = (i * 1.5) + '%';
+                stairSet.appendChild(stair);
+            }
+        }
+
+        // Generate rain
+        function generateRain() {
+            rainContainer.innerHTML = '';
+            for (let i = 0; i < 100; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'raindrop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.top = Math.random() * -100 + 'px';
+                drop.style.animationDuration = (Math.random() * 0.5 + 0.5) / (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--rain-speed'))) + 's';
+                drop.style.animationDelay = Math.random() * 2 + 's';
+                rainContainer.appendChild(drop);
+            }
+        }
+
+        // Generate city lights
+        function generateCityLights() {
+            cityLights.innerHTML = '';
+            for (let i = 0; i < 8; i++) {
+                const light = document.createElement('div');
+                light.className = 'light-building';
+                light.style.left = Math.random() * 80 + 10 + '%';
+                light.style.top = Math.random() * 40 + '%';
+                light.style.width = Math.random() * 100 + 50 + 'px';
+                light.style.height = light.style.width;
+                cityLights.appendChild(light);
+            }
+        }
+
+        // Generate reflections
+        function generateReflections() {
+            reflectionLayer.innerHTML = '';
+            for (let i = 0; i < 15; i++) {
+                const reflection = document.createElement('div');
+                reflection.className = 'reflection';
+                reflection.style.top = (i * 5) + '%';
+                reflection.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                reflection.style.animationDelay = Math.random() * 4 + 's';
+                reflectionLayer.appendChild(reflection);
+            }
+        }
+
+        // Control event listeners
+        document.getElementById('glowSlider').addEventListener('input', (e) => {
+            document.documentElement.style.setProperty('--glow-intensity', e.target.value);
+            tunnelGlow.style.opacity = e.target.value * 0.5;
+        });
+
+        document.getElementById('rainSpeedSlider').addEventListener('input', (e) => {
+            document.documentElement.style.setProperty('--rain-speed', e.target.value);
+            generateRain();
+        });
+
+        document.getElementById('ambientSlider').addEventListener('input', (e) => {
+            document.documentElement.style.setProperty('--ambient-glow', e.target.value);
+            rainContainer.style.opacity = e.target.value;
+        });
+
+        // Rain Toggle
+        document.getElementById('rainToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            rainContainer.style.display = this.classList.contains('active') ? 'block' : 'none';
+        });
+
+        // Animation Toggle
+        document.getElementById('animToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            const isActive = this.classList.contains('active');
+            stairSet.style.animation = isActive ? 'auto' : 'none';
+            tunnelGlow.style.animation = isActive ? 'auto' : 'none';
+            document.querySelectorAll('.stair').forEach(stair => {
+                stair.style.animation = isActive ? 'stair-glow 4s ease-in-out infinite' : 'none';
+            });
+            document.querySelector('.subway-sign').style.animation = isActive ? 'sign-flicker 3s ease-in-out infinite' : 'none';
+        });
+
+        // Preset Buttons
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const preset = this.dataset.preset;
+                switch(preset) {
+                    case 'normal':
+                        document.getElementById('glowSlider').value = 1;
+                        document.getElementById('ambientSlider').value = 0.7;
+                        break;
+                    case 'deep':
+                        document.getElementById('glowSlider').value = 0.5;
+                        document.getElementById('ambientSlider').value = 0.4;
+                        break;
+                    case 'bright':
+                        document.getElementById('glowSlider').value = 1.8;
+                        document.getElementById('ambientSlider').value = 1;
+                        break;
+                }
+                document.getElementById('glowSlider').dispatchEvent(new Event('input'));
+                document.getElementById('ambientSlider').dispatchEvent(new Event('input'));
+            });
+        });
+
+        // Theme Buttons
+        document.querySelectorAll('[data-theme]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-theme]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const theme = this.dataset.theme;
+                let cssVars = {
+                    'blue': {
+                        '--color-primary': '#00a8cc',
+                        '--color-secondary': '#0a1929'
+                    },
+                    'purple': {
+                        '--color-primary': '#b366ff',
+                        '--color-secondary': '#1a0f2e'
+                    },
+                    'green': {
+                        '--color-primary': '#00ff88',
+                        '--color-secondary': '#0a2e1a'
+                    }
+                };
+
+                Object.keys(cssVars[theme]).forEach(key => {
+                    document.documentElement.style.setProperty(key, cssVars[theme][key]);
+                });
+            });
+        });
+
+        // Reset Button
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('glowSlider').value = 1;
+            document.getElementById('rainSpeedSlider').value = 3;
+            document.getElementById('ambientSlider').value = 0.7;
+            document.getElementById('glowSlider').dispatchEvent(new Event('input'));
+            document.getElementById('rainSpeedSlider').dispatchEvent(new Event('input'));
+            document.getElementById('ambientSlider').dispatchEvent(new Event('input'));
+            
+            document.getElementById('rainToggle').classList.add('active');
+            rainContainer.style.display = 'block';
+            
+            document.getElementById('animToggle').classList.add('active');
+            document.querySelectorAll('.stair').forEach(stair => {
+                stair.style.animation = 'stair-glow 4s ease-in-out infinite';
+            });
+            
+            document.querySelector('.subway-sign').style.animation = 'sign-flicker 3s ease-in-out infinite';
+            tunnelGlow.style.animation = 'pulse-glow 6s ease-in-out infinite';
+
+            document.querySelectorAll('.preset-btn')[0].classList.add('active');
+            document.querySelectorAll('.preset-btn').forEach((b, i) => {
+                if (i !== 0) b.classList.remove('active');
+            });
+
+            document.querySelectorAll('[data-theme]').forEach((b, i) => {
+                if (i === 0) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+        });
+
+        // Initialize
+        generateStairs();
+        generateRain();
+        generateCityLights();
+        generateReflections();
+    </script>
+</body>
+</html>
