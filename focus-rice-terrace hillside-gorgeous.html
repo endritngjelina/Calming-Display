@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rice Terrace Hillside - Calming Scene</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            
+            --color-background: var(--color-cream-50);
+            --color-text: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-focus-ring: rgba(33, 128, 141, 0.4);
+            --focus-outline: 2px solid var(--color-primary);
+            
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --radius-base: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(180deg, #1a3a47 0%, #0f2a33 50%, #051a1f 100%);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(25, 40, 45, 0.95);
+            border: 1px solid rgba(50, 184, 198, 0.3);
+            border-radius: var(--radius-lg);
+            padding: var(--space-16);
+            backdrop-filter: blur(10px);
+            display: flex;
+            gap: var(--space-12);
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+        }
+
+        .control-group {
+            display: flex;
+            gap: var(--space-8);
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-label {
+            color: var(--color-gray-300);
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button, select {
+            padding: var(--space-8) var(--space-12);
+            border: 1px solid rgba(50, 184, 198, 0.4);
+            border-radius: var(--radius-base);
+            background: rgba(50, 184, 198, 0.15);
+            color: var(--color-teal-300);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all var(--duration-normal) var(--ease-standard);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover, select:hover {
+            background: rgba(50, 184, 198, 0.25);
+            border-color: var(--color-teal-300);
+            box-shadow: 0 0 12px rgba(50, 184, 198, 0.3);
+        }
+
+        button:focus-visible, select:focus-visible {
+            outline: var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2332b8c6' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 28px;
+        }
+
+        .info-text {
+            color: var(--color-gray-300);
+            font-size: 11px;
+            opacity: 0.8;
+            margin-left: var(--space-8);
+        }
+
+        .toggle-button {
+            background: rgba(50, 184, 198, 0.15);
+        }
+
+        .toggle-button.active {
+            background: rgba(50, 184, 198, 0.35);
+            box-shadow: 0 0 12px rgba(50, 184, 198, 0.4);
+        }
+
+        .slider-container {
+            display: flex;
+            gap: var(--space-8);
+            align-items: center;
+        }
+
+        input[type="range"] {
+            width: 120px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(50, 184, 198, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-teal-300);
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-standard);
+            box-shadow: 0 0 8px rgba(50, 184, 198, 0.5);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 12px rgba(50, 184, 198, 0.8);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-teal-300);
+            cursor: pointer;
+            border: none;
+            transition: all var(--duration-normal) var(--ease-standard);
+            box-shadow: 0 0 8px rgba(50, 184, 198, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 12px rgba(50, 184, 198, 0.8);
+        }
+
+        .value-display {
+            color: var(--color-teal-300);
+            font-size: 12px;
+            min-width: 28px;
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                max-width: none;
+            }
+
+            button, select {
+                font-size: 11px;
+                padding: 6px 10px;
+            }
+
+            .control-label {
+                font-size: 11px;
+            }
+
+            input[type="range"] {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="control-panel">
+        <div class="control-group">
+            <label class="control-label">Time of Day</label>
+            <select id="timeOfDay">
+                <option value="dusk">Dusk</option>
+                <option value="night">Night</option>
+                <option value="dawn">Dawn</option>
+                <option value="midday">Midday</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Season</label>
+            <select id="season">
+                <option value="flooded">Flooded (Spring)</option>
+                <option value="growing">Growing (Summer)</option>
+                <option value="harvest">Harvest (Fall)</option>
+                <option value="fallow">Fallow (Winter)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <button id="toggleWater" class="toggle-button active">Water Shimmer</button>
+            <button id="toggleFireflies" class="toggle-button active">Fireflies</button>
+            <button id="toggleFog" class="toggle-button active">Fog</button>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Firefly Intensity</label>
+            <div class="slider-container">
+                <input type="range" id="fireflyIntensity" min="1" max="100" value="70">
+                <span class="value-display" id="fireflyValue">70%</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Water Speed</label>
+            <div class="slider-container">
+                <input type="range" id="waterSpeed" min="0.2" max="3" step="0.1" value="1">
+                <span class="value-display" id="waterSpeedValue">1x</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let animationState = {
+            timeOfDay: 'dusk',
+            season: 'flooded',
+            waterEnabled: true,
+            firefliesEnabled: true,
+            fogEnabled: true,
+            fireflyIntensity: 0.7,
+            waterSpeed: 1,
+            time: 0
+        };
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Setup controls
+        document.getElementById('timeOfDay').addEventListener('change', (e) => {
+            animationState.timeOfDay = e.target.value;
+        });
+
+        document.getElementById('season').addEventListener('change', (e) => {
+            animationState.season = e.target.value;
+        });
+
+        document.getElementById('toggleWater').addEventListener('click', function() {
+            animationState.waterEnabled = !animationState.waterEnabled;
+            this.classList.toggle('active');
+        });
+
+        document.getElementById('toggleFireflies').addEventListener('click', function() {
+            animationState.firefliesEnabled = !animationState.firefliesEnabled;
+            this.classList.toggle('active');
+        });
+
+        document.getElementById('toggleFog').addEventListener('click', function() {
+            animationState.fogEnabled = !animationState.fogEnabled;
+            this.classList.toggle('active');
+        });
+
+        document.getElementById('fireflyIntensity').addEventListener('input', (e) => {
+            animationState.fireflyIntensity = e.target.value / 100;
+            document.getElementById('fireflyValue').textContent = e.target.value + '%';
+        });
+
+        document.getElementById('waterSpeed').addEventListener('input', (e) => {
+            animationState.waterSpeed = parseFloat(e.target.value);
+            document.getElementById('waterSpeedValue').textContent = e.target.value + 'x';
+        });
+
+        // Color palettes for different times
+        const colorPalettes = {
+            dusk: {
+                sky: ['#0f1620', '#1a3a47', '#2d5a6f', '#4a7c8d', '#6b9fab'],
+                terraceBg: ['#1a4d3c', '#2a5f4a', '#1f4535'],
+                water: ['#3a5f6f', '#4a7f8f', '#2a5f7f'],
+                highlight: ['#d4a574', '#e6b88a', '#f0c9a0']
+            },
+            night: {
+                sky: ['#050d12', '#0a1820', '#0f2535', '#1a3a45'],
+                terraceBg: ['#0f3020', '#1a4030', '#0d2510'],
+                water: ['#1a3f5f', '#2a5f7f', '#1a4f6f'],
+                highlight: ['#4a9faf', '#3a8f9f', '#2a7f8f']
+            },
+            dawn: {
+                sky: ['#1a3a4f', '#2a5a6f', '#4a7a9f', '#6a9abf', '#8ababf', '#d9a574'],
+                terraceBg: ['#1a4d3c', '#2a5f4a', '#1f4535'],
+                water: ['#3a6f8f', '#5a8faf', '#4a7f9f'],
+                highlight: ['#e6b874', '#f0c884', '#fad09a']
+            },
+            midday: {
+                sky: ['#87ceeb', '#70c0d8', '#5ab0d0', '#4aa0c8'],
+                terraceBg: ['#2d5a3d', '#3a6f4f', '#2a5a3f'],
+                water: ['#5a9fcf', '#6aafdf', '#4a9fcf'],
+                highlight: ['#ffeb99', '#fff9cc', '#fffadb']
+            }
+        };
+
+        const seasonColors = {
+            flooded: { waterOpacity: 0.9, fieldColor: 0.3 },
+            growing: { waterOpacity: 0.2, fieldColor: 0.6 },
+            harvest: { waterOpacity: 0.1, fieldColor: 0.5 },
+            fallow: { waterOpacity: 0.7, fieldColor: 0.25 }
+        };
+
+        class Firefly {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * (canvas.height * 0.6);
+                this.vx = (Math.random() - 0.5) * 1.5;
+                this.vy = (Math.random() - 0.5) * 1.5;
+                this.brightness = Math.random() * 0.5;
+                this.maxBrightness = 0.7 + Math.random() * 0.3;
+                this.brightnessChange = 0.01 + Math.random() * 0.02;
+                this.size = 2 + Math.random() * 3;
+                this.phase = Math.random() * Math.PI * 2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.phase += 0.03;
+
+                this.vx += (Math.random() - 0.5) * 0.2;
+                this.vy += (Math.random() - 0.5) * 0.2;
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+
+                // Breathing/pulsing effect
+                this.brightness = this.maxBrightness * Math.sin(this.phase);
+                if (this.brightness < 0) this.brightness = 0;
+
+                // Wrap around edges
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+            }
+
+            draw(ctx) {
+                const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 3);
+                glow.addColorStop(0, `rgba(255, 220, 100, ${this.brightness * 0.8})`);
+                glow.addColorStop(0.5, `rgba(255, 200, 50, ${this.brightness * 0.4})`);
+                glow.addColorStop(1, `rgba(255, 200, 50, 0)`);
+
+                ctx.fillStyle = glow;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = `rgba(255, 240, 150, ${this.brightness})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const fireflies = Array.from({length: 150}, () => new Firefly());
+
+        function drawTerraces() {
+            const palette = colorPalettes[animationState.timeOfDay];
+            const seasonData = seasonColors[animationState.season];
+            const waterWave = Math.sin(animationState.time * 0.005 * animationState.waterSpeed) * 3;
+
+            // Sky gradient
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            const skyColors = palette.sky;
+            const colorStop = 1 / (skyColors.length - 1);
+            skyColors.forEach((color, i) => {
+                skyGradient.addColorStop(i * colorStop, color);
+            });
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw terraces
+            const terraceCount = 12;
+            const baseSpacing = canvas.height / terraceCount;
+
+            for (let i = 0; i < terraceCount; i++) {
+                const yOffset = i * baseSpacing + waterWave;
+                const perspective = i / terraceCount;
+                const scale = 0.5 + perspective * 1.5;
+
+                // Terrace field
+                ctx.fillStyle = palette.terraceBg[i % palette.terraceBg.length];
+                ctx.globalAlpha = 0.4 + perspective * 0.6;
+                ctx.beginPath();
+                ctx.moveTo(0, yOffset);
+                ctx.quadraticCurveTo(canvas.width * 0.5, yOffset - 20 * scale, canvas.width, yOffset);
+                ctx.lineTo(canvas.width, yOffset + baseSpacing * 0.8);
+                ctx.quadraticCurveTo(canvas.width * 0.5, yOffset + baseSpacing * 0.8 + 20 * scale, 0, yOffset + baseSpacing * 0.8);
+                ctx.closePath();
+                ctx.fill();
+
+                // Water effect when flooding is enabled and season is flooded
+                if (animationState.waterEnabled && animationState.season === 'flooded') {
+                    ctx.fillStyle = palette.water[i % palette.water.length];
+                    ctx.globalAlpha = seasonData.waterOpacity * 0.6 * perspective;
+                    ctx.beginPath();
+                    ctx.moveTo(0, yOffset);
+                    
+                    // Wavy water surface
+                    for (let x = 0; x <= canvas.width; x += 40) {
+                        const waveHeight = Math.sin((x * 0.01 + animationState.time * 0.008 * animationState.waterSpeed) * Math.PI) * 8;
+                        ctx.lineTo(x, yOffset + waveHeight);
+                    }
+                    ctx.lineTo(canvas.width, yOffset + baseSpacing * 0.5);
+                    ctx.lineTo(0, yOffset + baseSpacing * 0.5);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // Highlight/sunlight reflections
+                ctx.fillStyle = palette.highlight[i % palette.highlight.length];
+                ctx.globalAlpha = (0.1 + Math.sin(animationState.time * 0.003 + i) * 0.05) * perspective;
+                ctx.beginPath();
+                ctx.ellipse(canvas.width * 0.3, yOffset + baseSpacing * 0.3, 150 * scale, 20, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Additional highlight on opposite side
+                ctx.beginPath();
+                ctx.ellipse(canvas.width * 0.7, yOffset + baseSpacing * 0.4, 120 * scale, 15, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.globalAlpha = 1;
+        }
+
+        function drawFog() {
+            if (!animationState.fogEnabled) return;
+
+            const fogGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            
+            if (animationState.timeOfDay === 'dusk' || animationState.timeOfDay === 'dawn') {
+                fogGradient.addColorStop(0, 'rgba(100, 150, 160, 0.15)');
+                fogGradient.addColorStop(0.5, 'rgba(80, 120, 140, 0.25)');
+                fogGradient.addColorStop(1, 'rgba(60, 100, 120, 0.35)');
+            } else if (animationState.timeOfDay === 'night') {
+                fogGradient.addColorStop(0, 'rgba(30, 60, 80, 0.1)');
+                fogGradient.addColorStop(0.5, 'rgba(40, 70, 90, 0.2)');
+                fogGradient.addColorStop(1, 'rgba(50, 80, 100, 0.3)');
+            } else {
+                fogGradient.addColorStop(0, 'rgba(100, 180, 200, 0.05)');
+                fogGradient.addColorStop(0.5, 'rgba(100, 180, 200, 0.1)');
+                fogGradient.addColorStop(1, 'rgba(80, 160, 180, 0.15)');
+            }
+
+            ctx.fillStyle = fogGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Animated fog layers
+            for (let layer = 0; layer < 3; layer++) {
+                const offset = (animationState.time * 0.0002 * animationState.waterSpeed + layer) % 1;
+                const yPos = canvas.height * 0.6 + layer * 30;
+                
+                ctx.fillStyle = `rgba(100, 140, 160, ${0.1 - layer * 0.02})`;
+                ctx.beginPath();
+                for (let x = -canvas.width; x <= canvas.width * 2; x += 60) {
+                    const wave = Math.sin((x * 0.02 + offset * Math.PI * 2) * Math.PI) * 15;
+                    ctx.lineTo(x, yPos + wave);
+                }
+                ctx.lineTo(canvas.width * 2, canvas.height);
+                ctx.lineTo(-canvas.width, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        function drawFireflies() {
+            if (!animationState.firefliesEnabled) return;
+
+            fireflies.forEach(firefly => {
+                firefly.update();
+                ctx.globalAlpha = animationState.fireflyIntensity;
+                firefly.draw(ctx);
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        function animate() {
+            animationState.time += 1;
+
+            drawTerraces();
+            drawFog();
+            drawFireflies();
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
