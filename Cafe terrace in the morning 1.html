@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Café Terrace Morning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+        }
+
+        .scene-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #87CEEB 0%, #FFE9C4 40%, #F5DEB3 100%);
+        }
+
+        /* Enhanced Sky */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(180deg, #87CEEB 0%, #B8D8E8 30%, #FFE9C4 70%, #FFD9A0 100%);
+            animation: skyShift 45s ease-in-out infinite;
+        }
+
+        @keyframes skyShift {
+            0%, 100% {
+                background: linear-gradient(180deg, #87CEEB 0%, #B8D8E8 30%, #FFE9C4 70%, #FFD9A0 100%);
+            }
+            50% {
+                background: linear-gradient(180deg, #9BD5F5 0%, #C8E4F2 30%, #FFF0D6 70%, #FFE4B5 100%);
+            }
+        }
+
+        /* Clouds */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 100px;
+            animation: cloudFloat 120s linear infinite;
+        }
+
+        .cloud:before, .cloud:after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 100px;
+        }
+
+        .cloud1 { width: 100px; height: 40px; top: 8%; left: -10%; animation-duration: 180s; }
+        .cloud1:before { width: 50px; height: 50px; top: -25px; left: 10px; }
+        .cloud1:after { width: 60px; height: 40px; top: -15px; right: 10px; }
+
+        .cloud2 { width: 120px; height: 45px; top: 15%; left: -15%; animation-duration: 200s; animation-delay: -40s; }
+        .cloud2:before { width: 60px; height: 55px; top: -28px; left: 15px; }
+        .cloud2:after { width: 70px; height: 45px; top: -18px; right: 15px; }
+
+        .cloud3 { width: 90px; height: 35px; top: 12%; left: -12%; animation-duration: 160s; animation-delay: -80s; }
+        .cloud3:before { width: 45px; height: 45px; top: -22px; left: 12px; }
+        .cloud3:after { width: 55px; height: 35px; top: -14px; right: 12px; }
+
+        @keyframes cloudFloat {
+            from { transform: translateX(0); }
+            to { transform: translateX(120vw); }
+        }
+
+        /* Birds */
+        .bird {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            animation: birdFly 25s linear infinite;
+        }
+
+        .bird:before, .bird:after {
+            content: '';
+            position: absolute;
+            background: #333;
+            height: 2px;
+            width: 10px;
+            border-radius: 2px;
+        }
+
+        .bird:before {
+            transform: rotate(-25deg);
+            animation: wingFlap 0.8s ease-in-out infinite;
+        }
+
+        .bird:after {
+            transform: rotate(25deg);
+            animation: wingFlap 0.8s ease-in-out infinite 0.4s;
+        }
+
+        .bird1 { top: 18%; left: -5%; animation-duration: 35s; }
+        .bird2 { top: 22%; left: -8%; animation-duration: 40s; animation-delay: -10s; }
+        .bird3 { top: 14%; left: -6%; animation-duration: 45s; animation-delay: -20s; }
+
+        @keyframes birdFly {
+            from { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(50vw) translateY(-20px); }
+            to { transform: translateX(110vw) translateY(0); }
+        }
+
+        @keyframes wingFlap {
+            0%, 100% { transform: rotate(-25deg) scaleY(1); }
+            50% { transform: rotate(-45deg) scaleY(0.7); }
+        }
+
+        /* Enhanced Sun */
+        .sun {
+            position: absolute;
+            top: 12%;
+            right: 15%;
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle at 35% 35%, #FFF9E6, #FFE066 40%, #FFD700 100%);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 40px rgba(255, 230, 102, 0.8),
+                0 0 80px rgba(255, 215, 0, 0.6),
+                0 0 120px rgba(255, 200, 0, 0.4),
+                inset -10px -10px 30px rgba(255, 200, 0, 0.3);
+            animation: sunGlow 6s ease-in-out infinite;
+        }
+
+        .sun:after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: radial-gradient(circle, rgba(255, 230, 102, 0.3), transparent 70%);
+            border-radius: 50%;
+            animation: sunHalo 8s ease-in-out infinite;
+        }
+
+        @keyframes sunGlow {
+            0%, 100% {
+                box-shadow: 
+                    0 0 40px rgba(255, 230, 102, 0.8),
+                    0 0 80px rgba(255, 215, 0, 0.6),
+                    0 0 120px rgba(255, 200, 0, 0.4),
+                    inset -10px -10px 30px rgba(255, 200, 0, 0.3);
+            }
+            50% {
+                box-shadow: 
+                    0 0 60px rgba(255, 230, 102, 1),
+                    0 0 100px rgba(255, 215, 0, 0.8),
+                    0 0 150px rgba(255, 200, 0, 0.6),
+                    inset -10px -10px 30px rgba(255, 200, 0, 0.4);
+            }
+        }
+
+        @keyframes sunHalo {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.1); }
+        }
+
+        /* Building Facades */
+        .buildings {
+            position: absolute;
+            bottom: 40%;
+            left: 0;
+            width: 100%;
+            height: 25%;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .building {
+            width: 18%;
+            height: 100%;
+            background: linear-gradient(180deg, #E8D4B0 0%, #D4C0A0 100%);
+            border-radius: 5px 5px 0 0;
+            box-shadow: 
+                inset 0 0 20px rgba(0, 0, 0, 0.05),
+                -5px 0 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .window {
+            position: absolute;
+            width: 20%;
+            height: 15%;
+            background: linear-gradient(135deg, #87CEEB 0%, #B0D8E8 100%);
+            border: 2px solid #8B7355;
+            border-radius: 2px;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .awning {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 25%;
+            background: repeating-linear-gradient(
+                90deg,
+                #C8463C 0px,
+                #C8463C 30px,
+                #F5F5DC 30px,
+                #F5F5DC 60px
+            );
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Ground/Terrace */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45%;
+            background: linear-gradient(180deg, #D2B48C 0%, #C4A574 100%);
+            transform-origin: top center;
+        }
+
+        /* Cobblestone Texture */
+        .cobblestones {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(139, 115, 85, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 60% 70%, rgba(160, 130, 92, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 45% 20%, rgba(139, 115, 85, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(160, 130, 92, 0.3) 0%, transparent 50%);
+            background-size: 100px 100px, 150px 150px, 120px 120px, 90px 90px;
+            background-position: 0 0, 50px 50px, 30px 80px, 70px 20px;
+            opacity: 0.6;
+        }
+
+        /* Perspective Grid Lines */
+        .perspective-lines {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 80px,
+                    rgba(139, 115, 85, 0.15) 80px,
+                    rgba(139, 115, 85, 0.15) 82px
+                );
+            transform: perspective(400px) rotateX(5deg);
+            transform-origin: bottom center;
+        }
+
+        /* Dynamic Shadows */
+        .shadow-layer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, 
+                rgba(101, 67, 33, 0.15) 0%, 
+                transparent 50%, 
+                rgba(101, 67, 33, 0.08) 100%);
+            animation: shadowShift 60s ease-in-out infinite;
+        }
+
+        @keyframes shadowShift {
+            0%, 100% {
+                background: linear-gradient(120deg, 
+                    rgba(101, 67, 33, 0.15) 0%, 
+                    transparent 50%, 
+                    rgba(101, 67, 33, 0.08) 100%);
+            }
+            50% {
+                background: linear-gradient(240deg, 
+                    rgba(101, 67, 33, 0.08) 0%, 
+                    transparent 50%, 
+                    rgba(101, 67, 33, 0.15) 100%);
+            }
+        }
+
+        /* Potted Plants */
+        .plant-pot {
+            position: absolute;
+            width: 50px;
+            height: 60px;
+            bottom: 15%;
+        }
+
+        .pot {
+            position: absolute;
+            bottom: 0;
+            left: 10px;
+            width: 30px;
+            height: 35px;
+            background: linear-gradient(180deg, #8B4513 0%, #A0522D 100%);
+            border-radius: 0 0 5px 5px;
+            box-shadow: 
+                inset 0 -5px 10px rgba(0, 0, 0, 0.3),
+                0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .pot:before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -3px;
+            right: -3px;
+            height: 8px;
+            background: #A0522D;
+            border-radius: 5px;
+        }
+
+        .leaves {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 15px;
+            height: 25px;
+            background: linear-gradient(135deg, #228B22 0%, #32CD32 100%);
+            border-radius: 50% 0;
+            animation: leafSway 4s ease-in-out infinite;
+        }
+
+        @keyframes leafSway {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        /* Tables Container */
+        .tables-container {
+            position: absolute;
+            bottom: 18%;
+            left: 0;
+            width: 100%;
+            height: 25%;
+            perspective: 800px;
+        }
+
+        /* Table Set with 3D Perspective */
+        .table-set {
+            position: absolute;
+            transition: all 0.5s ease;
+            transform-style: preserve-3d;
+        }
+
+        /* Realistic Table */
+        .table {
+            width: 90px;
+            height: 90px;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .table-top {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 35% 35%, #F5E6D3, #D9C8B0 60%, #C4B49E);
+            border-radius: 50%;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.3),
+                inset -3px -3px 10px rgba(0, 0, 0, 0.1),
+                inset 2px 2px 8px rgba(255, 255, 255, 0.3);
+            position: relative;
+            animation: tableFloat 7s ease-in-out infinite;
+        }
+
+        @keyframes tableFloat {
+            0%, 100% { transform: translateY(0px) rotateX(0deg); }
+            50% { transform: translateY(-2px) rotateX(1deg); }
+        }
+
+        .table-top:after {
+            content: '';
+            position: absolute;
+            inset: 15%;
+            border-radius: 50%;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-leg {
+            position: absolute;
+            width: 12px;
+            height: 40px;
+            background: linear-gradient(180deg, #8B6F47 0%, #6B5437 100%);
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 3px;
+            box-shadow: 
+                2px 0 5px rgba(0, 0, 0, 0.3),
+                inset -1px 0 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Enhanced Chairs */
+        .chair {
+            position: absolute;
+            width: 35px;
+            height: 50px;
+            transform-style: preserve-3d;
+        }
+
+        .chair-back {
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(180deg, #A0825C 0%, #8B6F47 100%);
+            border-radius: 5px 5px 2px 2px;
+            box-shadow: 
+                0 4px 10px rgba(0, 0, 0, 0.3),
+                inset 0 2px 5px rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .chair-back:before {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 3px;
+            background: #6B5437;
+            top: 40%;
+            left: 10%;
+            border-radius: 2px;
+        }
+
+        .chair-seat {
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(180deg, #B8996B 0%, #A0825C 100%);
+            margin-top: 12px;
+            border-radius: 2px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .chair-legs {
+            position: absolute;
+            width: 100%;
+            height: 25px;
+            bottom: 0;
+        }
+
+        .chair-leg {
+            position: absolute;
+            width: 5px;
+            height: 25px;
+            background: linear-gradient(180deg, #8B6F47 0%, #6B5437 100%);
+            border-radius: 2px;
+            box-shadow: 1px 0 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .chair-leg:nth-child(1) { left: 5px; top: 0; }
+        .chair-leg:nth-child(2) { right: 5px; top: 0; }
+        .chair-leg:nth-child(3) { left: 5px; bottom: 0; }
+        .chair-leg:nth-child(4) { right: 5px; bottom: 0; }
+
+        .chair-top { top: -60px; left: 50%; transform: translateX(-50%); }
+        .chair-bottom { bottom: -60px; left: 50%; transform: translateX(-50%); }
+        .chair-left { 
+            left: -50px; 
+            top: 20px; 
+            transform: rotate(-15deg);
+        }
+        .chair-right { 
+            right: -50px; 
+            top: 20px;
+            transform: rotate(15deg);
+        }
+
+        /* Realistic Coffee Cup */
+        .coffee-cup {
+            position: absolute;
+            width: 32px;
+            height: 28px;
+            left: 28px;
+            top: 20px;
+            transform-style: preserve-3d;
+        }
+
+        .cup-body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #FFFEFA 0%, #F5F5DC 50%, #E8E4D8 100%);
+            border-radius: 0 0 4px 4px;
+            box-shadow: 
+                inset 0 2px 8px rgba(0, 0, 0, 0.1),
+                0 4px 12px rgba(0, 0, 0, 0.2),
+                inset -2px 0 5px rgba(0, 0, 0, 0.05);
+            position: relative;
+            border: 1px solid #D4C5B0;
+        }
+
+        .cup-body:before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            height: 80%;
+            background: linear-gradient(180deg, 
+                rgba(101, 67, 33, 0.8) 0%, 
+                rgba(101, 67, 33, 0.9) 100%);
+            border-radius: 2px;
+        }
+
+        .cup-rim {
+            position: absolute;
+            top: -3px;
+            left: -2px;
+            right: -2px;
+            height: 6px;
+            background: linear-gradient(180deg, #FFFEFA 0%, #E8E4D8 100%);
+            border-radius: 8px 8px 0 0;
+            box-shadow: 
+                0 -1px 3px rgba(0, 0, 0, 0.1),
+                inset 0 1px 2px rgba(255, 255, 255, 0.5);
+        }
+
+        .cup-handle {
+            position: absolute;
+            right: -12px;
+            top: 8px;
+            width: 14px;
+            height: 16px;
+            border: 2px solid #E8E4D8;
+            border-left: none;
+            border-radius: 0 50% 50% 0;
+            box-shadow: 
+                1px 0 3px rgba(0, 0, 0, 0.2),
+                inset -1px 0 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Saucer */
+        .saucer {
+            position: absolute;
+            bottom: -6px;
+            left: -8px;
+            width: 48px;
+            height: 8px;
+            background: linear-gradient(180deg, #FFFEFA 0%, #E8E4D8 100%);
+            border-radius: 50%;
+            box-shadow: 
+                0 4px 10px rgba(0, 0, 0, 0.25),
+                inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Enhanced Steam */
+        .steam-container {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 50px;
+        }
+
+        .steam {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, rgba(220, 220, 220, 0.7), rgba(255, 255, 255, 0));
+            border-radius: 50%;
+            filter: blur(2px);
+        }
+
+        .steam:nth-child(1) { 
+            left: 8px; 
+            animation: steamRise 3.5s ease-in-out infinite;
+        }
+        .steam:nth-child(2) { 
+            left: 13px; 
+            animation: steamRise 3.5s ease-in-out infinite 0.7s;
+        }
+        .steam:nth-child(3) { 
+            left: 18px; 
+            animation: steamRise 3.5s ease-in-out infinite 1.4s;
+        }
+        .steam:nth-child(4) { 
+            left: 11px; 
+            animation: steamRise 3.5s ease-in-out infinite 2.1s;
+        }
+
+        @keyframes steamRise {
+            0% {
+                opacity: 0;
+                transform: translateY(0) translateX(0) scale(0.8);
+            }
+            20% {
+                opacity: 0.9;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-45px) translateX(12px) scale(1.5);
+            }
+        }
+
+        /* Spoon on saucer */
+        .spoon {
+            position: absolute;
+            width: 20px;
+            height: 3px;
+            background: linear-gradient(90deg, #C0C0C0 0%, #E8E8E8 50%, #C0C0C0 100%);
+            border-radius: 2px;
+            bottom: -4px;
+            right: -10px;
+            transform: rotate(-25deg);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .spoon:before {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: -2px;
+            width: 8px;
+            height: 7px;
+            background: linear-gradient(135deg, #E8E8E8 0%, #C0C0C0 100%);
+            border-radius: 50% 50% 50% 0;
+            box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Control Panel */
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+            max-width: 320px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .controls h3 {
+            margin-bottom: 20px;
+            color: #5a4a3a;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group {
+            margin-bottom: 18px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #5a4a3a;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .range-control {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #E0D0C0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .range-control::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #D4A574 0%, #8B6F47 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .range-control::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .range-control::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #D4A574 0%, #8B6F47 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: none;
+        }
+
+        .value-display {
+            display: inline-block;
+            margin-left: 10px;
+            color: #8B6F47;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #D4A574;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #5a4a3a;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+        }
+
+        .toggle-btn.active {
+            background: linear-gradient(135deg, #D4A574 0%, #B8996B 100%);
+            color: white;
+            border-color: #8B6F47;
+            box-shadow: 0 4px 15px rgba(139, 111, 71, 0.4);
+        }
+
+        .select-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #D4A574;
+            border-radius: 10px;
+            background: white;
+            color: #5a4a3a;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .select-control:hover, .select-control:focus {
+            border-color: #8B6F47;
+            outline: none;
+            box-shadow: 0 0 12px rgba(212, 165, 116, 0.4);
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: #8B7355;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #E0D0C0;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        /* Ambient Light Overlay */
+        .ambient-light {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                ellipse at 70% 20%,
+                rgba(255, 255, 150, 0.2) 0%,
+                transparent 60%
+            );
+            pointer-events: none;
+            animation: ambientPulse 10s ease-in-out infinite;
+        }
+
+        @keyframes ambientPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.9; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .controls {
+                top: 10px;
+                right: 10px;
+                padding: 20px;
+                max-width: 280px;
+            }
+
+            .sun {
+                width: 100px;
+                height: 100px;
+                top: 10%;
+                right: 10%;
+            }
+
+            .table {
+                width: 70px;
+                height: 70px;
+            }
+
+            .chair {
+                width: 28px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <div class="sky"></div>
+        
+        <!-- Clouds -->
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+        
+        <!-- Birds -->
+        <div class="bird bird1"></div>
+        <div class="bird bird2"></div>
+        <div class="bird bird3"></div>
+        
+        <!-- Sun -->
+        <div class="sun"></div>
+        
+        <!-- Buildings -->
+        <div class="buildings" id="buildings"></div>
+        
+        <!-- Ground -->
+        <div class="ground">
+            <div class="cobblestones"></div>
+            <div class="perspective-lines"></div>
+            <div class="shadow-layer"></div>
+            <div class="tables-container" id="tablesContainer"></div>
+        </div>
+        
+        <!-- Ambient Light -->
+        <div class="ambient-light"></div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="controls">
+        <h3>☕ Café Settings</h3>
+
+        <div class="control-group">
+            <label>Number of Tables: <span class="value-display" id="tableCountDisplay">4</span></label>
+            <input type="range" min="1" max="8" value="4" class="range-control" id="tableCount">
+        </div>
+
+        <div class="control-group">
+            <label>Table Spacing:</label>
+            <div class="toggle-group">
+                <button class="toggle-btn" data-spacing="cozy" onclick="setSpacing('cozy')">Cozy</button>
+                <button class="toggle-btn active" data-spacing="normal" onclick="setSpacing('normal')">Normal</button>
+                <button class="toggle-btn" data-spacing="spacious" onclick="setSpacing('spacious')">Spacious</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Coffee Cups:</label>
+            <div class="toggle-group">
+                <button class="toggle-btn active" data-cups="true" onclick="toggleCups(true)">On</button>
+                <button class="toggle-btn" data-cups="false" onclick="toggleCups(false)">Off</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Steam Effect:</label>
+            <div class="toggle-group">
+                <button class="toggle-btn active" data-steam="true" onclick="toggleSteam(true)">On</button>
+                <button class="toggle-btn" data-steam="false" onclick="toggleSteam(false)">Off</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Show Buildings:</label>
+            <div class="toggle-group">
+                <button class="toggle-btn active" data-buildings="true" onclick="toggleBuildings(true)">On</button>
+                <button class="toggle-btn" data-buildings="false" onclick="toggleBuildings(false)">Off</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Show Plants:</label>
+            <div class="toggle-group">
+                <button class="toggle-btn" data-plants="true" onclick="togglePlants(true)">On</button>
+                <button class="toggle-btn" data-plants="false" onclick="togglePlants(false)">Off</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Time of Day:</label>
+            <select class="select-control" id="timeOfDay" onchange="changeTimeOfDay()">
+                <option value="early-morning">Early Morning</option>
+                <option value="morning" selected>Morning</option>
+                <option value="late-morning">Late Morning</option>
+                <option value="noon">Noon</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Animation Speed:</label>
+            <select class="select-control" id="animSpeed" onchange="changeAnimSpeed()">
+                <option value="slow">Slow & Relaxing</option>
+                <option value="normal" selected>Normal</option>
+                <option value="fast">Fast</option>
+            </select>
+        </div>
+
+        <div class="info-text">
+            ✨ Immerse yourself in a peaceful morning café atmosphere. Customize every detail to create your perfect scene.
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let state = {
+            tableCount: 4,
+            spacing: 'normal',
+            showCups: true,
+            showSteam: true,
+            showBuildings: true,
+            showPlants: false,
+            timeOfDay: 'morning',
+            animSpeed: 'normal'
+        };
+
+        // Initialize scene
+        function initScene() {
+            renderBuildings();
+            renderTables();
+        }
+
+        // Render buildings
+        function renderBuildings() {
+            const container = document.getElementById('buildings');
+            container.innerHTML = '';
+
+            if (!state.showBuildings) return;
+
+            const buildingCount = 4;
+            for (let i = 0; i < buildingCount; i++) {
+                const building = document.createElement('div');
+                building.className = 'building';
+
+                // Add windows
+                const windowPositions = [
+                    { left: '15%', top: '15%' },
+                    { left: '45%', top: '15%' },
+                    { left: '75%', top: '15%' },
+                    { left: '15%', top: '35%' },
+                    { left: '45%', top: '35%' },
+                    { left: '75%', top: '35%' },
+                    { left: '30%', top: '55%' },
+                    { left: '60%', top: '55%' }
+                ];
+
+                windowPositions.forEach(pos => {
+                    const window = document.createElement('div');
+                    window.className = 'window';
+                    window.style.left = pos.left;
+                    window.style.top = pos.top;
+                    building.appendChild(window);
+                });
+
+                // Add awning
+                const awning = document.createElement('div');
+                awning.className = 'awning';
+                building.appendChild(awning);
+
+                container.appendChild(building);
+            }
+        }
+
+        // Render tables
+        function renderTables() {
+            const container = document.getElementById('tablesContainer');
+            container.innerHTML = '';
+
+            const tableCount = parseInt(document.getElementById('tableCount').value);
+            const spacingMultiplier = {
+                'cozy': 0.7,
+                'normal': 1,
+                'spacious': 1.4
+            };
+            const baseSpacing = 100 / (tableCount + 1);
+            const spacing = baseSpacing * spacingMultiplier[state.spacing];
+
+            for (let i = 0; i < tableCount; i++) {
+                const left = spacing * (i + 1);
+                const tableSet = document.createElement('div');
+                tableSet.className = 'table-set';
+                tableSet.style.left = left + '%';
+                tableSet.style.bottom = (Math.random() * 8 + 5) + '%';
+                tableSet.style.transform = `scale(${0.9 + Math.random() * 0.2})`;
+
+                // Create table
+                const table = document.createElement('div');
+                table.className = 'table';
+
+                const tableTop = document.createElement('div');
+                tableTop.className = 'table-top';
+
+                const tableLeg = document.createElement('div');
+                tableLeg.className = 'table-leg';
+                tableTop.appendChild(tableLeg);
+
+                // Add coffee cup
+                if (state.showCups) {
+                    const coffeeContainer = document.createElement('div');
+                    coffeeContainer.className = 'coffee-cup';
+
+                    const saucer = document.createElement('div');
+                    saucer.className = 'saucer';
+
+                    const cupBody = document.createElement('div');
+                    cupBody.className = 'cup-body';
+
+                    const cupRim = document.createElement('div');
+                    cupRim.className = 'cup-rim';
+
+                    const cupHandle = document.createElement('div');
+                    cupHandle.className = 'cup-handle';
+
+                    const spoon = document.createElement('div');
+                    spoon.className = 'spoon';
+
+                    cupBody.appendChild(cupRim);
+                    cupBody.appendChild(cupHandle);
+
+                    coffeeContainer.appendChild(saucer);
+                    coffeeContainer.appendChild(cupBody);
+                    coffeeContainer.appendChild(spoon);
+
+                    // Add steam
+                    if (state.showSteam) {
+                        const steamContainer = document.createElement('div');
+                        steamContainer.className = 'steam-container';
+                        for (let j = 0; j < 4; j++) {
+                            const steam = document.createElement('div');
+                            steam.className = 'steam';
+                            steamContainer.appendChild(steam);
+                        }
+                        coffeeContainer.appendChild(steamContainer);
+                    }
+
+                    tableTop.appendChild(coffeeContainer);
+                }
+
+                table.appendChild(tableTop);
+                tableSet.appendChild(table);
+
+                // Add chairs
+                const chairPositions = [
+                    { class: 'chair-top', hasOccupant: Math.random() > 0.5 },
+                    { class: 'chair-bottom', hasOccupant: Math.random() > 0.6 },
+                    { class: 'chair-left', hasOccupant: Math.random() > 0.7 },
+                    { class: 'chair-right', hasOccupant: Math.random() > 0.7 }
+                ];
+
+                chairPositions.forEach(pos => {
+                    const chair = document.createElement('div');
+                    chair.className = `chair ${pos.class}`;
+
+                    const chairBack = document.createElement('div');
+                    chairBack.className = 'chair-back';
+
+                    const chairSeat = document.createElement('div');
+                    chairSeat.className = 'chair-seat';
+
+                    const chairLegs = document.createElement('div');
+                    chairLegs.className = 'chair-legs';
+                    for (let j = 0; j < 4; j++) {
+                        const leg = document.createElement('div');
+                        leg.className = 'chair-leg';
+                        chairLegs.appendChild(leg);
+                    }
+
+                    chair.appendChild(chairBack);
+                    chair.appendChild(chairSeat);
+                    chair.appendChild(chairLegs);
+                    tableSet.appendChild(chair);
+                });
+
+                container.appendChild(tableSet);
+
+                // Add plants
+                if (state.showPlants && i % 2 === 0) {
+                    const plant = document.createElement('div');
+                    plant.className = 'plant-pot';
+                    plant.style.left = (left - 5) + '%';
+                    plant.style.bottom = '10%';
+
+                    const pot = document.createElement('div');
+                    pot.className = 'pot';
+
+                    const leaves = document.createElement('div');
+                    leaves.className = 'leaves';
+
+                    const leafCount = 5;
+                    for (let j = 0; j < leafCount; j++) {
+                        const leaf = document.createElement('div');
+                        leaf.className = 'leaf';
+                        leaf.style.left = (j * 8) + 'px';
+                        leaf.style.top = (Math.random() * 15) + 'px';
+                        leaf.style.transform = `rotate(${j * 30 - 60}deg)`;
+                        leaf.style.animationDelay = (j * 0.2) + 's';
+                        leaves.appendChild(leaf);
+                    }
+
+                    plant.appendChild(pot);
+                    plant.appendChild(leaves);
+                    container.appendChild(plant);
+                }
+            }
+        }
+
+        // Toggle functions
+        function setSpacing(spacing) {
+            state.spacing = spacing;
+            document.querySelectorAll('.toggle-btn[data-spacing]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.spacing === spacing);
+            });
+            renderTables();
+        }
+
+        function toggleCups(value) {
+            state.showCups = value;
+            document.querySelectorAll('.toggle-btn[data-cups]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.cups === String(value));
+            });
+            renderTables();
+        }
+
+        function toggleSteam(value) {
+            state.showSteam = value;
+            document.querySelectorAll('.toggle-btn[data-steam]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.steam === String(value));
+            });
+            renderTables();
+        }
+
+        function toggleBuildings(value) {
+            state.showBuildings = value;
+            document.querySelectorAll('.toggle-btn[data-buildings]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.buildings === String(value));
+            });
+            renderBuildings();
+        }
+
+        function togglePlants(value) {
+            state.showPlants = value;
+            document.querySelectorAll('.toggle-btn[data-plants]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.plants === String(value));
+            });
+            renderTables();
+        }
+
+        // Time of day changes
+        function changeTimeOfDay() {
+            const timeOfDay = document.getElementById('timeOfDay').value;
+            state.timeOfDay = timeOfDay;
+            const container = document.querySelector('.scene-container');
+
+            const timeSettings = {
+                'early-morning': {
+                    sky: 'linear-gradient(180deg, #7BA5D6 0%, #A8C5E8 30%, #FFD9A0 70%, #FFCC99 100%)',
+                    ground: 'linear-gradient(180deg, #C4A574 0%, #B09560 100%)',
+                    sunTop: '18%',
+                    sunRight: '20%'
+                },
+                'morning': {
+                    sky: 'linear-gradient(180deg, #87CEEB 0%, #B8D8E8 30%, #FFE9C4 70%, #FFD9A0 100%)',
+                    ground: 'linear-gradient(180deg, #D2B48C 0%, #C4A574 100%)',
+                    sunTop: '12%',
+                    sunRight: '15%'
+                },
+                'late-morning': {
+                    sky: 'linear-gradient(180deg, #87CEEB 0%, #C8E4F2 30%, #FFF0D6 70%, #FFE4B5 100%)',
+                    ground: 'linear-gradient(180deg, #D9C4A0 0%, #C9B289 100%)',
+                    sunTop: '8%',
+                    sunRight: '10%'
+                },
+                'noon': {
+                    sky: 'linear-gradient(180deg, #5DADE2 0%, #85C1E2 30%, #F8E9C8 70%, #F5D7A0 100%)',
+                    ground: 'linear-gradient(180deg, #E0CBA8 0%, #D4C0A0 100%)',
+                    sunTop: '5%',
+                    sunRight: '50%'
+                }
+            };
+
+            const settings = timeSettings[timeOfDay];
+            document.querySelector('.sky').style.background = settings.sky;
+            document.querySelector('.ground').style.background = settings.ground;
+            document.querySelector('.sun').style.top = settings.sunTop;
+            document.querySelector('.sun').style.right = settings.sunRight;
+        }
+
+        // Animation speed
+        function changeAnimSpeed() {
+            const speed = document.getElementById('animSpeed').value;
+            state.animSpeed = speed;
+
+            const speedMultiplier = {
+                'slow': 1.8,
+                'normal': 1,
+                'fast': 0.5
+            };
+
+            const multiplier = speedMultiplier[speed];
+            const style = document.createElement('style');
+            style.id = 'speed-override';
+            
+            // Remove previous speed override
+            const oldStyle = document.getElementById('speed-override');
+            if (oldStyle) oldStyle.remove();
+
+            style.textContent = `
+                .sun { animation-duration: ${6 * multiplier}s !important; }
+                .sky { animation-duration: ${45 * multiplier}s !important; }
+                .shadow-layer { animation-duration: ${60 * multiplier}s !important; }
+                .table-top { animation-duration: ${7 * multiplier}s !important; }
+                .steam { animation-duration: ${3.5 * multiplier}s !important; }
+                .leaf { animation-duration: ${4 * multiplier}s !important; }
+                .cloud { animation-duration: ${180 * multiplier}s !important; }
+                .bird { animation-duration: ${35 * multiplier}s !important; }
+                .ambient-light { animation-duration: ${10 * multiplier}s !important; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Table count change
+        document.getElementById('tableCount').addEventListener('input', (e) => {
+            state.tableCount = parseInt(e.target.value);
+            document.getElementById('tableCountDisplay').textContent = state.tableCount;
+            renderTables();
+        });
+
+        // Initialize on load
+        window.addEventListener('load', initScene);
+    </script>
+</body>
+</html>
