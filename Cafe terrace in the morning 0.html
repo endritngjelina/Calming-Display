@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Café Terrace Morning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+        }
+
+        /* Main container */
+        .scene-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #fff8f0 0%, #ffe8d6 50%, #ffd6b3 100%);
+        }
+
+        /* Sky background with subtle gradient animation */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(180deg, #fef3e6 0%, #ffe8cc 50%, #ffd9a3 100%);
+            animation: skyShift 30s ease-in-out infinite;
+        }
+
+        @keyframes skyShift {
+            0%, 100% {
+                background: linear-gradient(180deg, #fef3e6 0%, #ffe8cc 50%, #ffd9a3 100%);
+            }
+            50% {
+                background: linear-gradient(180deg, #fff5eb 0%, #fff0dd 50%, #ffe9c5 100%);
+            }
+        }
+
+        /* Sun element */
+        .sun {
+            position: absolute;
+            top: 80px;
+            right: 150px;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle at 40% 40%, #ffeb99, #ffd966);
+            border-radius: 50%;
+            box-shadow: 0 0 60px rgba(255, 217, 102, 0.6), 0 0 100px rgba(255, 200, 50, 0.3);
+            animation: sunGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes sunGlow {
+            0%, 100% {
+                box-shadow: 0 0 60px rgba(255, 217, 102, 0.6), 0 0 100px rgba(255, 200, 50, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 80px rgba(255, 217, 102, 0.8), 0 0 120px rgba(255, 200, 50, 0.5);
+            }
+        }
+
+        /* Ground/pavement */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(180deg, #e8d4b8 0%, #d9c4a0 100%);
+        }
+
+        /* Pavement texture */
+        .pavement {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45%;
+            background-image:
+                repeating-linear-gradient(90deg, transparent, transparent 100px, rgba(139, 120, 93, 0.1) 100px, rgba(139, 120, 93, 0.1) 101px),
+                repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(139, 120, 93, 0.08) 60px, rgba(139, 120, 93, 0.08) 61px);
+            background-size: 100% 100%, 100% 100%;
+        }
+
+        /* Shadow shifting with sun position */
+        .shadows {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45%;
+            background: linear-gradient(135deg, rgba(139, 100, 60, 0.1) 0%, rgba(139, 100, 60, 0) 100%);
+            animation: shadowRotate 20s ease-in-out infinite;
+        }
+
+        @keyframes shadowRotate {
+            0%, 100% {
+                background: linear-gradient(135deg, rgba(139, 100, 60, 0.1) 0%, rgba(139, 100, 60, 0) 100%);
+            }
+            50% {
+                background: linear-gradient(225deg, rgba(139, 100, 60, 0.15) 0%, rgba(139, 100, 60, 0) 100%);
+            }
+        }
+
+        /* Table rows */
+        .tables-container {
+            position: absolute;
+            bottom: 15%;
+            left: 10%;
+            width: 80%;
+            height: 30%;
+            perspective: 1000px;
+        }
+
+        /* Individual table set */
+        .table-set {
+            position: absolute;
+            opacity: 0.9;
+            transition: opacity 0.8s ease;
+        }
+
+        .table-set.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .table {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(ellipse at 30% 30%, #f5e6d3, #d4c4b0);
+            border-radius: 50%;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.2),
+                inset -2px -2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            animation: tableGently 6s ease-in-out infinite;
+        }
+
+        @keyframes tableGently {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-3px);
+            }
+        }
+
+        /* Chairs around table */
+        .chair {
+            position: absolute;
+            width: 30px;
+            height: 45px;
+            background: #8B6F47;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .chair:before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 15px;
+            background: #A0825C;
+            top: -8px;
+            left: 5px;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .chair-top { top: -40px; left: 25px; }
+        .chair-bottom { bottom: -40px; left: 25px; }
+        .chair-left { left: -40px; top: 17px; }
+        .chair-right { right: -40px; top: 17px; }
+
+        /* Coffee cups with steam */
+        .coffee-cup {
+            position: absolute;
+            width: 25px;
+            height: 20px;
+            background: linear-gradient(90deg, #fff9f0, #ffe8cc);
+            border-radius: 0 0 3px 3px;
+            border: 1px solid #d4a574;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            left: 25px;
+            top: 15px;
+        }
+
+        .coffee-cup:before {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            border: 1px solid #d4a574;
+            border-radius: 0 0 8px 8px;
+            top: -5px;
+            left: -3px;
+        }
+
+        /* Steam animation */
+        .steam {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, rgba(200, 200, 200, 0.6), rgba(200, 200, 200, 0));
+            border-radius: 50%;
+            animation: steamRise 3s ease-in infinite;
+        }
+
+        .steam:nth-child(1) { left: 8px; animation-delay: 0s; }
+        .steam:nth-child(2) { left: 12px; animation-delay: 0.5s; }
+        .steam:nth-child(3) { left: 16px; animation-delay: 1s; }
+
+        @keyframes steamRise {
+            0% {
+                opacity: 1;
+                transform: translateY(0) translateX(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-40px) translateX(8px);
+            }
+        }
+
+        /* Control panel */
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            font-size: 14px;
+            line-height: 1.8;
+            max-width: 280px;
+        }
+
+        .controls h3 {
+            margin-bottom: 15px;
+            color: #5a4a3a;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #5a4a3a;
+            font-weight: 500;
+        }
+
+        .select-control, .range-control {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d4a574;
+            border-radius: 6px;
+            background: white;
+            color: #333;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .range-control {
+            padding: 6px;
+        }
+
+        .range-control::-webkit-slider-thumb {
+            background: #d4a574;
+        }
+
+        .select-control:hover, .select-control:focus {
+            border-color: #8B6F47;
+            outline: none;
+            box-shadow: 0 0 8px rgba(212, 165, 116, 0.3);
+        }
+
+        /* Toggle buttons */
+        .toggle-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #d4a574;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            color: #5a4a3a;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: #d4a574;
+            color: white;
+            border-color: #8B6F47;
+        }
+
+        /* Info text */
+        .info-text {
+            font-size: 12px;
+            color: #8B7355;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0d0c0;
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .controls {
+                bottom: 15px;
+                right: 15px;
+                padding: 15px;
+                max-width: 250px;
+                font-size: 12px;
+            }
+
+            .controls h3 {
+                font-size: 14px;
+            }
+
+            .sun {
+                width: 80px;
+                height: 80px;
+                top: 60px;
+                right: 80px;
+            }
+
+            .tables-container {
+                left: 5%;
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <div class="sky"></div>
+        <div class="sun"></div>
+        <div class="ground">
+            <div class="pavement"></div>
+            <div class="shadows"></div>
+            <div class="tables-container" id="tablesContainer"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <h3>☕ Café Settings</h3>
+
+        <div class="control-group">
+            <label>Number of Tables:</label>
+            <input type="range" min="1" max="8" value="4" class="range-control" id="tableCount">
+            <span id="tableCountDisplay">4</span>
+        </div>
+
+        <div class="control-group">
+            <label>Coffee Cups:</label>
+            <div class="toggle-group">
+                <button class="toggle-btn active" data-cups="true" onclick="toggleCups(true)">On</button>
+                <button class="toggle-btn" data-cups="false" onclick="toggleCups(false)">Off</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Steam Effect:</label>
+            <div class="toggle-group">
+                <button class="toggle-btn active" data-steam="true" onclick="toggleSteam(true)">On</button>
+                <button class="toggle-btn" data-steam="false" onclick="toggleSteam(false)">Off</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Sun Glow Intensity:</label>
+            <input type="range" min="0.3" max="1" step="0.1" value="1" class="range-control" id="glowIntensity">
+        </div>
+
+        <div class="control-group">
+            <label>Animation Speed:</label>
+            <select class="select-control" id="animSpeed">
+                <option value="slow">Slow</option>
+                <option value="normal" selected>Normal</option>
+                <option value="fast">Fast</option>
+            </select>
+        </div>
+
+        <div class="info-text">
+            ✨ Relax and enjoy the peaceful morning café atmosphere. Customize the scene to your preference.
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let state = {
+            tableCount: 4,
+            showCups: true,
+            showSteam: true,
+            glowIntensity: 1,
+            animSpeed: 'normal'
+        };
+
+        // Initialize scene
+        function initScene() {
+            renderTables();
+        }
+
+        // Render tables
+        function renderTables() {
+            const container = document.getElementById('tablesContainer');
+            container.innerHTML = '';
+
+            const tableCount = parseInt(document.getElementById('tableCount').value);
+            const spacing = 100 / (tableCount + 1);
+
+            for (let i = 0; i < tableCount; i++) {
+                const left = spacing * (i + 1);
+                const tableSet = document.createElement('div');
+                tableSet.className = 'table-set';
+                tableSet.style.left = left + '%';
+                tableSet.style.bottom = Math.random() * 10 + '%';
+
+                const table = document.createElement('div');
+                table.className = 'table';
+
+                const cup = document.createElement('div');
+                cup.className = 'coffee-cup';
+                if (!state.showCups) cup.style.display = 'none';
+
+                // Add steam
+                for (let j = 0; j < 3; j++) {
+                    const steam = document.createElement('div');
+                    steam.className = 'steam';
+                    if (!state.showSteam || !state.showCups) steam.style.display = 'none';
+                    cup.appendChild(steam);
+                }
+
+                table.appendChild(cup);
+
+                // Add chairs
+                const chairPositions = ['chair-top', 'chair-bottom', 'chair-left', 'chair-right'];
+                chairPositions.forEach(pos => {
+                    const chair = document.createElement('div');
+                    chair.className = `chair ${pos}`;
+                    tableSet.appendChild(chair);
+                });
+
+                tableSet.appendChild(table);
+                container.appendChild(tableSet);
+            }
+        }
+
+        // Toggle cups
+        function toggleCups(value) {
+            state.showCups = value;
+            document.querySelectorAll('.toggle-btn[data-cups]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.cups === String(value));
+            });
+            document.querySelectorAll('.coffee-cup').forEach(cup => {
+                cup.style.display = value ? 'block' : 'none';
+            });
+        }
+
+        // Toggle steam
+        function toggleSteam(value) {
+            state.showSteam = value;
+            document.querySelectorAll('.toggle-btn[data-steam]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.steam === String(value));
+            });
+            document.querySelectorAll('.steam').forEach(steam => {
+                steam.style.display = (value && state.showCups) ? 'block' : 'none';
+            });
+        }
+
+        // Table count change
+        document.getElementById('tableCount').addEventListener('input', (e) => {
+            state.tableCount = parseInt(e.target.value);
+            document.getElementById('tableCountDisplay').textContent = state.tableCount;
+            renderTables();
+        });
+
+        // Glow intensity
+        document.getElementById('glowIntensity').addEventListener('input', (e) => {
+            state.glowIntensity = parseFloat(e.target.value);
+            const sun = document.querySelector('.sun');
+            sun.style.opacity = state.glowIntensity;
+        });
+
+        // Animation speed
+        document.getElementById('animSpeed').addEventListener('change', (e) => {
+            state.animSpeed = e.target.value;
+            const root = document.documentElement;
+            const speedMultiplier = {
+                'slow': 1.5,
+                'normal': 1,
+                'fast': 0.6
+            };
+            root.style.setProperty('--anim-speed', speedMultiplier[state.animSpeed]);
+
+            // Apply speed to all animations
+            const style = document.createElement('style');
+            const speed = speedMultiplier[state.animSpeed];
+            style.textContent = `
+                .sun { animation-duration: ${4 * speed}s !important; }
+                .sky { animation-duration: ${30 * speed}s !important; }
+                .shadows { animation-duration: ${20 * speed}s !important; }
+                .table { animation-duration: ${6 * speed}s !important; }
+                .steam { animation-duration: ${3 * speed}s !important; }
+            `;
+            document.head.appendChild(style);
+        });
+
+        // Initialize on load
+        window.addEventListener('load', initScene);
+    </script>
+</body>
+</html>
