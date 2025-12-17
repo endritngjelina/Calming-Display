@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora Borealis - Northern Lights</title>
+    <style>
+        :root {
+            --primary-aurora: #00ff88;
+            --secondary-aurora: #00ffff;
+            --tertiary-aurora: #88ff00;
+            --sky-color: #0a0e27;
+            --star-color: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--sky-color);
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #scene {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #000814 0%, #001d3d 50%, #0a0e27 100%);
+        }
+
+        #stars-canvas, #aurora-canvas, #effects-canvas, #landscape-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #stars-canvas { z-index: 1; }
+        #aurora-canvas { z-index: 2; }
+        #effects-canvas { z-index: 3; }
+        #landscape-canvas { z-index: 4; }
+
+        #controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            z-index: 100;
+            max-width: 320px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        #controls.minimized {
+            transform: translateX(calc(100% + 20px));
+        }
+
+        #controls::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #controls::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        #controls::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        #controls h2 {
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #00ff88, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .control-group {
+            margin-bottom: 18px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 12px;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #00ff88, #00ffff);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #00ff88, #00ffff);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .control-group select, .control-group button {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .control-group button:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(0, 255, 136, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .control-group select:focus, .control-group button:focus {
+            border-color: rgba(0, 255, 136, 0.5);
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.2);
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .toggle {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle.active {
+            background: linear-gradient(135deg, #00ff88, #00ffff);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .toggle-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle.active .toggle-knob {
+            transform: translateX(22px);
+        }
+
+        .value-display {
+            min-width: 45px;
+            text-align: right;
+            color: #00ff88;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        #toggle-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 99;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        #toggle-controls:hover {
+            background: rgba(0, 0, 0, 0.95);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        #toggle-controls svg {
+            width: 22px;
+            height: 22px;
+            stroke: #00ff88;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            margin: 22px 0;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+        }
+
+        #info-panel {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            padding: 18px 22px;
+            border-radius: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            z-index: 100;
+            max-width: 350px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .color-preview {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .color-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        @media (max-width: 768px) {
+            #controls {
+                top: 10px;
+                right: 10px;
+                max-width: calc(100vw - 80px);
+                padding: 18px;
+            }
+            
+            #toggle-controls {
+                top: 10px;
+                right: 10px;
+            }
+
+            #info-panel {
+                bottom: 10px;
+                left: 10px;
+                max-width: calc(100vw - 20px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="scene">
+        <canvas id="stars-canvas"></canvas>
+        <canvas id="aurora-canvas"></canvas>
+        <canvas id="effects-canvas"></canvas>
+        <canvas id="landscape-canvas"></canvas>
+    </div>
+
+    <div id="toggle-controls">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+        </svg>
+    </div>
+
+    <div id="controls">
+        <h2>✨ Aurora Controls</h2>
+        
+        <div class="control-group">
+            <label>Scene Presets</label>
+            <div class="preset-grid">
+                <button class="preset-btn" data-preset="peaceful">Peaceful</button>
+                <button class="preset-btn" data-preset="vivid">Vivid</button>
+                <button class="preset-btn" data-preset="dreamy">Dreamy</button>
+                <button class="preset-btn" data-preset="minimal">Minimal</button>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="control-group">
+            <label>Aurora Color Palette</label>
+            <select id="color-scheme">
+                <option value="classic_green">Classic Green</option>
+                <option value="purple_pink">Purple & Pink</option>
+                <option value="blue_white">Blue & White</option>
+                <option value="rainbow">Rainbow</option>
+                <option value="red_green">Red & Green</option>
+                <option value="cosmic">Cosmic Purple</option>
+            </select>
+            <div class="color-preview" id="color-preview"></div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="control-group">
+            <div class="toggle-container">
+                <label>Aurora Enabled</label>
+                <div class="toggle active" id="aurora-toggle">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>
+                <span>Aurora Intensity</span>
+                <span class="value-display" id="aurora-intensity-value">75%</span>
+            </label>
+            <input type="range" id="aurora-intensity" min="0" max="100" value="75">
+        </div>
+
+        <div class="control-group">
+            <label>
+                <span>Aurora Speed</span>
+                <span class="value-display" id="aurora-speed-value">1.0x</span>
+            </label>
+            <input type="range" id="aurora-speed" min="25" max="200" value="100">
+        </div>
+
+        <div class="control-group">
+            <label>
+                <span>Wave Complexity</span>
+                <span class="value-display" id="wave-complexity-value">5</span>
+            </label>
+            <input type="range" id="wave-complexity" min="2" max="10" value="5">
+        </div>
+
+        <div class="control-group">
+            <label>Aurora Pattern</label>
+            <select id="aurora-pattern">
+                <option value="waves">Flowing Waves</option>
+                <option value="curtains">Curtains</option>
+                <option value="corona">Corona</option>
+                <option value="pulses">Pulsing</option>
+                <option value="ribbons">Ribbons</option>
+            </select>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="control-group">
+            <div class="toggle-container">
+                <label>Stars</label>
+                <div class="toggle active" id="stars-toggle">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>
+                <span>Star Density</span>
+                <span class="value-display" id="star-density-value">200</span>
+            </label>
+            <input type="range" id="star-density" min="50" max="500" value="200">
+        </div>
+
+        <div class="control-group">
+            <div class="toggle-container">
+                <label>Twinkling Stars</label>
+                <div class="toggle active" id="twinkle-toggle">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <div class="toggle-container">
+                <label>Shooting Stars</label>
+                <div class="toggle active" id="shooting-stars-toggle">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>
+                <span>Shooting Star Frequency</span>
+                <span class="value-display" id="shooting-star-freq-value">50%</span>
+            </label>
+            <input type="range" id="shooting-star-freq" min="0" max="100" value="50">
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="control-group">
+            <div class="toggle-container">
+                <label>Landscape</label>
+                <div class="toggle active" id="landscape-toggle">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Landscape Type</label>
+            <select id="landscape-type">
+                <option value="mountains">Mountains</option>
+                <option value="forest">Forest</option>
+                <option value="hills">Rolling Hills</option>
+                <option value="flat">Flat Horizon</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>
+                <span>Landscape Visibility</span>
+                <span class="value-display" id="landscape-visibility-value">60%</span>
+            </label>
+            <input type="range" id="landscape-visibility" min="0" max="100" value="60">
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="control-group">
+            <label>
+                <span>Overall Brightness</span>
+                <span class="value-display" id="brightness-value">70%</span>
+            </label>
+            <input type="range" id="brightness" min="30" max="100" value="70">
+        </div>
+
+        <div class="control-group">
+            <button id="fullscreen-btn">Enter Fullscreen</button>
+        </div>
+
+        <div class="control-group">
+            <button id="screenshot-btn">Save Screenshot</button>
+        </div>
+    </div>
+
+    <div id="info-panel">
+        <strong>🌌 Northern Lights Experience</strong><br>
+        Relax and watch the aurora dance across the night sky. Customize your perfect view and let the peaceful colors guide you to sleep.
+    </div>
+
+    <script>
+        // Color schemes
+        const colorSchemes = {
+            classic_green: {
+                colors: ['#00ff88', '#00ffaa', '#88ff00', '#44ff44'],
+                name: 'Classic Green'
+            },
+            purple_pink: {
+                colors: ['#ff00ff', '#ff1493', '#da70d6', '#ba55d3'],
+                name: 'Purple & Pink'
+            },
+            blue_white: {
+                colors: ['#00bfff', '#87ceeb', '#b0e0e6', '#ffffff'],
+                name: 'Blue & White'
+            },
+            rainbow: {
+                colors: ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'],
+                name: 'Rainbow'
+            },
+            red_green: {
+                colors: ['#ff0066', '#ff3366', '#00ff88', '#44ff44'],
+                name: 'Red & Green'
+            },
+            cosmic: {
+                colors: ['#c77dff', '#e0aaff', '#9d4edd', '#7209b7'],
+                name: 'Cosmic Purple'
+            }
+        };
+
+        const presets = {
+            peaceful: {
+                auroraIntensity: 60,
+                auroraSpeed: 0.7,
+                waveComplexity: 4,
+                auroraPattern: 'waves',
+                shootingStarFreq: 30,
+                colorScheme: 'classic_green'
+            },
+            vivid: {
+                auroraIntensity: 95,
+                auroraSpeed: 1.5,
+                waveComplexity: 8,
+                auroraPattern: 'curtains',
+                shootingStarFreq: 80,
+                colorScheme: 'rainbow'
+            },
+            dreamy: {
+                auroraIntensity: 70,
+                auroraSpeed: 0.5,
+                waveComplexity: 3,
+                auroraPattern: 'pulses',
+                shootingStarFreq: 20,
+                colorScheme: 'purple_pink'
+            },
+            minimal: {
+                auroraIntensity: 40,
+                auroraSpeed: 0.4,
+                waveComplexity: 2,
+                auroraPattern: 'ribbons',
+                shootingStarFreq: 10,
+                colorScheme: 'blue_white'
+            }
+        };
+
+        // State
+        let state = {
+            auroraEnabled: true,
+            auroraIntensity: 75,
+            auroraSpeed: 1.0,
+            waveComplexity: 5,
+            auroraPattern: 'waves',
+            starsEnabled: true,
+            starDensity: 200,
+            twinkleEnabled: true,
+            shootingStarsEnabled: true,
+            shootingStarFreq: 50,
+            landscapeEnabled: true,
+            landscapeType: 'mountains',
+            landscapeVisibility: 60,
+            brightness: 70,
+            colorScheme: 'classic_green'
+        };
+
+        // Canvas setup
+        const starsCanvas = document.getElementById('stars-canvas');
+        const starsCtx = starsCanvas.getContext('2d');
+        const auroraCanvas = document.getElementById('aurora-canvas');
+        const auroraCtx = auroraCanvas.getContext('2d');
+        const effectsCanvas = document.getElementById('effects-canvas');
+        const effectsCtx = effectsCanvas.getContext('2d');
+        const landscapeCanvas = document.getElementById('landscape-canvas');
+        const landscapeCtx = landscapeCanvas.getContext('2d');
+
+        let stars = [];
+        let shootingStars = [];
+        let auroraWaves = [];
+
+        function resizeCanvas() {
+            [starsCanvas, auroraCanvas, effectsCanvas, landscapeCanvas].forEach(c => {
+                c.width = window.innerWidth;
+                c.height = window.innerHeight;
+            });
+            initStars();
+            initAuroraWaves();
+            drawLandscape();
+        }
+
+        // Star class
+        class Star {
+            constructor() {
+                this.x = Math.random() * starsCanvas.width;
+                this.y = Math.random() * starsCanvas.height * 0.7; // Keep stars in upper portion
+                this.size = Math.random() * 2;
+                this.brightness = Math.random();
+                this.twinkleSpeed = Math.random() * 0.02 + 0.005;
+                this.phase = Math.random() * Math.PI * 2;
+            }
+
+            update() {
+                if (state.twinkleEnabled) {
+                    this.phase += this.twinkleSpeed;
+                    this.brightness = (Math.sin(this.phase) + 1) / 2;
+                }
+            }
+
+            draw() {
+                if (!state.starsEnabled) return;
+
+                starsCtx.save();
+                starsCtx.globalAlpha = this.brightness * (state.brightness / 100);
+                starsCtx.fillStyle = '#ffffff';
+                starsCtx.beginPath();
+                starsCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                starsCtx.fill();
+
+                // Glow for brighter stars
+                if (this.size > 1.5) {
+                    starsCtx.globalAlpha = this.brightness * 0.3 * (state.brightness / 100);
+                    const gradient = starsCtx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 3);
+                    gradient.addColorStop(0, '#ffffff');
+                    gradient.addColorStop(1, 'transparent');
+                    starsCtx.fillStyle = gradient;
+                    starsCtx.beginPath();
+                    starsCtx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
+                    starsCtx.fill();
+                }
+
+                starsCtx.restore();
+            }
+        }
+
+        // Shooting star class
+        class ShootingStar {
+            constructor() {
+                this.x = Math.random() * effectsCanvas.width;
+                this.y = Math.random() * effectsCanvas.height * 0.4;
+                this.length = Math.random() * 80 + 40;
+                this.speed = Math.random() * 8 + 6;
+                this.angle = Math.random() * Math.PI / 6 + Math.PI / 6; // 30-60 degrees
+                this.opacity = 1;
+                this.decay = 0.01;
+            }
+
+            update() {
+                this.x += Math.cos(this.angle) * this.speed * state.auroraSpeed;
+                this.y += Math.sin(this.angle) * this.speed * state.auroraSpeed;
+                this.opacity -= this.decay;
+            }
+
+            draw() {
+                if (this.opacity <= 0) return;
+
+                effectsCtx.save();
+                effectsCtx.globalAlpha = this.opacity * (state.brightness / 100);
+                effectsCtx.strokeStyle = '#ffffff';
+                effectsCtx.lineWidth = 2;
+
+                const gradient = effectsCtx.createLinearGradient(
+                    this.x, this.y,
+                    this.x - Math.cos(this.angle) * this.length,
+                    this.y - Math.sin(this.angle) * this.length
+                );
+                gradient.addColorStop(0, '#ffffff');
+                gradient.addColorStop(1, 'transparent');
+
+                effectsCtx.strokeStyle = gradient;
+                effectsCtx.beginPath();
+                effectsCtx.moveTo(this.x, this.y);
+                effectsCtx.lineTo(
+                    this.x - Math.cos(this.angle) * this.length,
+                    this.y - Math.sin(this.angle) * this.length
+                );
+                effectsCtx.stroke();
+
+                effectsCtx.restore();
+            }
+        }
+
+        // Aurora wave class
+        class AuroraWave {
+            constructor(index, total) {
+                this.index = index;
+                this.offset = (index / total) * Math.PI * 2;
+                this.baseY = auroraCanvas.height * 0.3 + (index * 40);
+                this.amplitude = 80 + Math.random() * 40;
+                this.frequency = 0.002 + Math.random() * 0.001;
+                this.speed = 0.5 + Math.random() * 0.5;
+                this.phase = Math.random() * Math.PI * 2;
+                this.colorIndex = index % colorSchemes[state.colorScheme].colors.length;
+            }
+
+            update() {
+                this.phase += 0.005 * this.speed * state.auroraSpeed;
+            }
+
+            draw(time) {
+                if (!state.auroraEnabled) return;
+
+                const colors = colorSchemes[state.colorScheme].colors;
+                const color = colors[this.colorIndex];
+
+                auroraCtx.save();
+
+                // Create gradient for aurora
+                const gradient = auroraCtx.createLinearGradient(0, this.baseY - 100, 0, this.baseY + 200);
+                gradient.addColorStop(0, 'transparent');
+                gradient.addColorStop(0.3, color + '00');
+                gradient.addColorStop(0.5, color + Math.floor(state.auroraIntensity * 2.55).toString(16).padStart(2, '0'));
+                gradient.addColorStop(0.8, color + '33');
+                gradient.addColorStop(1, 'transparent');
+
+                auroraCtx.fillStyle = gradient;
+                auroraCtx.globalAlpha = (state.brightness / 100) * (state.auroraIntensity / 100);
+
+                // Draw wave based on pattern
+                auroraCtx.beginPath();
+                
+                for (let x = 0; x <= auroraCanvas.width; x += 5) {
+                    let y = this.baseY;
+
+                    switch (state.auroraPattern) {
+                        case 'waves':
+                            y += Math.sin(x * this.frequency + this.phase + this.offset) * this.amplitude;
+                            y += Math.sin(x * this.frequency * 2 + this.phase * 1.5) * (this.amplitude * 0.5);
+                            break;
+                        case 'curtains':
+                            y += Math.sin(x * this.frequency + this.phase) * this.amplitude * 1.5;
+                            break;
+                        case 'corona':
+                            const centerX = auroraCanvas.width / 2;
+                            const dist = Math.abs(x - centerX);
+                            y += Math.sin(dist * 0.01 + this.phase) * this.amplitude * (1 - dist / centerX);
+                            break;
+                        case 'pulses':
+                            y += Math.sin(this.phase + this.offset) * this.amplitude * Math.sin(x * 0.005);
+                            break;
+                        case 'ribbons':
+                            y += Math.sin(x * this.frequency * 3 + this.phase) * (this.amplitude * 0.7);
+                            break;
+                    }
+
+                    if (x === 0) {
+                        auroraCtx.moveTo(x, y);
+                    } else {
+                        auroraCtx.lineTo(x, y);
+                    }
+                }
+
+                auroraCtx.lineTo(auroraCanvas.width, auroraCanvas.height);
+                auroraCtx.lineTo(0, auroraCanvas.height);
+                auroraCtx.closePath();
+                auroraCtx.fill();
+
+                auroraCtx.restore();
+            }
+        }
+
+        function initStars() {
+            stars = [];
+            const starCount = state.starDensity;
+            for (let i = 0; i < starCount; i++) {
+                stars.push(new Star());
+            }
+        }
+
+        function initAuroraWaves() {
+            auroraWaves = [];
+            const waveCount = state.waveComplexity;
+            for (let i = 0; i < waveCount; i++) {
+                auroraWaves.push(new AuroraWave(i, waveCount));
+            }
+        }
+
+        function drawLandscape() {
+            if (!state.landscapeEnabled) {
+                landscapeCtx.clearRect(0, 0, landscapeCanvas.width, landscapeCanvas.height);
+                return;
+            }
+
+            landscapeCtx.clearRect(0, 0, landscapeCanvas.width, landscapeCanvas.height);
+            landscapeCtx.save();
+            landscapeCtx.globalAlpha = state.landscapeVisibility / 100;
+
+            const height = landscapeCanvas.height;
+            const width = landscapeCanvas.width;
+
+            landscapeCtx.fillStyle = '#000';
+
+            switch (state.landscapeType) {
+                case 'mountains':
+                    landscapeCtx.beginPath();
+                    landscapeCtx.moveTo(0, height);
+                    for (let i = 0; i < 5; i++) {
+                        const peakX = (width / 4) * i;
+                        const peakY = height - Math.random() * 200 - 150;
+                        landscapeCtx.lineTo(peakX, peakY);
+                        landscapeCtx.lineTo(peakX + width / 4, height - Math.random() * 100 - 100);
+                    }
+                    landscapeCtx.lineTo(width, height);
+                    landscapeCtx.closePath();
+                    landscapeCtx.fill();
+                    break;
+
+                case 'forest':
+                    // Draw treeline
+                    for (let x = 0; x < width; x += 20) {
+                        const treeHeight = Math.random() * 150 + 100;
+                        landscapeCtx.beginPath();
+                        landscapeCtx.moveTo(x, height);
+                        landscapeCtx.lineTo(x + 10, height - treeHeight);
+                        landscapeCtx.lineTo(x + 20, height);
+                        landscapeCtx.closePath();
+                        landscapeCtx.fill();
+                    }
+                    break;
+
+                case 'hills':
+                    landscapeCtx.beginPath();
+                    landscapeCtx.moveTo(0, height);
+                    for (let x = 0; x <= width; x += 50) {
+                        const y = height - Math.sin(x * 0.01) * 100 - 50;
+                        landscapeCtx.lineTo(x, y);
+                    }
+                    landscapeCtx.lineTo(width, height);
+                    landscapeCtx.closePath();
+                    landscapeCtx.fill();
+                    break;
+
+                case 'flat':
+                    landscapeCtx.fillRect(0, height - 50, width, 50);
+                    break;
+            }
+
+            landscapeCtx.restore();
+        }
+
+        // Animation loop
+        let lastTime = 0;
+        function animate(time) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+
+            // Clear canvases
+            starsCtx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
+            auroraCtx.clearRect(0, 0, auroraCanvas.width, auroraCanvas.height);
+            effectsCtx.clearRect(0, 0, effectsCanvas.width, effectsCanvas.height);
+
+            // Draw stars
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+
+            // Draw aurora
+            auroraWaves.forEach(wave => {
+                wave.update();
+                wave.draw(time);
+            });
+
+            // Spawn shooting stars
+            if (state.shootingStarsEnabled && Math.random() < (state.shootingStarFreq / 10000)) {
+                shootingStars.push(new ShootingStar());
+            }
+
+            // Update and draw shooting stars
+            shootingStars = shootingStars.filter(star => {
+                star.update();
+                star.draw();
+                return star.opacity > 0;
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // Update color preview
+        function updateColorPreview() {
+            const preview = document.getElementById('color-preview');
+            const colors = colorSchemes[state.colorScheme].colors;
+            preview.innerHTML = colors.slice(0, 4).map(color => 
+                `<div class="color-dot" style="background-color: ${color}; box-shadow: 0 0 10px ${color};"></div>`
+            ).join('');
+        }
+
+        // Control handlers
+        function setupControls() {
+            // Toggle controls panel
+            document.getElementById('toggle-controls').addEventListener('click', () => {
+                document.getElementById('controls').classList.toggle('minimized');
+            });
+
+            // Presets
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const preset = presets[this.dataset.preset];
+                    Object.keys(preset).forEach(key => {
+                        state[key] = preset[key];
+                        updateControlUI(key, preset[key]);
+                    });
+                    initAuroraWaves();
+                    updateColorPreview();
+                });
+            });
+
+            // Aurora toggle
+            document.getElementById('aurora-toggle').addEventListener('click', function() {
+                state.auroraEnabled = !state.auroraEnabled;
+                this.classList.toggle('active', state.auroraEnabled);
+            });
+
+            // Aurora intensity
+            setupRangeControl('aurora-intensity', 'auroraIntensity', v => v + '%');
+
+            // Aurora speed
+            setupRangeControl('aurora-speed', 'auroraSpeed', v => v.toFixed(1) + 'x', v => v / 100);
+
+            // Wave complexity
+            setupRangeControl('wave-complexity', 'waveComplexity', v => v, null, () => initAuroraWaves());
+
+            // Aurora pattern
+            document.getElementById('aurora-pattern').addEventListener('change', function() {
+                state.auroraPattern = this.value;
+            });
+
+            // Color scheme
+            document.getElementById('color-scheme').addEventListener('change', function() {
+                state.colorScheme = this.value;
+                initAuroraWaves();
+                updateColorPreview();
+            });
+
+            // Stars toggle
+            document.getElementById('stars-toggle').addEventListener('click', function() {
+                state.starsEnabled = !state.starsEnabled;
+                this.classList.toggle('active', state.starsEnabled);
+            });
+
+            // Star density
+            setupRangeControl('star-density', 'starDensity', v => v, null, () => initStars());
+
+            // Twinkle toggle
+            document.getElementById('twinkle-toggle').addEventListener('click', function() {
+                state.twinkleEnabled = !state.twinkleEnabled;
+                this.classList.toggle('active', state.twinkleEnabled);
+            });
+
+            // Shooting stars toggle
+            document.getElementById('shooting-stars-toggle').addEventListener('click', function() {
+                state.shootingStarsEnabled = !state.shootingStarsEnabled;
+                this.classList.toggle('active', state.shootingStarsEnabled);
+            });
+
+            // Shooting star frequency
+            setupRangeControl('shooting-star-freq', 'shootingStarFreq', v => v + '%');
+
+            // Landscape toggle
+            document.getElementById('landscape-toggle').addEventListener('click', function() {
+                state.landscapeEnabled = !state.landscapeEnabled;
+                this.classList.toggle('active', state.landscapeEnabled);
+                drawLandscape();
+            });
+
+            // Landscape type
+            document.getElementById('landscape-type').addEventListener('change', function() {
+                state.landscapeType = this.value;
+                drawLandscape();
+            });
+
+            // Landscape visibility
+            setupRangeControl('landscape-visibility', 'landscapeVisibility', v => v + '%', null, drawLandscape);
+
+            // Brightness
+            setupRangeControl('brightness', 'brightness', v => v + '%');
+
+            // Fullscreen
+            document.getElementById('fullscreen-btn').addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                    document.getElementById('fullscreen-btn').textContent = 'Exit Fullscreen';
+                } else {
+                    document.exitFullscreen();
+                    document.getElementById('fullscreen-btn').textContent = 'Enter Fullscreen';
+                }
+            });
+
+            // Screenshot
+            document.getElementById('screenshot-btn').addEventListener('click', () => {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = window.innerWidth;
+                tempCanvas.height = window.innerHeight;
+                const tempCtx = tempCanvas.getContext('2d');
+
+                // Composite all layers
+                tempCtx.fillStyle = getComputedStyle(document.getElementById('scene')).background;
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                tempCtx.drawImage(starsCanvas, 0, 0);
+                tempCtx.drawImage(auroraCanvas, 0, 0);
+                tempCtx.drawImage(effectsCanvas, 0, 0);
+                tempCtx.drawImage(landscapeCanvas, 0, 0);
+
+                // Download
+                const link = document.createElement('a');
+                link.download = `aurora-${Date.now()}.png`;
+                link.href = tempCanvas.toDataURL();
+                link.click();
+            });
+        }
+
+        function setupRangeControl(id, stateKey, displayFn, transformFn = null, callback = null) {
+            const input = document.getElementById(id);
+            const display = document.getElementById(`${id}-value`);
+            
+            input.addEventListener('input', function() {
+                const value = transformFn ? transformFn(parseInt(this.value)) : parseInt(this.value);
+                state[stateKey] = value;
+                display.textContent = displayFn(transformFn ? value : parseInt(this.value));
+                if (callback) callback();
+            });
+        }
+
+        function updateControlUI(key, value) {
+            const mappings = {
+                auroraIntensity: ['aurora-intensity', v => v + '%'],
+                auroraSpeed: ['aurora-speed', v => v.toFixed(1) + 'x'],
+                waveComplexity: ['wave-complexity', v => v],
+                shootingStarFreq: ['shooting-star-freq', v => v + '%'],
+                colorScheme: ['color-scheme'],
+                auroraPattern: ['aurora-pattern']
+            };
+
+            if (mappings[key]) {
+                const [inputId, displayFn] = mappings[key];
+                const input = document.getElementById(inputId);
+                
+                if (input) {
+                    if (input.tagName === 'SELECT') {
+                        input.value = value;
+                    } else {
+                        input.value = key === 'auroraSpeed' ? value * 100 : value;
+                        if (displayFn) {
+                            const display = document.getElementById(`${inputId}-value`);
+                            if (display) display.textContent = displayFn(value);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            setupControls();
+            updateColorPreview();
+            requestAnimationFrame(animate);
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Hide info panel after 10 seconds
+        setTimeout(() => {
+            const infoPanel = document.getElementById('info-panel');
+            if (infoPanel) {
+                infoPanel.style.transition = 'opacity 1.5s';
+                infoPanel.style.opacity = '0';
+                setTimeout(() => infoPanel.style.display = 'none', 1500);
+            }
+        }, 10000);
+    </script>
+</body>
+</html>
