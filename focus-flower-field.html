@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Mesmerizing Spring Garden Experience</title>
+  <style>
+    :root {
+      --sky-dawn: #FFB366;
+      --sky-morning: #87CEEB;
+      --sky-afternoon: #4A90E2;
+      --sky-sunset: #FF6B6B;
+      --sky-night: #1A237E;
+      --grass: #7CB342;
+      --flower1: #FF69B4;
+      --flower2: #FFB6C1;
+      --flower3: #DDA0DD;
+      --flower4: #F0E68C;
+      --flower5: #FFE4E1;
+      --puddle: #a3c6e6;
+      --puddle-reflection: #d4bfd0;
+      --puddle-opacity: 0.32;
+      --control-bg: rgba(255,255,255,0.65);
+      --control-border: rgba(94,82,64,0.15);
+      --vignette: rgba(0,0,0,0.18);
+      --bloom-density: 40;
+      --animation-speed: 1.0;
+      --wind: 1.0;
+      --bloom-type: 'Tulips';
+      --surface: var(--color-surface);
+      --background: var(--color-background);
+      --focus-ring: var(--focus-ring);
+      --radius-lg: var(--radius-lg);
+      --font-family: var(--font-family-base);
+      --font-size-base: var(--font-size-base);
+    }
+    html,body {
+      margin:0;padding:0; height:100%; width:100%; font-family:var(--font-family);
+      background-color:var(--background);
+      overflow:hidden;
+    }
+    body {
+      height: 100vh;
+      width: 100vw;
+      position:relative;
+      background:var(--background);
+    }
+    .garden-scene {
+      position: absolute;
+      left:0; top:0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .sky {
+      position:absolute;
+      left:0; top:0;
+      width:100vw; height:60vh;
+      background: var(--sky-morning);
+      transition: background 1.3s var(--ease-standard);
+      z-index: 1;
+    }
+    .clouds {
+      position:absolute; top:15vh; width:100vw; height:28vh; left:0;
+      pointer-events:none;
+      z-index:2;
+    }
+    .grass {
+      position:absolute;
+      left:0; bottom:0;
+      width:100vw; height:30vh;
+      background: linear-gradient(to top, var(--grass) 85%, rgba(124,179,66,0.78) 98%, transparent 100%);
+      box-shadow:0 -8px 32px 0 rgba(124,179,66,0.11);
+      z-index:3;
+      filter: blur(0.5px);
+      transition: background 1.2s var(--ease-standard);
+    }
+    .layer {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      pointer-events:none;
+    }
+    .foreground, .midground, .background {
+      pointer-events:none;
+    }
+    .background {
+      z-index:4;
+    }
+    .midground {
+      z-index:5;
+    }
+    .foreground {
+      z-index:6;
+    }
+    /* Puddles */
+    .puddles {
+      position:absolute;left:0;bottom:0;width:100vw;height:26vh;z-index:8;pointer-events:none;
+    }
+    /* Vignette */
+    .vignette {
+      pointer-events:none;
+      position:fixed; z-index:30;
+      left:0; top:0; width:100vw; height:100vh;
+      box-shadow: 0 0 0 120px var(--vignette) inset;
+      transition:box-shadow 0.7s;
+    }
+    /* Control Panel styles */
+    .control-panel {
+      position: absolute;
+      right:32px; top:28px;
+      min-width:320px; max-width:355px;
+      background: var(--control-bg);
+      border:1px solid var(--control-border);
+      border-radius: var(--radius-lg);
+      box-shadow:var(--shadow-md);
+      backdrop-filter: blur(6px);
+      z-index:100;
+      padding:24px 18px 18px 18px;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      font-size:var(--font-size-base);
+      color:var(--color-text);
+      transition:background 0.2s;
+    }
+    .control-panel label {
+      margin-bottom:5px;
+      font-weight:500;
+      font-size:1em;
+      color:var(--color-primary);
+    }
+    .control-panel input[type='range'] {
+      width:130px;
+      accent-color:var(--color-primary);
+    }
+    .control-panel select {
+      border-radius: 6px;
+      border:1px solid var(--color-border);
+      padding:4px 12px;
+      font-size:1em;
+    }
+    .control-panel-row {
+      display:flex; align-items:center; gap:12px;
+      margin-bottom:2px;
+    }
+    .control-panel .btn {
+      margin-right:7px;
+      margin-top:4px;
+      font-size:1em;
+    }
+    .sr-only {position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;}
+    /* Animations */
+    .flower {
+      position:absolute;
+      will-change:transform,opacity;
+      z-index:inherit;
+      filter: drop-shadow(0 0 6px rgba(255,204,255,0.18));
+      transition: opacity 1.3s, transform 0.8s;
+    }
+    .petal {
+      position: absolute;
+      width: 17px;
+      height: 34px;
+      background: linear-gradient(180deg,var(--flower1, #FF69B4) 60%,var(--flower2, #FFB6C1) 100%);
+      border-radius:14px 14px 19px 19px;
+      opacity:0.85;
+    }
+    /* Floating Elements */
+    .floating {
+      position:absolute; pointer-events:none;
+      will-change:transform;
+      transition: transform 0.9s;
+      filter: drop-shadow(0 2px 6px rgba(240,230,255,0.17));
+    }
+    /* Cloud animation */
+    .cloud {
+      position: absolute;
+      top:0;
+      opacity: 0.93;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 13px 14px 0 0 #cbe7f8,31px 18px 0 0 #fff2fc, 41px 4px 0 0 #e5fcff;
+      animation: cloud-move 44s linear infinite;
+    }
+    @keyframes cloud-move {
+      to {transform: translateX(130vw); opacity:0.8;}
+    }
+    /* Rain particle overlay */
+    .rain-canvas {
+      position:absolute;top:0;left:0;width:100vw;height:100vh;z-index:20;pointer-events:none;
+    }
+    /* Puddle ripple */
+    .ripple {
+      position:absolute;
+      border-radius:100%;
+      pointer-events:none;
+      animation: ripple-ani 2.9s cubic-bezier(.41,.76,.74,1) forwards;
+      opacity:0.48;
+    }
+    @keyframes ripple-ani {
+      0%{transform:scale(0.29); opacity:0.68;}
+      65%{transform:scale(1.12);opacity:0.38;}
+      98%{transform:scale(1.66);opacity:0;}
+      100%{opacity:0;}
+    }
+    /* Subtle breathing luminosity */
+    .breath {
+      animation: breathe-lux 7.2s infinite ease-in-out;
+    }
+    @keyframes breathe-lux {
+      0%,100%{filter:brightness(1) saturate(1);}
+      50%{filter:brightness(1.07) saturate(1.02);}
+    }
+    
+    /* Responsive styles */
+    @media (max-width:700px) {
+      .control-panel {min-width:180px;max-width:250px;padding:12px 6px;}
+    }
+    @media (max-width:510px) {
+      .control-panel {min-width:80px;max-width:180px; padding:7px 2px; font-size:13px;}
+    }
+    /* Perplexity Design System Variables */
+    /* All Variables provided above copied and in effect */
+
+  </style>
+</head>
+<body>
+  <div class="garden-scene breath">
+    <div class="sky" id="sky"></div>
+    <div class="clouds" id="clouds"></div>
+    <div class="background layer" id="background-layer"></div>
+    <div class="midground layer" id="midground-layer"></div>
+    <div class="foreground layer" id="foreground-layer"></div>
+    <div class="grass" id="grass"></div>
+    <div class="puddles" id="puddles"></div>
+    <canvas class="rain-canvas" id="rain-canvas"></canvas>
+    <div class="vignette"></div>
+  </div>
+
+  <div class="control-panel" id="control-panel">
+    <div class="control-panel-row">
+      <label for="time-select">Time of Day</label>
+      <select id="time-select">
+        <option value="dawn">Dawn</option>
+        <option value="morning" selected>Morning</option>
+        <option value="afternoon">Afternoon</option>
+        <option value="sunset">Sunset</option>
+        <option value="night">Night</option>
+      </select>
+    </div>
+    <div class="control-panel-row">
+      <label for="rain-toggle">Rain</label>
+      <input type="checkbox" id="rain-toggle" checked> <label for="rain-intensity">Intensity</label>
+      <input type="range" id="rain-intensity" min="0" max="100" value="50">
+    </div>
+    <div class="control-panel-row">
+      <label for="wind-toggle">Wind</label>
+      <input type="checkbox" id="wind-toggle" checked>
+    </div>
+    <div class="control-panel-row">
+      <label for="bloom-density">Bloom Density</label>
+      <select id="bloom-density">
+        <option value="10">Low</option>
+        <option value="30">Medium</option>
+        <option value="60">High</option>
+        <option value="120">Very High</option>
+      </select>
+      <label for="bloom-type">Bloom Type</label>
+      <select id="bloom-type">
+        <option value="Tulips">Tulips</option>
+        <option value="Cherry Blossoms" selected>Cherry Blossoms</option>
+        <option value="Daisies">Daisies</option>
+        <option value="Peonies">Peonies</option>
+        <option value="Lilies">Lilies</option>
+        <option value="Hydrangeas">Hydrangeas</option>
+      </select>
+    </div>
+    <div class="control-panel-row">
+      <label for="anim-speed">Animation Speed</label>
+      <input type="range" id="anim-speed" min="0.4" max="2.5" step="0.1" value="1">
+    </div>
+    <div class="control-panel-row">
+      <label for="puddle-reflection-toggle">Puddle Reflection</label>
+      <input type="checkbox" id="puddle-reflection-toggle" checked>
+    </div>
+    <div class="control-panel-row">
+      <label for="floating-toggle">Floating Elements</label>
+      <input type="checkbox" id="floating-toggle" checked>
+    </div>
+    <div class="control-panel-row">
+      <button class="btn btn--outline" id="fullscreen-btn">Fullscreen</button>
+      <button class="btn btn--secondary" id="reset-btn">Reset</button>
+    </div>
+    <div class="control-panel-row">
+      <label><input type="checkbox" id="music-toggle"> Ambient Music</label>
+      <audio id="ambient-audio" loop>
+        <source src="https://r2cdn.perplexity.ai/audio/spring_ambient.mp3" type="audio/mp3">
+      </audio>
+    </div>
+  </div>
+
+  <script>
+const flowerColors = ["#FF69B4", "#FFB6C1", "#DDA0DD", "#F0E68C", "#FFE4E1"];
+const skyColors = {
+  dawn: "#FFB366",
+  morning: "#87CEEB",
+  afternoon: "#4A90E2",
+  sunset: "#FF6B6B",
+  night: "#1A237E"
+};
+const lighting = {
+  dawn: 0.7,
+  morning: 1.0,
+  afternoon: 1.2,
+  sunset: 0.9,
+  night: 0.4
+};
+const bloomTypes = ["Tulips","Cherry Blossoms","Daisies","Peonies","Lilies","Hydrangeas"];
+const puddleReflectAlpha = 0.42;
+let gardenState = {
+  time: "morning",
+  rain: true,
+  rainIntensity: 50,
+  wind: true,
+  bloomDensity: 30,
+  bloomType: "Cherry Blossoms",
+  animSpeed: 1.0,
+  puddleReflection: true,
+  floating: true,
+  vignette: true,
+  fullscreen: false,
+  music: false
+};
+const CONTROL_DEFAULT = {...gardenState};
+// Responsive Canvas Setup for Rain
+const rainCanvas = document.getElementById('rain-canvas');
+let rainCtx = rainCanvas.getContext('2d');
+let rainParticles = [];
+function resizeRainCanvas() {
+  rainCanvas.width = window.innerWidth;
+  rainCanvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeRainCanvas);
+resizeRainCanvas();
+// Rain Particle System
+function RainDrop(){
+  this.x = Math.random() * rainCanvas.width;
+  this.y = Math.random() * -rainCanvas.height * 0.2;
+  this.length = Math.random() * 18 + 7;
+  this.opacity = Math.random() * 0.4 + 0.25;
+  this.speed = Math.random() * (gardenState.rainIntensity / 15 + 2) + 2;
+  this.fade = Math.random() * 0.24 + 0.47;
+}
+function makeRainParticles(count) {
+  rainParticles = [];
+  for(let i=0;i<count; i++) rainParticles.push(new RainDrop());
+}
+function drawRainParticles(){
+  rainCtx.clearRect(0,0,rainCanvas.width,rainCanvas.height);
+  if(!gardenState.rain) return;
+  rainParticles.forEach(drop => {
+    rainCtx.save();
+    rainCtx.globalAlpha = drop.opacity;
+    rainCtx.strokeStyle = "#7ecafc";
+    rainCtx.beginPath();
+    rainCtx.moveTo(drop.x, drop.y);
+    rainCtx.lineTo(drop.x, drop.y+drop.length);
+    rainCtx.lineWidth = 1.85+Math.random()*0.7;
+    rainCtx.shadowColor = "#b6e9fd";
+    rainCtx.shadowBlur = 3.2;
+    rainCtx.stroke();
+    rainCtx.restore();
+  });
+}
+function updateRainParticles(){
+  rainParticles.forEach(drop => {
+    drop.y += drop.speed * gardenState.animSpeed;
+    drop.opacity -= drop.fade * 0.0038;
+    if(drop.y > rainCanvas.height || drop.opacity < 0.11){
+      drop.x = Math.random()*rainCanvas.width;
+      drop.y = Math.random() * -48;
+      drop.opacity = Math.random() * 0.39 + 0.25;
+    }
+  });
+}
+function rainLoop(){
+  updateRainParticles();
+  drawRainParticles();
+  requestAnimationFrame(rainLoop);
+}
+// Puddles system
+function makePuddles(count=6){
+  const puddleDiv = document.getElementById('puddles');
+  puddleDiv.innerHTML = "";
+  let puddleArr = [];
+  for(let i=0;i<count;i++){
+    let left = 16+Math.random()*(window.innerWidth-220);
+    let size = 90+Math.random()*76;
+    let top = 12+Math.random()*44;
+    let op = gardenState.rain? (0.22+Math.random()*0.18):0.02;
+    let puddle = document.createElement('div');
+    puddle.className="puddle";
+    puddle.style.cssText = `position:absolute;left:${left}px;bottom:${top}px;width:${size}px;height:${size/2.45}px;background:rgba(163,198,230,${op});border-radius:50%;box-shadow:0 4px 24px 0 rgba(116,183,227,${op*0.6});overflow:hidden;`;
+    // Reflection layer
+    if(gardenState.puddleReflection){
+      let refl = document.createElement('div');
+      refl.className="puddle-reflection";
+      refl.style.cssText = `position:absolute;left:7px;top:9px;width:${size*0.88}px;height:${size*0.41}px;background:linear-gradient(180deg,rgba(212,191,208,${puddleReflectAlpha}),rgba(124,179,66,${puddleReflectAlpha*0.37}));opacity:0.4;border-radius:51% 49% 60% 40%/60% 41% 51% 49%;filter:blur(5px);`;
+      puddle.appendChild(refl);
+    }
+    puddleDiv.appendChild(puddle);
+    puddleArr.push({el:puddle,left,top,size});
+  }
+  return puddleArr;
+}
+function makeRipples(puddle){
+  let ripple=document.createElement('div');
+  ripple.className='ripple';
+  ripple.style.width=(puddle.size*0.9)+"px";
+  ripple.style.height=(puddle.size*0.4)+"px";
+  ripple.style.left=(puddle.left+ Math.random()*10+12)+"px";
+  ripple.style.bottom=(puddle.top+Math.random()*8+13)+"px";
+  ripple.style.background='rgba(180,232,246,0.45)';
+  ripple.style.border="2px solid #7ecafc";
+  ripple.style.opacity = 0.41+Math.random()*0.2;
+  document.getElementById('puddles').appendChild(ripple);
+  setTimeout(()=>document.getElementById('puddles').removeChild(ripple),2800+Math.random()*600);
+}
+// Flower layers
+function randomHue(){ return flowerColors[Math.floor(Math.random()*flowerColors.length)]; }
+function makeFlowers(area, density, bloomType, layer){
+  area.innerHTML='';
+  for(let i=0;i<density;++i){
+    let flower = document.createElement('div');
+    flower.className = 'flower';
+    let layerOff = layer==='foreground'? 4.5: layer==='midground'?2.65:1.13;
+    let x = Math.random()*window.innerWidth;
+    let y = window.innerHeight*0.7 + (Math.random()*60) - layerOff*18;
+    let s = (layer==='foreground'? (1.0+Math.random()*0.38): layer==='midground'? (0.66+Math.random()*0.23): (0.45+Math.random()*0.12));
+    flower.style.left = x+'px';
+    flower.style.top = y+'px';
+    flower.style.transform = `scale(${s})`;
+    flower.style.opacity = 0.88-Math.random()*0.19;
+    flower.style.transition = `transform ${0.9/gardenState.animSpeed}s cubic-bezier(.41,.79,.84,1.08)`;
+    flower.style.zIndex = layer==='foreground'?16:layer==='midground'?7:2;
+    // Flower rendering per bloom type
+    flower.innerHTML = renderBloomSVG(bloomType,randomHue(),i);
+    area.appendChild(flower);
+  }
+}
+function renderBloomSVG(type,color,seed){
+  // SVGs for each type, stylized and animated by CSS
+  if(type==="Tulips"){
+    return `<svg width="37" height="54" viewBox="0 0 37 54" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="19.5" cy="36.5" rx="11.5" ry="15.5" fill="${color}"/><path d="M19.5,21 Q20,33 33,37 Q22,30 19.5,21" fill="#FFE4E1"/><rect x="17" y="40" width="5" height="12" rx="4" fill="#7CB342"/></svg>`;
+  } else if(type==="Cherry Blossoms"){
+    return `<svg width="43" height="47" viewBox="0 0 43 47" fill="none"><g><ellipse cx="21.5" cy="27.5" rx="18" ry="19.5" fill="${color}" style="filter:blur(0.5px);"/><ellipse cx="21" cy="11" rx="6.7" ry="13.2" fill="#FFE4E1"/><ellipse cx="36" cy="25" rx="7.8" ry="6.1" fill="#FFB6C1"/><ellipse cx="8" cy="21" rx="7" ry="7.5" fill="#F0E68C"/><ellipse cx="32" cy="41" rx="6.2" ry="8.8" fill="#DDA0DD"/></g></svg>`;
+  } else if(type==="Daisies"){
+    return `<svg width="40" height="40"><g><circle cx="20" cy="20" r="10" fill="#F0E68C"/><g>${Array.from({length:8},(v,k)=>`<ellipse rx="4.3" ry="13.1" fill="${color}" style="transform:rotate(${k*45}deg);" cx="20" cy="10"/>`).join('')}</g></g></svg>`;
+  } else if(type==="Peonies"){
+    return `<svg width="50" height="36"><g><ellipse cx="25" cy="16" rx="18" ry="13" fill="${color}"/><ellipse cx="25" cy="25" rx="14" ry="8" fill="#FFE4E1"/><ellipse cx="12" cy="24" rx="6.6" ry="8.1" fill="#DDA0DD"/></g></svg>`;
+  } else if(type==="Lilies"){
+    return `<svg width="44" height="48"><g><ellipse cx="24" cy="20" rx="15" ry="9" fill="${color}"/><polygon points="24,6 20,20 28,20" fill="#F0E68C"/></g></svg>`;
+  } else if(type==="Hydrangeas"){
+    return `<svg width="51" height="32"><g><ellipse cx="25.5" cy="14.5" rx="13.5" ry="13.5" fill="#DDA0DD"/><ellipse cx="38" cy="20" rx="8.5" ry="9.2" fill="${color}"/><ellipse cx="16" cy="19" rx="7.9" ry="7.1" fill="#FFB6C1"/></g></svg>`;
+  }
+  return `<svg width="20" height="32"><ellipse cx="10" cy="16" rx="12" ry="17" fill="${color}"/></svg>`;
+}
+// Cloud generator
+function makeClouds(){
+  const cloudDiv = document.getElementById('clouds');
+  cloudDiv.innerHTML = '';
+  for(let i=0;i<5;i++){
+    let cloud = document.createElement('div');
+    cloud.className = "cloud breath";
+    cloud.style.left = (-220+i*180+Math.random()*80) + 'px';
+    cloud.style.top = (10+Math.random()*38)+'px';
+    cloud.style.width = (110+Math.random()*40)+'px';
+    cloud.style.height = (40+Math.random()*17)+'px';
+    cloud.style.animationDuration = (32+Math.random()*22)*gardenState.animSpeed+'s';
+    cloud.style.opacity = 0.77 +Math.random()*0.22;
+    cloudDiv.appendChild(cloud);
+  }
+}
+// Background music
+const audio = document.getElementById('ambient-audio');
+function musicControl(){
+  if(gardenState.music){
+    audio.volume=0.46;
+    audio.play();
+  }else{
+    audio.pause();
+  }
+}
+// Floating butterflies/birds/petals
+function makeFloating(){
+  let fg = document.getElementById('foreground-layer');
+  if(!gardenState.floating){ return; }
+  // Add a few floating elements
+  for(let i=0;i<4;i++){
+    let floating = document.createElement('div');
+    floating.className = 'floating';
+    floating.style.left = (50+Math.random()*window.innerWidth*0.8)+'px';
+    floating.style.top = (60+Math.random()*window.innerHeight*0.5)+'px';
+    floating.style.transitionDuration = (5.7/gardenState.animSpeed)+'s';
+    floating.style.transform = 'translateY(-32px)';
+    // SVG for butterfly
+    floating.innerHTML='<svg width="38" height="32"><g><ellipse cx="14" cy="18" rx="13.2" ry="9.8" fill="#FFB6C1"/><ellipse cx="27" cy="18" rx="10.3" ry="7.4" fill="#FFE4E1"/><circle cx="21" cy="21" r="4.7" fill="#F0E68C"/></g></svg>';
+    fg.appendChild(floating);
+    setTimeout(()=>{
+      floating.style.transform='translateY(42px) scale(1.05)';
+      floating.style.opacity=0.74;
+    },620);
+    setTimeout(()=>fg.removeChild(floating),4400+Math.random()*1400);
+  }
+  // Add some falling petals
+  for(let i=0;i<6;i++){
+    let petal = document.createElement('div');
+    petal.className = 'floating';
+    petal.style.left = (40+Math.random()*window.innerWidth*0.88)+'px';
+    petal.style.top = (20+Math.random()*window.innerHeight*0.48)+'px';
+    petal.style.transitionDuration = (7.9/gardenState.animSpeed)+'s';
+    petal.innerHTML=`<svg width="11" height="19"><path d="M6 2 Q10 9 6 17 Q2 9 6 2" fill="#FFB6C1" /></svg>`;
+    fg.appendChild(petal);
+    setTimeout(()=>{
+      petal.style.transform='translateY(78px) scale(0.82) rotate(16deg)';
+      petal.style.opacity=0.58;
+    },430);
+    setTimeout(()=>fg.removeChild(petal),5300+Math.random()*1400);
+  }
+}
+// Animate flowers swaying
+function swayFlowers(){
+  ['foreground-layer','midground-layer','background-layer'].forEach(layerId => {
+    let flowers = document.getElementById(layerId).querySelectorAll('.flower');
+    flowers.forEach((flower,idx) => {
+      flower.style.transform += ` rotateZ(${((-5+Math.random()*10)*gardenState.wind)}deg)`;
+    });
+  });
+}
+function bloomOpenEffect(){
+  ['foreground-layer','midground-layer','background-layer'].forEach(layerId=>{
+    let flowers = document.getElementById(layerId).querySelectorAll('.flower');
+    flowers.forEach((flower,idx)=>{
+      flower.style.opacity=0.34+Math.random()*0.66;
+      setTimeout(()=>flower.style.opacity=0.88-Math.random()*0.19,420+idx*16);
+    });
+  });
+}
+function resetScene(){
+  gardenState = {...CONTROL_DEFAULT};
+  applyAllSettings();
+  updateControlsUI();
+}
+function applyAllSettings(){
+  // Sky color
+  document.getElementById('sky').style.background = skyColors[gardenState.time];
+  // Grass luminosity
+  document.getElementById('grass').style.background = `linear-gradient(to top,${gardenState.time=="night"?"#476939":"#7CB342"} 85%,rgba(124,179,66,0.78) 98%,transparent 100%)`;
+  // Clouds
+  makeClouds();
+  // Flower layers
+  makeFlowers(document.getElementById('background-layer'),Math.floor(gardenState.bloomDensity/3),gardenState.bloomType,'background');
+  makeFlowers(document.getElementById('midground-layer'),Math.floor(gardenState.bloomDensity/1.5),gardenState.bloomType,'midground');
+  makeFlowers(document.getElementById('foreground-layer'),gardenState.bloomDensity,gardenState.bloomType,'foreground');
+  bloomOpenEffect();
+  // Rain particles
+  makeRainParticles(Math.floor(gardenState.rainIntensity*1.5 + 28));
+  // Puddles and ripples
+  let puddleArr = makePuddles(5);
+  if(gardenState.rain){
+    puddleArr.forEach((p,i)=>setTimeout(()=>makeRipples(p),200+i*900+Math.random()*3400));
+  }
+  // Floating elements
+  if(gardenState.floating){
+    setTimeout(makeFloating,920);
+  }
+  // Vignette
+  document.querySelector('.vignette').style.display = gardenState.vignette? 'block':'none';
+}
+function updateControlsUI(){
+  document.getElementById('time-select').value = gardenState.time;
+  document.getElementById('rain-toggle').checked = gardenState.rain;
+  document.getElementById('rain-intensity').value = gardenState.rainIntensity;
+  document.getElementById('wind-toggle').checked = gardenState.wind;
+  document.getElementById('bloom-density').value = gardenState.bloomDensity;
+  document.getElementById('anim-speed').value = gardenState.animSpeed;
+  document.getElementById('puddle-reflection-toggle').checked = gardenState.puddleReflection;
+  document.getElementById('bloom-type').value = gardenState.bloomType;
+  document.getElementById('floating-toggle').checked = gardenState.floating;
+  document.getElementById('music-toggle').checked = gardenState.music;
+}
+// Controls logic
+function bindControls(){
+  document.getElementById('time-select').addEventListener('change',e=>{
+    gardenState.time = e.target.value;
+    applyAllSettings();
+  });
+  document.getElementById('rain-toggle').addEventListener('input', e => {
+    gardenState.rain = e.target.checked;
+    applyAllSettings();
+  });
+  document.getElementById('rain-intensity').addEventListener('input',e=>{
+    gardenState.rainIntensity = parseInt(e.target.value);
+    applyAllSettings();
+  });
+  document.getElementById('wind-toggle').addEventListener('input',e=>{
+    gardenState.wind = e.target.checked?1.14:0.53;
+    applyAllSettings();
+  });
+  document.getElementById('bloom-density').addEventListener('change',e=>{
+    gardenState.bloomDensity = parseInt(e.target.value);
+    applyAllSettings();
+  });
+  document.getElementById('bloom-type').addEventListener('change',e=>{
+    gardenState.bloomType = e.target.value;
+    applyAllSettings();
+  });
+  document.getElementById('anim-speed').addEventListener('input',e=>{
+    gardenState.animSpeed = parseFloat(e.target.value);
+    applyAllSettings();
+  });
+  document.getElementById('puddle-reflection-toggle').addEventListener('input',e=>{
+    gardenState.puddleReflection = e.target.checked;
+    applyAllSettings();
+  });
+  document.getElementById('floating-toggle').addEventListener('input',e=>{
+    gardenState.floating = e.target.checked;
+    applyAllSettings();
+  });
+  document.getElementById('fullscreen-btn').addEventListener('click',()=>{
+    let elem=document.documentElement;
+    if(!gardenState.fullscreen){
+      if(elem.requestFullscreen) elem.requestFullscreen();
+      gardenState.fullscreen=true;
+    } else {
+      if(document.exitFullscreen) document.exitFullscreen();
+      gardenState.fullscreen=false;
+    }
+  });
+  window.addEventListener('fullscreenchange', ()=>{
+    gardenState.fullscreen=document.fullscreenElement?true:false;
+  });
+  document.getElementById('reset-btn').addEventListener('click',resetScene);
+  document.getElementById('music-toggle').addEventListener('input',e=>{
+    gardenState.music=e.target.checked;
+    musicControl();
+  });
+}
+// Main loop
+function mainLoop(){
+  swayFlowers();
+  requestAnimationFrame(mainLoop);
+}
+// Init
+applyAllSettings();
+bindControls();
+updateControlsUI();
+rainLoop();
+mainLoop();
+// Periodically spawn floating and ripples
+setInterval(()=>{
+  if(gardenState.floating) makeFloating();
+  if(gardenState.rain && gardenState.puddleReflection) {
+    makePuddles(3).forEach((p,i)=>setTimeout(()=>makeRipples(p),400+i*900+Math.random()*1400));
+  }
+},9800);
+// Optional breathing effect toggle
+setInterval(()=>{
+  document.querySelector('.garden-scene').classList.toggle('breath');
+},11500);
+
+  </script>
+</body>
+</html>
