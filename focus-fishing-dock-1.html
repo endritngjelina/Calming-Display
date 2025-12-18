@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Riverside Fishing Dock</title>
+    <style>
+        :root {
+            --sky-day-top: #4a9fd8;
+            --sky-day-bottom: #b3d9f2;
+            --sky-dusk-top: #d97634;
+            --sky-dusk-bottom: #f4a460;
+            --sky-night-top: #0a1428;
+            --sky-night-bottom: #1a3a52;
+            --water-day: #4a8ba4;
+            --water-night: #1a3050;
+            --sun-position: 20%;
+            --time-progress: 0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            background: #000;
+        }
+
+        .scene-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Sky with gradient transitions */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(to bottom, var(--sky-day-top), var(--sky-day-bottom));
+            transition: all 1.5s ease-in-out;
+            z-index: 1;
+        }
+
+        /* Sun */
+        .sun {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #fff9e6 0%, #ffed4e 40%, #ffd700 100%);
+            border-radius: 50%;
+            top: var(--sun-position);
+            left: 70%;
+            box-shadow: 0 0 60px rgba(255, 237, 78, 0.8),
+                        0 0 120px rgba(255, 215, 0, 0.4);
+            transition: all 1.5s ease-in-out;
+            z-index: 2;
+            opacity: 1;
+        }
+
+        /* Moon */
+        .moon {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, #f0f0f0, #d4d4d4);
+            border-radius: 50%;
+            top: 15%;
+            left: 70%;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.6),
+                        inset -10px -10px 20px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: all 1.5s ease-in-out;
+            z-index: 2;
+        }
+
+        /* Stars */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Clouds */
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 100px;
+            animation: cloud-drift 120s linear infinite;
+        }
+
+        @keyframes cloud-drift {
+            0% { transform: translateX(-200px); }
+            100% { transform: translateX(calc(100vw + 200px)); }
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 100px;
+        }
+
+        .cloud-1 {
+            width: 120px;
+            height: 40px;
+            top: 15%;
+            left: 20%;
+            animation-duration: 140s;
+        }
+
+        .cloud-1::before {
+            width: 60px;
+            height: 50px;
+            top: -25px;
+            left: 20px;
+        }
+
+        .cloud-1::after {
+            width: 80px;
+            height: 45px;
+            top: -20px;
+            right: 15px;
+        }
+
+        .cloud-2 {
+            width: 100px;
+            height: 35px;
+            top: 25%;
+            left: 60%;
+            animation-duration: 160s;
+            animation-delay: -40s;
+        }
+
+        .cloud-2::before {
+            width: 50px;
+            height: 40px;
+            top: -20px;
+            left: 15px;
+        }
+
+        .cloud-2::after {
+            width: 70px;
+            height: 35px;
+            top: -15px;
+            right: 10px;
+        }
+
+        /* Distant mountains */
+        .mountains {
+            position: absolute;
+            bottom: 40%;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            z-index: 4;
+        }
+
+        .mountain {
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border-left: 250px solid transparent;
+            border-right: 250px solid transparent;
+            border-bottom: 200px solid #5a7a6a;
+            filter: blur(1px);
+            opacity: 0.6;
+        }
+
+        .mountain-1 {
+            left: 10%;
+            border-bottom-color: #4a6a5a;
+        }
+
+        .mountain-2 {
+            left: 40%;
+            border-left-width: 200px;
+            border-right-width: 200px;
+            border-bottom: 180px solid #5a7a6a;
+        }
+
+        .mountain-3 {
+            right: 5%;
+            border-bottom-color: #6a8a7a;
+        }
+
+        /* Trees - more detailed */
+        .trees-container {
+            position: absolute;
+            top: 45%;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            z-index: 5;
+        }
+
+        .tree {
+            position: absolute;
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3));
+        }
+
+        .tree-1 { left: 5%; bottom: 0; transform: scale(0.9); }
+        .tree-2 { left: 15%; bottom: 0; transform: scale(1.1); }
+        .tree-3 { right: 10%; bottom: 0; transform: scale(1); }
+        .tree-4 { right: 25%; bottom: 0; transform: scale(0.85); }
+
+        .tree-trunk {
+            width: 35px;
+            height: 160px;
+            background: linear-gradient(90deg, #3d2817 0%, #5a3a1f 50%, #3d2817 100%);
+            margin: 0 auto;
+            border-radius: 5px;
+            box-shadow: inset -3px 0 8px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .tree-trunk::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 15px,
+                rgba(0, 0, 0, 0.1) 15px,
+                rgba(0, 0, 0, 0.1) 17px
+            );
+        }
+
+        .tree-canopy {
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle at 35% 35%, #5a7a4a, #3a5a2a, #2d4a1d);
+            border-radius: 50% 40% 45% 48%;
+            position: absolute;
+            bottom: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: inset -25px -25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Water with realistic waves */
+        .water {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(180deg, var(--water-day) 0%, #2d5a7a 100%);
+            transition: all 1.5s ease-in-out;
+            z-index: 6;
+            overflow: hidden;
+        }
+
+        .water::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 300%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 40px,
+                rgba(255, 255, 255, 0.03) 40px,
+                rgba(255, 255, 255, 0.03) 80px
+            );
+            animation: water-flow 20s linear infinite;
+        }
+
+        @keyframes water-flow {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(33.33%); }
+        }
+
+        /* Water waves on surface */
+        .water-surface {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(
+                180deg,
+                rgba(255, 255, 255, 0.2) 0%,
+                transparent 100%
+            );
+            animation: wave-surface 3s ease-in-out infinite;
+        }
+
+        @keyframes wave-surface {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        /* Ripples */
+        .ripples-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 7;
+        }
+
+        .ripple {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: ripple-effect 3s ease-out forwards;
+        }
+
+        @keyframes ripple-effect {
+            0% {
+                width: 20px;
+                height: 20px;
+                opacity: 0.8;
+                transform: translate(-50%, -50%);
+            }
+            100% {
+                width: 200px;
+                height: 200px;
+                opacity: 0;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        /* Reflections in water */
+        .reflections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            transform: scaleY(-1);
+            filter: blur(3px);
+            z-index: 8;
+        }
+
+        /* Dock - enhanced */
+        .dock {
+            position: absolute;
+            bottom: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 150px;
+            z-index: 10;
+            filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.4));
+        }
+
+        .dock-main {
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(180deg, #b08860 0%, #8b6f47 50%, #6b5437 100%);
+            border-radius: 4px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+            border: 1px solid #5a4830;
+        }
+
+        .dock-plank {
+            position: absolute;
+            width: calc(100% / 8);
+            height: 30px;
+            background: linear-gradient(180deg, #a0826d 0%, #8b6f47 100%);
+            box-shadow: inset 2px 0 3px rgba(0, 0, 0, 0.2),
+                        inset -2px 0 3px rgba(0, 0, 0, 0.2);
+            border-left: 1px solid #6b5437;
+            border-right: 1px solid #6b5437;
+        }
+
+        .dock-post {
+            position: absolute;
+            width: 25px;
+            height: 100px;
+            background: linear-gradient(90deg, #8b6d50 0%, #7a5f37 100%);
+            box-shadow: inset -3px 0 6px rgba(0, 0, 0, 0.4);
+            border-radius: 3px;
+            top: 30px;
+        }
+
+        .post-1 { left: 15%; }
+        .post-2 { left: 45%; }
+        .post-3 { right: 15%; }
+
+        /* Fishing rod */
+        .fishing-rod {
+            position: absolute;
+            right: 20%;
+            top: 10px;
+            width: 4px;
+            height: 120px;
+            background: linear-gradient(180deg, #4a4a4a 0%, #2a2a2a 100%);
+            transform-origin: bottom center;
+            transform: rotate(-10deg);
+            border-radius: 2px;
+            z-index: 11;
+        }
+
+        .fishing-line {
+            position: absolute;
+            bottom: 0;
+            left: 2px;
+            width: 1px;
+            height: 200px;
+            background: rgba(200, 200, 200, 0.4);
+            transform-origin: top center;
+            animation: line-sway 4s ease-in-out infinite;
+        }
+
+        @keyframes line-sway {
+            0%, 100% { transform: rotate(2deg); }
+            50% { transform: rotate(-2deg); }
+        }
+
+        .fishing-hook {
+            position: absolute;
+            bottom: -10px;
+            left: -3px;
+            width: 8px;
+            height: 12px;
+            border: 2px solid #888;
+            border-radius: 0 0 50% 50%;
+            border-top: none;
+        }
+
+        /* Boat - enhanced */
+        .boat {
+            position: absolute;
+            bottom: 37%;
+            right: 12%;
+            width: 140px;
+            height: 90px;
+            z-index: 9;
+            animation: boat-bob 5s ease-in-out infinite;
+            filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3));
+        }
+
+        @keyframes boat-bob {
+            0%, 100% {
+                transform: translateY(0px) rotateZ(-1deg);
+            }
+            50% {
+                transform: translateY(-12px) rotateZ(1deg);
+            }
+        }
+
+        .boat-hull {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 55px;
+            background: linear-gradient(180deg, #a0522d 0%, #8b4513 50%, #654321 100%);
+            border-radius: 50% 50% 45% 45%;
+            box-shadow: inset 0 -5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #4a2511;
+        }
+
+        .boat-hull::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: #5a3521;
+            border-radius: 50%;
+        }
+
+        .boat-cabin {
+            position: absolute;
+            bottom: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 45px;
+            background: linear-gradient(135deg, #e0c8a0 0%, #c49564 100%);
+            border-radius: 10px;
+            box-shadow: inset -2px -2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .boat-window {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #87ceeb 0%, #6ab0d8 100%);
+            border-radius: 50%;
+            top: 10px;
+            left: 12px;
+            box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.3);
+            border: 2px solid #8b7355;
+        }
+
+        .boat-window.window-2 {
+            left: 50px;
+        }
+
+        /* Birds */
+        .birds-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 12;
+        }
+
+        .bird {
+            position: absolute;
+            width: 20px;
+            height: 8px;
+            animation: bird-fly 25s linear infinite;
+        }
+
+        @keyframes bird-fly {
+            0% {
+                transform: translateX(-100px) translateY(0);
+            }
+            100% {
+                transform: translateX(calc(100vw + 100px)) translateY(-50px);
+            }
+        }
+
+        .bird::before,
+        .bird::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 2px;
+            background: #2a2a2a;
+            border-radius: 2px;
+            animation: wing-flap 0.5s ease-in-out infinite;
+        }
+
+        .bird::before {
+            left: 0;
+            transform-origin: right center;
+        }
+
+        .bird::after {
+            right: 0;
+            transform-origin: left center;
+            animation-delay: 0.25s;
+        }
+
+        @keyframes wing-flap {
+            0%, 100% { transform: rotateZ(-20deg); }
+            50% { transform: rotateZ(20deg); }
+        }
+
+        /* Fish jumping */
+        .fish {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            background: linear-gradient(135deg, #c0c0c0 0%, #808080 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            z-index: 8;
+            opacity: 0;
+            animation: fish-jump 8s ease-in-out infinite;
+        }
+
+        .fish::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid #808080;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+
+        @keyframes fish-jump {
+            0%, 90%, 100% {
+                bottom: 35%;
+                opacity: 0;
+                transform: translateY(0) rotateZ(0deg);
+            }
+            2% {
+                opacity: 1;
+            }
+            5% {
+                bottom: 45%;
+                transform: translateY(-60px) rotateZ(-25deg);
+            }
+            10% {
+                bottom: 35%;
+                opacity: 1;
+                transform: translateY(0) rotateZ(15deg);
+            }
+            12% {
+                opacity: 0;
+            }
+        }
+
+        /* Leaves falling */
+        .leaves-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 13;
+            pointer-events: none;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: radial-gradient(circle at 30% 30%, #d4af37, #b8860b);
+            border-radius: 50% 0;
+            opacity: 0.9;
+            animation: leaf-fall 10s linear infinite;
+        }
+
+        @keyframes leaf-fall {
+            0% {
+                transform: translateY(-50px) translateX(0px) rotateZ(0deg);
+                opacity: 0.9;
+            }
+            100% {
+                transform: translateY(100vh) translateX(120px) rotateZ(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Control Panel */
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 280px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .control-title {
+            color: #d4af37;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .control-group {
+            margin-bottom: 18px;
+        }
+
+        .control-label {
+            display: block;
+            color: #e0e0e0;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px;
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid #d4af37;
+            color: #d4af37;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: rgba(212, 175, 55, 0.3);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn.active {
+            background: #d4af37;
+            color: #000;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #d4af37;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.6);
+            transition: all 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #d4af37;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.6);
+        }
+
+        .value-display {
+            color: #d4af37;
+            font-size: 12px;
+            text-align: right;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                min-width: auto;
+            }
+            
+            .dock {
+                width: 80vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <!-- Sky -->
+        <div class="sky" id="sky"></div>
+        
+        <!-- Sun and Moon -->
+        <div class="sun" id="sun"></div>
+        <div class="moon" id="moon"></div>
+        
+        <!-- Stars -->
+        <div class="stars" id="starsContainer"></div>
+        
+        <!-- Clouds -->
+        <div class="clouds">
+            <div class="cloud cloud-1"></div>
+            <div class="cloud cloud-2"></div>
+        </div>
+        
+        <!-- Mountains -->
+        <div class="mountains">
+            <div class="mountain mountain-1"></div>
+            <div class="mountain mountain-2"></div>
+            <div class="mountain mountain-3"></div>
+        </div>
+        
+        <!-- Trees -->
+        <div class="trees-container">
+            <div class="tree tree-1">
+                <div class="tree-canopy"></div>
+                <div class="tree-trunk"></div>
+            </div>
+            <div class="tree tree-2">
+                <div class="tree-canopy"></div>
+                <div class="tree-trunk"></div>
+            </div>
+            <div class="tree tree-3">
+                <div class="tree-canopy"></div>
+                <div class="tree-trunk"></div>
+            </div>
+            <div class="tree tree-4">
+                <div class="tree-canopy"></div>
+                <div class="tree-trunk"></div>
+            </div>
+        </div>
+        
+        <!-- Water -->
+        <div class="water" id="water">
+            <div class="water-surface"></div>
+            <div class="ripples-container" id="ripplesContainer"></div>
+        </div>
+        
+        <!-- Dock -->
+        <div class="dock">
+            <div class="dock-main"></div>
+            <div class="dock-post post-1"></div>
+            <div class="dock-post post-2"></div>
+            <div class="dock-post post-3"></div>
+            
+            <!-- Fishing Rod -->
+            <div class="fishing-rod">
+                <div class="fishing-line">
+                    <div class="fishing-hook"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Boat -->
+        <div class="boat" id="boat">
+            <div class="boat-hull"></div>
+            <div class="boat-cabin">
+                <div class="boat-window"></div>
+                <div class="boat-window window-2"></div>
+            </div>
+        </div>
+        
+        <!-- Fish -->
+        <div class="fish" id="fish1" style="left: 30%; animation-delay: 0s;"></div>
+        <div class="fish" id="fish2" style="left: 60%; animation-delay: 4s;"></div>
+        <div class="fish" id="fish3" style="left: 45%; animation-delay: 6s;"></div>
+        
+        <!-- Birds -->
+        <div class="birds-container" id="birdsContainer"></div>
+        
+        <!-- Falling Leaves -->
+        <div class="leaves-container" id="leavesContainer"></div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <div class="control-title">⚓ Dock Controls</div>
+        
+        <div class="control-group">
+            <label class="control-label">Time of Day</label>
+            <div class="button-group">
+                <button class="btn active" data-time="day">☀️ Day</button>
+                <button class="btn" data-time="dusk">🌅 Dusk</button>
+                <button class="btn" data-time="night">🌙 Night</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Wave Activity</label>
+            <input type="range" class="slider" id="waveSpeed" min="1" max="5" value="3" step="0.5">
+            <div class="value-display"><span id="waveValue">Normal</span></div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Wildlife Activity</label>
+            <input type="range" class="slider" id="wildlife" min="0" max="10" value="5" step="1">
+            <div class="value-display"><span id="wildlifeValue">Medium</span></div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Boat Visibility</label>
+            <input type="range" class="slider" id="boatOpacity" min="0" max="100" value="100" step="10">
+            <div class="value-display"><span id="boatValue">100</span>%</div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Cloud Cover</label>
+            <input type="range" class="slider" id="cloudOpacity" min="0" max="100" value="70" step="10">
+            <div class="value-display"><span id="cloudValue">70</span>%</div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        const state = {
+            timeOfDay: 'day',
+            waveSpeed: 3,
+            wildlife: 5,
+            boatOpacity: 100,
+            cloudOpacity: 70
+        };
+
+        // Create stars
+        function createStars() {
+            const container = document.getElementById('starsContainer');
+            container.innerHTML = '';
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 2 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 50 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                container.appendChild(star);
+            }
+        }
+
+        // Set time of day
+        function setTimeOfDay(time) {
+            state.timeOfDay = time;
+            const sky = document.getElementById('sky');
+            const water = document.getElementById('water');
+            const sun = document.getElementById('sun');
+            const moon = document.getElementById('moon');
+            const stars = document.getElementById('starsContainer');
+
+            if (time === 'day') {
+                sky.style.background = 'linear-gradient(to bottom, #4a9fd8, #b3d9f2)';
+                water.style.background = 'linear-gradient(180deg, #4a8ba4 0%, #2d5a7a 100%)';
+                sun.style.opacity = '1';
+                sun.style.top = '20%';
+                moon.style.opacity = '0';
+                stars.style.opacity = '0';
+                document.querySelector('.clouds').style.opacity = '1';
+            } else if (time === 'dusk') {
+                sky.style.background = 'linear-gradient(to bottom, #d97634, #f4a460)';
+                water.style.background = 'linear-gradient(180deg, #8b6f47 0%, #6b5437 100%)';
+                sun.style.opacity = '0.6';
+                sun.style.top = '40%';
+                moon.style.opacity = '0.3';
+                stars.style.opacity = '0.3';
+                document.querySelector('.clouds').style.opacity = '0.7';
+            } else if (time === 'night') {
+                sky.style.background = 'linear-gradient(to bottom, #0a1428, #1a3a52)';
+                water.style.background = 'linear-gradient(180deg, #1a3050 0%, #0f1f2f 100%)';
+                sun.style.opacity = '0';
+                moon.style.opacity = '1';
+                moon.style.top = '15%';
+                stars.style.opacity = '1';
+                document.querySelector('.clouds').style.opacity = '0.3';
+            }
+
+            // Update button states
+            document.querySelectorAll('[data-time]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.time === time);
+            });
+        }
+
+        // Create ripples
+        function createRipple() {
+            const container = document.getElementById('ripplesContainer');
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.left = Math.random() * 100 + '%';
+            ripple.style.top = Math.random() * 80 + '%';
+            container.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 3000);
+        }
+
+        // Ripple interval
+        let rippleInterval;
+        function startRipples() {
+            clearInterval(rippleInterval);
+            const frequency = 2000 / state.waveSpeed;
+            rippleInterval = setInterval(createRipple, frequency);
+        }
+
+        // Create birds
+        function createBird() {
+            const container = document.getElementById('birdsContainer');
+            const bird = document.createElement('div');
+            bird.className = 'bird';
+            bird.style.left = '-100px';
+            bird.style.top = Math.random() * 40 + 10 + '%';
+            bird.style.animationDuration = (Math.random() * 10 + 20) + 's';
+            container.appendChild(bird);
+            
+            setTimeout(() => bird.remove(), 30000);
+        }
+
+        // Create leaves
+        function createLeaves() {
+            const container = document.getElementById('leavesContainer');
+            container.innerHTML = '';
+            const count = state.wildlife * 3;
+            
+            for (let i = 0; i < count; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'leaf';
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.animationDelay = Math.random() * 10 + 's';
+                leaf.style.animationDuration = (Math.random() * 5 + 8) + 's';
+                container.appendChild(leaf);
+            }
+        }
+
+        // Wildlife interval
+        let wildlifeInterval;
+        function startWildlife() {
+            clearInterval(wildlifeInterval);
+            if (state.wildlife > 0) {
+                const frequency = 15000 / state.wildlife;
+                wildlifeInterval = setInterval(() => {
+                    if (Math.random() > 0.5) createBird();
+                }, frequency);
+            }
+        }
+
+        // Event listeners for time buttons
+        document.querySelectorAll('[data-time]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                setTimeOfDay(btn.dataset.time);
+            });
+        });
+
+        // Wave speed control
+        document.getElementById('waveSpeed').addEventListener('input', (e) => {
+            state.waveSpeed = parseFloat(e.target.value);
+            const labels = ['Calm', 'Light', 'Normal', 'Active', 'Rough'];
+            const index = Math.round((state.waveSpeed - 1) * (labels.length - 1) / 4);
+            document.getElementById('waveValue').textContent = labels[index];
+            startRipples();
+        });
+
+        // Wildlife control
+        document.getElementById('wildlife').addEventListener('input', (e) => {
+            state.wildlife = parseInt(e.target.value);
+            const labels = ['None', 'Rare', 'Low', 'Medium', 'High', 'Very High'];
+            const index = Math.min(Math.floor(state.wildlife / 2), labels.length - 1);
+            document.getElementById('wildlifeValue').textContent = labels[index];
+            createLeaves();
+            startWildlife();
+        });
+
+        // Boat opacity control
+        document.getElementById('boatOpacity').addEventListener('input', (e) => {
+            state.boatOpacity = parseInt(e.target.value);
+            document.getElementById('boat').style.opacity = state.boatOpacity / 100;
+            document.getElementById('boatValue').textContent = state.boatOpacity;
+        });
+
+        // Cloud opacity control
+        document.getElementById('cloudOpacity').addEventListener('input', (e) => {
+            state.cloudOpacity = parseInt(e.target.value);
+            document.querySelector('.clouds').style.opacity = state.cloudOpacity / 100;
+            document.getElementById('cloudValue').textContent = state.cloudOpacity;
+        });
+
+        // Initialize
+        createStars();
+        createLeaves();
+        startRipples();
+        startWildlife();
+
+        // Recreate leaves periodically
+        setInterval(createLeaves, 15000);
+    </script>
+</body>
+</html>
