@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliffside Monastery - A Meditative Experience</title>
+    <style>
+        :root {
+            --color-sky-day: #87ceeb;
+            --color-sky-sunset: #ff7f50;
+            --color-sky-night: #0a1428;
+            --color-cliff: #8b7355;
+            --color-building: #d4a574;
+            --color-shadow: #5a4a3a;
+            --color-accent: #f4e4c1;
+            --color-fog: rgba(200, 200, 200, 0.3);
+            --color-lantern: #ffd700;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Georgia', serif;
+            background: var(--color-sky-day);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(180deg, var(--color-sky-day) 0%, #e0f6ff 100%);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .control-panel {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            color: #fff;
+            font-size: 14px;
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 12px;
+            color: #ffd700;
+        }
+
+        select, input[type="range"] {
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        select:hover, input[type="range"]:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        select option {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .value-display {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 4px;
+        }
+
+        .info-text {
+            grid-column: 1 / -1;
+            font-size: 13px;
+            color: #bbb;
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                grid-template-columns: 1fr;
+                padding: 15px;
+                gap: 15px;
+            }
+
+            body {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    
+    <div class="control-panel">
+        <div class="control-group">
+            <label for="time-select">Time of Day</label>
+            <select id="time-select">
+                <option value="morning">Morning - Soft Light</option>
+                <option value="noon">Noon - Bright</option>
+                <option value="golden">Golden Hour - Sunset</option>
+                <option value="dusk">Dusk - Deep Blue</option>
+                <option value="night">Night - Starlight</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="weather-select">Atmospheric Conditions</label>
+            <select id="weather-select">
+                <option value="clear">Clear Sky</option>
+                <option value="misty">Misty Mountains</option>
+                <option value="clouds">Passing Clouds</option>
+                <option value="stormy">Dramatic Lighting</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="wind-speed">Wind Speed</label>
+            <input type="range" id="wind-speed" min="0" max="100" value="40">
+            <div class="value-display" id="wind-value">Gentle Breeze</div>
+        </div>
+
+        <div class="control-group">
+            <label for="animation-speed">Animation Speed</label>
+            <input type="range" id="animation-speed" min="0.2" max="2" step="0.1" value="1">
+            <div class="value-display" id="speed-value">Normal</div>
+        </div>
+
+        <div class="control-group">
+            <label for="scenery-select">Scene Variation</label>
+            <select id="scenery-select">
+                <option value="zen">Zen Monastery</option>
+                <option value="tibetan">Tibetan Heights</option>
+                <option value="mediterranean">Mediterranean Cliffs</option>
+                <option value="mystical">Mystical Peaks</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="detail-level">Detail Level</label>
+            <input type="range" id="detail-level" min="0" max="100" value="80">
+            <div class="value-display" id="detail-value">High</div>
+        </div>
+
+        <div class="info-text">
+            Lose yourself in the serene beauty of the mountains. Let the gentle animations soothe your mind.
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas-container').appendChild(document.createElement('canvas'));
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            const container = document.getElementById('canvas-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // State management
+        const state = {
+            timeOfDay: 'golden',
+            weather: 'clear',
+            windSpeed: 0.4,
+            animationSpeed: 1,
+            scenery: 'zen',
+            detailLevel: 0.8,
+            time: 0,
+            buildings: [],
+            lanterns: [],
+            flags: [],
+            particles: [],
+            clouds: []
+        };
+
+        // Update state from controls
+        document.getElementById('time-select').addEventListener('change', (e) => {
+            state.timeOfDay = e.target.value;
+        });
+        document.getElementById('weather-select').addEventListener('change', (e) => {
+            state.weather = e.target.value;
+        });
+        document.getElementById('wind-speed').addEventListener('input', (e) => {
+            state.windSpeed = e.target.value / 100;
+            updateWindDisplay();
+        });
+        document.getElementById('animation-speed').addEventListener('input', (e) => {
+            state.animationSpeed = e.target.value;
+            updateSpeedDisplay();
+        });
+        document.getElementById('scenery-select').addEventListener('change', (e) => {
+            state.scenery = e.target.value;
+            initializeScene();
+        });
+        document.getElementById('detail-level').addEventListener('input', (e) => {
+            state.detailLevel = e.target.value / 100;
+            document.getElementById('detail-value').textContent = 
+                e.target.value > 66 ? 'High' : e.target.value > 33 ? 'Medium' : 'Low';
+        });
+
+        function updateWindDisplay() {
+            const windValue = Math.round(state.windSpeed * 100);
+            let text = 'Calm';
+            if (windValue > 60) text = 'Strong Wind';
+            else if (windValue > 40) text = 'Moderate Breeze';
+            else if (windValue > 20) text = 'Gentle Breeze';
+            document.getElementById('wind-value').textContent = text;
+        }
+
+        function updateSpeedDisplay() {
+            const speedValue = state.animationSpeed;
+            let text = 'Normal';
+            if (speedValue > 1.5) text = 'Fast';
+            else if (speedValue < 0.7) text = 'Slow';
+            document.getElementById('speed-value').textContent = text;
+        }
+
+        // Color schemes for different times
+        const colorSchemes = {
+            morning: {
+                sky: '#e8f4f8',
+                skyGradient: ['#e8f4f8', '#b3d9e8'],
+                cliff: '#a89968',
+                building: '#d4a574',
+                shadow: '#8b7355',
+                light: '#ffd89b'
+            },
+            noon: {
+                sky: '#87ceeb',
+                skyGradient: ['#87ceeb', '#b3d9ff'],
+                cliff: '#9ca67f',
+                building: '#d4b896',
+                shadow: '#6b5a4a',
+                light: '#ffffcc'
+            },
+            golden: {
+                sky: '#ff9a56',
+                skyGradient: ['#ffe0b3', '#ff9a56'],
+                cliff: '#8b6f47',
+                building: '#d4784a',
+                shadow: '#5a4030',
+                light: '#ffd700'
+            },
+            dusk: {
+                sky: '#4a6fa5',
+                skyGradient: ['#8b7bb8', '#4a6fa5'],
+                cliff: '#4a3a2a',
+                building: '#8b6a47',
+                shadow: '#3a2a1a',
+                light: '#9999ff'
+            },
+            night: {
+                sky: '#0a1428',
+                skyGradient: ['#1a2a3a', '#0a1428'],
+                cliff: '#1a1a2a',
+                building: '#3a3a4a',
+                shadow: '#0a0a0a',
+                light: '#ffdd99'
+            }
+        };
+
+        class Building {
+            constructor(x, y, width, height, windows, level) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.windows = windows;
+                this.level = level;
+                this.sway = Math.random() * Math.PI * 2;
+            }
+
+            draw(ctx, colors, time, animationSpeed) {
+                const sway = Math.sin(time * 0.5 * animationSpeed + this.sway) * 0.5;
+                
+                ctx.save();
+                ctx.translate(this.x + sway, this.y);
+
+                // Main building body
+                ctx.fillStyle = colors.building;
+                ctx.fillRect(0, 0, this.width, this.height);
+
+                // Building shadow
+                ctx.fillStyle = colors.shadow;
+                ctx.fillRect(0, this.height * 0.7, this.width, this.height * 0.3);
+
+                // Windows
+                ctx.fillStyle = '#4a4a2a';
+                const windowSize = this.width / (this.windows + 1);
+                for (let i = 0; i < this.windows; i++) {
+                    const wx = (i + 1) * windowSize - windowSize * 0.3;
+                    for (let wy = 10; wy < this.height - 10; wy += 30) {
+                        ctx.fillRect(wx, wy, windowSize * 0.6, 20);
+                        
+                        // Flickering light
+                        if (Math.random() > 0.7 + Math.sin(time * 2 + i) * 0.2) {
+                            ctx.fillStyle = colors.light;
+                            ctx.fillRect(wx + 2, wy + 2, windowSize * 0.6 - 4, 16);
+                            ctx.fillStyle = '#4a4a2a';
+                        }
+                    }
+                }
+
+                // Roofline
+                ctx.strokeStyle = colors.shadow;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(this.width * 0.5, -15);
+                ctx.lineTo(this.width, 0);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+        }
+
+        class Lantern {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.sway = Math.random() * Math.PI * 2;
+                this.swayAmount = 3 + Math.random() * 3;
+            }
+
+            draw(ctx, time, windSpeed, animationSpeed, colors) {
+                const sway = Math.sin(time * 0.3 * animationSpeed + this.sway) * this.swayAmount * windSpeed;
+                
+                ctx.save();
+                ctx.translate(this.x + sway, this.y);
+
+                // Lantern glow
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 25);
+                gradient.addColorStop(0, colors.light);
+                gradient.addColorStop(0.5, 'rgba(255, 215, 0, 0.3)');
+                gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(-25, -25, 50, 50);
+
+                // Lantern frame
+                ctx.strokeStyle = '#8b7355';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(-8, -12, 16, 20);
+
+                // Lantern shine
+                ctx.fillStyle = colors.light;
+                ctx.fillRect(-6, -10, 12, 8);
+
+                ctx.restore();
+            }
+        }
+
+        class Flag {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.phase = Math.random() * Math.PI * 2;
+                this.length = 30 + Math.random() * 20;
+                this.amplitude = 2 + Math.random() * 3;
+            }
+
+            draw(ctx, time, windSpeed, animationSpeed) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                // Pole
+                ctx.strokeStyle = '#8b7355';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(0, 20);
+                ctx.stroke();
+
+                // Flag wave
+                ctx.fillStyle = 'rgba(200, 50, 50, 0.8)';
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                
+                for (let i = 0; i <= this.length; i += 2) {
+                    const wave = Math.sin((time * 0.8 * animationSpeed + this.phase) + (i * 0.15)) * 
+                                 this.amplitude * windSpeed * 2;
+                    ctx.lineTo(i, wave);
+                }
+                
+                ctx.lineTo(this.length, 15);
+                ctx.lineTo(0, 15);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        class Cloud {
+            constructor(x, y, size) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.speed = Math.random() * 0.5 + 0.1;
+                this.originalX = x;
+            }
+
+            draw(ctx, time, colors) {
+                ctx.save();
+                this.x = this.originalX + Math.sin(time * this.speed * 0.1) * 100;
+                
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.arc(this.x + this.size * 0.8, this.y - this.size * 0.3, this.size * 0.7, 0, Math.PI * 2);
+                ctx.arc(this.x - this.size * 0.8, this.y - this.size * 0.3, this.size * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+
+        function initializeScene() {
+            state.buildings = [];
+            state.lanterns = [];
+            state.flags = [];
+            state.clouds = [];
+
+            const sceneryConfigs = {
+                zen: {
+                    cliffHeight: 0.65,
+                    buildingCount: 6,
+                    buildingSpacing: 80,
+                    startX: 100,
+                    colors: colorSchemes[state.timeOfDay]
+                },
+                tibetan: {
+                    cliffHeight: 0.5,
+                    buildingCount: 8,
+                    buildingSpacing: 60,
+                    startX: 50,
+                    colors: colorSchemes[state.timeOfDay]
+                },
+                mediterranean: {
+                    cliffHeight: 0.7,
+                    buildingCount: 5,
+                    buildingSpacing: 100,
+                    startX: 150,
+                    colors: colorSchemes[state.timeOfDay]
+                },
+                mystical: {
+                    cliffHeight: 0.55,
+                    buildingCount: 7,
+                    buildingSpacing: 70,
+                    startX: 80,
+                    colors: colorSchemes[state.timeOfDay]
+                }
+            };
+
+            const config = sceneryConfigs[state.scenery];
+            const cliffY = canvas.height * config.cliffHeight;
+
+            for (let i = 0; i < config.buildingCount; i++) {
+                const x = config.startX + i * config.buildingSpacing;
+                const height = 60 + Math.random() * 80;
+                const y = cliffY - height - (i % 3) * 30;
+                const width = 50 + Math.random() * 40;
+                const windows = 2 + Math.floor(Math.random() * 3);
+                
+                state.buildings.push(new Building(x, y, width, height, windows, i));
+
+                if (Math.random() > 0.5) {
+                    state.lanterns.push(new Lantern(x + width * 0.5, y - 15));
+                    state.lanterns.push(new Lantern(x + width * 0.5, y + height + 10));
+                }
+
+                if (Math.random() > 0.6) {
+                    state.flags.push(new Flag(x - 20, y - 10));
+                    state.flags.push(new Flag(x + width + 20, y - 10));
+                }
+            }
+
+            if (state.weather === 'clouds' || state.weather === 'misty') {
+                for (let i = 0; i < 5; i++) {
+                    state.clouds.push(new Cloud(
+                        Math.random() * canvas.width,
+                        Math.random() * canvas.height * 0.4,
+                        30 + Math.random() * 40
+                    ));
+                }
+            }
+        }
+
+        function drawCliff() {
+            const colors = colorSchemes[state.timeOfDay];
+            const cliffY = canvas.height * 0.65;
+            const cliffWidth = canvas.width;
+            
+            // Cliff face
+            ctx.fillStyle = colors.cliff;
+            ctx.fillRect(0, cliffY, cliffWidth, canvas.height - cliffY);
+
+            // Cliff texture
+            if (state.detailLevel > 0.5) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                for (let i = 0; i < 50 * state.detailLevel; i++) {
+                    const x = Math.random() * cliffWidth;
+                    const y = cliffY + Math.random() * (canvas.height - cliffY);
+                    const size = Math.random() * 30 + 10;
+                    ctx.fillRect(x, y, size, size * 0.5);
+                }
+            }
+
+            // Cliff shadow
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(0, cliffY + 50, cliffWidth, 30);
+        }
+
+        function drawSky() {
+            const colors = colorSchemes[state.timeOfDay];
+            
+            // Sky gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.7);
+            gradient.addColorStop(0, colors.skyGradient[0]);
+            gradient.addColorStop(1, colors.skyGradient[1]);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.7);
+
+            // Stars for night
+            if (state.timeOfDay === 'night') {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                for (let i = 0; i < 100 * state.detailLevel; i++) {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height * 0.5;
+                    const size = Math.random() * 1.5;
+                    ctx.fillRect(x, y, size, size);
+                }
+            }
+        }
+
+        function drawAtmosphere() {
+            const colors = colorSchemes[state.timeOfDay];
+            
+            if (state.weather === 'misty') {
+                ctx.fillStyle = 'rgba(200, 200, 200, 0.15)';
+                ctx.fillRect(0, canvas.height * 0.4, canvas.width, canvas.height * 0.6);
+                
+                ctx.fillStyle = 'rgba(150, 150, 150, 0.1)';
+                for (let i = 0; i < 20; i++) {
+                    const x = (state.time * 5 + i * 100) % (canvas.width + 200) - 100;
+                    ctx.fillRect(x, canvas.height * 0.5, 200, 100);
+                }
+            } else if (state.weather === 'stormy') {
+                ctx.fillStyle = 'rgba(80, 80, 100, 0.2)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function animate() {
+            state.time += 0.016 * state.animationSpeed;
+
+            // Draw background
+            drawSky();
+            
+            // Draw atmosphere
+            drawAtmosphere();
+
+            // Draw clouds
+            state.clouds.forEach(cloud => {
+                cloud.draw(ctx, state.time, colorSchemes[state.timeOfDay]);
+            });
+
+            // Draw cliff
+            drawCliff();
+
+            // Draw buildings
+            state.buildings.forEach(building => {
+                building.draw(ctx, colorSchemes[state.timeOfDay], state.time, state.animationSpeed);
+            });
+
+            // Draw flags (behind lanterns)
+            state.flags.forEach(flag => {
+                flag.draw(ctx, state.time, state.windSpeed, state.animationSpeed);
+            });
+
+            // Draw lanterns
+            state.lanterns.forEach(lantern => {
+                lantern.draw(ctx, state.time, state.windSpeed, state.animationSpeed, colorSchemes[state.timeOfDay]);
+            });
+
+            // Draw vignette
+            const vignetteGradient = ctx.createRadialGradient(
+                canvas.width * 0.5, canvas.height * 0.5, 0,
+                canvas.width * 0.5, canvas.height * 0.5, Math.max(canvas.width, canvas.height)
+            );
+            vignetteGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+            vignetteGradient.addColorStop(1, 'rgba(0, 0, 0, 0.15)');
+            ctx.fillStyle = vignetteGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            requestAnimationFrame(animate);
+        }
+
+        // Initialize
+        initializeScene();
+        animate();
+    </script>
+</body>
+</html>
