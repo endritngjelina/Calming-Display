@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riverside Fishing Dock</title>
+    <style>
+        :root {
+            --color-sky-day: #87CEEB;
+            --color-sky-night: #0a1428;
+            --color-water-day: #4a90a4;
+            --color-water-night: #1a3a52;
+            --color-dock: #8b6f47;
+            --color-tree: #2d5016;
+            --color-accent: #d4af37;
+            --ripple-speed: 3s;
+            --wind-speed: 8s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: linear-gradient(to bottom, var(--color-sky-day), var(--color-water-day));
+            transition: background 1s ease-in-out;
+            height: 100vh;
+        }
+
+        body.night-mode {
+            background: linear-gradient(to bottom, var(--color-sky-night) 0%, #1a2a3a 50%, var(--color-water-night) 100%);
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            z-index: 1;
+            transition: background 1s ease-in-out;
+        }
+
+        .sky-day {
+            background: linear-gradient(180deg, #87CEEB 0%, #e0f6ff 100%);
+        }
+
+        .sky-night {
+            background: linear-gradient(180deg, #0a1428 0%, #1a3a52 100%);
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .stars.visible {
+            opacity: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .water {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(180deg, #4a90a4 0%, #2d5a7a 100%);
+            z-index: 2;
+            transition: background 1s ease-in-out;
+        }
+
+        .water.night-water {
+            background: linear-gradient(180deg, #1a3a52 0%, #0f1f2f 100%);
+        }
+
+        .ripples-container {
+            position: absolute;
+            bottom: 25%;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            z-index: 3;
+            overflow: hidden;
+        }
+
+        .ripple {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: ripple-effect var(--ripple-speed) ease-out forwards;
+        }
+
+        @keyframes ripple-effect {
+            0% {
+                width: 20px;
+                height: 20px;
+                opacity: 0.8;
+                transform: translate(-50%, -50%);
+            }
+            100% {
+                width: 200px;
+                height: 200px;
+                opacity: 0;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .dock {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 120px;
+            z-index: 4;
+        }
+
+        .dock-plank {
+            position: absolute;
+            background: linear-gradient(180deg, #a0826d 0%, #8b6f47 50%, #6b5437 100%);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3), 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        .dock-main {
+            width: 100%;
+            height: 25px;
+            top: 0;
+            left: 0;
+            border: 1px solid #5a4830;
+        }
+
+        .dock-post {
+            width: 20px;
+            height: 80px;
+            background: linear-gradient(90deg, #9b7d5d 0%, #8b6f47 50%, #7a5f37 100%);
+            box-shadow: inset -2px 0 4px rgba(0, 0, 0, 0.2), 2px 0 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .post-1 {
+            left: 15%;
+            top: 25px;
+        }
+
+        .post-2 {
+            right: 15%;
+            top: 25px;
+        }
+
+        .boat {
+            position: absolute;
+            bottom: 32%;
+            right: 10%;
+            width: 120px;
+            height: 80px;
+            z-index: 3;
+            animation: boat-bob 4s ease-in-out infinite;
+        }
+
+        @keyframes boat-bob {
+            0%, 100% {
+                transform: translateY(0px) rotateZ(-2deg);
+            }
+            50% {
+                transform: translateY(-15px) rotateZ(2deg);
+            }
+        }
+
+        .boat-hull {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(180deg, #8b4513 0%, #654321 100%);
+            border-radius: 50% 50% 40% 40%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #4a2511;
+        }
+
+        .boat-cabin {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 40px;
+            background: linear-gradient(135deg, #d4a574 0%, #c49564 100%);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .boat-window {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #87ceeb;
+            border-radius: 50%;
+            top: 8px;
+            left: 10px;
+            box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .trees-container {
+            position: absolute;
+            top: 35%;
+            left: 0;
+            width: 100%;
+            height: 25%;
+            z-index: 1;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+        }
+
+        .tree {
+            position: relative;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+
+        .tree-trunk {
+            width: 40px;
+            height: 180px;
+            background: linear-gradient(90deg, #3d2817 0%, #6b4423 100%);
+            margin: 0 auto;
+            border-radius: 5px;
+            box-shadow: inset -3px 0 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .tree-canopy {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle at 30% 30%, #4a6b3a, #2d5016);
+            border-radius: 50% 40% 45% 48%;
+            position: absolute;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: inset -20px -20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .leaves {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #d4af37, #b8860b);
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: leaf-fall var(--wind-speed) linear infinite;
+        }
+
+        @keyframes leaf-fall {
+            0% {
+                transform: translateY(-500px) translateX(0px) rotateZ(0deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(500px) translateX(150px) rotateZ(720deg);
+                opacity: 0;
+            }
+        }
+
+        .control-panel {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 25px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 280px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-title {
+            color: #d4af37;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            display: block;
+            color: #e0e0e0;
+            font-size: 13px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.3) 100%);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #d4af37;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 2px 12px rgba(212, 175, 55, 0.6);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #d4af37;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 2px 12px rgba(212, 175, 55, 0.6);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            background: rgba(212, 175, 55, 0.2);
+            border: 1px solid #d4af37;
+            color: #d4af37;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn.active {
+            background: #d4af37;
+            color: #0a1428;
+        }
+
+        .value-display {
+            color: #d4af37;
+            font-size: 12px;
+            text-align: right;
+            margin-top: 3px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                bottom: 15px;
+                right: 15px;
+                padding: 15px;
+                min-width: auto;
+                width: calc(100% - 30px);
+            }
+
+            .dock {
+                width: 80vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sky" id="sky"></div>
+        <div class="stars" id="stars"></div>
+        <div class="water" id="water"></div>
+        
+        <div class="ripples-container" id="ripplesContainer"></div>
+        
+        <div class="trees-container" id="treesContainer">
+            <div class="tree" id="tree1">
+                <div class="tree-canopy"></div>
+                <div class="tree-trunk"></div>
+            </div>
+            <div class="tree" id="tree2">
+                <div class="tree-canopy"></div>
+                <div class="tree-trunk"></div>
+            </div>
+            <div class="tree" id="tree3">
+                <div class="tree-canopy"></div>
+                <div class="tree-trunk"></div>
+            </div>
+        </div>
+        
+        <div class="leaves" id="leavesContainer"></div>
+        
+        <div class="dock" id="dock">
+            <div class="dock-plank dock-main"></div>
+            <div class="dock-post post-1"></div>
+            <div class="dock-post post-2"></div>
+        </div>
+        
+        <div class="boat" id="boat">
+            <div class="boat-hull"></div>
+            <div class="boat-cabin">
+                <div class="boat-window"></div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="control-title">Fishing Dock</div>
+            
+            <div class="control-group">
+                <label class="control-label">Time of Day</label>
+                <div class="button-group">
+                    <button class="btn active" data-time="day">Day</button>
+                    <button class="btn" data-time="dusk">Dusk</button>
+                    <button class="btn" data-time="night">Night</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Wind Speed</label>
+                <input type="range" class="slider" id="windSpeed" min="3" max="12" value="8" step="0.5">
+                <div class="value-display"><span id="windValue">8.0</span>s</div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Ripple Frequency</label>
+                <input type="range" class="slider" id="rippleFreq" min="1" max="5" value="1" step="0.5">
+                <div class="value-display"><span id="rippleValue">Normal</span></div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Leaf Fall</label>
+                <div class="button-group">
+                    <button class="btn active" data-leaves="on">On</button>
+                    <button class="btn" data-leaves="off">Off</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Boat Visibility</label>
+                <input type="range" class="slider" id="boatOpacity" min="0" max="100" value="100" step="10">
+                <div class="value-display"><span id="boatOpacValue">100</span>%</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const state = {
+            timeOfDay: 'day',
+            windSpeed: 8,
+            rippleFrequency: 1,
+            leavesActive: true,
+            boatOpacity: 100
+        };
+
+        // Create stars for night mode
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            starsContainer.innerHTML = '';
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 40 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Set time of day
+        function setTimeOfDay(time) {
+            state.timeOfDay = time;
+            const body = document.body;
+            const sky = document.getElementById('sky');
+            const water = document.getElementById('water');
+            const stars = document.getElementById('stars');
+
+            body.classList.remove('night-mode');
+            stars.classList.remove('visible');
+
+            if (time === 'day') {
+                sky.className = 'sky sky-day';
+                water.className = 'water';
+                document.documentElement.style.setProperty('--ripple-speed', '3s');
+            } else if (time === 'dusk') {
+                sky.className = 'sky';
+                sky.style.background = 'linear-gradient(180deg, #d97634 0%, #f4a460 100%)';
+                water.className = 'water';
+                water.style.background = 'linear-gradient(180deg, #8b6f47 0%, #6b5437 100%)';
+                document.documentElement.style.setProperty('--ripple-speed', '3.5s');
+            } else if (time === 'night') {
+                body.classList.add('night-mode');
+                sky.className = 'sky sky-night';
+                water.className = 'water night-water';
+                stars.classList.add('visible');
+                document.documentElement.style.setProperty('--ripple-speed', '4s');
+            }
+
+            // Update button states
+            document.querySelectorAll('[data-time]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.time === time);
+            });
+        }
+
+        // Create ripples
+        function createRipple() {
+            const container = document.getElementById('ripplesContainer');
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.left = Math.random() * 80 + 10 + '%';
+            ripple.style.top = Math.random() * 60 + '%';
+            container.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 4000);
+        }
+
+        // Start ripple animation cycle
+        function startRipples() {
+            const interval = setInterval(() => {
+                if (state.rippleFrequency > 0) {
+                    createRipple();
+                }
+            }, Math.max(500, 3000 / state.rippleFrequency));
+            return interval;
+        }
+
+        let rippleInterval = startRipples();
+
+        // Update ripple frequency
+        document.getElementById('rippleFreq').addEventListener('input', (e) => {
+            state.rippleFrequency = parseFloat(e.target.value);
+            const labels = ['Calm', 'Light', 'Moderate', 'Active', 'Turbulent'];
+            const index = Math.round((state.rippleFrequency - 1) * (labels.length - 1) / 4);
+            document.getElementById('rippleValue').textContent = labels[index];
+            
+            clearInterval(rippleInterval);
+            rippleInterval = startRipples();
+        });
+
+        // Update wind speed
+        document.getElementById('windSpeed').addEventListener('input', (e) => {
+            state.windSpeed = parseFloat(e.target.value);
+            document.documentElement.style.setProperty('--wind-speed', state.windSpeed + 's');
+            document.getElementById('windValue').textContent = state.windSpeed.toFixed(1);
+        });
+
+        // Update boat opacity
+        document.getElementById('boatOpacity').addEventListener('input', (e) => {
+            state.boatOpacity = parseInt(e.target.value);
+            document.getElementById('boat').style.opacity = state.boatOpacity / 100;
+            document.getElementById('boatOpacValue').textContent = state.boatOpacity;
+        });
+
+        // Toggle leaves
+        document.querySelectorAll('[data-leaves]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const isOn = btn.dataset.leaves === 'on';
+                state.leavesActive = isOn;
+                document.getElementById('leavesContainer').style.opacity = isOn ? 1 : 0;
+                document.querySelectorAll('[data-leaves]').forEach(b => {
+                    b.classList.toggle('active', b.dataset.leaves === btn.dataset.leaves);
+                });
+            });
+        });
+
+        // Time of day buttons
+        document.querySelectorAll('[data-time]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                setTimeOfDay(btn.dataset.time);
+            });
+        });
+
+        // Create initial leaves
+        function createLeaves() {
+            const leavesContainer = document.getElementById('leavesContainer');
+            leavesContainer.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'leaf';
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.top = -50 + 'px';
+                leaf.style.animationDelay = Math.random() * 8 + 's';
+                leavesContainer.appendChild(leaf);
+            }
+        }
+
+        createLeaves();
+        createStars();
+        
+        // Recreate leaves periodically
+        setInterval(createLeaves, 8000);
+    </script>
+</body>
+</html>
