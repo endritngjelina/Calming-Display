@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIA Headquarters Scenery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #1a5f7a;
+            --color-secondary: #2c3e50;
+            --color-accent: #e8f4f8;
+            --color-text: #ecf0f1;
+            --transition-duration: 0.5s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+            color: var(--color-text);
+            overflow: hidden;
+        }
+
+        #main-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* SKY BACKGROUND */
+        #sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(to bottom, #87ceeb 0%, #e0f6ff 100%);
+            transition: background var(--transition-duration) ease;
+            z-index: 1;
+        }
+
+        /* CLOUDS */
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+            opacity: 0.7;
+            filter: blur(10px);
+            z-index: 5;
+        }
+
+        .cloud1 { width: 200px; height: 60px; top: 10%; left: -200px; animation: drift 20s infinite linear; }
+        .cloud2 { width: 150px; height: 50px; top: 20%; left: -150px; animation: drift 25s infinite linear; }
+        .cloud3 { width: 180px; height: 55px; top: 15%; left: -180px; animation: drift 23s infinite linear; }
+        .cloud4 { width: 160px; height: 45px; top: 25%; left: -160px; animation: drift 28s infinite linear; }
+
+        @keyframes drift {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 400px)); }
+        }
+
+        /* GROUND */
+        #ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(to bottom, #4a7c59 0%, #2d5a3d 100%);
+            transition: background var(--transition-duration) ease;
+            z-index: 2;
+        }
+
+        /* TREES AND VEGETATION */
+        .tree-container {
+            position: absolute;
+            z-index: 4;
+        }
+
+        .tree {
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .tree-trunk {
+            width: 30px;
+            height: 120px;
+            background: #3d2817;
+            margin: 0 auto;
+            border-radius: 15px;
+            box-shadow: inset -5px 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .tree-foliage {
+            width: 150px;
+            height: 160px;
+            background: radial-gradient(ellipse at 30% 30%, #6ba86a, #2d5a3d);
+            border-radius: 50% 50% 50% 0;
+            position: absolute;
+            left: -60px;
+            top: -80px;
+            transform: rotate(-45deg);
+            z-index: 4;
+        }
+
+        .tree-foliage::before {
+            content: '';
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(ellipse at 30% 30%, #5a9659, #245a1e);
+            border-radius: 50%;
+            right: -40px;
+            top: 20px;
+            transform: rotate(45deg);
+        }
+
+        /* CIA HEADQUARTERS BUILDING */
+        #building-container {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 6;
+            perspective: 1200px;
+        }
+
+        .building-base {
+            position: relative;
+            width: 400px;
+            height: 200px;
+            background: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 50%, #8a8a8a 100%);
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 -30px 50px rgba(0, 0, 0, 0.4), inset -10px 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .building-tower {
+            position: absolute;
+            background: linear-gradient(90deg, #b0b0b0 0%, #d0d0d0 50%, #b0b0b0 100%);
+            border-radius: 5px;
+            transition: box-shadow var(--transition-duration) ease;
+        }
+
+        .tower-1 { width: 70px; height: 280px; left: 40px; bottom: 200px; }
+        .tower-2 { width: 70px; height: 300px; left: 150px; bottom: 200px; }
+        .tower-3 { width: 70px; height: 280px; left: 260px; bottom: 200px; }
+        .tower-4 { width: 60px; height: 250px; left: 360px; bottom: 200px; }
+        .tower-5 { width: 60px; height: 250px; left: 95px; bottom: 200px; }
+
+        /* WINDOWS */
+        .window {
+            position: absolute;
+            background: #2c3e50;
+            border: 2px solid #555;
+            transition: background var(--transition-duration) ease, box-shadow var(--transition-duration) ease;
+        }
+
+        .window.lit {
+            background: #ffeb3b;
+            box-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
+        }
+
+        /* WEATHER EFFECTS */
+        #rain-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .raindrop {
+            position: absolute;
+            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.8));
+            width: 2px;
+            height: 20px;
+            left: 0;
+            top: -100px;
+            animation: rain-fall 0.5s linear infinite;
+        }
+
+        @keyframes rain-fall {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        #fog-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(255, 255, 255, 0.2) 100%);
+            z-index: 9;
+            pointer-events: none;
+            display: none;
+        }
+
+        #snow-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: white;
+            font-size: 1em;
+            font-family: Arial, sans-serif;
+            opacity: 0.8;
+            animation: snowfall 10s linear infinite;
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(-10vh) translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) translateX(100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* SETTINGS PANEL */
+        #settings-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 350px;
+            background: rgba(44, 62, 80, 0.95);
+            border: 2px solid #16a085;
+            border-radius: 10px;
+            padding: 20px;
+            z-index: 100;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #16a085;
+            padding-bottom: 10px;
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            color: #1abc9c;
+            font-size: 1.3em;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: #1abc9c;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid #1abc9c;
+        }
+
+        .settings-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ecf0f1;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #34495e;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #1abc9c;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #16a085;
+            box-shadow: 0 0 10px rgba(26, 188, 156, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #1abc9c;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: #16a085;
+            box-shadow: 0 0 10px rgba(26, 188, 156, 0.5);
+        }
+
+        .value-display {
+            min-width: 50px;
+            text-align: right;
+            color: #1abc9c;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            background: #34495e;
+            color: #ecf0f1;
+            border: 1px solid #1abc9c;
+            border-radius: 5px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        select:hover, select:focus {
+            background: #3d5470;
+            border-color: #16a085;
+            outline: none;
+            box-shadow: 0 0 10px rgba(26, 188, 156, 0.3);
+        }
+
+        option {
+            background: #2c3e50;
+            color: #ecf0f1;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #1abc9c;
+        }
+
+        .checkbox-label {
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* FOLD ANIMATION */
+        .settings-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .settings-content.collapsed {
+            max-height: 0;
+            overflow: hidden;
+        }
+
+        /* TIME DISPLAY */
+        #time-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(44, 62, 80, 0.9);
+            padding: 15px 25px;
+            border-radius: 8px;
+            border: 2px solid #1abc9c;
+            color: #1abc9c;
+            font-size: 1.8em;
+            font-weight: bold;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+            text-align: center;
+        }
+
+        /* WEATHER INDICATOR */
+        #weather-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(44, 62, 80, 0.9);
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 2px solid #1abc9c;
+            color: #ecf0f1;
+            font-size: 1em;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        #weather-indicator strong {
+            color: #1abc9c;
+        }
+
+        /* SCROLLBAR STYLING */
+        #settings-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #settings-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        #settings-panel::-webkit-scrollbar-thumb {
+            background: #1abc9c;
+            border-radius: 10px;
+        }
+
+        #settings-panel::-webkit-scrollbar-thumb:hover {
+            background: #16a085;
+        }
+
+        /* LIGHTING EFFECTS FOR NIGHT */
+        .tower-lit {
+            box-shadow: 0 0 30px rgba(255, 235, 59, 0.4);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            #settings-panel {
+                width: 90%;
+                right: 5%;
+                left: 5%;
+                top: 10px;
+                max-height: 70vh;
+            }
+
+            #time-display {
+                font-size: 1.4em;
+                left: 10px;
+                top: 10px;
+                padding: 10px 15px;
+            }
+
+            #weather-indicator {
+                left: 10px;
+                font-size: 0.9em;
+                padding: 10px 15px;
+            }
+
+            .building-base {
+                width: 250px;
+                height: 150px;
+            }
+
+            .tower-1, .tower-5 { width: 50px; }
+            .tower-2 { width: 50px; }
+            .tower-3, .tower-4 { width: 50px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="main-container">
+        <!-- TIME DISPLAY -->
+        <div id="time-display">
+            <span id="time-text">06:00</span><br>
+            <span style="font-size: 0.7em; color: #ecf0f1;">Dawn</span>
+        </div>
+
+        <!-- WEATHER INDICATOR -->
+        <div id="weather-indicator">
+            <strong>Weather:</strong> <span id="weather-text">Clear</span>
+        </div>
+
+        <!-- SKY -->
+        <div id="sky"></div>
+
+        <!-- CLOUDS -->
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+        <div class="cloud cloud4"></div>
+
+        <!-- GROUND -->
+        <div id="ground"></div>
+
+        <!-- TREES -->
+        <div class="tree-container" style="bottom: 15%; left: 5%; width: 120px;">
+            <div class="tree">
+                <div class="tree-foliage"></div>
+                <div class="tree-trunk"></div>
+            </div>
+        </div>
+
+        <div class="tree-container" style="bottom: 15%; left: 15%; width: 100px;">
+            <div class="tree">
+                <div class="tree-foliage"></div>
+                <div class="tree-trunk"></div>
+            </div>
+        </div>
+
+        <div class="tree-container" style="bottom: 15%; right: 8%; width: 120px;">
+            <div class="tree">
+                <div class="tree-foliage"></div>
+                <div class="tree-trunk"></div>
+            </div>
+        </div>
+
+        <div class="tree-container" style="bottom: 15%; right: 18%; width: 100px;">
+            <div class="tree">
+                <div class="tree-foliage"></div>
+                <div class="tree-trunk"></div>
+            </div>
+        </div>
+
+        <!-- CIA BUILDING -->
+        <div id="building-container">
+            <div class="tower-1 building-tower"></div>
+            <div class="tower-2 building-tower"></div>
+            <div class="tower-3 building-tower"></div>
+            <div class="tower-4 building-tower"></div>
+            <div class="tower-5 building-tower"></div>
+            <div class="building-base"></div>
+        </div>
+
+        <!-- WEATHER CONTAINERS -->
+        <div id="rain-container"></div>
+        <div id="fog-layer"></div>
+        <div id="snow-container"></div>
+
+        <!-- SETTINGS PANEL -->
+        <div id="settings-panel">
+            <div class="settings-header">
+                <h2>🎛️ Settings</h2>
+                <button class="toggle-btn" id="toggle-settings">−</button>
+            </div>
+
+            <div class="settings-content" id="settings-content">
+                <!-- TIME OF DAY -->
+                <div class="settings-group">
+                    <label for="time-slider">⏰ Time of Day</label>
+                    <div class="slider-container">
+                        <input type="range" id="time-slider" min="0" max="24" value="6" step="0.5">
+                        <span class="value-display" id="time-value">06:00</span>
+                    </div>
+                </div>
+
+                <!-- WEATHER CONDITIONS -->
+                <div class="settings-group">
+                    <label for="weather-select">🌤️ Weather Condition</label>
+                    <select id="weather-select">
+                        <option value="clear">Clear Sky</option>
+                        <option value="cloudy">Cloudy</option>
+                        <option value="overcast">Overcast</option>
+                        <option value="rain">Rainy</option>
+                        <option value="heavy-rain">Heavy Rain</option>
+                        <option value="fog">Foggy</option>
+                        <option value="snow">Snowy</option>
+                        <option value="storm">Thunderstorm</option>
+                    </select>
+                </div>
+
+                <!-- CLOUD INTENSITY -->
+                <div class="settings-group">
+                    <label for="cloud-slider">☁️ Cloud Coverage</label>
+                    <div class="slider-container">
+                        <input type="range" id="cloud-slider" min="0" max="100" value="30" step="10">
+                        <span class="value-display" id="cloud-value">30%</span>
+                    </div>
+                </div>
+
+                <!-- WIND SPEED -->
+                <div class="settings-group">
+                    <label for="wind-slider">💨 Wind Speed</label>
+                    <div class="slider-container">
+                        <input type="range" id="wind-slider" min="0" max="50" value="10" step="5">
+                        <span class="value-display" id="wind-value">10 km/h</span>
+                    </div>
+                </div>
+
+                <!-- VISIBILITY -->
+                <div class="settings-group">
+                    <label for="visibility-slider">👁️ Visibility</label>
+                    <div class="slider-container">
+                        <input type="range" id="visibility-slider" min="0" max="100" value="100" step="10">
+                        <span class="value-display" id="visibility-value">100%</span>
+                    </div>
+                </div>
+
+                <!-- BRIGHTNESS -->
+                <div class="settings-group">
+                    <label for="brightness-slider">☀️ Brightness</label>
+                    <div class="slider-container">
+                        <input type="range" id="brightness-slider" min="0" max="100" value="100" step="10">
+                        <span class="value-display" id="brightness-value">100%</span>
+                    </div>
+                </div>
+
+                <!-- BUILDING LIGHTS -->
+                <div class="settings-group">
+                    <label>🏢 Building Lights</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="lights-toggle" checked>
+                        <label class="checkbox-label" for="lights-toggle">Lights Active</label>
+                    </div>
+                </div>
+
+                <!-- TREE FOLIAGE DENSITY -->
+                <div class="settings-group">
+                    <label for="foliage-slider">🌲 Tree Foliage Density</label>
+                    <div class="slider-container">
+                        <input type="range" id="foliage-slider" min="0" max="100" value="100" step="10">
+                        <span class="value-display" id="foliage-value">100%</span>
+                    </div>
+                </div>
+
+                <!-- SEASON SELECTION -->
+                <div class="settings-group">
+                    <label for="season-select">🍂 Season</label>
+                    <select id="season-select">
+                        <option value="spring">Spring</option>
+                        <option value="summer" selected>Summer</option>
+                        <option value="autumn">Autumn</option>
+                        <option value="winter">Winter</option>
+                    </select>
+                </div>
+
+                <!-- AUTO CYCLE -->
+                <div class="settings-group">
+                    <label>⚙️ Auto Cycle</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="auto-cycle-toggle">
+                        <label class="checkbox-label" for="auto-cycle-toggle">Auto Cycle Time</label>
+                    </div>
+                </div>
+
+                <!-- SOUND TOGGLE -->
+                <div class="settings-group">
+                    <label>🔊 Audio Effects</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="sound-toggle" checked>
+                        <label class="checkbox-label" for="sound-toggle">Sound Effects (if supported)</label>
+                    </div>
+                </div>
+
+                <!-- RESET BUTTON -->
+                <div class="settings-group">
+                    <button id="reset-btn" style="width: 100%; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.2s ease;">
+                        🔄 Reset to Default
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // STATE MANAGEMENT
+        const state = {
+            time: 6,
+            weather: 'clear',
+            cloudCoverage: 30,
+            windSpeed: 10,
+            visibility: 100,
+            brightness: 100,
+            lightsActive: true,
+            foliageDensity: 100,
+            season: 'summer',
+            autoCycle: false,
+            soundEnabled: true
+        };
+
+        // DOM ELEMENTS
+        const skyEl = document.getElementById('sky');
+        const groundEl = document.getElementById('ground');
+        const rainContainer = document.getElementById('rain-container');
+        const snowContainer = document.getElementById('snow-container');
+        const fogLayer = document.getElementById('fog-layer');
+        const timeSlider = document.getElementById('time-slider');
+        const weatherSelect = document.getElementById('weather-select');
+        const cloudSlider = document.getElementById('cloud-slider');
+        const windSlider = document.getElementById('wind-slider');
+        const visibilitySlider = document.getElementById('visibility-slider');
+        const brightnessSlider = document.getElementById('brightness-slider');
+        const lightsToggle = document.getElementById('lights-toggle');
+        const foliageSlider = document.getElementById('foliage-slider');
+        const seasonSelect = document.getElementById('season-select');
+        const autoCycleToggle = document.getElementById('auto-cycle-toggle');
+        const soundToggle = document.getElementById('sound-toggle');
+        const resetBtn = document.getElementById('reset-btn');
+        const timeDisplay = document.getElementById('time-text');
+        const weatherIndicator = document.getElementById('weather-text');
+        const settingsPanel = document.getElementById('settings-panel');
+        const settingsContent = document.getElementById('settings-content');
+        const toggleSettingsBtn = document.getElementById('toggle-settings');
+        const mainContainer = document.getElementById('main-container');
+        const towers = document.querySelectorAll('.building-tower');
+
+        // HELPER FUNCTIONS
+        function formatTime(hours) {
+            const h = Math.floor(hours);
+            const m = Math.round((hours - h) * 60);
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        }
+
+        function getTimeOfDayLabel(hours) {
+            if (hours >= 5 && hours < 7) return 'Dawn';
+            if (hours >= 7 && hours < 12) return 'Morning';
+            if (hours >= 12 && hours < 17) return 'Afternoon';
+            if (hours >= 17 && hours < 19) return 'Dusk';
+            if (hours >= 19 && hours < 21) return 'Evening';
+            return 'Night';
+        }
+
+        // SKY AND GROUND COLOR FUNCTIONS
+        function updateSkyColor() {
+            const hour = state.time;
+            let skyColor = '';
+            let groundColor = '';
+
+            if (hour >= 5 && hour < 7) {
+                // Dawn
+                const progress = (hour - 5) / 2;
+                skyColor = interpolateColor('#1a1a2e', '#87ceeb', progress);
+                groundColor = interpolateColor('#1a3a2e', '#4a7c59', progress);
+            } else if (hour >= 7 && hour < 17) {
+                // Day
+                skyColor = '#87ceeb';
+                groundColor = '#4a7c59';
+            } else if (hour >= 17 && hour < 19) {
+                // Dusk
+                const progress = (hour - 17) / 2;
+                skyColor = interpolateColor('#87ceeb', '#ff6b35', progress);
+                groundColor = interpolateColor('#4a7c59', '#3d5a3d', progress);
+            } else if (hour >= 19 && hour < 21) {
+                // Evening
+                const progress = (hour - 19) / 2;
+                skyColor = interpolateColor('#ff6b35', '#0a0e27', progress);
+                groundColor = interpolateColor('#3d5a3d', '#1a1a1a', progress);
+            } else {
+                // Night
+                skyColor = '#0a0e27';
+                groundColor = '#1a1a1a';
+            }
+
+            // Apply weather effects to colors
+            if (state.weather === 'cloudy' || state.weather === 'overcast') {
+                skyColor = adjustColor(skyColor, -30);
+            }
+            if (state.weather === 'rain' || state.weather === 'heavy-rain') {
+                skyColor = adjustColor(skyColor, -50);
+            }
+            if (state.weather === 'fog') {
+                skyColor = adjustColor(skyColor, -40);
+            }
+            if (state.weather === 'storm') {
+                skyColor = adjustColor(skyColor, -60);
+            }
+
+            skyEl.style.background = `linear-gradient(to bottom, ${skyColor} 0%, ${adjustColor(skyColor, 20)} 100%)`;
+            groundEl.style.background = `linear-gradient(to bottom, ${groundColor} 0%, ${adjustColor(groundColor, -20)} 100%)`;
+
+            // Apply brightness
+            const brightness = state.brightness / 100;
+            mainContainer.style.filter = `brightness(${brightness}) contrast(${0.8 + brightness * 0.4})`;
+        }
+
+        function interpolateColor(color1, color2, progress) {
+            const c1 = hexToRgb(color1);
+            const c2 = hexToRgb(color2);
+            const r = Math.round(c1.r + (c2.r - c1.r) * progress);
+            const g = Math.round(c1.g + (c2.g - c1.g) * progress);
+            const b = Math.round(c1.b + (c2.b - c1.b) * progress);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 0, g: 0, b: 0 };
+        }
+
+        function adjustColor(color, amount) {
+            if (!color.startsWith('#')) {
+                const rgb = color.match(/\d+/g);
+                let r = Math.max(0, Math.min(255, parseInt(rgb[0]) + amount));
+                let g = Math.max(0, Math.min(255, parseInt(rgb[1]) + amount));
+                let b = Math.max(0, Math.min(255, parseInt(rgb[2]) + amount));
+                return `rgb(${r}, ${g}, ${b})`;
+            }
+            const num = parseInt(color.slice(1), 16);
+            let r = Math.max(0, Math.min(255, (num >> 16) + amount));
+            let g = Math.max(0, Math.min(255, ((num >> 8) & 255) + amount));
+            let b = Math.max(0, Math.min(255, (num & 255) + amount));
+            return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+        }
+
+        // CLOUD MANAGEMENT
+        function updateCloudVisibility() {
+            const clouds = document.querySelectorAll('.cloud');
+            clouds.forEach((cloud, index) => {
+                const targetOpacity = (state.cloudCoverage / 100) * (0.5 + Math.random() * 0.5);
+                cloud.style.opacity = targetOpacity;
+            });
+        }
+
+        // WEATHER EFFECTS
+        function createRaindrops(count) {
+            rainContainer.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const raindrop = document.createElement('div');
+                raindrop.className = 'raindrop';
+                raindrop.style.left = Math.random() * 100 + '%';
+                raindrop.style.animationDelay = Math.random() * 0.5 + 's';
+                raindrop.style.opacity = 0.6 + Math.random() * 0.4;
+                rainContainer.appendChild(raindrop);
+            }
+        }
+
+        function createSnowflakes(count) {
+            snowContainer.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = '❄';
+                snowflake.style.left = Math.random() * 100 + 'vw';
+                snowflake.style.animationDuration = (5 + Math.random() * 10) + 's';
+                snowflake.style.fontSize = (1 + Math.random() * 1.5) + 'em';
+                snowflake.style.animationDelay = Math.random() * 2 + 's';
+                snowContainer.appendChild(snowflake);
+            }
+        }
+
+        function updateWeather() {
+            rainContainer.innerHTML = '';
+            snowContainer.innerHTML = '';
+            fogLayer.style.display = 'none';
+
+            const rainIntensity = {
+                'rain': 50,
+                'heavy-rain': 150,
+                'storm': 200
+            };
+
+            if (state.weather === 'rain' || state.weather === 'heavy-rain' || state.weather === 'storm') {
+                createRaindrops(rainIntensity[state.weather] || 50);
+            } else if (state.weather === 'snow') {
+                createSnowflakes(100);
+            } else if (state.weather === 'fog') {
+                fogLayer.style.display = 'block';
+                fogLayer.style.opacity = (100 - state.visibility) / 200;
+            }
+
+            weatherIndicator.textContent = weatherSelect.options[weatherSelect.selectedIndex].text;
+        }
+
+        function updateCloudAnimation() {
+            const clouds = document.querySelectorAll('.cloud');
+            clouds.forEach(cloud => {
+                const duration = 20 + (state.windSpeed * 2);
+                cloud.style.animationDuration = duration + 's';
+            });
+        }
+
+        // BUILDING LIGHTS
+        function updateBuildingLights() {
+            const isNight = state.time < 6 || state.time > 20;
+            const shouldLightsBeOn = state.lightsActive && isNight;
+
+            towers.forEach(tower => {
+                if (shouldLightsBeOn) {
+                    tower.classList.add('tower-lit');
+                } else {
+                    tower.classList.remove('tower-lit');
+                }
+            });
+        }
+
+        // FOLIAGE DENSITY
+        function updateFoliage() {
+            const trees = document.querySelectorAll('.tree-foliage');
+            trees.forEach(tree => {
+                tree.style.opacity = state.foliageDensity / 100;
+            });
+        }
+
+        // SEASON EFFECTS
+        function updateSeason() {
+            const trees = document.querySelectorAll('.tree-container');
+            const colors = {
+                'spring': { foliage: '#6ba86a', ground: '#5a9659' },
+                'summer': { foliage: '#4a8c4a', ground: '#4a7c59' },
+                'autumn': { foliage: '#d97706', ground: '#9a6d3a' },
+                'winter': { foliage: '#5a7a6a', ground: '#3d4a4a' }
+            };
+
+            const seasonColor = colors[state.season] || colors['summer'];
+            document.documentElement.style.setProperty('--season-foliage', seasonColor.foliage);
+            document.documentElement.style.setProperty('--season-ground', seasonColor.ground);
+
+            if (state.season === 'winter') {
+                createSnowflakes(50);
+            }
+        }
+
+        // EVENT LISTENERS
+        timeSlider.addEventListener('input', (e) => {
+            state.time = parseFloat(e.target.value);
+            document.getElementById('time-value').textContent = formatTime(state.time);
+            timeDisplay.textContent = formatTime(state.time);
+            document.querySelector('#time-display span:nth-child(3)').textContent = getTimeOfDayLabel(state.time);
+            updateSkyColor();
+            updateBuildingLights();
+        });
+
+        weatherSelect.addEventListener('change', (e) => {
+            state.weather = e.target.value;
+            updateWeather();
+            updateSkyColor();
+        });
+
+        cloudSlider.addEventListener('input', (e) => {
+            state.cloudCoverage = parseInt(e.target.value);
+            document.getElementById('cloud-value').textContent = state.cloudCoverage + '%';
+            updateCloudVisibility();
+        });
+
+        windSlider.addEventListener('input', (e) => {
+            state.windSpeed = parseInt(e.target.value);
+            document.getElementById('wind-value').textContent = state.windSpeed + ' km/h';
+            updateCloudAnimation();
+        });
+
+        visibilitySlider.addEventListener('input', (e) => {
+            state.visibility = parseInt(e.target.value);
+            document.getElementById('visibility-value').textContent = state.visibility + '%';
+            if (state.weather === 'fog') {
+                fogLayer.style.opacity = (100 - state.visibility) / 200;
+            }
+        });
+
+        brightnessSlider.addEventListener('input', (e) => {
+            state.brightness = parseInt(e.target.value);
+            document.getElementById('brightness-value').textContent = state.brightness + '%';
+            updateSkyColor();
+        });
+
+        lightsToggle.addEventListener('change', (e) => {
+            state.lightsActive = e.target.checked;
+            updateBuildingLights();
+        });
+
+        foliageSlider.addEventListener('input', (e) => {
+            state.foliageDensity = parseInt(e.target.value);
+            document.getElementById('foliage-value').textContent = state.foliageDensity + '%';
+            updateFoliage();
+        });
+
+        seasonSelect.addEventListener('change', (e) => {
+            state.season = e.target.value;
+            updateSeason();
+            updateSkyColor();
+        });
+
+        autoCycleToggle.addEventListener('change', (e) => {
+            state.autoCycle = e.target.checked;
+            if (state.autoCycle) {
+                startAutoCycle();
+            }
+        });
+
+        soundToggle.addEventListener('change', (e) => {
+            state.soundEnabled = e.target.checked;
+        });
+
+        toggleSettingsBtn.addEventListener('click', () => {
+            settingsContent.classList.toggle('collapsed');
+            toggleSettingsBtn.textContent = settingsContent.classList.contains('collapsed') ? '+' : '−';
+        });
+
+        resetBtn.addEventListener('click', () => {
+            state.time = 6;
+            state.weather = 'clear';
+            state.cloudCoverage = 30;
+            state.windSpeed = 10;
+            state.visibility = 100;
+            state.brightness = 100;
+            state.lightsActive = true;
+            state.foliageDensity = 100;
+            state.season = 'summer';
+            state.autoCycle = false;
+            state.soundEnabled = true;
+
+            timeSlider.value = 6;
+            weatherSelect.value = 'clear';
+            cloudSlider.value = 30;
+            windSlider.value = 10;
+            visibilitySlider.value = 100;
+            brightnessSlider.value = 100;
+            lightsToggle.checked = true;
+            foliageSlider.value = 100;
+            seasonSelect.value = 'summer';
+            autoCycleToggle.checked = false;
+            soundToggle.checked = true;
+
+            document.getElementById('time-value').textContent = '06:00';
+            document.getElementById('cloud-value').textContent = '30%';
+            document.getElementById('wind-value').textContent = '10 km/h';
+            document.getElementById('visibility-value').textContent = '100%';
+            document.getElementById('brightness-value').textContent = '100%';
+            document.getElementById('foliage-value').textContent = '100%';
+
+            updateSkyColor();
+            updateCloudVisibility();
+            updateWeather();
+            updateBuildingLights();
+            updateFoliage();
+            updateSeason();
+        });
+
+        // AUTO CYCLE FUNCTION
+        let autoCycleInterval;
+        function startAutoCycle() {
+            autoCycleInterval = setInterval(() => {
+                state.time += 0.5;
+                if (state.time >= 24) state.time = 0;
+                timeSlider.value = state.time;
+                timeSlider.dispatchEvent(new Event('input'));
+            }, 2000);
+        }
+
+        // INITIAL SETUP
+        updateSkyColor();
+        updateCloudVisibility();
+        updateWeather();
+        updateBuildingLights();
+        updateFoliage();
+        updateSeason();
+    </script>
+</body>
+</html>
