@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cold War Scenery - USA vs USSR</title>
+    <style>
+        :root {
+            --color-sky-day: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 50%, #F5F5DC 100%);
+            --color-sky-dusk: linear-gradient(180deg, #FF6347 0%, #FF8C00 25%, #FFD700 50%, #87CEEB 100%);
+            --color-sky-night: linear-gradient(180deg, #0a0e27 0%, #1a1f4d 50%, #2d3561 100%);
+            --color-text: #2c3e50;
+            --color-primary: #e74c3c;
+            --color-secondary: #3498db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--color-sky-day);
+            transition: background 2s ease;
+            overflow: hidden;
+            height: 100vh;
+            color: var(--color-text);
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* SKY & BACKGROUND */
+        #sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            transition: background 2s ease;
+            background: var(--color-sky-day);
+        }
+
+        #stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        /* CLOUDS */
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 100px;
+            opacity: 0;
+            animation: floatCloud 20s infinite linear;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 100px;
+        }
+
+        .cloud::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud::after {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            right: 10px;
+        }
+
+        @keyframes floatCloud {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100vw); }
+        }
+
+        /* RAIN */
+        .rain {
+            position: absolute;
+            width: 100%;
+            height: 60%;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            height: 10px;
+            background: rgba(100, 150, 200, 0.6);
+            animation: fall 0.8s linear infinite;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100%); }
+        }
+
+        /* SNOW */
+        .snowflake {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: snowFall 3s linear infinite;
+        }
+
+        @keyframes snowFall {
+            to {
+                transform: translateY(100%) translateX(50px);
+                opacity: 0;
+            }
+            0% { opacity: 1; }
+        }
+
+        /* HORIZON & GROUND */
+        #horizon {
+            position: absolute;
+            top: 60%;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(180deg, #90EE90 0%, #228B22 100%);
+            transition: background 2s ease;
+        }
+
+        /* USA SIDE (LEFT) */
+        .usa-side {
+            position: absolute;
+            left: 0;
+            top: 40%;
+            width: 50%;
+            height: 60%;
+            border-right: 3px solid #444;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(144, 238, 144, 0.9) 0%, #228B22 100%);
+        }
+
+        .usa-flag {
+            position: absolute;
+            top: 15%;
+            left: 10%;
+            width: 120px;
+            height: 80px;
+            background: linear-gradient(
+                90deg,
+                #3c3b6b 0%, #3c3b6b 30%,
+                white 30%, white 35%,
+                #c41e3a 35%, #c41e3a 40%,
+                white 40%, white 45%,
+                #c41e3a 45%, #c41e3a 100%
+            );
+            border: 2px solid #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .usa-building {
+            position: absolute;
+            bottom: 15%;
+            left: 15%;
+            width: 200px;
+            height: 200px;
+            background: #dcdcdc;
+            border: 2px solid #888;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .usa-building::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: #a9a9a9;
+        }
+
+        .window {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #87ceeb;
+            border: 1px solid #333;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+
+        .window > div {
+            border: 0.5px solid #555;
+        }
+
+        .window.lit > div:nth-child(1),
+        .window.lit > div:nth-child(2),
+        .window.lit > div:nth-child(3),
+        .window.lit > div:nth-child(4) {
+            background: #ffff99;
+        }
+
+        /* SOVIET SIDE (RIGHT) */
+        .soviet-side {
+            position: absolute;
+            right: 0;
+            top: 40%;
+            width: 50%;
+            height: 60%;
+            border-left: 3px solid #444;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(169, 169, 169, 0.9) 0%, #4a4a4a 100%);
+        }
+
+        .soviet-flag {
+            position: absolute;
+            top: 15%;
+            right: 10%;
+            width: 120px;
+            height: 80px;
+            background: linear-gradient(
+                180deg,
+                #ce1126 0%, #ce1126 50%,
+                #0039a6 50%, #0039a6 100%
+            );
+            border: 2px solid #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .hammer-sickle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            color: #ffd700;
+            font-size: 32px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .soviet-building {
+            position: absolute;
+            bottom: 15%;
+            right: 15%;
+            width: 200px;
+            height: 220px;
+            background: #8b7355;
+            border: 2px solid #5a4a3a;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .soviet-building::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(180deg, #a0826d 0%, #8b7355 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .soviet-building::after {
+            content: '☆';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 40px;
+            color: #ffd700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        /* FENCE DIVIDER */
+        .iron-curtain {
+            position: absolute;
+            left: 50%;
+            top: 40%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 60%;
+            background: repeating-linear-gradient(
+                90deg,
+                #333 0px,
+                #333 2px,
+                #555 2px,
+                #555 4px
+            );
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        /* SETTINGS PANEL */
+        .settings-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            width: 320px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            font-size: 14px;
+        }
+
+        .settings-panel.collapsed {
+            width: auto;
+        }
+
+        .panel-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #333;
+            transition: transform 0.3s ease;
+        }
+
+        .panel-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .settings-panel.collapsed .panel-toggle::after {
+            content: ' ▼';
+        }
+
+        .settings-panel:not(.collapsed) .panel-toggle::after {
+            content: ' ▲';
+        }
+
+        .settings-content {
+            display: block;
+        }
+
+        .settings-panel.collapsed .settings-content {
+            display: none;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .setting-group {
+            margin-bottom: 15px;
+        }
+
+        .setting-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .setting-value {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 3px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #bdc3c7;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #e74c3c;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #c0392b;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #e74c3c;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: #c0392b;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            background: white;
+            color: #333;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+
+        button:hover {
+            background: #f0f0f0;
+            transform: translateY(-1px);
+        }
+
+        button.active {
+            background: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+        }
+
+        /* WEATHER EFFECTS */
+        #weather-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .fog {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 50%, rgba(200, 200, 200, 0.4) 0%, transparent 70%);
+            animation: fogDrift 15s infinite linear;
+        }
+
+        @keyframes fogDrift {
+            0%, 100% { transform: translateX(-25%); }
+            50% { transform: translateX(25%); }
+        }
+
+        /* RADIATION/ALERT INDICATOR */
+        .radiation-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 2px solid #333;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 99;
+        }
+
+        .radiation-symbol {
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle at 30% 30%, #ffff00, #ffaa00);
+            border-radius: 50%;
+            position: relative;
+            border: 2px solid #333;
+        }
+
+        .radiation-symbol::before {
+            content: '☢';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: #333;
+        }
+
+        .radiation-symbol.pulsing {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 170, 0, 0.7); }
+            50% { opacity: 0.8; box-shadow: 0 0 0 10px rgba(255, 170, 0, 0); }
+        }
+
+        /* PROPAGANDA POSTER */
+        .propaganda-poster {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 140px;
+            padding: 10px;
+            background: white;
+            border: 3px solid #333;
+            border-radius: 3px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 11px;
+            z-index: 99;
+            line-height: 1.3;
+        }
+
+        .propaganda-poster.usa {
+            background: linear-gradient(45deg, #3c3b6b 0%, #3c3b6b 20%, white 20%, white 22%, #c41e3a 22%, #c41e3a 100%);
+            color: white;
+            text-shadow: 1px 1px 2px #333;
+        }
+
+        .propaganda-poster.soviet {
+            background: linear-gradient(180deg, #ce1126 0%, #ce1126 50%, #0039a6 50%, #0039a6 100%);
+            color: #ffd700;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .settings-panel {
+                width: 280px;
+                bottom: 10px;
+                left: 10px;
+            }
+
+            .radiation-indicator {
+                top: 10px;
+                right: 10px;
+                font-size: 12px;
+            }
+
+            .propaganda-poster {
+                top: 10px;
+                left: 10px;
+                width: 120px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="sky"></div>
+        <div id="stars"></div>
+        <div class="clouds" id="cloudsContainer"></div>
+        <div class="rain" id="rainContainer"></div>
+        <div id="weather-overlay">
+            <div class="fog"></div>
+        </div>
+
+        <div id="horizon"></div>
+
+        <div class="usa-side">
+            <div class="usa-flag"></div>
+            <div class="usa-building">
+                <div class="window" style="top: 30px; left: 30px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 30px; left: 80px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 30px; left: 130px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 80px; left: 30px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 80px; left: 80px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 80px; left: 130px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 130px; left: 30px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 130px; left: 80px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 130px; left: 130px;"><div></div><div></div><div></div><div></div></div>
+            </div>
+        </div>
+
+        <div class="soviet-side">
+            <div class="soviet-flag">
+                <div class="hammer-sickle">☭</div>
+            </div>
+            <div class="soviet-building">
+                <div class="window" style="top: 35px; left: 25px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 35px; left: 85px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 35px; left: 145px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 95px; left: 25px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 95px; left: 85px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 95px; left: 145px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 155px; left: 25px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 155px; left: 85px;"><div></div><div></div><div></div><div></div></div>
+                <div class="window" style="top: 155px; left: 145px;"><div></div><div></div><div></div><div></div></div>
+            </div>
+        </div>
+
+        <div class="iron-curtain"></div>
+    </div>
+
+    <div class="propaganda-poster usa" id="usaPoster">DEFEND FREEDOM</div>
+    <div class="propaganda-poster soviet" id="sovietPoster" style="top: 170px;">СИЛА В ЕДИНСТВЕ</div>
+
+    <div class="radiation-indicator" id="radiationIndicator">
+        <div class="radiation-symbol" id="radiationSymbol"></div>
+        <span id="radiationLevel">Safe</span>
+    </div>
+
+    <div class="settings-panel" id="settingsPanel">
+        <button class="panel-toggle" id="panelToggle">⚙️</button>
+        <div class="settings-content">
+            <div class="panel-title">⚙️ Cold War Settings</div>
+
+            <div class="setting-group">
+                <label class="setting-label">🌅 Time of Day</label>
+                <input type="range" id="timeSlider" min="0" max="24" value="12" step="0.1">
+                <div class="setting-value" id="timeValue">12:00 Noon</div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">💨 Wind Speed</label>
+                <input type="range" id="windSlider" min="0" max="100" value="20" step="1">
+                <div class="setting-value" id="windValue">Calm</div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">🌧️ Weather Type</label>
+                <div class="button-group">
+                    <button id="weatherClear" class="active">Clear</button>
+                    <button id="weatherRainy">Rainy</button>
+                    <button id="weatherSnowy">Snowy</button>
+                    <button id="weatherFoggy">Foggy</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">☢️ Radiation Level</label>
+                <input type="range" id="radiationSlider" min="0" max="100" value="10" step="1">
+                <div class="setting-value" id="radiationValue">Minimal - Safe</div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">🔦 Lights Status</label>
+                <div class="button-group">
+                    <button id="lightsOn">On</button>
+                    <button id="lightsOff" class="active">Auto</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">🎪 Tension Level</label>
+                <input type="range" id="tensionSlider" min="0" max="100" value="0" step="1">
+                <div class="setting-value" id="tensionValue">Peaceful</div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">🇺🇸 USA Activity</label>
+                <input type="range" id="usaActivitySlider" min="0" max="100" value="50" step="1">
+                <div class="setting-value" id="usaActivityValue">Moderate</div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">🇸🇺 USSR Activity</label>
+                <input type="range" id="ussr ActivitySlider" min="0" max="100" value="50" step="1">
+                <div class="setting-value" id="ussrActivityValue">Moderate</div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">🏛️ Season</label>
+                <div class="button-group">
+                    <button id="seasonSpring" class="active">Spring</button>
+                    <button id="seasonSummer">Summer</button>
+                    <button id="seasonFall">Fall</button>
+                    <button id="seasonWinter">Winter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // STATE MANAGEMENT
+        const state = {
+            time: 12,
+            wind: 20,
+            weather: 'clear',
+            radiation: 10,
+            lightsAuto: true,
+            tension: 0,
+            usaActivity: 50,
+            ussrActivity: 50,
+            season: 'spring'
+        };
+
+        // ELEMENTS
+        const sky = document.getElementById('sky');
+        const horizon = document.getElementById('horizon');
+        const weatherOverlay = document.getElementById('weather-overlay');
+        const cloudsContainer = document.getElementById('cloudsContainer');
+        const rainContainer = document.getElementById('rainContainer');
+        const radiationSymbol = document.getElementById('radiationSymbol');
+        const radiationLevel = document.getElementById('radiationLevel');
+        const radiationValue = document.getElementById('radiationValue');
+        const starsContainer = document.getElementById('stars');
+        const usaPoster = document.getElementById('usaPoster');
+        const sovietPoster = document.getElementById('sovietPoster');
+
+        // SLIDERS
+        const timeSlider = document.getElementById('timeSlider');
+        const windSlider = document.getElementById('windSlider');
+        const radiationSlider = document.getElementById('radiationSlider');
+        const tensionSlider = document.getElementById('tensionSlider');
+        const usaActivitySlider = document.getElementById('usaActivitySlider');
+        const ussrActivitySlider = document.getElementById('ussr ActivitySlider');
+
+        // BUTTONS
+        const weatherClear = document.getElementById('weatherClear');
+        const weatherRainy = document.getElementById('weatherRainy');
+        const weatherSnowy = document.getElementById('weatherSnowy');
+        const weatherFoggy = document.getElementById('weatherFoggy');
+        const lightsOn = document.getElementById('lightsOn');
+        const lightsOff = document.getElementById('lightsOff');
+        const seasonSpring = document.getElementById('seasonSpring');
+        const seasonSummer = document.getElementById('seasonSummer');
+        const seasonFall = document.getElementById('seasonFall');
+        const seasonWinter = document.getElementById('seasonWinter');
+        const panelToggle = document.getElementById('panelToggle');
+        const settingsPanel = document.getElementById('settingsPanel');
+
+        // UTILITIES
+        function updateSkyColor() {
+            let gradient;
+            if (state.time < 6 || state.time > 20) {
+                gradient = 'var(--color-sky-night)';
+            } else if (state.time < 10) {
+                const progress = (state.time - 6) / 4;
+                gradient = `linear-gradient(180deg, 
+                    hsl(${220 - progress * 70}, 100%, ${10 + progress * 35}%) 0%,
+                    hsl(${30 + progress * 50}, 100%, ${20 + progress * 50}%) 50%,
+                    hsl(${45 + progress * 20}, 80%, ${70 + progress * 10}%) 100%)`;
+            } else if (state.time < 16) {
+                gradient = 'var(--color-sky-day)';
+            } else if (state.time <= 20) {
+                const progress = (state.time - 16) / 4;
+                gradient = `linear-gradient(180deg,
+                    hsl(${220 + progress * 20}, 100%, ${45 - progress * 20}%) 0%,
+                    hsl(${80 + progress * 50}, 100%, ${40 + progress * 10}%) 25%,
+                    hsl(${45 - progress * 10}, 100%, ${80 - progress * 30}%) 50%,
+                    hsl(${200 - progress * 50}, 100%, ${30 - progress * 10}%) 100%)`;
+            }
+            sky.style.background = gradient;
+        }
+
+        function updateStars() {
+            const shouldShowStars = state.time < 6 || state.time > 20;
+            starsContainer.style.opacity = shouldShowStars ? 1 : 0;
+
+            if (starsContainer.children.length === 0 && shouldShowStars) {
+                for (let i = 0; i < 100; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 50 + '%';
+                    star.style.opacity = Math.random() * 0.8 + 0.2;
+                    starsContainer.appendChild(star);
+                }
+            }
+        }
+
+        function updateGroundColor() {
+            let color;
+            switch(state.season) {
+                case 'spring':
+                    color = state.time < 6 || state.time > 20 ? '#1a3a1a' : '#90EE90';
+                    break;
+                case 'summer':
+                    color = state.time < 6 || state.time > 20 ? '#0d4d0d' : '#228B22';
+                    break;
+                case 'fall':
+                    color = state.time < 6 || state.time > 20 ? '#3a2a1a' : '#CD853F';
+                    break;
+                case 'winter':
+                    color = state.time < 6 || state.time > 20 ? '#2a3a4a' : '#E0E8FF';
+                    break;
+            }
+            horizon.style.background = `linear-gradient(180deg, rgba(${color.substring(1, 7)}, 0.9) 0%, ${color} 100%)`;
+        }
+
+        function updateClouds() {
+            if (cloudsContainer.children.length === 0) {
+                for (let i = 0; i < 5; i++) {
+                    const cloud = document.createElement('div');
+                    cloud.className = 'cloud';
+                    cloud.style.width = Math.random() * 100 + 50 + 'px';
+                    cloud.style.height = Math.random() * 40 + 30 + 'px';
+                    cloud.style.top = Math.random() * 40 + '%';
+                    cloud.style.animationDuration = (20 - state.wind / 10) + 's';
+                    cloud.style.opacity = 0.7;
+                    cloudsContainer.appendChild(cloud);
+                }
+            }
+
+            const clouds = document.querySelectorAll('.cloud');
+            clouds.forEach(cloud => {
+                cloud.style.animationDuration = (20 - state.wind / 10) + 's';
+            });
+        }
+
+        function updateRain() {
+            const shouldRain = state.weather === 'rainy';
+            rainContainer.style.opacity = shouldRain ? 0.8 : 0;
+
+            if (shouldRain && rainContainer.children.length === 0) {
+                for (let i = 0; i < 50; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'raindrop';
+                    drop.style.left = Math.random() * 100 + '%';
+                    drop.style.top = Math.random() * 100 - 50 + 'px';
+                    drop.style.animationDelay = Math.random() * 0.8 + 's';
+                    rainContainer.appendChild(drop);
+                }
+            }
+        }
+
+        function updateSnow() {
+            const shouldSnow = state.weather === 'snowy';
+            if (shouldSnow) {
+                rainContainer.style.opacity = shouldSnow ? 0.9 : 0;
+                rainContainer.innerHTML = '';
+                for (let i = 0; i < 50; i++) {
+                    const snowflake = document.createElement('div');
+                    snowflake.className = 'snowflake';
+                    snowflake.style.left = Math.random() * 100 + '%';
+                    snowflake.style.top = Math.random() * 100 - 100 + 'px';
+                    snowflake.style.animationDelay = Math.random() * 3 + 's';
+                    snowflake.style.width = Math.random() * 8 + 4 + 'px';
+                    snowflake.style.height = snowflake.style.width;
+                    snowflake.style.opacity = Math.random() * 0.8 + 0.2;
+                    rainContainer.appendChild(snowflake);
+                }
+            } else {
+                rainContainer.innerHTML = '';
+            }
+        }
+
+        function updateFog() {
+            weatherOverlay.style.opacity = state.weather === 'foggy' ? 0.6 : 0;
+        }
+
+        function updateRadiation() {
+            const levels = ['Safe', 'Elevated', 'Warning', 'Danger', 'Critical'];
+            const levelIndex = Math.floor(state.radiation / 20);
+            const level = levels[Math.min(levelIndex, 4)];
+            radiationLevel.textContent = level;
+
+            const descriptions = ['Minimal - Safe', 'Moderate - Caution', 'High - Alert', 'Severe - Danger', 'Critical - Evacuation'];
+            radiationValue.textContent = descriptions[levelIndex];
+
+            if (state.radiation > 40) {
+                radiationSymbol.classList.add('pulsing');
+            } else {
+                radiationSymbol.classList.remove('pulsing');
+            }
+        }
+
+        function updateLights() {
+            const windows = document.querySelectorAll('.window');
+            windows.forEach(window => {
+                const isNight = state.time < 6 || state.time > 20;
+                if (state.lightsAuto) {
+                    if (isNight) {
+                        window.classList.add('lit');
+                    } else {
+                        window.classList.remove('lit');
+                    }
+                } else {
+                    window.classList.add('lit');
+                }
+            });
+        }
+
+        function updateTension() {
+            const usaBuild = document.querySelector('.usa-building');
+            const sovietBuild = document.querySelector('.soviet-building');
+            if (state.tension > 50) {
+                usaBuild.style.filter = `drop-shadow(0 0 ${(state.tension - 50) / 5}px #ff0000)`;
+                sovietBuild.style.filter = `drop-shadow(0 0 ${(state.tension - 50) / 5}px #ff0000)`;
+            } else {
+                usaBuild.style.filter = 'none';
+                sovietBuild.style.filter = 'none';
+            }
+        }
+
+        function updateActivity() {
+            const usaBuilding = document.querySelector('.usa-building');
+            const sovietBuilding = document.querySelector('.soviet-building');
+
+            const usaWindows = usaBuilding.querySelectorAll('.window');
+            const sovietWindows = sovietBuilding.querySelectorAll('.window');
+
+            usaWindows.forEach((w, i) => {
+                if (Math.random() * 100 < state.usaActivity) {
+                    w.classList.add('lit');
+                }
+            });
+
+            sovietWindows.forEach((w, i) => {
+                if (Math.random() * 100 < state.ussrActivity) {
+                    w.classList.add('lit');
+                }
+            });
+        }
+
+        function updatePropaganda() {
+            if (state.tension > 70) {
+                usaPoster.textContent = 'ALERT: COMMIES';
+                sovietPoster.textContent = 'ГОТОВ К ЗАЩИТЕ';
+            } else if (state.tension > 40) {
+                usaPoster.textContent = 'DEFEND FREEDOM';
+                sovietPoster.textContent = 'СИЛА В ЕДИНСТВЕ';
+            } else {
+                usaPoster.textContent = 'PEACE';
+                sovietPoster.textContent = 'МИР';
+            }
+        }
+
+        // WIND DESCRIPTION
+        function getWindDescription(wind) {
+            if (wind < 10) return 'Calm';
+            if (wind < 20) return 'Light Breeze';
+            if (wind < 40) return 'Moderate Wind';
+            if (wind < 60) return 'Strong Wind';
+            if (wind < 80) return 'Very Strong';
+            return 'Hurricane Force';
+        }
+
+        function getActivityDescription(activity) {
+            if (activity < 20) return 'Minimal';
+            if (activity < 40) return 'Low';
+            if (activity < 60) return 'Moderate';
+            if (activity < 80) return 'High';
+            return 'Maximum';
+        }
+
+        function getTensionDescription(tension) {
+            if (tension < 20) return 'Peaceful';
+            if (tension < 40) return 'Cautious';
+            if (tension < 60) return 'Tense';
+            if (tension < 80) return 'Critical';
+            return 'War Imminent';
+        }
+
+        // EVENT LISTENERS
+        timeSlider.addEventListener('input', (e) => {
+            state.time = parseFloat(e.target.value);
+            const hours = Math.floor(state.time);
+            const minutes = Math.round((state.time - hours) * 60);
+            const timeStr = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+            const period = hours >= 12 ? 'PM' : 'AM';
+            document.getElementById('timeValue').textContent = (hours % 12 || 12) + ':' + minutes.toString().padStart(2, '0') + ' ' + period;
+            updateSkyColor();
+            updateStars();
+            updateGroundColor();
+            updateLights();
+        });
+
+        windSlider.addEventListener('input', (e) => {
+            state.wind = parseFloat(e.target.value);
+            document.getElementById('windValue').textContent = getWindDescription(state.wind);
+            updateClouds();
+        });
+
+        radiationSlider.addEventListener('input', (e) => {
+            state.radiation = parseFloat(e.target.value);
+            updateRadiation();
+        });
+
+        tensionSlider.addEventListener('input', (e) => {
+            state.tension = parseFloat(e.target.value);
+            document.getElementById('tensionValue').textContent = getTensionDescription(state.tension);
+            updateTension();
+            updatePropaganda();
+        });
+
+        usaActivitySlider.addEventListener('input', (e) => {
+            state.usaActivity = parseFloat(e.target.value);
+            document.getElementById('usaActivityValue').textContent = getActivityDescription(state.usaActivity);
+            updateActivity();
+        });
+
+        ussrActivitySlider.addEventListener('input', (e) => {
+            state.ussrActivity = parseFloat(e.target.value);
+            document.getElementById('ussrActivityValue').textContent = getActivityDescription(state.ussrActivity);
+            updateActivity();
+        });
+
+        weatherClear.addEventListener('click', () => {
+            state.weather = 'clear';
+            weatherClear.classList.add('active');
+            weatherRainy.classList.remove('active');
+            weatherSnowy.classList.remove('active');
+            weatherFoggy.classList.remove('active');
+            rainContainer.innerHTML = '';
+            updateRain();
+            updateSnow();
+            updateFog();
+        });
+
+        weatherRainy.addEventListener('click', () => {
+            state.weather = 'rainy';
+            weatherRainy.classList.add('active');
+            weatherClear.classList.remove('active');
+            weatherSnowy.classList.remove('active');
+            weatherFoggy.classList.remove('active');
+            rainContainer.innerHTML = '';
+            updateRain();
+            updateSnow();
+            updateFog();
+        });
+
+        weatherSnowy.addEventListener('click', () => {
+            state.weather = 'snowy';
+            weatherSnowy.classList.add('active');
+            weatherClear.classList.remove('active');
+            weatherRainy.classList.remove('active');
+            weatherFoggy.classList.remove('active');
+            rainContainer.innerHTML = '';
+            updateRain();
+            updateSnow();
+            updateFog();
+        });
+
+        weatherFoggy.addEventListener('click', () => {
+            state.weather = 'foggy';
+            weatherFoggy.classList.add('active');
+            weatherClear.classList.remove('active');
+            weatherRainy.classList.remove('active');
+            weatherSnowy.classList.remove('active');
+            rainContainer.innerHTML = '';
+            updateRain();
+            updateSnow();
+            updateFog();
+        });
+
+        lightsOn.addEventListener('click', () => {
+            state.lightsAuto = false;
+            lightsOn.classList.add('active');
+            lightsOff.classList.remove('active');
+            updateLights();
+        });
+
+        lightsOff.addEventListener('click', () => {
+            state.lightsAuto = true;
+            lightsOff.classList.add('active');
+            lightsOn.classList.remove('active');
+            updateLights();
+        });
+
+        seasonSpring.addEventListener('click', () => {
+            state.season = 'spring';
+            seasonSpring.classList.add('active');
+            seasonSummer.classList.remove('active');
+            seasonFall.classList.remove('active');
+            seasonWinter.classList.remove('active');
+            updateGroundColor();
+        });
+
+        seasonSummer.addEventListener('click', () => {
+            state.season = 'summer';
+            seasonSummer.classList.add('active');
+            seasonSpring.classList.remove('active');
+            seasonFall.classList.remove('active');
+            seasonWinter.classList.remove('active');
+            updateGroundColor();
+        });
+
+        seasonFall.addEventListener('click', () => {
+            state.season = 'fall';
+            seasonFall.classList.add('active');
+            seasonSpring.classList.remove('active');
+            seasonSummer.classList.remove('active');
+            seasonWinter.classList.remove('active');
+            updateGroundColor();
+        });
+
+        seasonWinter.addEventListener('click', () => {
+            state.season = 'winter';
+            seasonWinter.classList.add('active');
+            seasonSpring.classList.remove('active');
+            seasonSummer.classList.remove('active');
+            seasonFall.classList.remove('active');
+            updateGroundColor();
+        });
+
+        panelToggle.addEventListener('click', () => {
+            settingsPanel.classList.toggle('collapsed');
+        });
+
+        // INITIALIZATION
+        updateSkyColor();
+        updateStars();
+        updateGroundColor();
+        updateClouds();
+        updateLights();
+        updateRadiation();
+        updateActivity();
+        updatePropaganda();
+    </script>
+</body>
+</html>
