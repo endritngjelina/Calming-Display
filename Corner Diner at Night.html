@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2 AM Corner Diner - Atmospheric Experience</title>
+    <style>
+        /* Design System Variables */
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --color-gray-400-rgb: 119, 124, 124;
+            --color-teal-300-rgb: 50, 184, 198;
+            --color-gray-300-rgb: 167, 169, 169;
+            --color-gray-200-rgb: 245, 245, 245;
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-primary-active: var(--color-teal-700);
+            --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-md: 14px;
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --radius-base: 8px;
+            --radius-sm: 6px;
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-background: var(--color-charcoal-700);
+                --color-surface: var(--color-charcoal-800);
+                --color-text: var(--color-gray-200);
+                --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
+                --color-primary: var(--color-teal-300);
+                --color-primary-hover: var(--color-teal-400);
+                --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            background: #0a0e1a;
+        }
+
+        #scene-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Sky background */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #0a0e1a 0%, #1a1f3a 50%, #2a2f4a 100%);
+            transition: background 1s ease;
+        }
+
+        .sky.coastal {
+            background: linear-gradient(to bottom, #0a0e1a 0%, #1a1f3a 40%, #1a2f4a 100%);
+        }
+
+        /* Stars */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Ground/Street */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35%;
+            background: linear-gradient(to bottom, #1a1a2e 0%, #0f0f1a 100%);
+            transition: height 0.8s ease;
+        }
+
+        .ground.suburban,
+        .ground.coastal {
+            height: 40%;
+        }
+
+        .ground.highway {
+            height: 30%;
+        }
+
+        /* Wet pavement effect */
+        .pavement-reflection {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.03) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        /* Diner building */
+        .diner {
+            position: absolute;
+            bottom: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 500px;
+            height: 300px;
+            background: #2a2420;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.8s ease;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .diner.urban {
+            width: 400px;
+            height: 450px;
+            bottom: 35%;
+        }
+
+        .diner.suburban {
+            width: 600px;
+            height: 200px;
+            bottom: 40%;
+        }
+
+        .diner.highway {
+            width: 450px;
+            height: 180px;
+            bottom: 30%;
+        }
+
+        .diner.coastal {
+            width: 500px;
+            height: 220px;
+            bottom: 40%;
+        }
+
+        /* Windows */
+        .windows {
+            position: absolute;
+            top: 20%;
+            left: 10%;
+            right: 10%;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .window {
+            aspect-ratio: 3/4;
+            background: rgba(255, 200, 120, 0.9);
+            border: 2px solid #4a4030;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(255, 200, 120, 0.4);
+            transition: background 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .window.warm {
+            background: rgba(255, 200, 120, 0.9);
+            box-shadow: 0 0 30px rgba(255, 200, 120, 0.4);
+        }
+
+        .window.neutral {
+            background: rgba(255, 230, 180, 0.9);
+            box-shadow: 0 0 30px rgba(255, 230, 180, 0.4);
+        }
+
+        .window.cool {
+            background: rgba(230, 240, 255, 0.9);
+            box-shadow: 0 0 30px rgba(230, 240, 255, 0.4);
+        }
+
+        .window-glare {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 50%);
+            animation: shimmer 4s infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Condensation effect */
+        .condensation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+                         radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+                         radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.35) 1px, transparent 1px),
+                         radial-gradient(circle at 20% 70%, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .condensation.active {
+            opacity: 1;
+        }
+
+        /* Light spill on ground */
+        .light-spill {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 200px;
+            background: radial-gradient(ellipse at center top, rgba(255, 200, 120, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+
+        /* Neon Sign */
+        .neon-sign {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 72px;
+            font-weight: bold;
+            letter-spacing: 8px;
+            color: #FF1493;
+            text-shadow: 0 0 10px #FF1493, 0 0 20px #FF1493, 0 0 30px #FF1493, 0 0 40px #FF69B4;
+            animation: neonFlicker 4s infinite;
+            transition: color 0.3s ease;
+            font-family: 'Arial Black', sans-serif;
+        }
+
+        @keyframes neonFlicker {
+            0%, 100% { opacity: 1; }
+            2% { opacity: 0.8; }
+            3% { opacity: 1; }
+            8% { opacity: 0.9; }
+            10% { opacity: 1; }
+            45% { opacity: 0.95; }
+            46% { opacity: 0.7; }
+            47% { opacity: 1; }
+            80% { opacity: 0.85; }
+            81% { opacity: 1; }
+        }
+
+        .neon-sign.off {
+            animation: none;
+            opacity: 0.1;
+            text-shadow: none;
+        }
+
+        .neon-sign.intense {
+            animation: neonFlickerIntense 2s infinite;
+        }
+
+        @keyframes neonFlickerIntense {
+            0%, 100% { opacity: 1; }
+            5% { opacity: 0.3; }
+            7% { opacity: 1; }
+            10% { opacity: 0.5; }
+            12% { opacity: 1; }
+            20% { opacity: 0.4; }
+            22% { opacity: 1; }
+            50% { opacity: 0.6; }
+            52% { opacity: 1; }
+        }
+
+        /* Car light sweep */
+        .car-light {
+            position: absolute;
+            bottom: 0;
+            left: -100%;
+            width: 150%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 45%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.4) 55%, transparent 100%);
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .car-light.sweeping {
+            animation: carSweep 3s ease-in-out;
+        }
+
+        @keyframes carSweep {
+            0% { left: -100%; opacity: 0; }
+            10% { opacity: 1; }
+            50% { left: 50%; opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: 150%; opacity: 0; }
+        }
+
+        .car-light.fast {
+            animation: carSweepFast 1.5s ease-in-out;
+        }
+
+        @keyframes carSweepFast {
+            0% { left: -100%; opacity: 0; }
+            10% { opacity: 1; }
+            50% { left: 50%; opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: 150%; opacity: 0; }
+        }
+
+        /* Rain effect */
+        .rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .rain.active {
+            opacity: 1;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 1px;
+            height: 20px;
+            background: linear-gradient(to bottom, transparent, rgba(200, 220, 255, 0.5));
+            animation: rainfall 1s linear infinite;
+        }
+
+        @keyframes rainfall {
+            0% { transform: translateY(-100px); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0.5; }
+        }
+
+        /* Fog effect */
+        .fog {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(to top, rgba(200, 210, 220, 0.1) 0%, transparent 100%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            animation: fogDrift 20s infinite;
+        }
+
+        .fog.active {
+            opacity: 1;
+        }
+
+        @keyframes fogDrift {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(20px); }
+        }
+
+        /* Ocean for coastal */
+        .ocean {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            background: linear-gradient(to bottom, #1a3a5a 0%, #0f1f3a 100%);
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .ocean.active {
+            opacity: 1;
+        }
+
+        .ocean-wave {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: rgba(100, 150, 200, 0.3);
+            animation: wave 8s infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: translateX(0); opacity: 0.3; }
+            50% { transform: translateX(30px); opacity: 0.6; }
+        }
+
+        /* Control panel */
+        .control-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 12px 20px;
+            background: var(--color-surface);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-family: var(--font-family-base);
+            transition: all var(--duration-normal) var(--ease-standard);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-toggle:hover {
+            background: var(--color-primary);
+            color: var(--color-white);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .control-panel {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 320px;
+            max-height: calc(100vh - 100px);
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            padding: var(--space-20);
+            z-index: 999;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-10px);
+            transition: all var(--duration-normal) var(--ease-standard);
+        }
+
+        .control-panel.visible {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+
+        .control-section {
+            margin-bottom: var(--space-20);
+            padding-bottom: var(--space-16);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .control-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .control-section h3 {
+            font-size: var(--font-size-base);
+            margin-bottom: var(--space-12);
+            color: var(--color-text);
+            font-weight: 600;
+        }
+
+        .control-group {
+            margin-bottom: var(--space-12);
+        }
+
+        .control-group label {
+            display: block;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-4);
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 4px;
+            background: var(--color-border);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .control-group select {
+            width: 100%;
+            padding: var(--space-8) var(--space-12);
+            background: var(--color-background);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+            font-family: var(--font-family-base);
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: flex;
+            gap: var(--space-8);
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: var(--space-8) var(--space-12);
+            background: var(--color-primary);
+            color: var(--color-white);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-family: var(--font-family-base);
+            transition: all var(--duration-normal) var(--ease-standard);
+            flex: 1;
+        }
+
+        .btn:hover {
+            background: var(--color-primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--color-background);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(var(--color-teal-500-rgb), 0.1);
+        }
+
+        .toggle-btn {
+            padding: var(--space-8) var(--space-16);
+            background: var(--color-background);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: all var(--duration-normal) var(--ease-standard);
+            width: 100%;
+        }
+
+        .toggle-btn.active {
+            background: var(--color-primary);
+            color: var(--color-white);
+            border-color: var(--color-primary);
+        }
+
+        .toggle-btn:hover {
+            border-color: var(--color-primary);
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-8);
+        }
+
+        .color-option {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all var(--duration-normal) var(--ease-standard);
+        }
+
+        .color-option.selected {
+            border-color: var(--color-white);
+            transform: scale(1.1);
+        }
+
+        .color-option:hover {
+            transform: scale(1.05);
+        }
+
+        /* Scrollbar styling */
+        .control-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .control-panel::-webkit-scrollbar-track {
+            background: var(--color-background);
+        }
+
+        .control-panel::-webkit-scrollbar-thumb {
+            background: var(--color-border);
+            border-radius: 3px;
+        }
+
+        .control-panel::-webkit-scrollbar-thumb:hover {
+            background: var(--color-primary);
+        }
+
+        /* Breathing animation */
+        @keyframes breathing {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.03); }
+        }
+
+        .breathing {
+            animation: breathing 8s infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .control-panel {
+                width: calc(100% - 40px);
+                right: 20px;
+                left: 20px;
+            }
+
+            .diner {
+                width: 80%;
+                height: 200px;
+            }
+
+            .neon-sign {
+                font-size: 48px;
+                top: -40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="scene-container">
+        <!-- Sky with stars -->
+        <div class="sky" id="sky">
+            <div class="stars" id="stars"></div>
+        </div>
+
+        <!-- Ocean (for coastal scenery) -->
+        <div class="ocean" id="ocean">
+            <div class="ocean-wave"></div>
+        </div>
+
+        <!-- Ground/Street -->
+        <div class="ground" id="ground">
+            <div class="pavement-reflection"></div>
+        </div>
+
+        <!-- Light spill from windows -->
+        <div class="light-spill" id="lightSpill"></div>
+
+        <!-- Diner building -->
+        <div class="diner" id="diner">
+            <div class="neon-sign" id="neonSign">DINER</div>
+            <div class="windows" id="windows">
+                <div class="window warm">
+                    <div class="window-glare"></div>
+                    <div class="condensation"></div>
+                </div>
+                <div class="window warm">
+                    <div class="window-glare"></div>
+                    <div class="condensation"></div>
+                </div>
+                <div class="window warm">
+                    <div class="window-glare"></div>
+                    <div class="condensation"></div>
+                </div>
+                <div class="window warm">
+                    <div class="window-glare"></div>
+                    <div class="condensation"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Car light sweep -->
+        <div class="car-light" id="carLight"></div>
+
+        <!-- Rain effect -->
+        <div class="rain" id="rain"></div>
+
+        <!-- Fog effect -->
+        <div class="fog" id="fog"></div>
+    </div>
+
+    <!-- Controls -->
+    <button class="control-toggle" id="controlToggle">Controls</button>
+
+    <div class="control-panel" id="controlPanel">
+        <!-- Scenery Selection -->
+        <div class="control-section">
+            <h3>Scenery</h3>
+            <div class="control-group">
+                <select id="scenerySelect">
+                    <option value="urban">Classic Urban Corner</option>
+                    <option value="suburban">Suburban Strip Diner</option>
+                    <option value="highway">Highway Rest Stop</option>
+                    <option value="coastal">Coastal Diner</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Neon Sign Controls -->
+        <div class="control-section">
+            <h3>Neon Sign</h3>
+            <div class="control-group">
+                <button class="toggle-btn active" id="neonToggle">Sign On</button>
+            </div>
+            <div class="control-group">
+                <label>Neon Color</label>
+                <div class="color-palette">
+                    <div class="color-option selected" style="background: #FF1493;" data-color="pink" data-glow="#FF69B4"></div>
+                    <div class="color-option" style="background: #00FFFF;" data-color="blue" data-glow="#0099FF"></div>
+                    <div class="color-option" style="background: #00FF00;" data-color="green" data-glow="#00DD00"></div>
+                    <div class="color-option" style="background: #FF00FF;" data-color="purple" data-glow="#DD00DD"></div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Flicker Intensity</label>
+                <input type="range" id="flickerIntensity" min="1" max="5" value="3">
+            </div>
+        </div>
+
+        <!-- Lighting Controls -->
+        <div class="control-section">
+            <h3>Lighting</h3>
+            <div class="control-group">
+                <label>Interior Light Intensity</label>
+                <input type="range" id="lightIntensity" min="0" max="100" value="90">
+            </div>
+            <div class="control-group">
+                <label>Color Temperature</label>
+                <select id="colorTemp">
+                    <option value="warm" selected>Warm</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="cool">Cool</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Car Lights -->
+        <div class="control-section">
+            <h3>Car Lights</h3>
+            <div class="control-group">
+                <div class="button-group">
+                    <button class="btn" id="triggerCarLight">Trigger Sweep</button>
+                </div>
+            </div>
+            <div class="control-group">
+                <button class="toggle-btn" id="autoSweepToggle">Auto Sweep Off</button>
+            </div>
+            <div class="control-group">
+                <label>Sweep Frequency (seconds)</label>
+                <input type="range" id="sweepFrequency" min="5" max="30" step="5" value="15">
+            </div>
+            <div class="control-group">
+                <label>Car Light Color</label>
+                <select id="carLightColor">
+                    <option value="white" selected>White Headlights</option>
+                    <option value="amber">Amber</option>
+                    <option value="red">Red Taillights</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Weather & Atmosphere -->
+        <div class="control-section">
+            <h3>Weather &amp; Atmosphere</h3>
+            <div class="control-group">
+                <button class="toggle-btn" id="rainToggle">Rain Off</button>
+            </div>
+            <div class="control-group">
+                <label>Rain Intensity</label>
+                <input type="range" id="rainIntensity" min="1" max="5" value="3">
+            </div>
+            <div class="control-group">
+                <button class="toggle-btn" id="fogToggle">Fog Off</button>
+            </div>
+            <div class="control-group">
+                <label>Fog Density</label>
+                <input type="range" id="fogDensity" min="1" max="5" value="3">
+            </div>
+            <div class="control-group">
+                <button class="toggle-btn" id="condensationToggle">Window Condensation Off</button>
+            </div>
+        </div>
+
+        <!-- Animation Controls -->
+        <div class="control-section">
+            <h3>Animation</h3>
+            <div class="control-group">
+                <label>Animation Speed</label>
+                <input type="range" id="animationSpeed" min="0.5" max="2" step="0.25" value="1">
+            </div>
+        </div>
+
+        <!-- Reset -->
+        <div class="control-section">
+            <button class="btn btn-secondary" id="resetBtn" style="width: 100%;">Reset All Settings</button>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        const state = {
+            scenery: 'urban',
+            neonOn: true,
+            neonColor: { color: '#FF1493', glow: '#FF69B4' },
+            flickerIntensity: 3,
+            lightIntensity: 90,
+            colorTemp: 'warm',
+            autoSweep: false,
+            sweepFrequency: 15,
+            carLightColor: 'white',
+            rainActive: false,
+            rainIntensity: 3,
+            fogActive: false,
+            fogDensity: 3,
+            condensationActive: false,
+            animationSpeed: 1
+        };
+
+        let autoSweepInterval = null;
+
+        // Elements
+        const controlToggle = document.getElementById('controlToggle');
+        const controlPanel = document.getElementById('controlPanel');
+        const sky = document.getElementById('sky');
+        const ground = document.getElementById('ground');
+        const diner = document.getElementById('diner');
+        const neonSign = document.getElementById('neonSign');
+        const lightSpill = document.getElementById('lightSpill');
+        const carLight = document.getElementById('carLight');
+        const rain = document.getElementById('rain');
+        const fog = document.getElementById('fog');
+        const ocean = document.getElementById('ocean');
+        const stars = document.getElementById('stars');
+
+        // Initialize stars
+        function createStars() {
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                stars.appendChild(star);
+            }
+        }
+
+        // Initialize rain
+        function createRain() {
+            rain.innerHTML = '';
+            const dropCount = state.rainIntensity * 30;
+            for (let i = 0; i < dropCount; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'raindrop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.animationDelay = Math.random() * 2 + 's';
+                drop.style.animationDuration = (0.5 + Math.random() * 0.5) / state.animationSpeed + 's';
+                rain.appendChild(drop);
+            }
+        }
+
+        // Toggle control panel
+        controlToggle.addEventListener('click', () => {
+            controlPanel.classList.toggle('visible');
+        });
+
+        // Scenery selection
+        document.getElementById('scenerySelect').addEventListener('change', (e) => {
+            state.scenery = e.target.value;
+            updateScenery();
+        });
+
+        function updateScenery() {
+            // Remove all scenery classes
+            diner.classList.remove('urban', 'suburban', 'highway', 'coastal');
+            ground.classList.remove('urban', 'suburban', 'highway', 'coastal');
+            sky.classList.remove('coastal');
+            ocean.classList.remove('active');
+
+            // Add current scenery class
+            diner.classList.add(state.scenery);
+            ground.classList.add(state.scenery);
+
+            if (state.scenery === 'coastal') {
+                sky.classList.add('coastal');
+                ocean.classList.add('active');
+            }
+        }
+
+        // Neon sign controls
+        document.getElementById('neonToggle').addEventListener('click', (e) => {
+            state.neonOn = !state.neonOn;
+            e.target.textContent = state.neonOn ? 'Sign On' : 'Sign Off';
+            e.target.classList.toggle('active');
+            updateNeonSign();
+        });
+
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+                e.target.classList.add('selected');
+                state.neonColor = {
+                    color: e.target.style.background,
+                    glow: e.target.dataset.glow
+                };
+                updateNeonSign();
+            });
+        });
+
+        document.getElementById('flickerIntensity').addEventListener('input', (e) => {
+            state.flickerIntensity = parseInt(e.target.value);
+            updateNeonSign();
+        });
+
+        function updateNeonSign() {
+            if (state.neonOn) {
+                neonSign.classList.remove('off');
+                neonSign.style.color = state.neonColor.color;
+                neonSign.style.textShadow = `
+                    0 0 10px ${state.neonColor.color},
+                    0 0 20px ${state.neonColor.color},
+                    0 0 30px ${state.neonColor.color},
+                    0 0 40px ${state.neonColor.glow}
+                `;
+
+                // Update flicker intensity
+                neonSign.classList.remove('intense');
+                if (state.flickerIntensity >= 4) {
+                    neonSign.classList.add('intense');
+                }
+            } else {
+                neonSign.classList.add('off');
+            }
+        }
+
+        // Lighting controls
+        document.getElementById('lightIntensity').addEventListener('input', (e) => {
+            state.lightIntensity = parseInt(e.target.value);
+            updateLighting();
+        });
+
+        document.getElementById('colorTemp').addEventListener('change', (e) => {
+            state.colorTemp = e.target.value;
+            updateLighting();
+        });
+
+        function updateLighting() {
+            const windows = document.querySelectorAll('.window');
+            const intensity = state.lightIntensity / 100;
+
+            windows.forEach(window => {
+                window.classList.remove('warm', 'neutral', 'cool');
+                window.classList.add(state.colorTemp);
+                window.style.opacity = intensity;
+            });
+
+            lightSpill.style.opacity = intensity * 0.8;
+        }
+
+        // Car light controls
+        document.getElementById('triggerCarLight').addEventListener('click', () => {
+            triggerCarSweep();
+        });
+
+        document.getElementById('autoSweepToggle').addEventListener('click', (e) => {
+            state.autoSweep = !state.autoSweep;
+            e.target.textContent = state.autoSweep ? 'Auto Sweep On' : 'Auto Sweep Off';
+            e.target.classList.toggle('active');
+            updateAutoSweep();
+        });
+
+        document.getElementById('sweepFrequency').addEventListener('input', (e) => {
+            state.sweepFrequency = parseInt(e.target.value);
+            if (state.autoSweep) {
+                updateAutoSweep();
+            }
+        });
+
+        document.getElementById('carLightColor').addEventListener('change', (e) => {
+            state.carLightColor = e.target.value;
+            updateCarLightColor();
+        });
+
+        function triggerCarSweep() {
+            carLight.classList.remove('sweeping', 'fast');
+            void carLight.offsetWidth; // Force reflow
+            carLight.classList.add('sweeping');
+            if (state.animationSpeed > 1.5) {
+                carLight.classList.add('fast');
+            }
+        }
+
+        function updateAutoSweep() {
+            if (autoSweepInterval) {
+                clearInterval(autoSweepInterval);
+                autoSweepInterval = null;
+            }
+
+            if (state.autoSweep) {
+                autoSweepInterval = setInterval(() => {
+                    triggerCarSweep();
+                }, state.sweepFrequency * 1000);
+            }
+        }
+
+        function updateCarLightColor() {
+            const colors = {
+                white: 'rgba(255, 255, 255, 0.6)',
+                amber: 'rgba(255, 215, 0, 0.6)',
+                red: 'rgba(255, 68, 68, 0.6)'
+            };
+            const color = colors[state.carLightColor] || colors.white;
+            carLight.style.background = `linear-gradient(90deg, transparent 0%, ${color.replace('0.6', '0.4')} 45%, ${color} 50%, ${color.replace('0.6', '0.4')} 55%, transparent 100%)`;
+        }
+
+        // Weather controls
+        document.getElementById('rainToggle').addEventListener('click', (e) => {
+            state.rainActive = !state.rainActive;
+            e.target.textContent = state.rainActive ? 'Rain On' : 'Rain Off';
+            e.target.classList.toggle('active');
+            updateRain();
+        });
+
+        document.getElementById('rainIntensity').addEventListener('input', (e) => {
+            state.rainIntensity = parseInt(e.target.value);
+            if (state.rainActive) {
+                createRain();
+            }
+        });
+
+        function updateRain() {
+            if (state.rainActive) {
+                rain.classList.add('active');
+                createRain();
+            } else {
+                rain.classList.remove('active');
+            }
+        }
+
+        document.getElementById('fogToggle').addEventListener('click', (e) => {
+            state.fogActive = !state.fogActive;
+            e.target.textContent = state.fogActive ? 'Fog On' : 'Fog Off';
+            e.target.classList.toggle('active');
+            updateFog();
+        });
+
+        document.getElementById('fogDensity').addEventListener('input', (e) => {
+            state.fogDensity = parseInt(e.target.value);
+            updateFog();
+        });
+
+        function updateFog() {
+            if (state.fogActive) {
+                fog.classList.add('active');
+                const density = state.fogDensity / 5;
+                fog.style.opacity = density;
+            } else {
+                fog.classList.remove('active');
+            }
+        }
+
+        document.getElementById('condensationToggle').addEventListener('click', (e) => {
+            state.condensationActive = !state.condensationActive;
+            e.target.textContent = state.condensationActive ? 'Condensation On' : 'Condensation Off';
+            e.target.classList.toggle('active');
+            updateCondensation();
+        });
+
+        function updateCondensation() {
+            const condensations = document.querySelectorAll('.condensation');
+            condensations.forEach(c => {
+                if (state.condensationActive) {
+                    c.classList.add('active');
+                } else {
+                    c.classList.remove('active');
+                }
+            });
+        }
+
+        // Animation speed
+        document.getElementById('animationSpeed').addEventListener('input', (e) => {
+            state.animationSpeed = parseFloat(e.target.value);
+            updateAnimationSpeed();
+        });
+
+        function updateAnimationSpeed() {
+            document.documentElement.style.setProperty('--animation-speed', state.animationSpeed);
+            // Update rain animation if active
+            if (state.rainActive) {
+                createRain();
+            }
+        }
+
+        // Reset button
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            // Reset state to defaults
+            state.scenery = 'urban';
+            state.neonOn = true;
+            state.neonColor = { color: '#FF1493', glow: '#FF69B4' };
+            state.flickerIntensity = 3;
+            state.lightIntensity = 90;
+            state.colorTemp = 'warm';
+            state.autoSweep = false;
+            state.sweepFrequency = 15;
+            state.carLightColor = 'white';
+            state.rainActive = false;
+            state.rainIntensity = 3;
+            state.fogActive = false;
+            state.fogDensity = 3;
+            state.condensationActive = false;
+            state.animationSpeed = 1;
+
+            // Reset UI
+            document.getElementById('scenerySelect').value = 'urban';
+            document.getElementById('neonToggle').textContent = 'Sign On';
+            document.getElementById('neonToggle').classList.add('active');
+            document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+            document.querySelector('.color-option[data-color="pink"]').classList.add('selected');
+            document.getElementById('flickerIntensity').value = 3;
+            document.getElementById('lightIntensity').value = 90;
+            document.getElementById('colorTemp').value = 'warm';
+            document.getElementById('autoSweepToggle').textContent = 'Auto Sweep Off';
+            document.getElementById('autoSweepToggle').classList.remove('active');
+            document.getElementById('sweepFrequency').value = 15;
+            document.getElementById('carLightColor').value = 'white';
+            document.getElementById('rainToggle').textContent = 'Rain Off';
+            document.getElementById('rainToggle').classList.remove('active');
+            document.getElementById('rainIntensity').value = 3;
+            document.getElementById('fogToggle').textContent = 'Fog Off';
+            document.getElementById('fogToggle').classList.remove('active');
+            document.getElementById('fogDensity').value = 3;
+            document.getElementById('condensationToggle').textContent = 'Window Condensation Off';
+            document.getElementById('condensationToggle').classList.remove('active');
+            document.getElementById('animationSpeed').value = 1;
+
+            // Update scene
+            updateScenery();
+            updateNeonSign();
+            updateLighting();
+            updateAutoSweep();
+            updateCarLightColor();
+            updateRain();
+            updateFog();
+            updateCondensation();
+            updateAnimationSpeed();
+        });
+
+        // Initialize
+        createStars();
+        updateScenery();
+        updateNeonSign();
+        updateLighting();
+        updateCarLightColor();
+
+        // Add breathing effect
+        document.getElementById('scene-container').classList.add('breathing');
+    </script>
+</body>
+</html>
