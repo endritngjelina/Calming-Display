@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WW2 Russian Battlefield - Interactive Scenery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+
+        canvas {
+            display: block;
+            background: #87CEEB;
+        }
+
+        #controls-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(30, 30, 30, 0.95);
+            border: 2px solid #888;
+            border-radius: 8px;
+            padding: 0;
+            width: 300px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            font-size: 13px;
+            color: #e0e0e0;
+        }
+
+        .controls-header {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #555;
+            user-select: none;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .controls-header:hover {
+            background: linear-gradient(135deg, #2a2a2a, #3d3d3d);
+        }
+
+        .toggle-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .controls-content {
+            padding: 16px;
+            max-height: 600px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        .controls-content.collapsed {
+            display: none;
+        }
+
+        .control-group {
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #444;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #b0b0b0;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #444;
+            outline: none;
+            -webkit-appearance: none;
+            margin: 8px 0;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #2196F3;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.4);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #1976D2;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #2196F3;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.4);
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: #1976D2;
+        }
+
+        .value-display {
+            display: inline-block;
+            background: #333;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #2196F3;
+            font-size: 11px;
+        }
+
+        .select-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        select {
+            padding: 8px 10px;
+            background: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        select:hover {
+            border-color: #2196F3;
+            background: #3a3a3a;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 8px rgba(33, 150, 243, 0.3);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #2196F3;
+        }
+
+        .info-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(30, 30, 30, 0.9);
+            border: 2px solid #888;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #e0e0e0;
+            font-size: 12px;
+            max-width: 280px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+            z-index: 100;
+        }
+
+        .info-title {
+            font-weight: bold;
+            color: #2196F3;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .info-item {
+            margin: 4px 0;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            #controls-panel {
+                width: 250px;
+                right: 10px;
+                top: 10px;
+            }
+
+            .info-panel {
+                left: 10px;
+                bottom: 10px;
+                max-width: 250px;
+                font-size: 11px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div id="controls-panel">
+        <div class="controls-header" onclick="toggleControls()">
+            <span>⚙️ Settings</span>
+            <span class="toggle-icon" id="toggle-icon">▼</span>
+        </div>
+        <div class="controls-content" id="controls-content">
+            <div class="control-group">
+                <label>Time of Day</label>
+                <input type="range" id="timeSlider" min="0" max="24" value="12" step="0.5">
+                <span class="value-display" id="timeDisplay">12:00 (Noon)</span>
+            </div>
+
+            <div class="control-group">
+                <label>Weather Condition</label>
+                <div class="select-group">
+                    <select id="weatherSelect">
+                        <option value="clear">Clear Sky</option>
+                        <option value="cloudy">Overcast</option>
+                        <option value="snow" selected>Heavy Snow</option>
+                        <option value="blizzard">Blizzard</option>
+                        <option value="fog">Dense Fog</option>
+                        <option value="spring">Spring Thaw (Mud)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Season</label>
+                <div class="select-group">
+                    <select id="seasonSelect">
+                        <option value="winter" selected>Winter (1942)</option>
+                        <option value="autumn">Autumn (1941)</option>
+                        <option value="spring">Spring (1943)</option>
+                        <option value="summer">Summer (1942)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Temperature (°C)</label>
+                <input type="range" id="tempSlider" min="-45" max="35" value="-20" step="1">
+                <span class="value-display" id="tempDisplay">-20°C</span>
+            </div>
+
+            <div class="control-group">
+                <label>Wind Speed</label>
+                <input type="range" id="windSlider" min="0" max="100" value="40" step="5">
+                <span class="value-display" id="windDisplay">40%</span>
+            </div>
+
+            <div class="control-group">
+                <label>Destruction Level</label>
+                <input type="range" id="destructionSlider" min="0" max="100" value="60" step="5">
+                <span class="value-display" id="destructionDisplay">60%</span>
+            </div>
+
+            <div class="control-group">
+                <label>Military Activity</label>
+                <input type="range" id="activitySlider" min="0" max="100" value="50" step="5">
+                <span class="value-display" id="activityDisplay">50%</span>
+            </div>
+
+            <div class="control-group">
+                <label>Fire Intensity</label>
+                <input type="range" id="fireSlider" min="0" max="100" value="30" step="5">
+                <span class="value-display" id="fireDisplay">30%</span>
+            </div>
+
+            <div class="control-group">
+                <label>Visual Effects</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="showTanks" checked>
+                        <label for="showTanks" style="margin: 0;">Show Destroyed Tanks</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="showSmoke" checked>
+                        <label for="showSmoke" style="margin: 0;">Show Smoke</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="showDebris" checked>
+                        <label for="showDebris" style="margin: 0;">Show Debris</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="showExplosions" checked>
+                        <label for="showExplosions" style="margin: 0;">Show Explosions</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Audio</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="showAmbientSound">
+                        <label for="showAmbientSound" style="margin: 0;">Ambient Sounds (UI only)</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <div class="info-title">📍 Eastern Front Battle Analysis</div>
+        <div class="info-item">
+            <strong>Location:</strong> <span id="locationInfo">Russian Steppes</span>
+        </div>
+        <div class="info-item">
+            <strong>Atmospheric:</strong> <span id="atmosphericInfo">Severe</span>
+        </div>
+        <div class="info-item">
+            <strong>Visibility:</strong> <span id="visibilityInfo">Poor</span>
+        </div>
+        <div class="info-item">
+            <strong>Date Simulated:</strong> <span id="dateInfo">January 1943</span>
+        </div>
+        <div class="info-item" style="margin-top: 8px; font-size: 11px; color: #888; font-style: italic;">
+            Eastern Front, 1941-1945 • Largest land campaign in history
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Canvas setup
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Window resize handler
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Control panel toggle
+        function toggleControls() {
+            const content = document.getElementById('controls-content');
+            const icon = document.getElementById('toggle-icon');
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+        }
+
+        // Scene state
+        let scene = {
+            time: 12,
+            weather: 'snow',
+            season: 'winter',
+            temperature: -20,
+            windSpeed: 40,
+            destructionLevel: 60,
+            militaryActivity: 50,
+            fireIntensity: 30,
+            showTanks: true,
+            showSmoke: true,
+            showDebris: true,
+            showExplosions: true,
+            particles: [],
+            explosions: [],
+            smoke: [],
+            fireParticles: []
+        };
+
+        // Particle system
+        class Particle {
+            constructor(x, y, vx, vy, color, life) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.color = color;
+                this.life = life;
+                this.maxLife = life;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.15; // gravity
+                this.life--;
+            }
+
+            draw(ctx) {
+                const alpha = this.life / this.maxLife;
+                ctx.fillStyle = this.color.replace(')', `, ${alpha})`).replace('rgb', 'rgba');
+                ctx.fillRect(this.x, this.y, 3, 3);
+            }
+        }
+
+        // Smoke particle
+        class SmokeParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.life = 100 + Math.random() * 100;
+                this.maxLife = this.life;
+                this.size = 20 + Math.random() * 40;
+                this.vy = -0.5 - Math.random() * 0.5;
+                this.vx = (Math.random() - 0.5) * 2;
+            }
+
+            update() {
+                this.y += this.vy;
+                this.x += this.vx;
+                this.size += 0.5;
+                this.life--;
+            }
+
+            draw(ctx) {
+                const alpha = (this.life / this.maxLife) * 0.4;
+                ctx.fillStyle = `rgba(100, 100, 100, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Snow particle
+        class SnowParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vy = 1 + Math.random() * 2;
+                this.vx = (Math.random() - 0.5) * 3;
+                this.size = 1 + Math.random() * 2;
+                this.life = 300;
+                this.opacity = 0.7 + Math.random() * 0.3;
+            }
+
+            update() {
+                this.y += this.vy;
+                this.x += this.vx;
+                this.life--;
+            }
+
+            draw(ctx) {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Fire particle
+        class FireParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vy = -1 - Math.random() * 1;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.life = 60 + Math.random() * 40;
+                this.maxLife = this.life;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life--;
+            }
+
+            draw(ctx) {
+                const alpha = (this.life / this.maxLife) * 0.7;
+                const hue = (this.life / this.maxLife) * 40; // orange to red
+                ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${alpha})`;
+                const size = (this.life / this.maxLife) * 8;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Update control displays
+        function updateControls() {
+            // Time
+            scene.time = parseFloat(document.getElementById('timeSlider').value);
+            const hours = Math.floor(scene.time);
+            const minutes = Math.round((scene.time - hours) * 60);
+            document.getElementById('timeDisplay').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} (${getTimeOfDay()})`;
+
+            // Weather
+            scene.weather = document.getElementById('weatherSelect').value;
+
+            // Season
+            scene.season = document.getElementById('seasonSelect').value;
+
+            // Temperature
+            scene.temperature = parseInt(document.getElementById('tempSlider').value);
+            document.getElementById('tempDisplay').textContent = `${scene.temperature}°C`;
+
+            // Wind
+            scene.windSpeed = parseInt(document.getElementById('windSlider').value);
+            document.getElementById('windDisplay').textContent = `${scene.windSpeed}%`;
+
+            // Destruction
+            scene.destructionLevel = parseInt(document.getElementById('destructionSlider').value);
+            document.getElementById('destructionDisplay').textContent = `${scene.destructionLevel}%`;
+
+            // Military Activity
+            scene.militaryActivity = parseInt(document.getElementById('activitySlider').value);
+            document.getElementById('activityDisplay').textContent = `${scene.militaryActivity}%`;
+
+            // Fire
+            scene.fireIntensity = parseInt(document.getElementById('fireSlider').value);
+            document.getElementById('fireDisplay').textContent = `${scene.fireIntensity}%`;
+
+            // Checkboxes
+            scene.showTanks = document.getElementById('showTanks').checked;
+            scene.showSmoke = document.getElementById('showSmoke').checked;
+            scene.showDebris = document.getElementById('showDebris').checked;
+            scene.showExplosions = document.getElementById('showExplosions').checked;
+
+            // Update info panel
+            updateInfoPanel();
+        }
+
+        function getTimeOfDay() {
+            if (scene.time < 6) return 'Deep Night';
+            if (scene.time < 12) return 'Dawn/Morning';
+            if (scene.time < 18) return 'Afternoon';
+            return 'Evening/Dusk';
+        }
+
+        function updateInfoPanel() {
+            // Location
+            document.getElementById('locationInfo').textContent = 
+                scene.season === 'winter' ? 'Stalingrad Region' :
+                scene.season === 'autumn' ? 'Central Russian Plains' :
+                scene.season === 'spring' ? 'Kursk Salient' : 'Russian Steppes';
+
+            // Atmospheric conditions
+            const atmosphericLevel = scene.windSpeed + Math.abs(scene.temperature) / 45 * 100;
+            document.getElementById('atmosphericInfo').textContent = 
+                atmosphericLevel > 150 ? 'Extreme' :
+                atmosphericLevel > 100 ? 'Severe' :
+                atmosphericLevel > 50 ? 'Harsh' : 'Moderate';
+
+            // Visibility
+            const visibility = 100 - scene.windSpeed - (scene.weather === 'fog' ? 50 : 0) - 
+                             (scene.weather === 'blizzard' ? 40 : 0) - (scene.weather === 'snow' ? 20 : 0);
+            document.getElementById('visibilityInfo').textContent = 
+                visibility < 20 ? 'Critical' :
+                visibility < 40 ? 'Very Poor' :
+                visibility < 60 ? 'Poor' :
+                visibility < 80 ? 'Moderate' : 'Good';
+
+            // Date
+            const dateStr = scene.season === 'winter' ? 'January 1943' :
+                           scene.season === 'autumn' ? 'October 1941' :
+                           scene.season === 'spring' ? 'May 1943' : 'July 1942';
+            document.getElementById('dateInfo').textContent = dateStr;
+        }
+
+        // Add event listeners
+        document.getElementById('timeSlider').addEventListener('input', updateControls);
+        document.getElementById('weatherSelect').addEventListener('change', updateControls);
+        document.getElementById('seasonSelect').addEventListener('change', updateControls);
+        document.getElementById('tempSlider').addEventListener('input', updateControls);
+        document.getElementById('windSlider').addEventListener('input', updateControls);
+        document.getElementById('destructionSlider').addEventListener('input', updateControls);
+        document.getElementById('activitySlider').addEventListener('input', updateControls);
+        document.getElementById('fireSlider').addEventListener('input', updateControls);
+        document.getElementById('showTanks').addEventListener('change', updateControls);
+        document.getElementById('showSmoke').addEventListener('change', updateControls);
+        document.getElementById('showDebris').addEventListener('change', updateControls);
+        document.getElementById('showExplosions').addEventListener('change', updateControls);
+
+        // Drawing functions
+        function getSkyColor() {
+            const hour = scene.time;
+            let baseColor;
+
+            if (hour < 6 || hour >= 22) {
+                // Night (00:00-06:00, 22:00-24:00)
+                baseColor = { r: 20, g: 20, b: 35 };
+            } else if (hour < 8) {
+                // Dawn
+                const t = (hour - 6) / 2;
+                baseColor = {
+                    r: 20 + (100 - 20) * t,
+                    g: 20 + (80 - 20) * t,
+                    b: 35 + (120 - 35) * t
+                };
+            } else if (hour < 18) {
+                // Day
+                baseColor = { r: 100, g: 100, b: 150 };
+            } else if (hour < 20) {
+                // Dusk
+                const t = (hour - 18) / 2;
+                baseColor = {
+                    r: 100 + (80 - 100) * t,
+                    g: 100 + (60 - 100) * t,
+                    b: 150 + (50 - 150) * t
+                };
+            } else {
+                // Late evening
+                baseColor = { r: 40, g: 30, b: 60 };
+            }
+
+            // Weather adjustment
+            if (scene.weather === 'clear') {
+                baseColor.r += 40;
+                baseColor.g += 40;
+                baseColor.b += 20;
+            } else if (scene.weather === 'cloudy') {
+                baseColor.r -= 20;
+                baseColor.g -= 20;
+                baseColor.b -= 20;
+            } else if (scene.weather === 'snow' || scene.weather === 'blizzard') {
+                baseColor.r += 30;
+                baseColor.g += 30;
+                baseColor.b += 30;
+            } else if (scene.weather === 'fog') {
+                baseColor.r -= 10;
+                baseColor.g -= 10;
+                baseColor.b -= 10;
+            }
+
+            // Clamp values
+            baseColor.r = Math.max(0, Math.min(255, baseColor.r));
+            baseColor.g = Math.max(0, Math.min(255, baseColor.g));
+            baseColor.b = Math.max(0, Math.min(255, baseColor.b));
+
+            return `rgb(${Math.floor(baseColor.r)}, ${Math.floor(baseColor.g)}, ${Math.floor(baseColor.b)})`;
+        }
+
+        function drawSky() {
+            ctx.fillStyle = getSkyColor();
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw dynamic cloud patterns
+            if (scene.weather !== 'clear') {
+                drawClouds();
+            }
+
+            // Sun/Moon
+            drawCelestialBody();
+        }
+
+        function drawClouds() {
+            const cloudOpacity = scene.weather === 'clear' ? 0.1 :
+                                scene.weather === 'cloudy' ? 0.4 :
+                                scene.weather === 'fog' ? 0.7 : 0.5;
+
+            ctx.fillStyle = `rgba(150, 150, 150, ${cloudOpacity})`;
+
+            for (let i = 0; i < 8; i++) {
+                const x = (canvas.width / 8) * i + (scene.time * 10) % 100;
+                const y = 100 + Math.sin(scene.time * 0.1 + i) * 50;
+                drawCloud(x, y, 60 + Math.sin(i) * 20);
+            }
+        }
+
+        function drawCloud(x, y, size) {
+            ctx.beginPath();
+            ctx.arc(x, y, size * 0.6, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.4, y - size * 0.3, size * 0.5, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.8, y, size * 0.6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawCelestialBody() {
+            const hour = scene.time;
+            let celestialY;
+            let isSun = hour >= 6 && hour < 18;
+
+            if (isSun) {
+                // Sun arc from 6:00 to 18:00
+                const sunProgress = (hour - 6) / 12;
+                celestialY = canvas.height * 0.2 + Math.sin(sunProgress * Math.PI) * canvas.height * 0.3;
+                ctx.fillStyle = `rgba(255, 200, 100, ${Math.max(0, 1 - scene.windSpeed / 100)})`;
+            } else {
+                // Moon arc from 18:00 to 6:00
+                let moonProgress;
+                if (hour >= 18) {
+                    moonProgress = (hour - 18) / 12;
+                } else {
+                    moonProgress = (hour + 6) / 12;
+                }
+                celestialY = canvas.height * 0.25 + Math.sin(moonProgress * Math.PI) * canvas.height * 0.25;
+                ctx.fillStyle = `rgba(200, 200, 220, 0.8)`;
+            }
+
+            const celestialX = (isSun ? 100 : canvas.width - 100) + Math.sin(scene.time * 0.05) * 50;
+            ctx.beginPath();
+            ctx.arc(celestialX, celestialY, 40, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawGround() {
+            const groundY = canvas.height * 0.65;
+
+            // Base ground color
+            let groundColor = { r: 100, g: 100, b: 100 };
+
+            if (scene.season === 'winter' || scene.season === 'autumn') {
+                groundColor = { r: 80, g: 80, b: 80 }; // darker
+                
+                if (scene.weather === 'snow' || scene.weather === 'blizzard') {
+                    groundColor = { r: 180, g: 180, b: 190 }; // white
+                }
+            } else if (scene.season === 'spring') {
+                groundColor = { r: 100, g: 90, b: 70 }; // muddy brown
+            } else {
+                groundColor = { r: 120, g: 110, b: 80 }; // dusty
+            }
+
+            ctx.fillStyle = `rgb(${groundColor.r}, ${groundColor.g}, ${groundColor.b})`;
+            ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
+
+            // Draw ground texture
+            drawGroundTexture(groundY);
+        }
+
+        function drawGroundTexture(groundY) {
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.lineWidth = 1;
+
+            // Draw trenches and snow drifts
+            for (let i = 0; i < 10; i++) {
+                const x = (i * canvas.width / 10) + Math.sin(scene.time * 0.01 + i) * 30;
+                const width = 20 + Math.sin(i * 0.5) * 10;
+                const depth = 30 + scene.destructionLevel * 0.3;
+
+                // Trench
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.lineWidth = width;
+                ctx.beginPath();
+                ctx.moveTo(x, groundY);
+                ctx.lineTo(x, groundY + depth);
+                ctx.stroke();
+
+                // Snow/mud drifts
+                if (scene.weather === 'snow' || scene.weather === 'blizzard') {
+                    ctx.fillStyle = 'rgba(200, 200, 210, 0.4)';
+                    ctx.beginPath();
+                    ctx.arc(x, groundY + depth / 2, width / 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        function drawDestroyedBuildings() {
+            const groundY = canvas.height * 0.65;
+            const buildingCount = 5 + Math.floor(scene.destructionLevel / 20);
+
+            for (let i = 0; i < buildingCount; i++) {
+                const x = (i * canvas.width / buildingCount) + Math.sin(scene.time * 0.005 + i) * 50;
+                const height = 80 + (scene.destructionLevel / 100) * 120;
+                const width = 60 + Math.sin(i * 0.3) * 30;
+                const damage = scene.destructionLevel + Math.random() * 40;
+
+                drawRuin(x, groundY - height, width, height, damage);
+            }
+        }
+
+        function drawRuin(x, y, width, height, damage) {
+            // Main structure
+            ctx.fillStyle = damage > 70 ? 'rgb(60, 60, 60)' : 'rgb(100, 90, 80)';
+            ctx.fillRect(x - width / 2, y, width, height);
+
+            // Rubble and destruction
+            const rubbleCount = Math.floor(damage / 20);
+            for (let i = 0; i < rubbleCount; i++) {
+                const rubbleX = x - width / 2 + Math.random() * width;
+                const rubbleY = y + Math.random() * height;
+                const rubbleSize = 5 + Math.random() * 15;
+                ctx.fillStyle = `rgba(${80 + Math.random() * 50}, ${80 + Math.random() * 50}, ${80 + Math.random() * 50}, 0.8)`;
+                ctx.fillRect(rubbleX, rubbleY, rubbleSize, rubbleSize);
+            }
+
+            // Openings
+            if (damage > 30) {
+                ctx.fillStyle = 'rgb(30, 30, 30)';
+                const windowCount = Math.floor(damage / 25);
+                for (let i = 0; i < windowCount; i++) {
+                    const wx = x - width / 2 + Math.random() * width;
+                    const wy = y + Math.random() * (height * 0.7);
+                    ctx.fillRect(wx, wy, 15, 20);
+                }
+            }
+
+            // Fire coming from ruins
+            if (scene.fireIntensity > 20 && Math.random() < 0.3) {
+                const fireX = x - width / 2 + Math.random() * width;
+                const fireY = y + Math.random() * height;
+                for (let i = 0; i < 3; i++) {
+                    scene.fireParticles.push(new FireParticle(fireX, fireY));
+                }
+            }
+        }
+
+        function drawDestroyedTanks() {
+            if (!scene.showTanks) return;
+
+            const groundY = canvas.height * 0.65;
+            const tankCount = 2 + Math.floor(scene.militaryActivity / 25);
+
+            for (let i = 0; i < tankCount; i++) {
+                const x = (i * canvas.width / tankCount) + Math.sin(scene.time * 0.003 + i) * 100;
+                const isDestroyed = Math.random() > 0.3;
+                drawTank(x, groundY - 30, isDestroyed);
+            }
+        }
+
+        function drawTank(x, y, destroyed) {
+            // Tank body
+            ctx.fillStyle = destroyed ? 'rgb(80, 80, 80)' : 'rgb(60, 100, 60)';
+            ctx.fillRect(x - 40, y, 80, 30);
+
+            // Turret
+            ctx.beginPath();
+            ctx.arc(x, y + 10, 20, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Gun barrel
+            ctx.strokeStyle = ctx.fillStyle;
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.moveTo(x, y + 10);
+            ctx.lineTo(x + 35, y + 5);
+            ctx.stroke();
+
+            // Tracks
+            ctx.fillStyle = 'rgb(40, 40, 40)';
+            ctx.fillRect(x - 45, y + 28, 90, 8);
+
+            if (destroyed) {
+                // Smoke from destroyed tank
+                if (scene.showSmoke) {
+                    for (let i = 0; i < 2; i++) {
+                        scene.smoke.push(new SmokeParticle(x, y - 20));
+                    }
+                }
+
+                // Tilted/damaged appearance
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(0.2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(-40, 0, 80, 30);
+                ctx.restore();
+            }
+        }
+
+        function drawMilitaryElements() {
+            const groundY = canvas.height * 0.65;
+
+            // Barbed wire
+            if (scene.militaryActivity > 30) {
+                drawBarbedWire(groundY);
+            }
+
+            // Bunkers
+            if (scene.militaryActivity > 50) {
+                drawBunkers(groundY);
+            }
+
+            // Ammunition and supplies
+            if (scene.militaryActivity > 70 && scene.showDebris) {
+                drawMilitaryDebris(groundY);
+            }
+        }
+
+        function drawBarbedWire(groundY) {
+            ctx.strokeStyle = 'rgba(100, 100, 100, 0.6)';
+            ctx.lineWidth = 2;
+
+            for (let i = 0; i < 6; i++) {
+                const y = groundY + i * 20;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                for (let x = 0; x < canvas.width; x += 20) {
+                    ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                // Barbs
+                ctx.fillStyle = 'rgba(150, 150, 150, 0.4)';
+                for (let x = 0; x < canvas.width; x += 20) {
+                    ctx.fillRect(x - 2, y - 3, 4, 6);
+                }
+            }
+        }
+
+        function drawBunkers(groundY) {
+            for (let i = 0; i < 3; i++) {
+                const x = (i * canvas.width / 3) + 150;
+                const width = 80;
+                const height = 40;
+
+                // Bunker structure
+                ctx.fillStyle = 'rgb(70, 70, 70)';
+                ctx.fillRect(x - width / 2, groundY - height, width, height);
+
+                // Embrasure (gun opening)
+                ctx.fillStyle = 'rgb(30, 30, 30)';
+                ctx.fillRect(x - 10, groundY - height / 2, 20, 15);
+
+                // Sandbags
+                ctx.fillStyle = 'rgba(140, 130, 110, 0.7)';
+                for (let j = 0; j < 5; j++) {
+                    ctx.fillRect(x - width / 2 + j * 15, groundY - height - 15, 12, 12);
+                }
+            }
+        }
+
+        function drawMilitaryDebris(groundY) {
+            ctx.fillStyle = 'rgba(100, 100, 100, 0.6)';
+
+            for (let i = 0; i < 8; i++) {
+                const x = Math.random() * canvas.width;
+                const y = groundY + Math.random() * 40;
+                const size = 3 + Math.random() * 8;
+
+                ctx.fillRect(x, y, size, size);
+            }
+        }
+
+        function drawWeatherEffects() {
+            if (scene.weather === 'snow' || scene.weather === 'blizzard') {
+                drawSnow();
+            } else if (scene.weather === 'fog') {
+                drawFog();
+            }
+
+            // Wind effect (particles/visual)
+            if (scene.windSpeed > 50) {
+                drawWindEffect();
+            }
+        }
+
+        function drawSnow() {
+            const snowIntensity = scene.weather === 'blizzard' ? 20 : 10;
+
+            for (let i = 0; i < snowIntensity; i++) {
+                if (scene.particles.length < 500) {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height * 0.5;
+                    scene.particles.push(new SnowParticle(x, y));
+                }
+            }
+
+            // Update and draw particles
+            for (let i = scene.particles.length - 1; i >= 0; i--) {
+                scene.particles[i].update();
+                if (scene.particles[i].y > canvas.height) {
+                    scene.particles.splice(i, 1);
+                } else {
+                    scene.particles[i].draw(ctx);
+                }
+            }
+        }
+
+        function drawFog() {
+            ctx.fillStyle = 'rgba(150, 150, 150, 0.3)';
+            ctx.fillRect(0, canvas.height * 0.5, canvas.width, canvas.height * 0.5);
+
+            // Fog layers
+            for (let i = 0; i < 3; i++) {
+                ctx.fillStyle = `rgba(150, 150, 150, ${0.15 - i * 0.05})`;
+                const offset = (scene.time * 5 * (i + 1)) % canvas.width;
+                ctx.fillRect(offset - canvas.width, canvas.height * 0.55 + i * 20, canvas.width * 2, 30);
+            }
+        }
+
+        function drawWindEffect() {
+            ctx.strokeStyle = 'rgba(200, 200, 200, 0.1)';
+            ctx.lineWidth = 1;
+
+            for (let i = 0; i < 5; i++) {
+                const x = (scene.time * (scene.windSpeed / 10) + i * 100) % canvas.width;
+                const y = canvas.height * 0.4 + Math.sin(scene.time * 0.05 + i) * 50;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + 50, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawExplosions() {
+            if (!scene.showExplosions) return;
+
+            // Randomly trigger explosions
+            if (Math.random() < scene.fireIntensity / 1000) {
+                const x = Math.random() * canvas.width;
+                const y = canvas.height * 0.3 + Math.random() * canvas.height * 0.3;
+                scene.explosions.push({ x, y, life: 30, maxLife: 30 });
+            }
+
+            // Draw explosions
+            for (let i = scene.explosions.length - 1; i >= 0; i--) {
+                const exp = scene.explosions[i];
+                const progress = 1 - (exp.life / exp.maxLife);
+                const radius = progress * 60;
+                const alpha = (1 - progress) * 0.8;
+
+                // Explosion circle
+                ctx.fillStyle = `rgba(255, 150, 0, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(exp.x, exp.y, radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Inner bright circle
+                ctx.fillStyle = `rgba(255, 255, 100, ${alpha * 0.6})`;
+                ctx.beginPath();
+                ctx.arc(exp.x, exp.y, radius * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Smoke
+                if (scene.showSmoke && Math.random() < 0.5) {
+                    scene.smoke.push(new SmokeParticle(exp.x, exp.y));
+                }
+
+                exp.life--;
+                if (exp.life <= 0) {
+                    scene.explosions.splice(i, 1);
+                }
+            }
+        }
+
+        function drawSmoke() {
+            if (!scene.showSmoke) return;
+
+            for (let i = scene.smoke.length - 1; i >= 0; i--) {
+                scene.smoke[i].update();
+                if (scene.smoke[i].life <= 0) {
+                    scene.smoke.splice(i, 1);
+                } else {
+                    scene.smoke[i].draw(ctx);
+                }
+            }
+        }
+
+        function drawFireParticles() {
+            for (let i = scene.fireParticles.length - 1; i >= 0; i--) {
+                scene.fireParticles[i].update();
+                if (scene.fireParticles[i].life <= 0) {
+                    scene.fireParticles.splice(i, 1);
+                } else {
+                    scene.fireParticles[i].draw(ctx);
+                }
+            }
+        }
+
+        function drawHorizon() {
+            const horizonY = canvas.height * 0.65;
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, horizonY);
+            ctx.lineTo(canvas.width, horizonY);
+            ctx.stroke();
+        }
+
+        function drawDistantForest() {
+            const forestY = canvas.height * 0.5;
+            ctx.fillStyle = 'rgba(40, 80, 40, 0.4)';
+
+            // Forest line with variation
+            ctx.beginPath();
+            ctx.moveTo(0, forestY);
+            for (let x = 0; x <= canvas.width; x += 50) {
+                const height = 80 + Math.sin(x * 0.01 + scene.time * 0.01) * 30;
+                ctx.lineTo(x, forestY - height);
+            }
+            ctx.lineTo(canvas.width, forestY);
+            ctx.closePath();
+            ctx.fill();
+
+            // Individual trees hint
+            for (let i = 0; i < 15; i++) {
+                const x = (i * canvas.width / 15);
+                const treeHeight = 60 + Math.sin(i * 0.5) * 20;
+                ctx.fillStyle = 'rgba(30, 60, 30, 0.3)';
+                ctx.beginPath();
+                ctx.moveTo(x, forestY);
+                ctx.lineTo(x - 15, forestY - treeHeight);
+                ctx.lineTo(x + 15, forestY - treeHeight);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        // Main animation loop
+        function animate() {
+            // Clear canvas
+            drawSky();
+
+            // Draw layers
+            drawDistantForest();
+            drawHorizon();
+            drawGround();
+            drawDestroyedBuildings();
+            drawDestroyedTanks();
+            drawMilitaryElements();
+
+            // Effects
+            drawExplosions();
+            drawFireParticles();
+            drawSmoke();
+            drawWeatherEffects();
+
+            // Info overlay
+            drawInfoOverlay();
+
+            requestAnimationFrame(animate);
+        }
+
+        function drawInfoOverlay() {
+            // Optional: Draw temperature indicator on canvas
+            if (scene.temperature < -30) {
+                ctx.fillStyle = 'rgba(100, 150, 255, 0.2)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Initialize
+        updateControls();
+        animate();
+    </script>
+</body>
+</html>
