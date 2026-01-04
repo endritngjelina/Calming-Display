@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calming Pool Party Scenery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* SKY AND ATMOSPHERE */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+            transition: all 1s ease;
+            z-index: 1;
+        }
+
+        .sun {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #FFF8DC, #FFD700);
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.6);
+            top: 10%;
+            left: 15%;
+            transition: all 1.5s ease;
+            z-index: 2;
+        }
+
+        .sun.sunrise {
+            background: radial-gradient(circle at 35% 35%, #FFE4B5, #FF8C00);
+            box-shadow: 0 0 80px rgba(255, 140, 0, 0.7);
+        }
+
+        .sun.sunset {
+            background: radial-gradient(circle at 35% 35%, #FFAA40, #FF6347);
+            box-shadow: 0 0 100px rgba(255, 99, 71, 0.8);
+        }
+
+        .sun.night {
+            background: radial-gradient(circle at 35% 35%, #F0F8FF, #B0E0E6);
+            width: 100px;
+            height: 100px;
+            box-shadow: 0 0 40px rgba(176, 224, 230, 0.4);
+        }
+
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+            opacity: 0.8;
+            animation: drift 20s infinite linear;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+        }
+
+        .cloud.small {
+            width: 80px;
+            height: 40px;
+            top: 15%;
+        }
+
+        .cloud.medium {
+            width: 120px;
+            height: 50px;
+            top: 25%;
+        }
+
+        .cloud.large {
+            width: 150px;
+            height: 60px;
+            top: 12%;
+        }
+
+        @keyframes drift {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(110vw); }
+        }
+
+        .cloud:nth-child(1) { animation-delay: 0s; left: -100px; }
+        .cloud:nth-child(2) { animation-delay: 5s; left: -150px; animation-duration: 25s; }
+        .cloud:nth-child(3) { animation-delay: 10s; left: -120px; animation-duration: 30s; }
+
+        /* RAIN EFFECT */
+        .rain {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 8;
+            display: none;
+            pointer-events: none;
+        }
+
+        .rain.active {
+            display: block;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            animation: fall 0.8s linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100%); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        /* POOL AREA */
+        .pool-container {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 50%;
+            z-index: 4;
+        }
+
+        .pool {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1E90FF 0%, #00CED1 50%, #20B2AA 100%);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), inset -10px -10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .water-surface {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+            animation: water-wave 6s ease-in-out infinite;
+            z-index: 5;
+        }
+
+        @keyframes water-wave {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.02); }
+        }
+
+        .pool-edge {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 15px;
+            background: linear-gradient(to right, #D2B48C, #F5DEB3, #D2B48C);
+            border-radius: 0 0 30px 30px;
+            z-index: 6;
+        }
+
+        /* FLOATIES AND OBJECTS */
+        .floatie {
+            position: absolute;
+            animation: float 3s ease-in-out infinite;
+            z-index: 5;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+
+        .floatie.ring {
+            width: 80px;
+            height: 80px;
+            border: 8px solid;
+            border-radius: 50%;
+            top: 35%;
+            left: 25%;
+        }
+
+        .floatie.ring.pink {
+            border-color: #FF69B4;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .floatie.ring.yellow {
+            border-color: #FFD700;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .floatie.ball {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            top: 50%;
+            left: 70%;
+            background: conic-gradient(from 45deg, #FF0000 0deg, #FFFF00 90deg, #FF0000 360deg);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .floatie.floatingmat {
+            width: 100px;
+            height: 60px;
+            top: 45%;
+            left: 50%;
+            background: linear-gradient(135deg, #FF6B9D 0%, #FFC75F 100%);
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            transform: translateX(-50%);
+        }
+
+        /* SWIMMERS */
+        .swimmer {
+            position: absolute;
+            z-index: 5;
+            animation: swimming 5s ease-in-out infinite;
+        }
+
+        @keyframes swimming {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .swimmer.person1 {
+            width: 45px;
+            height: 50px;
+            top: 42%;
+            left: 35%;
+        }
+
+        .swimmer.person2 {
+            width: 45px;
+            height: 50px;
+            top: 55%;
+            left: 65%;
+            animation-delay: 0.5s;
+        }
+
+        .head {
+            width: 20px;
+            height: 20px;
+            background: #F4A460;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            left: 12px;
+        }
+
+        .body {
+            width: 25px;
+            height: 30px;
+            background: #FF69B4;
+            position: absolute;
+            top: 25px;
+            left: 10px;
+            border-radius: 5px;
+        }
+
+        .swimmer.person2 .body {
+            background: #87CEEB;
+        }
+
+        /* DECK CHAIRS */
+        .deck-chair {
+            position: absolute;
+            z-index: 4;
+        }
+
+        .deck-chair.left {
+            width: 70px;
+            height: 50px;
+            top: 58%;
+            left: 8%;
+        }
+
+        .deck-chair.right {
+            width: 70px;
+            height: 50px;
+            top: 58%;
+            right: 8%;
+        }
+
+        .chair-base {
+            width: 100%;
+            height: 15px;
+            background: linear-gradient(to bottom, #8B7355, #654321);
+            position: absolute;
+            bottom: 0;
+            border-radius: 3px;
+        }
+
+        .chair-fabric {
+            width: 65px;
+            height: 45px;
+            position: absolute;
+            top: 3px;
+            left: 2px;
+            transform: perspective(500px) rotateX(20deg);
+        }
+
+        .deck-chair.left .chair-fabric {
+            background: repeating-linear-gradient(90deg, #FF6B6B 0px, #FF6B6B 10px, #FFD93D 10px, #FFD93D 20px);
+        }
+
+        .deck-chair.right .chair-fabric {
+            background: repeating-linear-gradient(90deg, #6BCB77 0px, #6BCB77 10px, #4D96FF 10px, #4D96FF 20px);
+        }
+
+        /* TOWELS */
+        .towel {
+            position: absolute;
+            z-index: 3;
+        }
+
+        .towel-item {
+            width: 60px;
+            height: 40px;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .towel.stack1 {
+            top: 50%;
+            left: 5%;
+        }
+
+        .towel.stack1 .towel-item:nth-child(1) {
+            background: #FF1493;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .towel.stack1 .towel-item:nth-child(2) {
+            background: #00CED1;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+        }
+
+        .towel.stack1 .towel-item:nth-child(3) {
+            background: #FFD700;
+            position: absolute;
+            top: 6px;
+            left: 6px;
+        }
+
+        /* UMBRELLAS */
+        .umbrella {
+            position: absolute;
+            z-index: 3;
+        }
+
+        .umbrella.left {
+            top: 48%;
+            left: 12%;
+        }
+
+        .umbrella.right {
+            top: 48%;
+            right: 12%;
+        }
+
+        .umbrella-pole {
+            width: 4px;
+            height: 50px;
+            background: linear-gradient(to bottom, #8B7355, #654321);
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .umbrella-canopy {
+            width: 90px;
+            height: 45px;
+            background: conic-gradient(from 0deg, #FF6347 0deg, #FFD700 120deg, #FF6347 360deg);
+            border-radius: 50% 50% 0 0;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* GROUND/CONCRETE */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 35%;
+            background: linear-gradient(to bottom, #C0C0C0 0%, #A9A9A9 100%);
+            z-index: 2;
+        }
+
+        .tile-pattern {
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px),
+                linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* SETTINGS PANEL */
+        .settings-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 320px;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 100;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .settings-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            z-index: 99;
+            transition: all 0.3s ease;
+        }
+
+        .settings-toggle:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .settings-panel.hidden {
+            display: none;
+        }
+
+        .settings-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .setting-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, #87CEEB, #FFD700, #FF6347);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 2px solid #1E90FF;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 2px solid #1E90FF;
+        }
+
+        .time-display {
+            text-align: center;
+            color: #333;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .option-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .option-btn {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            transition: all 0.3s ease;
+        }
+
+        .option-btn:hover {
+            border-color: #1E90FF;
+            background: #E0F6FF;
+        }
+
+        .option-btn.active {
+            background: #1E90FF;
+            color: white;
+            border-color: #1E90FF;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #1E90FF;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            color: #555;
+            flex: 1;
+        }
+
+        /* NIGHT MODE */
+        body.night-mode {
+            background: linear-gradient(to bottom, #001a4d 0%, #003366 100%);
+        }
+
+        body.night-mode .sky {
+            background: linear-gradient(to bottom, #001a4d 0%, #003366 100%);
+        }
+
+        body.night-mode .pool {
+            background: linear-gradient(135deg, #0d1f3c 0%, #1a3a52 50%, #0f2744 100%);
+        }
+
+        body.night-mode .ground {
+            background: linear-gradient(to bottom, #2a2a2a 0%, #1a1a1a 100%);
+        }
+
+        body.night-mode .settings-panel {
+            background: rgba(40, 40, 40, 0.95);
+            color: #f0f0f0;
+        }
+
+        body.night-mode .setting-label,
+        body.night-mode .time-display {
+            color: #f0f0f0;
+        }
+
+        body.night-mode .settings-toggle {
+            background: rgba(40, 40, 40, 0.9);
+        }
+
+        body.night-mode .settings-title {
+            color: #f0f0f0;
+        }
+
+        /* STARS */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 50%;
+            z-index: 1;
+            display: none;
+        }
+
+        .stars.active {
+            display: block;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .star:nth-child(odd) {
+            animation-delay: 1s;
+        }
+
+        /* LAMP POST */
+        .lamp {
+            position: absolute;
+            z-index: 3;
+            display: none;
+        }
+
+        .lamp.active {
+            display: block;
+        }
+
+        .lamp.left {
+            top: 50%;
+            left: 3%;
+        }
+
+        .lamp.right {
+            top: 50%;
+            right: 3%;
+        }
+
+        .lamp-pole {
+            width: 6px;
+            height: 60px;
+            background: linear-gradient(to bottom, #696969, #2F4F4F);
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .lamp-head {
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle at 30% 30%, #FFFF99, #FFD700);
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .settings-panel {
+                width: 280px;
+                padding: 15px;
+            }
+
+            .floatie.ring {
+                width: 60px;
+                height: 60px;
+            }
+
+            .pool {
+                border-radius: 20px;
+            }
+
+            .sun {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- SKY SECTION -->
+        <div class="sky">
+            <div class="sun" id="sun"></div>
+            <div class="stars" id="stars"></div>
+            <div class="clouds" id="clouds"></div>
+        </div>
+
+        <!-- RAIN EFFECT -->
+        <div class="rain" id="rain"></div>
+
+        <!-- POOL AREA -->
+        <div class="pool-container">
+            <!-- UMBRELLAS -->
+            <div class="umbrella left" id="umbrellaLeft">
+                <div class="umbrella-pole"></div>
+                <div class="umbrella-canopy"></div>
+            </div>
+            <div class="umbrella right" id="umbrellaRight">
+                <div class="umbrella-pole"></div>
+                <div class="umbrella-canopy"></div>
+            </div>
+
+            <!-- LAMPS -->
+            <div class="lamp left" id="lampLeft">
+                <div class="lamp-pole"></div>
+                <div class="lamp-head"></div>
+            </div>
+            <div class="lamp right" id="lampRight">
+                <div class="lamp-pole"></div>
+                <div class="lamp-head"></div>
+            </div>
+
+            <!-- POOL -->
+            <div class="pool" id="pool">
+                <div class="water-surface"></div>
+
+                <!-- FLOATIES -->
+                <div class="floatie ring pink"></div>
+                <div class="floatie ring yellow"></div>
+                <div class="floatie ball"></div>
+                <div class="floatie floatingmat"></div>
+
+                <!-- SWIMMERS -->
+                <div class="swimmer person1">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <div class="swimmer person2">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+
+                <!-- POOL EDGE -->
+                <div class="pool-edge"></div>
+            </div>
+        </div>
+
+        <!-- DECK CHAIRS -->
+        <div class="deck-chair left" id="chairLeft">
+            <div class="chair-fabric"></div>
+            <div class="chair-base"></div>
+        </div>
+        <div class="deck-chair right" id="chairRight">
+            <div class="chair-fabric"></div>
+            <div class="chair-base"></div>
+        </div>
+
+        <!-- TOWELS -->
+        <div class="towel stack1">
+            <div class="towel-item"></div>
+            <div class="towel-item"></div>
+            <div class="towel-item"></div>
+        </div>
+
+        <!-- GROUND -->
+        <div class="ground">
+            <div class="tile-pattern"></div>
+        </div>
+    </div>
+
+    <!-- SETTINGS BUTTON -->
+    <button class="settings-toggle" id="settingsToggle">⚙️</button>
+
+    <!-- SETTINGS PANEL -->
+    <div class="settings-panel hidden" id="settingsPanel">
+        <div class="settings-title">
+            Settings
+            <button class="close-btn" id="closeSettings">✕</button>
+        </div>
+
+        <!-- TIME OF DAY -->
+        <div class="setting-group">
+            <label class="setting-label">🕐 Time of Day</label>
+            <input type="range" min="0" max="24" value="12" class="slider" id="timeSlider">
+            <div class="time-display" id="timeDisplay">12:00 PM</div>
+            <div class="option-buttons">
+                <button class="option-btn" data-time="6">Sunrise</button>
+                <button class="option-btn" data-time="12">Noon</button>
+                <button class="option-btn" data-time="18">Sunset</button>
+                <button class="option-btn" data-time="22">Night</button>
+            </div>
+        </div>
+
+        <!-- WEATHER -->
+        <div class="setting-group">
+            <label class="setting-label">⛅ Weather</label>
+            <div class="option-buttons">
+                <button class="option-btn active" data-weather="clear">Clear</button>
+                <button class="option-btn" data-weather="cloudy">Cloudy</button>
+                <button class="option-btn" data-weather="rainy">Rainy</button>
+            </div>
+        </div>
+
+        <!-- VISIBILITY TOGGLES -->
+        <div class="setting-group">
+            <label class="setting-label">👁️ Elements</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="showSwimmers" checked>
+                    <label for="showSwimmers">Swimmers</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="showFloaties" checked>
+                    <label for="showFloaties">Floaties</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="showChairs" checked>
+                    <label for="showChairs">Deck Chairs</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="showUmbrellas" checked>
+                    <label for="showUmbrellas">Umbrellas</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- LIGHTING -->
+        <div class="setting-group">
+            <label class="setting-label">💡 Brightness</label>
+            <input type="range" min="0.3" max="1.5" value="1" step="0.1" class="slider" id="brightnessSlider">
+            <div class="time-display" id="brightnessDisplay">100%</div>
+        </div>
+
+        <!-- WATER INTENSITY -->
+        <div class="setting-group">
+            <label class="setting-label">🌊 Water Intensity</label>
+            <input type="range" min="0" max="2" value="1" step="0.1" class="slider" id="waterSlider">
+            <div class="time-display" id="waterDisplay">100%</div>
+        </div>
+
+        <!-- MUSIC & SOUNDS -->
+        <div class="setting-group">
+            <label class="setting-label">🔊 Ambient Sounds</label>
+            <div class="option-buttons">
+                <button class="option-btn active" data-sound="waves">Waves</button>
+                <button class="option-btn" data-sound="birds">Birds</button>
+                <button class="option-btn" data-sound="silence">Silent</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // INITIALIZE STATE
+        const state = {
+            time: 12,
+            weather: 'clear',
+            showSwimmers: true,
+            showFloaties: true,
+            showChairs: true,
+            showUmbrellas: true,
+            brightness: 1,
+            waterIntensity: 1,
+            sound: 'waves'
+        };
+
+        // DOM ELEMENTS
+        const sun = document.getElementById('sun');
+        const sky = document.querySelector('.sky');
+        const pool = document.getElementById('pool');
+        const clouds = document.getElementById('clouds');
+        const rain = document.getElementById('rain');
+        const stars = document.getElementById('stars');
+        const timeSlider = document.getElementById('timeSlider');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const settingsToggle = document.getElementById('settingsToggle');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const closeSettings = document.getElementById('closeSettings');
+        const brightnessSlider = document.getElementById('brightnessSlider');
+        const brightnessDisplay = document.getElementById('brightnessDisplay');
+        const waterSlider = document.getElementById('waterSlider');
+        const waterDisplay = document.getElementById('waterDisplay');
+        const umbrellaLeft = document.getElementById('umbrellaLeft');
+        const umbrellaRight = document.getElementById('umbrellaRight');
+        const lampLeft = document.getElementById('lampLeft');
+        const lampRight = document.getElementById('lampRight');
+        const chairLeft = document.getElementById('chairLeft');
+        const chairRight = document.getElementById('chairRight');
+
+        // INITIALIZE CLOUDS
+        function initializeClouds() {
+            clouds.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = `cloud ${['small', 'medium', 'large'][i]}`;
+                clouds.appendChild(cloud);
+            }
+        }
+
+        // INITIALIZE STARS
+        function initializeStars() {
+            stars.innerHTML = '';
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                stars.appendChild(star);
+            }
+        }
+
+        // CREATE RAIN
+        function createRain() {
+            if (state.weather !== 'rainy') return;
+            const container = document.getElementById('rain');
+            for (let i = 0; i < 100; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'raindrop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.animationDelay = Math.random() * 0.8 + 's';
+                drop.style.opacity = Math.random() * 0.7 + 0.3;
+                container.appendChild(drop);
+            }
+        }
+
+        // UPDATE TIME OF DAY
+        function updateTime() {
+            state.time = parseInt(timeSlider.value);
+            
+            // Calculate hour and minute for display
+            const hour = Math.floor(state.time);
+            const minute = Math.round((state.time - hour) * 60);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            timeDisplay.textContent = `${displayHour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${ampm}`;
+
+            // UPDATE SUN POSITION AND COLOR
+            if (state.time >= 5 && state.time <= 7) {
+                // Sunrise
+                sun.classList.remove('sunset', 'night');
+                sun.classList.add('sunrise');
+                sky.style.background = `linear-gradient(to bottom, 
+                    hsl(${30 + (state.time - 5) * 10}, 100%, ${60 - (state.time - 5) * 5}%) 0%, 
+                    hsl(${45 + (state.time - 5) * 8}, 100%, ${70 - (state.time - 5) * 3}%) 100%)`;
+                sun.style.top = `${10 + (state.time - 5) * 15}%`;
+                sun.style.left = `${15 + (state.time - 5) * 10}%`;
+                stars.classList.remove('active');
+                lampLeft.classList.remove('active');
+                lampRight.classList.remove('active');
+                document.body.classList.remove('night-mode');
+            } else if (state.time > 7 && state.time < 17) {
+                // Day
+                sun.classList.remove('sunrise', 'sunset', 'night');
+                sky.style.background = 'linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%)';
+                sun.style.top = `${10 + Math.sin((state.time - 7) / 10 * Math.PI) * 20}%`;
+                sun.style.left = `${15 + (state.time - 7) * 3}%`;
+                stars.classList.remove('active');
+                lampLeft.classList.remove('active');
+                lampRight.classList.remove('active');
+                document.body.classList.remove('night-mode');
+            } else if (state.time >= 17 && state.time <= 19) {
+                // Sunset
+                sun.classList.remove('sunrise', 'night');
+                sun.classList.add('sunset');
+                const sunsetProgress = (state.time - 17) / 2;
+                sky.style.background = `linear-gradient(to bottom, 
+                    hsl(${45 - sunsetProgress * 20}, 100%, ${70 - sunsetProgress * 40}%) 0%, 
+                    hsl(${25 - sunsetProgress * 15}, 100%, ${50 - sunsetProgress * 30}%) 100%)`;
+                sun.style.top = `${30 + sunsetProgress * 30}%`;
+                sun.style.left = `${45 + sunsetProgress * 15}%`;
+                stars.classList.remove('active');
+                lampLeft.classList.remove('active');
+                lampRight.classList.remove('active');
+                document.body.classList.remove('night-mode');
+            } else {
+                // Night
+                sun.classList.remove('sunrise', 'sunset');
+                sun.classList.add('night');
+                sky.style.background = 'linear-gradient(to bottom, #001a4d 0%, #003366 100%)';
+                sun.style.top = '80%';
+                sun.style.left = '85%';
+                stars.classList.add('active');
+                lampLeft.classList.add('active');
+                lampRight.classList.add('active');
+                document.body.classList.add('night-mode');
+            }
+        }
+
+        // UPDATE WEATHER
+        function updateWeather() {
+            if (state.weather === 'clear') {
+                clouds.style.opacity = '0.3';
+                rain.classList.remove('active');
+            } else if (state.weather === 'cloudy') {
+                clouds.style.opacity = '0.8';
+                rain.classList.remove('active');
+            } else if (state.weather === 'rainy') {
+                clouds.style.opacity = '1';
+                rain.classList.add('active');
+            }
+        }
+
+        // UPDATE VISIBILITY
+        function updateVisibility() {
+            document.querySelectorAll('.swimmer').forEach(el => {
+                el.style.display = state.showSwimmers ? 'block' : 'none';
+            });
+            document.querySelectorAll('.floatie').forEach(el => {
+                el.style.display = state.showFloaties ? 'block' : 'none';
+            });
+            chairLeft.style.display = state.showChairs ? 'block' : 'none';
+            chairRight.style.display = state.showChairs ? 'block' : 'none';
+            umbrellaLeft.style.display = state.showUmbrellas ? 'block' : 'none';
+            umbrellaRight.style.display = state.showUmbrellas ? 'block' : 'none';
+        }
+
+        // UPDATE BRIGHTNESS
+        function updateBrightness() {
+            document.body.style.filter = `brightness(${state.brightness})`;
+            brightnessDisplay.textContent = Math.round(state.brightness * 100) + '%';
+        }
+
+        // UPDATE WATER INTENSITY
+        function updateWaterIntensity() {
+            const waterSurface = document.querySelector('.water-surface');
+            waterSurface.style.opacity = state.waterIntensity;
+            waterDisplay.textContent = Math.round(state.waterIntensity * 100) + '%';
+        }
+
+        // EVENT LISTENERS
+        timeSlider.addEventListener('input', () => {
+            updateTime();
+        });
+
+        brightnessSlider.addEventListener('input', () => {
+            state.brightness = parseFloat(brightnessSlider.value);
+            updateBrightness();
+        });
+
+        waterSlider.addEventListener('input', () => {
+            state.waterIntensity = parseFloat(waterSlider.value);
+            updateWaterIntensity();
+        });
+
+        // WEATHER BUTTONS
+        document.querySelectorAll('[data-weather]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-weather]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                state.weather = e.target.dataset.weather;
+                updateWeather();
+            });
+        });
+
+        // TIME PRESET BUTTONS
+        document.querySelectorAll('[data-time]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const time = parseInt(e.target.dataset.time);
+                timeSlider.value = time;
+                updateTime();
+            });
+        });
+
+        // VISIBILITY CHECKBOXES
+        document.getElementById('showSwimmers').addEventListener('change', (e) => {
+            state.showSwimmers = e.target.checked;
+            updateVisibility();
+        });
+
+        document.getElementById('showFloaties').addEventListener('change', (e) => {
+            state.showFloaties = e.target.checked;
+            updateVisibility();
+        });
+
+        document.getElementById('showChairs').addEventListener('change', (e) => {
+            state.showChairs = e.target.checked;
+            updateVisibility();
+        });
+
+        document.getElementById('showUmbrellas').addEventListener('change', (e) => {
+            state.showUmbrellas = e.target.checked;
+            updateVisibility();
+        });
+
+        // SETTINGS PANEL TOGGLE
+        settingsToggle.addEventListener('click', () => {
+            settingsPanel.classList.toggle('hidden');
+        });
+
+        closeSettings.addEventListener('click', () => {
+            settingsPanel.classList.add('hidden');
+        });
+
+        // SOUND BUTTONS (visual only, no actual audio)
+        document.querySelectorAll('[data-sound]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-sound]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                state.sound = e.target.dataset.sound;
+            });
+        });
+
+        // INITIALIZE
+        initializeClouds();
+        initializeStars();
+        updateTime();
+        updateWeather();
+        updateVisibility();
+        updateBrightness();
+        updateWaterIntensity();
+    </script>
+</body>
+</html>
