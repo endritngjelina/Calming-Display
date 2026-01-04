@@ -1,0 +1,2396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cold War Scenery - Enhanced Edition</title>
+    <style>
+        :root {
+            --color-sky-day: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 50%, #F5F5DC 100%);
+            --color-sky-dusk: linear-gradient(180deg, #FF6347 0%, #FF8C00 25%, #FFD700 50%, #87CEEB 100%);
+            --color-sky-night: linear-gradient(180deg, #0a0e27 0%, #1a1f4d 50%, #2d3561 100%);
+            --color-text: #2c3e50;
+            --color-primary: #e74c3c;
+            --color-secondary: #3498db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--color-sky-day);
+            transition: background 2s ease;
+            overflow: hidden;
+            height: 100vh;
+            color: var(--color-text);
+        }
+
+        .container {
+            position: absolute;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* SKY & BACKGROUND */
+        #sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            transition: background 2s ease;
+            background: var(--color-sky-day);
+            overflow: hidden;
+        }
+
+        /* SUN */
+        .sun {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #FFD700 0%, #FFA500 50%, transparent 70%);
+            border-radius: 50%;
+            box-shadow: 0 0 60px #FFD700, 0 0 100px #FFA500;
+            transition: all 2s ease;
+            animation: sunGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes sunGlow {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.9; }
+        }
+
+        /* MOON */
+        .moon {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle at 30% 30%, #f0f0f0 0%, #d3d3d3 50%, #a9a9a9 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.5), inset -10px -10px 20px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        /* STARS */
+        #stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+        }
+
+        /* CLOUDS */
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 100px;
+            animation: floatCloud 30s infinite linear;
+            filter: blur(2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 100px;
+        }
+
+        .cloud::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud::after {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            right: 10px;
+        }
+
+        @keyframes floatCloud {
+            0% { transform: translateX(-200px); }
+            100% { transform: translateX(calc(100vw + 200px)); }
+        }
+
+        /* BIRDS */
+        .bird {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            opacity: 0;
+            animation: flyBird 15s linear infinite;
+        }
+
+        .bird::before,
+        .bird::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 2px;
+            background: #333;
+            border-radius: 2px;
+        }
+
+        .bird::before {
+            left: 0;
+            transform: rotate(-20deg);
+            animation: flapLeft 0.5s ease-in-out infinite;
+        }
+
+        .bird::after {
+            right: 0;
+            transform: rotate(20deg);
+            animation: flapRight 0.5s ease-in-out infinite;
+        }
+
+        @keyframes flyBird {
+            0% { transform: translateX(-100px) translateY(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateX(calc(100vw + 100px)) translateY(-50px); opacity: 0; }
+        }
+
+        @keyframes flapLeft {
+            0%, 100% { transform: rotate(-20deg); }
+            50% { transform: rotate(-45deg); }
+        }
+
+        @keyframes flapRight {
+            0%, 100% { transform: rotate(20deg); }
+            50% { transform: rotate(45deg); }
+        }
+
+        /* RAIN */
+        .rain {
+            position: absolute;
+            width: 100%;
+            height: 60%;
+            opacity: 0;
+            transition: opacity 1s ease;
+            pointer-events: none;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 1px;
+            height: 15px;
+            background: linear-gradient(180deg, transparent 0%, rgba(174, 194, 224, 0.8) 100%);
+            animation: fall 0.5s linear infinite;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+
+        /* LIGHTNING */
+        .lightning {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .lightning-bolt {
+            position: absolute;
+            width: 3px;
+            height: 200px;
+            background: linear-gradient(180deg, #fff 0%, #a8d8ff 50%, transparent 100%);
+            box-shadow: 0 0 20px #fff, 0 0 40px #a8d8ff;
+            animation: flash 0.2s ease-out;
+        }
+
+        @keyframes flash {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* SNOW */
+        .snowflake {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: snowFall 4s linear infinite;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes snowFall {
+            0% { opacity: 1; transform: translateY(-20px) translateX(0) rotate(0deg); }
+            100% { opacity: 0; transform: translateY(100vh) translateX(100px) rotate(360deg); }
+        }
+
+        /* HORIZON & GROUND */
+        #horizon {
+            position: absolute;
+            top: 60%;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(180deg, #90EE90 0%, #228B22 100%);
+            transition: background 2s ease;
+        }
+
+        /* SHADOWS ON GROUND */
+        .ground-shadow {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+            background: radial-gradient(ellipse at 50% 100%, rgba(0, 0, 0, 0.3) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        /* USA SIDE (LEFT) */
+        .usa-side {
+            position: absolute;
+            left: 0;
+            top: 40%;
+            width: 50%;
+            height: 60%;
+            border-right: 4px dashed #444;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(144, 238, 144, 0.9) 0%, #228B22 100%);
+        }
+
+        /* WAVING FLAG */
+        .usa-flag {
+            position: absolute;
+            top: 10%;
+            left: 8%;
+            width: 140px;
+            height: 90px;
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    #B22234 0px, #B22234 7px,
+                    white 7px, white 14px
+                ),
+                linear-gradient(90deg, #3C3B6E 0%, #3C3B6E 40%, transparent 40%);
+            background-size: 100% 100%, 100% 40%;
+            background-position: 0 0, 0 0;
+            background-repeat: no-repeat;
+            border: 2px solid #333;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transform-origin: left center;
+            animation: waveFlagUSA 2s ease-in-out infinite;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .usa-flag::before {
+            content: '★★★★★★★★★★★★★';
+            position: absolute;
+            top: 5px;
+            left: 8px;
+            font-size: 8px;
+            color: white;
+            letter-spacing: 2px;
+            line-height: 10px;
+            width: 45px;
+            word-wrap: break-word;
+        }
+
+        @keyframes waveFlagUSA {
+            0%, 100% { 
+                transform: perspective(400px) rotateY(-5deg) rotateX(2deg);
+            }
+            25% { 
+                transform: perspective(400px) rotateY(-2deg) rotateX(-1deg);
+            }
+            50% { 
+                transform: perspective(400px) rotateY(0deg) rotateX(0deg);
+            }
+            75% { 
+                transform: perspective(400px) rotateY(-2deg) rotateX(1deg);
+            }
+        }
+
+        .flagpole {
+            position: absolute;
+            width: 4px;
+            height: 120px;
+            background: linear-gradient(180deg, #8B7355 0%, #654321 100%);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .usa-flagpole {
+            top: 10%;
+            left: 8%;
+        }
+
+        /* USA BUILDING */
+        .usa-building {
+            position: absolute;
+            bottom: 15%;
+            left: 15%;
+            width: 220px;
+            height: 240px;
+            background: linear-gradient(135deg, #e0e0e0 0%, #b0b0b0 100%);
+            border: 2px solid #666;
+            box-shadow: 
+                inset 0 0 30px rgba(0, 0, 0, 0.2),
+                5px 5px 20px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .usa-building::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(135deg, #a0a0a0 0%, #808080 100%);
+            border-bottom: 2px solid #555;
+        }
+
+        .usa-building::after {
+            content: 'U.S.A.';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* CHIMNEY WITH SMOKE */
+        .chimney {
+            position: absolute;
+            top: -30px;
+            right: 20px;
+            width: 25px;
+            height: 30px;
+            background: linear-gradient(135deg, #8B4513 0%, #654321 100%);
+            border: 1px solid #333;
+        }
+
+        .smoke-particle {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle, rgba(150, 150, 150, 0.6) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: riseSmoke 3s ease-out infinite;
+        }
+
+        @keyframes riseSmoke {
+            0% {
+                transform: translateY(0) translateX(0) scale(0.5);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100px) translateX(20px) scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* ANTENNA */
+        .antenna {
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 80px;
+            background: linear-gradient(180deg, #666 0%, #999 100%);
+        }
+
+        .antenna::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: #f00;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #f00;
+            animation: blinkLight 1s ease-in-out infinite;
+        }
+
+        @keyframes blinkLight {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        /* SIGNAL WAVES */
+        .signal-wave {
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 0, 0, 0.5);
+            border-radius: 50%;
+            animation: expandWave 2s ease-out infinite;
+        }
+
+        @keyframes expandWave {
+            0% {
+                width: 10px;
+                height: 10px;
+                opacity: 1;
+            }
+            100% {
+                width: 60px;
+                height: 60px;
+                opacity: 0;
+            }
+        }
+
+        /* WINDOWS */
+        .window {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #4a7b9d;
+            border: 2px solid #333;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            transition: background 0.3s ease;
+        }
+
+        .window > div {
+            border: 0.5px solid #555;
+            background: rgba(135, 206, 235, 0.3);
+            transition: background 0.3s ease;
+        }
+
+        .window.lit {
+            background: #ffeb99;
+            box-shadow: 0 0 15px rgba(255, 235, 153, 0.8), inset 0 0 10px rgba(255, 255, 200, 0.6);
+        }
+
+        .window.lit > div {
+            background: #ffff99;
+        }
+
+        /* WINDOW BLINDS */
+        .window-blind {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background: rgba(100, 100, 100, 0.7);
+            transition: height 0.5s ease;
+        }
+
+        /* DOOR */
+        .door {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(180deg, #5d4037 0%, #3e2723 100%);
+            border: 2px solid #333;
+            border-bottom: none;
+        }
+
+        .door::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            width: 4px;
+            height: 4px;
+            background: #FFD700;
+            border-radius: 50%;
+        }
+
+        /* SOVIET SIDE (RIGHT) */
+        .soviet-side {
+            position: absolute;
+            right: 0;
+            top: 40%;
+            width: 50%;
+            height: 60%;
+            border-left: 4px dashed #444;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(169, 169, 169, 0.9) 0%, #4a4a4a 100%);
+        }
+
+        .soviet-flag {
+            position: absolute;
+            top: 10%;
+            right: 8%;
+            width: 140px;
+            height: 90px;
+            background: linear-gradient(135deg, #DA0000 0%, #B00000 100%);
+            border: 2px solid #333;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transform-origin: left center;
+            animation: waveFlagUSSR 2s ease-in-out infinite;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .soviet-flag::before {
+            content: '☭';
+            position: absolute;
+            top: 50%;
+            left: 30%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes waveFlagUSSR {
+            0%, 100% { 
+                transform: perspective(400px) rotateY(5deg) rotateX(2deg);
+            }
+            25% { 
+                transform: perspective(400px) rotateY(2deg) rotateX(-1deg);
+            }
+            50% { 
+                transform: perspective(400px) rotateY(0deg) rotateX(0deg);
+            }
+            75% { 
+                transform: perspective(400px) rotateY(2deg) rotateX(1deg);
+            }
+        }
+
+        .soviet-flagpole {
+            top: 10%;
+            right: 8%;
+        }
+
+        .soviet-building {
+            position: absolute;
+            bottom: 15%;
+            right: 15%;
+            width: 220px;
+            height: 240px;
+            background: linear-gradient(135deg, #b0b0b0 0%, #808080 100%);
+            border: 2px solid #555;
+            box-shadow: 
+                inset 0 0 30px rgba(0, 0, 0, 0.3),
+                -5px 5px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .soviet-building::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(135deg, #808080 0%, #606060 100%);
+            border-bottom: 2px solid #444;
+        }
+
+        .soviet-building::after {
+            content: 'СССР';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* RADAR DISH */
+        .radar {
+            position: absolute;
+            top: -60px;
+            right: 20px;
+            width: 50px;
+            height: 30px;
+            background: linear-gradient(135deg, #708090 0%, #2F4F4F 100%);
+            border-radius: 50% 50% 0 0;
+            border: 2px solid #444;
+            transform-origin: center bottom;
+            animation: rotateRadar 4s linear infinite;
+        }
+
+        .radar::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 10px;
+            background: #999;
+        }
+
+        @keyframes rotateRadar {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        /* GUARD TOWER */
+        .guard-tower {
+            position: absolute;
+            bottom: 10%;
+            width: 40px;
+            height: 80px;
+            background: linear-gradient(180deg, #696969 0%, #505050 100%);
+            border: 2px solid #333;
+        }
+
+        .usa-guard-tower {
+            left: 35%;
+        }
+
+        .soviet-guard-tower {
+            right: 35%;
+        }
+
+        .guard-tower::before {
+            content: '';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 25px;
+            background: linear-gradient(135deg, #8B4513 0%, #654321 100%);
+            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+        }
+
+        /* SEARCHLIGHT */
+        .searchlight {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #FFD700 0%, #FFA500 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 20px #FFD700;
+        }
+
+        .searchlight-beam {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 200px;
+            background: linear-gradient(180deg, rgba(255, 255, 200, 0.3) 0%, transparent 100%);
+            clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+            animation: sweepBeam 4s ease-in-out infinite;
+            transform-origin: top center;
+        }
+
+        @keyframes sweepBeam {
+            0%, 100% { transform: translateX(-50%) rotate(-30deg); }
+            50% { transform: translateX(-50%) rotate(30deg); }
+        }
+
+        /* VEHICLES */
+        .vehicle {
+            position: absolute;
+            bottom: 12%;
+            width: 40px;
+            height: 20px;
+            background: #4a4a4a;
+            border-radius: 3px;
+            animation: driveVehicle 15s linear infinite;
+        }
+
+        .vehicle::before {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 5px;
+            width: 8px;
+            height: 8px;
+            background: #333;
+            border-radius: 50%;
+            box-shadow: 22px 0 0 #333;
+        }
+
+        @keyframes driveVehicle {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(50vw - 100px)); }
+        }
+
+        /* HELICOPTER */
+        .helicopter {
+            position: absolute;
+            width: 60px;
+            height: 30px;
+            animation: flyHelicopter 20s linear infinite;
+        }
+
+        .helicopter-body {
+            width: 50px;
+            height: 20px;
+            background: #2d5016;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .helicopter-rotor {
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            animation: spinRotor 0.1s linear infinite;
+        }
+
+        @keyframes spinRotor {
+            0% { transform: translateX(-50%) rotateZ(0deg); }
+            100% { transform: translateX(-50%) rotateZ(360deg); }
+        }
+
+        @keyframes flyHelicopter {
+            0% { 
+                transform: translateX(-100px) translateY(0);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { 
+                transform: translateX(calc(100vw + 100px)) translateY(-30px);
+                opacity: 0;
+            }
+        }
+
+        /* MISSILE */
+        .missile {
+            position: absolute;
+            width: 10px;
+            height: 40px;
+            background: linear-gradient(180deg, #8B0000 0%, #DC143C 50%, #B22222 100%);
+            border-radius: 5px 5px 0 0;
+            opacity: 0;
+            animation: launchMissile 3s ease-out;
+        }
+
+        .missile::before {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 20px solid #FF4500;
+            filter: blur(2px);
+        }
+
+        .missile-trail {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 60px;
+            background: linear-gradient(180deg, transparent 0%, rgba(255, 69, 0, 0.6) 50%, rgba(255, 140, 0, 0.8) 100%);
+            filter: blur(3px);
+        }
+
+        @keyframes launchMissile {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-500px) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        /* EXPLOSION */
+        .explosion {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            opacity: 0;
+            animation: explode 1s ease-out;
+        }
+
+        @keyframes explode {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+                background: radial-gradient(circle, #fff 0%, #ff0 20%, #f00 40%, #800 60%, transparent 80%);
+            }
+            50% {
+                width: 150px;
+                height: 150px;
+                opacity: 1;
+                background: radial-gradient(circle, #fff 0%, #ff0 10%, #f00 30%, #800 50%, #000 70%, transparent 90%);
+            }
+            100% {
+                width: 200px;
+                height: 200px;
+                opacity: 0;
+                background: radial-gradient(circle, transparent 0%, #444 50%, transparent 100%);
+            }
+        }
+
+        /* PROPAGANDA POSTERS */
+        .propaganda-poster {
+            position: absolute;
+            width: 80px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 3px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+            padding: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .usa-poster {
+            bottom: 45%;
+            left: 8%;
+            color: #000080;
+            background: linear-gradient(135deg, #fff 0%, #e6f2ff 100%);
+        }
+
+        .soviet-poster {
+            bottom: 45%;
+            right: 8%;
+            color: #8B0000;
+            background: linear-gradient(135deg, #ffeeee 0%, #ffe6e6 100%);
+        }
+
+        /* RADIATION SYMBOL */
+        .radiation-symbol {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .radiation-symbol::before {
+            content: '☢';
+            position: absolute;
+            font-size: 80px;
+            color: #FFD700;
+            text-shadow: 0 0 20px #FF0, 0 0 40px #FF0;
+            animation: rotateSymbol 4s linear infinite;
+        }
+
+        @keyframes rotateSymbol {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .radiation-symbol.pulsing::before {
+            animation: rotateSymbol 4s linear infinite, pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        /* FALLOUT PARTICLES */
+        .fallout-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #9acd32;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #9acd32;
+            animation: fallout 5s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes fallout {
+            0% {
+                transform: translateY(-20px) translateX(0);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(100vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        /* CONTROL PANEL */
+        .settings-panel {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(44, 62, 80, 0.95);
+            padding: 20px;
+            border-radius: 10px 0 0 10px;
+            color: white;
+            font-size: 14px;
+            max-width: 320px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .settings-panel.collapsed {
+            transform: translateY(-50%) translateX(calc(100% - 40px));
+        }
+
+        .panel-toggle {
+            position: absolute;
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 60px;
+            background: rgba(44, 62, 80, 0.95);
+            border-radius: 10px 0 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 18px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group h3 {
+            margin-bottom: 10px;
+            color: #3498db;
+            font-size: 16px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #34495e;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        .slider::-webkit-slider-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+            border: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            background: #34495e;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 60px;
+        }
+
+        .btn:hover {
+            background: #2c3e50;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn.active {
+            background: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+
+        .value-display {
+            display: inline-block;
+            margin-left: 10px;
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        /* Scrollbar styling */
+        .settings-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .settings-panel::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .settings-panel::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 4px;
+        }
+
+        .settings-panel::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+
+        /* Info display */
+        .info-display {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-display h2 {
+            margin-bottom: 10px;
+            color: #3498db;
+            font-size: 18px;
+        }
+
+        /* AURORA BOREALIS */
+        .aurora {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            opacity: 0;
+            transition: opacity 2s ease;
+            pointer-events: none;
+        }
+
+        .aurora-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%,
+                rgba(0, 255, 100, 0.3) 20%,
+                rgba(0, 200, 255, 0.3) 40%,
+                rgba(100, 0, 255, 0.3) 60%,
+                rgba(255, 0, 200, 0.3) 80%,
+                transparent 100%);
+            animation: waveAurora 20s ease-in-out infinite;
+        }
+
+        @keyframes waveAurora {
+            0%, 100% {
+                transform: translateX(-50%) scaleY(1);
+            }
+            50% {
+                transform: translateX(50%) scaleY(1.2);
+            }
+        }
+
+        /* TREES */
+        .tree {
+            position: absolute;
+            bottom: 15%;
+            width: 30px;
+            height: 60px;
+        }
+
+        .tree-trunk {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 20px;
+            background: linear-gradient(180deg, #654321 0%, #4a3219 100%);
+        }
+
+        .tree-leaves {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 45px solid #228B22;
+            animation: swayTree 3s ease-in-out infinite;
+        }
+
+        @keyframes swayTree {
+            0%, 100% { transform: translateX(-50%) rotate(-2deg); }
+            50% { transform: translateX(-50%) rotate(2deg); }
+        }
+
+        /* BARBED WIRE */
+        .barbed-wire {
+            position: absolute;
+            top: 55%;
+            left: 48%;
+            width: 4%;
+            height: 3px;
+            background: repeating-linear-gradient(
+                90deg,
+                #666 0px,
+                #666 5px,
+                transparent 5px,
+                transparent 10px
+            );
+            z-index: 100;
+        }
+
+        .barbed-wire::before,
+        .barbed-wire::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: repeating-linear-gradient(
+                90deg,
+                #666 0px,
+                #666 5px,
+                transparent 5px,
+                transparent 10px
+            );
+        }
+
+        .barbed-wire::before {
+            top: -8px;
+        }
+
+        .barbed-wire::after {
+            top: 8px;
+        }
+
+        /* WARNING SIGNS */
+        .warning-sign {
+            position: absolute;
+            bottom: 25%;
+            width: 40px;
+            height: 40px;
+            background: #FFD700;
+            border: 3px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            transform: rotate(45deg);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .warning-sign::before {
+            content: '⚠';
+            transform: rotate(-45deg);
+        }
+
+        .usa-warning {
+            left: 45%;
+        }
+
+        .soviet-warning {
+            right: 45%;
+        }
+
+        /* ANIMATED TITLE */
+        .title {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 
+                0 0 10px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(52, 152, 219, 0.5),
+                0 0 30px rgba(231, 76, 60, 0.5);
+            z-index: 999;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% {
+                text-shadow: 
+                    0 0 10px rgba(0, 0, 0, 0.8),
+                    0 0 20px rgba(52, 152, 219, 0.5),
+                    0 0 30px rgba(231, 76, 60, 0.5);
+            }
+            50% {
+                text-shadow: 
+                    0 0 15px rgba(0, 0, 0, 0.9),
+                    0 0 30px rgba(52, 152, 219, 0.8),
+                    0 0 45px rgba(231, 76, 60, 0.8);
+            }
+        }
+
+        /* People walking */
+        .person {
+            position: absolute;
+            bottom: 12%;
+            width: 15px;
+            height: 35px;
+            animation: walkPerson 20s linear infinite;
+        }
+
+        .person-body {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 18px;
+            background: #4a4a4a;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .person-head {
+            position: absolute;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: #ffdbac;
+            border-radius: 50%;
+        }
+
+        .person-leg {
+            position: absolute;
+            bottom: 0;
+            width: 4px;
+            height: 12px;
+            background: #333;
+            border-radius: 0 0 2px 2px;
+        }
+
+        .person-leg:nth-child(3) {
+            left: 3px;
+            animation: walkLeg 0.5s ease-in-out infinite;
+        }
+
+        .person-leg:nth-child(4) {
+            right: 3px;
+            animation: walkLeg 0.5s ease-in-out infinite reverse;
+        }
+
+        @keyframes walkPerson {
+            0% { 
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { 
+                transform: translateX(calc(50vw - 50px));
+                opacity: 0;
+            }
+        }
+
+        @keyframes walkLeg {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(20deg); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .settings-panel {
+                max-width: 280px;
+                font-size: 12px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .info-display {
+                font-size: 12px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Title -->
+        <div class="title">COLD WAR ERA</div>
+
+        <!-- Sky -->
+        <div id="sky">
+            <!-- Sun -->
+            <div class="sun"></div>
+            
+            <!-- Moon -->
+            <div class="moon"></div>
+
+            <!-- Stars -->
+            <div id="stars"></div>
+
+            <!-- Aurora Borealis -->
+            <div class="aurora">
+                <div class="aurora-layer"></div>
+            </div>
+
+            <!-- Clouds -->
+            <div class="clouds"></div>
+
+            <!-- Birds -->
+            <div id="birds"></div>
+
+            <!-- Lightning -->
+            <div class="lightning" id="lightning"></div>
+
+            <!-- Rain -->
+            <div class="rain" id="rain"></div>
+        </div>
+
+        <!-- Horizon/Ground -->
+        <div id="horizon">
+            <div class="ground-shadow"></div>
+        </div>
+
+        <!-- USA SIDE -->
+        <div class="usa-side">
+            <!-- Flagpole -->
+            <div class="flagpole usa-flagpole"></div>
+            
+            <!-- Flag -->
+            <div class="usa-flag"></div>
+
+            <!-- Building -->
+            <div class="usa-building">
+                <div class="chimney">
+                    <div class="smoke-particle" style="animation-delay: 0s;"></div>
+                    <div class="smoke-particle" style="animation-delay: 0.5s;"></div>
+                    <div class="smoke-particle" style="animation-delay: 1s;"></div>
+                    <div class="smoke-particle" style="animation-delay: 1.5s;"></div>
+                </div>
+                <div class="antenna">
+                    <div class="signal-wave" style="animation-delay: 0s;"></div>
+                    <div class="signal-wave" style="animation-delay: 0.7s;"></div>
+                    <div class="signal-wave" style="animation-delay: 1.4s;"></div>
+                </div>
+                <div class="door"></div>
+            </div>
+
+            <!-- Guard Tower -->
+            <div class="guard-tower usa-guard-tower">
+                <div class="searchlight">
+                    <div class="searchlight-beam"></div>
+                </div>
+            </div>
+
+            <!-- Trees -->
+            <div class="tree" style="left: 5%; bottom: 18%;">
+                <div class="tree-trunk"></div>
+                <div class="tree-leaves"></div>
+            </div>
+            <div class="tree" style="left: 60%; bottom: 16%; animation-delay: 0.5s;">
+                <div class="tree-trunk"></div>
+                <div class="tree-leaves"></div>
+            </div>
+
+            <!-- Vehicles -->
+            <div class="vehicle" style="animation-delay: 0s;"></div>
+            <div class="vehicle" style="animation-delay: 7s;"></div>
+
+            <!-- People -->
+            <div class="person" style="animation-delay: 2s;">
+                <div class="person-head"></div>
+                <div class="person-body"></div>
+                <div class="person-leg"></div>
+                <div class="person-leg"></div>
+            </div>
+
+            <!-- Propaganda Poster -->
+            <div class="propaganda-poster usa-poster" id="usaPoster">PEACE</div>
+
+            <!-- Warning Sign -->
+            <div class="warning-sign usa-warning"></div>
+        </div>
+
+        <!-- SOVIET SIDE -->
+        <div class="soviet-side">
+            <!-- Flagpole -->
+            <div class="flagpole soviet-flagpole"></div>
+            
+            <!-- Flag -->
+            <div class="soviet-flag"></div>
+
+            <!-- Building -->
+            <div class="soviet-building">
+                <div class="chimney" style="left: 20px;">
+                    <div class="smoke-particle" style="animation-delay: 0.2s;"></div>
+                    <div class="smoke-particle" style="animation-delay: 0.7s;"></div>
+                    <div class="smoke-particle" style="animation-delay: 1.2s;"></div>
+                    <div class="smoke-particle" style="animation-delay: 1.7s;"></div>
+                </div>
+                <div class="radar"></div>
+                <div class="door"></div>
+            </div>
+
+            <!-- Guard Tower -->
+            <div class="guard-tower soviet-guard-tower">
+                <div class="searchlight">
+                    <div class="searchlight-beam" style="animation-delay: 2s;"></div>
+                </div>
+            </div>
+
+            <!-- Trees -->
+            <div class="tree" style="right: 5%; bottom: 18%; animation-delay: 1s;">
+                <div class="tree-trunk"></div>
+                <div class="tree-leaves"></div>
+            </div>
+            <div class="tree" style="right: 60%; bottom: 16%; animation-delay: 1.5s;">
+                <div class="tree-trunk"></div>
+                <div class="tree-leaves"></div>
+            </div>
+
+            <!-- Vehicles -->
+            <div class="vehicle" style="animation-delay: 3s; right: 0; animation-name: driveVehicleRight;"></div>
+
+            <!-- People -->
+            <div class="person" style="animation-delay: 5s; right: 0; animation-name: walkPersonRight;">
+                <div class="person-head"></div>
+                <div class="person-body"></div>
+                <div class="person-leg"></div>
+                <div class="person-leg"></div>
+            </div>
+
+            <!-- Propaganda Poster -->
+            <div class="propaganda-poster soviet-poster" id="sovietPoster">МИР</div>
+
+            <!-- Warning Sign -->
+            <div class="warning-sign soviet-warning"></div>
+        </div>
+
+        <!-- Barbed Wire Border -->
+        <div class="barbed-wire"></div>
+
+        <!-- Helicopters -->
+        <div class="helicopter" id="helicopter1" style="top: 15%; animation-delay: 5s;">
+            <div class="helicopter-body">
+                <div class="helicopter-rotor"></div>
+            </div>
+        </div>
+
+        <!-- Radiation Symbol -->
+        <div class="radiation-symbol" id="radiationSymbol"></div>
+
+        <!-- Missiles Container -->
+        <div id="missilesContainer"></div>
+
+        <!-- Explosions Container -->
+        <div id="explosionsContainer"></div>
+
+        <!-- Fallout Particles -->
+        <div id="falloutContainer"></div>
+
+        <!-- Settings Panel -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="panel-toggle" id="panelToggle">◀</div>
+
+            <div class="control-group">
+                <h3>⏰ Time Control</h3>
+                <label>
+                    Time of Day: <span class="value-display" id="timeValue">12:00 PM</span>
+                </label>
+                <input type="range" min="0" max="24" step="0.25" value="12" class="slider" id="timeSlider">
+            </div>
+
+            <div class="control-group">
+                <h3>🌤️ Weather</h3>
+                <div class="button-group">
+                    <button class="btn active" id="weatherClear">Clear</button>
+                    <button class="btn" id="weatherRainy">Rain</button>
+                    <button class="btn" id="weatherSnowy">Snow</button>
+                    <button class="btn" id="weatherFoggy">Fog</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>💨 Wind</h3>
+                <label>
+                    Wind Speed: <span class="value-display" id="windValue">Calm</span>
+                </label>
+                <input type="range" min="0" max="100" value="20" class="slider" id="windSlider">
+            </div>
+
+            <div class="control-group">
+                <h3>🌱 Season</h3>
+                <div class="button-group">
+                    <button class="btn" id="seasonSpring">Spring</button>
+                    <button class="btn active" id="seasonSummer">Summer</button>
+                    <button class="btn" id="seasonFall">Fall</button>
+                    <button class="btn" id="seasonWinter">Winter</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>💡 Building Lights</h3>
+                <div class="button-group">
+                    <button class="btn" id="lightsOn">All On</button>
+                    <button class="btn active" id="lightsOff">Auto</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>⚡ Tension Level</h3>
+                <label>
+                    Status: <span class="value-display" id="tensionValue">Peaceful</span>
+                </label>
+                <input type="range" min="0" max="100" value="30" class="slider" id="tensionSlider">
+            </div>
+
+            <div class="control-group">
+                <h3>☢️ Radiation</h3>
+                <label>
+                    Level: <span class="value-display" id="radiationValue">Safe (0%)</span>
+                </label>
+                <input type="range" min="0" max="100" value="0" class="slider" id="radiationSlider">
+            </div>
+
+            <div class="control-group">
+                <h3>🏭 USA Activity</h3>
+                <label>
+                    Level: <span class="value-display" id="usaActivityValue">Moderate</span>
+                </label>
+                <input type="range" min="0" max="100" value="50" class="slider" id="usaActivitySlider">
+            </div>
+
+            <div class="control-group">
+                <h3>🏭 USSR Activity</h3>
+                <label>
+                    Level: <span class="value-display" id="ussrActivityValue">Moderate</span>
+                </label>
+                <input type="range" min="0" max="100" value="50" class="slider" id="ussrActivitySlider">
+            </div>
+
+            <div class="control-group">
+                <h3>🚀 Special Effects</h3>
+                <div class="button-group">
+                    <button class="btn" id="launchMissile">Launch Missile</button>
+                    <button class="btn" id="triggerExplosion">Explosion</button>
+                    <button class="btn" id="triggerLightning">Lightning</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // STATE
+        const state = {
+            time: 12,
+            weather: 'clear',
+            wind: 20,
+            season: 'summer',
+            lightsAuto: true,
+            tension: 30,
+            radiation: 0,
+            usaActivity: 50,
+            ussrActivity: 50
+        };
+
+        // DOM ELEMENTS
+        const sky = document.getElementById('sky');
+        const sun = document.querySelector('.sun');
+        const moon = document.querySelector('.moon');
+        const stars = document.getElementById('stars');
+        const aurora = document.querySelector('.aurora');
+        const horizon = document.getElementById('horizon');
+        const rainContainer = document.getElementById('rain');
+        const lightning = document.getElementById('lightning');
+        const radiationSymbol = document.getElementById('radiationSymbol');
+        const falloutContainer = document.getElementById('falloutContainer');
+        const usaPoster = document.getElementById('usaPoster');
+        const sovietPoster = document.getElementById('sovietPoster');
+        const missilesContainer = document.getElementById('missilesContainer');
+        const explosionsContainer = document.getElementById('explosionsContainer');
+
+        // CONTROL ELEMENTS
+        const timeSlider = document.getElementById('timeSlider');
+        const windSlider = document.getElementById('windSlider');
+        const radiationSlider = document.getElementById('radiationSlider');
+        const tensionSlider = document.getElementById('tensionSlider');
+        const usaActivitySlider = document.getElementById('usaActivitySlider');
+        const ussrActivitySlider = document.getElementById('ussrActivitySlider');
+        const weatherClear = document.getElementById('weatherClear');
+        const weatherRainy = document.getElementById('weatherRainy');
+        const weatherSnowy = document.getElementById('weatherSnowy');
+        const weatherFoggy = document.getElementById('weatherFoggy');
+        const lightsOn = document.getElementById('lightsOn');
+        const lightsOff = document.getElementById('lightsOff');
+        const seasonSpring = document.getElementById('seasonSpring');
+        const seasonSummer = document.getElementById('seasonSummer');
+        const seasonFall = document.getElementById('seasonFall');
+        const seasonWinter = document.getElementById('seasonWinter');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const panelToggle = document.getElementById('panelToggle');
+        const launchMissileBtn = document.getElementById('launchMissile');
+        const triggerExplosionBtn = document.getElementById('triggerExplosion');
+        const triggerLightningBtn = document.getElementById('triggerLightning');
+
+        // INITIALIZATION
+        createStars();
+        createClouds();
+        createBirds();
+        createWindows();
+        updateAll();
+
+        // CREATE STARS
+        function createStars() {
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 70 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                stars.appendChild(star);
+            }
+        }
+
+        // CREATE CLOUDS
+        function createClouds() {
+            const cloudsContainer = document.querySelector('.clouds');
+            for (let i = 0; i < 8; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                cloud.style.width = (Math.random() * 80 + 80) + 'px';
+                cloud.style.height = (Math.random() * 30 + 30) + 'px';
+                cloud.style.top = (Math.random() * 40 + 5) + '%';
+                cloud.style.left = (Math.random() * 100) + '%';
+                cloud.style.animationDuration = (Math.random() * 20 + 20) + 's';
+                cloud.style.animationDelay = (Math.random() * 10) + 's';
+                cloud.style.opacity = Math.random() * 0.4 + 0.4;
+                cloudsContainer.appendChild(cloud);
+            }
+        }
+
+        // CREATE BIRDS
+        function createBirds() {
+            const birdsContainer = document.getElementById('birds');
+            for (let i = 0; i < 5; i++) {
+                const bird = document.createElement('div');
+                bird.className = 'bird';
+                bird.style.top = (Math.random() * 30 + 10) + '%';
+                bird.style.left = '-100px';
+                bird.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                bird.style.animationDelay = (Math.random() * 15) + 's';
+                birdsContainer.appendChild(bird);
+            }
+        }
+
+        // CREATE WINDOWS
+        function createWindows() {
+            const usaBuilding = document.querySelector('.usa-building');
+            const sovietBuilding = document.querySelector('.soviet-building');
+
+            // USA Building Windows
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col < 7; col++) {
+                    const window = document.createElement('div');
+                    window.className = 'window';
+                    window.style.left = (col * 28 + 10) + 'px';
+                    window.style.top = (row * 30 + 60) + 'px';
+                    
+                    for (let i = 0; i < 4; i++) {
+                        const pane = document.createElement('div');
+                        window.appendChild(pane);
+                    }
+                    
+                    usaBuilding.appendChild(window);
+                }
+            }
+
+            // Soviet Building Windows
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col < 7; col++) {
+                    const window = document.createElement('div');
+                    window.className = 'window';
+                    window.style.left = (col * 28 + 10) + 'px';
+                    window.style.top = (row * 30 + 60) + 'px';
+                    
+                    for (let i = 0; i < 4; i++) {
+                        const pane = document.createElement('div');
+                        window.appendChild(pane);
+                    }
+                    
+                    sovietBuilding.appendChild(window);
+                }
+            }
+        }
+
+        // UPDATE FUNCTIONS
+        function updateAll() {
+            updateSkyColor();
+            updateSunMoon();
+            updateStars();
+            updateAurora();
+            updateGroundColor();
+            updateLights();
+            updateRadiation();
+            updateActivity();
+            updatePropaganda();
+            updateTension();
+        }
+
+        function updateSkyColor() {
+            const time = state.time;
+            let gradient;
+
+            if (time >= 5 && time < 7) {
+                // Dawn
+                gradient = 'linear-gradient(180deg, #FF6347 0%, #FF8C00 25%, #FFD700 50%, #87CEEB 100%)';
+            } else if (time >= 7 && time < 17) {
+                // Day
+                gradient = 'linear-gradient(180deg, #87CEEB 0%, #E0F6FF 50%, #F5F5DC 100%)';
+            } else if (time >= 17 && time < 19) {
+                // Dusk
+                gradient = 'linear-gradient(180deg, #FF6347 0%, #FF8C00 25%, #FFD700 50%, #4169E1 100%)';
+            } else {
+                // Night
+                gradient = 'linear-gradient(180deg, #0a0e27 0%, #1a1f4d 50%, #2d3561 100%)';
+            }
+
+            sky.style.background = gradient;
+            document.body.style.background = gradient;
+        }
+
+        function updateSunMoon() {
+            const time = state.time;
+            
+            // Sun position (rises at 6am, sets at 6pm)
+            if (time >= 6 && time <= 18) {
+                const progress = (time - 6) / 12;
+                const angle = progress * Math.PI;
+                const x = 50 + Math.cos(angle + Math.PI) * 40;
+                const y = 10 + Math.sin(angle + Math.PI) * 30;
+                
+                sun.style.left = x + '%';
+                sun.style.top = y + '%';
+                sun.style.opacity = '1';
+                moon.style.opacity = '0';
+            } else {
+                // Moon position
+                let moonTime = time < 6 ? time + 24 : time;
+                const progress = ((moonTime - 18) % 24) / 12;
+                const angle = progress * Math.PI;
+                const x = 50 + Math.cos(angle + Math.PI) * 40;
+                const y = 10 + Math.sin(angle + Math.PI) * 30;
+                
+                moon.style.left = x + '%';
+                moon.style.top = y + '%';
+                moon.style.opacity = '1';
+                sun.style.opacity = '0';
+            }
+        }
+
+        function updateStars() {
+            const time = state.time;
+            const isNight = time < 6 || time > 19;
+            stars.style.opacity = isNight ? '1' : '0';
+        }
+
+        function updateAurora() {
+            const time = state.time;
+            const isNight = time < 5 || time > 20;
+            const isWinter = state.season === 'winter';
+            
+            if (isNight && isWinter && state.radiation < 20) {
+                aurora.style.opacity = '0.6';
+            } else {
+                aurora.style.opacity = '0';
+            }
+        }
+
+        function updateGroundColor() {
+            let groundGradient;
+
+            switch (state.season) {
+                case 'spring':
+                    groundGradient = 'linear-gradient(180deg, #98FB98 0%, #228B22 100%)';
+                    break;
+                case 'summer':
+                    groundGradient = 'linear-gradient(180deg, #90EE90 0%, #228B22 100%)';
+                    break;
+                case 'fall':
+                    groundGradient = 'linear-gradient(180deg, #DAA520 0%, #8B4513 100%)';
+                    break;
+                case 'winter':
+                    groundGradient = 'linear-gradient(180deg, #F0F8FF 0%, #E6E6FA 100%)';
+                    break;
+                default:
+                    groundGradient = 'linear-gradient(180deg, #90EE90 0%, #228B22 100%)';
+            }
+
+            horizon.style.background = groundGradient;
+
+            // Update USA and Soviet sides
+            const usaSide = document.querySelector('.usa-side');
+            const sovietSide = document.querySelector('.soviet-side');
+
+            if (state.season === 'winter') {
+                usaSide.style.background = 'linear-gradient(180deg, rgba(240, 248, 255, 0.9) 0%, #E6E6FA 100%)';
+                sovietSide.style.background = 'linear-gradient(180deg, rgba(230, 230, 250, 0.9) 0%, #D3D3D3 100%)';
+            } else {
+                usaSide.style.background = 'linear-gradient(180deg, rgba(144, 238, 144, 0.9) 0%, #228B22 100%)';
+                sovietSide.style.background = 'linear-gradient(180deg, rgba(169, 169, 169, 0.9) 0%, #4a4a4a 100%)';
+            }
+        }
+
+        function updateRain() {
+            rainContainer.innerHTML = '';
+            
+            if (state.weather === 'rainy') {
+                for (let i = 0; i < 100; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'raindrop';
+                    drop.style.left = Math.random() * 100 + '%';
+                    drop.style.top = Math.random() * -20 + '%';
+                    drop.style.animationDuration = (Math.random() * 0.3 + 0.3) + 's';
+                    drop.style.animationDelay = Math.random() * 2 + 's';
+                    rainContainer.appendChild(drop);
+                }
+                rainContainer.style.opacity = '1';
+            } else {
+                rainContainer.style.opacity = '0';
+            }
+        }
+
+        function updateSnow() {
+            if (state.weather === 'snowy') {
+                // Create snowflakes
+                for (let i = 0; i < 50; i++) {
+                    const snowflake = document.createElement('div');
+                    snowflake.className = 'snowflake';
+                    snowflake.style.left = Math.random() * 100 + '%';
+                    snowflake.style.top = Math.random() * -20 + '%';
+                    snowflake.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    snowflake.style.animationDelay = Math.random() * 5 + 's';
+                    snowflake.style.opacity = '1';
+                    sky.appendChild(snowflake);
+                    
+                    setTimeout(() => snowflake.remove(), 5000 + Math.random() * 5000);
+                }
+            }
+        }
+
+        function updateFog() {
+            const groundShadow = document.querySelector('.ground-shadow');
+            
+            if (state.weather === 'foggy') {
+                groundShadow.style.opacity = '0.6';
+                groundShadow.style.height = '200px';
+                groundShadow.style.background = 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, transparent 100%)';
+            } else {
+                groundShadow.style.opacity = '0';
+            }
+        }
+
+        function updateLights() {
+            const windows = document.querySelectorAll('.window');
+            const isNight = state.time < 6 || state.time > 20;
+            
+            windows.forEach(window => {
+                if (state.lightsAuto) {
+                    if (isNight || state.weather === 'foggy') {
+                        if (Math.random() > 0.3) {
+                            window.classList.add('lit');
+                        }
+                    } else {
+                        if (Math.random() > 0.7) {
+                            window.classList.remove('lit');
+                        }
+                    }
+                } else {
+                    window.classList.add('lit');
+                }
+            });
+        }
+
+        function updateRadiation() {
+            const level = state.radiation;
+            document.getElementById('radiationValue').textContent = 
+                level < 10 ? `Safe (${level}%)` :
+                level < 30 ? `Low (${level}%)` :
+                level < 60 ? `Moderate (${level}%)` :
+                level < 80 ? `High (${level}%)` :
+                `CRITICAL (${level}%)`;
+
+            if (level > 20) {
+                radiationSymbol.style.opacity = (level - 20) / 80;
+                
+                if (level > 40) {
+                    radiationSymbol.classList.add('pulsing');
+                    createFalloutParticles();
+                } else {
+                    radiationSymbol.classList.remove('pulsing');
+                }
+            } else {
+                radiationSymbol.style.opacity = '0';
+                radiationSymbol.classList.remove('pulsing');
+            }
+
+            // Green tint at high radiation
+            if (level > 60) {
+                sky.style.filter = `hue-rotate(${(level - 60) * 2}deg) brightness(0.9)`;
+            } else {
+                sky.style.filter = 'none';
+            }
+        }
+
+        function createFalloutParticles() {
+            if (Math.random() > 0.7) {
+                const particle = document.createElement('div');
+                particle.className = 'fallout-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * -20 + '%';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                falloutContainer.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 6000);
+            }
+        }
+
+        function updateActivity() {
+            const usaWindows = document.querySelector('.usa-building').querySelectorAll('.window');
+            const sovietWindows = document.querySelector('.soviet-building').querySelectorAll('.window');
+
+            usaWindows.forEach(w => {
+                if (Math.random() * 100 < state.usaActivity) {
+                    w.classList.add('lit');
+                } else {
+                    w.classList.remove('lit');
+                }
+            });
+
+            sovietWindows.forEach(w => {
+                if (Math.random() * 100 < state.ussrActivity) {
+                    w.classList.add('lit');
+                } else {
+                    w.classList.remove('lit');
+                }
+            });
+        }
+
+        function updatePropaganda() {
+            if (state.tension > 70) {
+                usaPoster.textContent = '⚠ ALERT!';
+                usaPoster.style.background = 'linear-gradient(135deg, #ff0000 0%, #ff6666 100%)';
+                usaPoster.style.color = 'white';
+                sovietPoster.textContent = 'ТРЕВОГА!';
+                sovietPoster.style.background = 'linear-gradient(135deg, #cc0000 0%, #ff4444 100%)';
+                sovietPoster.style.color = '#FFD700';
+            } else if (state.tension > 40) {
+                usaPoster.textContent = 'DEFEND\nFREEDOM';
+                usaPoster.style.background = 'linear-gradient(135deg, #fff 0%, #e6f2ff 100%)';
+                usaPoster.style.color = '#000080';
+                sovietPoster.textContent = 'ЗА РОДИНУ!';
+                sovietPoster.style.background = 'linear-gradient(135deg, #ffeeee 0%, #ffe6e6 100%)';
+                sovietPoster.style.color = '#8B0000';
+            } else {
+                usaPoster.textContent = 'PEACE';
+                usaPoster.style.background = 'linear-gradient(135deg, #fff 0%, #e6f2ff 100%)';
+                usaPoster.style.color = '#000080';
+                sovietPoster.textContent = 'МИР';
+                sovietPoster.style.background = 'linear-gradient(135deg, #ffeeee 0%, #ffe6e6 100%)';
+                sovietPoster.style.color = '#8B0000';
+            }
+        }
+
+        function updateTension() {
+            const usaBuild = document.querySelector('.usa-building');
+            const sovietBuild = document.querySelector('.soviet-building');
+            
+            if (state.tension > 50) {
+                const glow = (state.tension - 50) / 5;
+                usaBuild.style.filter = `drop-shadow(0 0 ${glow}px #ff0000)`;
+                sovietBuild.style.filter = `drop-shadow(0 0 ${glow}px #ff0000)`;
+            } else {
+                usaBuild.style.filter = 'none';
+                sovietBuild.style.filter = 'none';
+            }
+
+            // Auto-trigger effects at high tension
+            if (state.tension > 80 && Math.random() > 0.98) {
+                launchMissile();
+            }
+        }
+
+        // SPECIAL EFFECTS
+        function launchMissile() {
+            const missile = document.createElement('div');
+            missile.className = 'missile';
+            const isUSA = Math.random() > 0.5;
+            
+            if (isUSA) {
+                missile.style.left = '25%';
+            } else {
+                missile.style.left = '75%';
+            }
+            
+            missile.style.bottom = '30%';
+            missile.innerHTML = '<div class="missile-trail"></div>';
+            
+            missilesContainer.appendChild(missile);
+            
+            setTimeout(() => {
+                missile.style.opacity = '1';
+                missile.style.animation = 'launchMissile 3s ease-out';
+            }, 100);
+            
+            setTimeout(() => {
+                missile.remove();
+                if (state.tension > 70) {
+                    triggerExplosion(isUSA ? 75 : 25);
+                }
+            }, 3000);
+        }
+
+        function triggerExplosion(xPercent = 50) {
+            const explosion = document.createElement('div');
+            explosion.className = 'explosion';
+            explosion.style.left = xPercent + '%';
+            explosion.style.top = '30%';
+            
+            explosionsContainer.appendChild(explosion);
+            
+            setTimeout(() => {
+                explosion.style.opacity = '1';
+                explosion.style.animation = 'explode 1s ease-out';
+            }, 100);
+            
+            // Shake effect
+            document.body.style.animation = 'shake 0.5s ease-in-out';
+            setTimeout(() => {
+                document.body.style.animation = '';
+            }, 500);
+            
+            setTimeout(() => explosion.remove(), 1000);
+        }
+
+        function triggerLightning() {
+            const bolt = document.createElement('div');
+            bolt.className = 'lightning-bolt';
+            bolt.style.left = Math.random() * 100 + '%';
+            bolt.style.top = '0';
+            
+            lightning.appendChild(bolt);
+            lightning.style.opacity = '1';
+            
+            // Flash effect
+            sky.style.filter = 'brightness(2)';
+            setTimeout(() => {
+                sky.style.filter = 'none';
+            }, 100);
+            
+            setTimeout(() => {
+                bolt.remove();
+                lightning.style.opacity = '0';
+            }, 200);
+        }
+
+        // EVENT LISTENERS
+        timeSlider.addEventListener('input', (e) => {
+            state.time = parseFloat(e.target.value);
+            const hours = Math.floor(state.time);
+            const minutes = Math.round((state.time - hours) * 60);
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+            document.getElementById('timeValue').textContent = 
+                displayHours + ':' + minutes.toString().padStart(2, '0') + ' ' + period;
+            updateAll();
+        });
+
+        windSlider.addEventListener('input', (e) => {
+            state.wind = parseFloat(e.target.value);
+            const desc = state.wind < 10 ? 'Calm' :
+                        state.wind < 20 ? 'Light Breeze' :
+                        state.wind < 40 ? 'Moderate Wind' :
+                        state.wind < 60 ? 'Strong Wind' :
+                        state.wind < 80 ? 'Very Strong' : 'Hurricane Force';
+            document.getElementById('windValue').textContent = desc;
+            
+            // Update cloud speed
+            const clouds = document.querySelectorAll('.cloud');
+            clouds.forEach(cloud => {
+                const baseDuration = 30;
+                cloud.style.animationDuration = (baseDuration - state.wind / 5) + 's';
+            });
+        });
+
+        radiationSlider.addEventListener('input', (e) => {
+            state.radiation = parseFloat(e.target.value);
+            updateRadiation();
+        });
+
+        tensionSlider.addEventListener('input', (e) => {
+            state.tension = parseFloat(e.target.value);
+            const desc = state.tension < 20 ? 'Peaceful' :
+                        state.tension < 40 ? 'Cautious' :
+                        state.tension < 60 ? 'Tense' :
+                        state.tension < 80 ? 'Critical' : '🔥 WAR IMMINENT';
+            document.getElementById('tensionValue').textContent = desc;
+            updateTension();
+            updatePropaganda();
+        });
+
+        usaActivitySlider.addEventListener('input', (e) => {
+            state.usaActivity = parseFloat(e.target.value);
+            const desc = state.usaActivity < 20 ? 'Minimal' :
+                        state.usaActivity < 40 ? 'Low' :
+                        state.usaActivity < 60 ? 'Moderate' :
+                        state.usaActivity < 80 ? 'High' : 'Maximum';
+            document.getElementById('usaActivityValue').textContent = desc;
+            updateActivity();
+        });
+
+        ussrActivitySlider.addEventListener('input', (e) => {
+            state.ussrActivity = parseFloat(e.target.value);
+            const desc = state.ussrActivity < 20 ? 'Minimal' :
+                        state.ussrActivity < 40 ? 'Low' :
+                        state.ussrActivity < 60 ? 'Moderate' :
+                        state.ussrActivity < 80 ? 'High' : 'Maximum';
+            document.getElementById('ussrActivityValue').textContent = desc;
+            updateActivity();
+        });
+
+        // Weather buttons
+        weatherClear.addEventListener('click', () => {
+            state.weather = 'clear';
+            setActiveButton([weatherClear], [weatherRainy, weatherSnowy, weatherFoggy]);
+            updateRain();
+            updateFog();
+        });
+
+        weatherRainy.addEventListener('click', () => {
+            state.weather = 'rainy';
+            setActiveButton([weatherRainy], [weatherClear, weatherSnowy, weatherFoggy]);
+            updateRain();
+            updateFog();
+            if (Math.random() > 0.5) triggerLightning();
+        });
+
+        weatherSnowy.addEventListener('click', () => {
+            state.weather = 'snowy';
+            setActiveButton([weatherSnowy], [weatherClear, weatherRainy, weatherFoggy]);
+            updateRain();
+            updateFog();
+            setInterval(() => updateSnow(), 100);
+        });
+
+        weatherFoggy.addEventListener('click', () => {
+            state.weather = 'foggy';
+            setActiveButton([weatherFoggy], [weatherClear, weatherRainy, weatherSnowy]);
+            updateRain();
+            updateFog();
+        });
+
+        // Season buttons
+        seasonSpring.addEventListener('click', () => {
+            state.season = 'spring';
+            setActiveButton([seasonSpring], [seasonSummer, seasonFall, seasonWinter]);
+            updateGroundColor();
+            updateAurora();
+        });
+
+        seasonSummer.addEventListener('click', () => {
+            state.season = 'summer';
+            setActiveButton([seasonSummer], [seasonSpring, seasonFall, seasonWinter]);
+            updateGroundColor();
+            updateAurora();
+        });
+
+        seasonFall.addEventListener('click', () => {
+            state.season = 'fall';
+            setActiveButton([seasonFall], [seasonSpring, seasonSummer, seasonWinter]);
+            updateGroundColor();
+            updateAurora();
+        });
+
+        seasonWinter.addEventListener('click', () => {
+            state.season = 'winter';
+            setActiveButton([seasonWinter], [seasonSpring, seasonSummer, seasonFall]);
+            updateGroundColor();
+            updateAurora();
+        });
+
+        // Lights buttons
+        lightsOn.addEventListener('click', () => {
+            state.lightsAuto = false;
+            setActiveButton([lightsOn], [lightsOff]);
+            updateLights();
+        });
+
+        lightsOff.addEventListener('click', () => {
+            state.lightsAuto = true;
+            setActiveButton([lightsOff], [lightsOn]);
+            updateLights();
+        });
+
+        // Special effects buttons
+        launchMissileBtn.addEventListener('click', launchMissile);
+        triggerExplosionBtn.addEventListener('click', () => triggerExplosion());
+        triggerLightningBtn.addEventListener('click', triggerLightning);
+
+        // Panel toggle
+        panelToggle.addEventListener('click', () => {
+            settingsPanel.classList.toggle('collapsed');
+            panelToggle.textContent = settingsPanel.classList.contains('collapsed') ? '▶' : '◀';
+        });
+
+        function setActiveButton(active, inactive) {
+            active.forEach(btn => btn.classList.add('active'));
+            inactive.forEach(btn => btn.classList.remove('active'));
+        }
+
+        // Add shake animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                75% { transform: translateX(10px); }
+            }
+            @keyframes driveVehicleRight {
+                0% { transform: translateX(100px); }
+                100% { transform: translateX(calc(-50vw + 100px)); }
+            }
+            @keyframes walkPersonRight {
+                0% { transform: translateX(50px); opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { transform: translateX(calc(-50vw + 50px)); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Auto-update lights periodically
+        setInterval(() => {
+            if (state.lightsAuto) {
+                updateLights();
+            }
+        }, 3000);
+
+        // Random lightning during rain
+        setInterval(() => {
+            if (state.weather === 'rainy' && Math.random() > 0.95) {
+                triggerLightning();
+            }
+        }, 2000);
+
+        // Random bird spawns
+        setInterval(() => {
+            if (state.time >= 6 && state.time <= 18 && Math.random() > 0.9) {
+                const bird = document.createElement('div');
+                bird.className = 'bird';
+                bird.style.top = (Math.random() * 30 + 10) + '%';
+                bird.style.left = '-100px';
+                bird.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                document.getElementById('birds').appendChild(bird);
+                setTimeout(() => bird.remove(), 20000);
+            }
+        }, 3000);
+
+        // Random helicopter
+        setInterval(() => {
+            if (state.tension > 40 && Math.random() > 0.98) {
+                const heli = document.createElement('div');
+                heli.className = 'helicopter';
+                heli.style.top = (Math.random() * 20 + 10) + '%';
+                heli.innerHTML = `
+                    <div class="helicopter-body">
+                        <div class="helicopter-rotor"></div>
+                    </div>
+                `;
+                sky.appendChild(heli);
+                setTimeout(() => heli.remove(), 20000);
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
