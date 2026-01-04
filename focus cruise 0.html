@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caribbean Cruise Scenery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-sky-dawn: #1a1a2e;
+            --color-sky-sunrise: #ff6b35;
+            --color-sky-day: #87CEEB;
+            --color-sky-sunset: #ff4500;
+            --color-sky-night: #0f0f1e;
+            
+            --color-ocean-dawn: #1a3a52;
+            --color-ocean-sunrise: #ff8c42;
+            --color-ocean-day: #006994;
+            --color-ocean-sunset: #d94c1b;
+            --color-ocean-night: #0a1929;
+            
+            --color-text: #ffffff;
+            --transition-duration: 1s;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, var(--color-sky-day), var(--color-ocean-day));
+        }
+
+        .main-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* SCENERY */
+        .scenery {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Sky gradient */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(
+                to bottom,
+                var(--color-sky-day),
+                rgba(135, 206, 235, 0.6)
+            );
+            transition: background var(--transition-duration) ease;
+        }
+
+        /* Sun/Moon */
+        .celestial-body {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff8dc, #ffd700);
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.8);
+            z-index: 2;
+            opacity: 1;
+            transition: all var(--transition-duration) ease;
+        }
+
+        .celestial-body.night {
+            background: radial-gradient(circle at 25% 25%, #f0f0f0, #d3d3d3);
+            box-shadow: 0 0 40px rgba(211, 211, 211, 0.5);
+        }
+
+        /* Clouds */
+        .clouds-container {
+            position: absolute;
+            top: 10%;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            z-index: 1;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+            opacity: 0.7;
+            filter: blur(8px);
+        }
+
+        .cloud.small {
+            width: 80px;
+            height: 30px;
+        }
+
+        .cloud.medium {
+            width: 120px;
+            height: 40px;
+        }
+
+        .cloud.large {
+            width: 200px;
+            height: 60px;
+        }
+
+        .cloud.storm {
+            background: #505050;
+            opacity: 0.8;
+            filter: blur(5px);
+        }
+
+        .cloud.rain::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 200%;
+            top: 100%;
+            left: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 5px,
+                rgba(200, 200, 200, 0.4) 5px,
+                rgba(200, 200, 200, 0.4) 10px
+            );
+            opacity: 0.6;
+        }
+
+        /* Ocean */
+        .ocean {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(
+                to bottom,
+                var(--color-ocean-day),
+                rgba(0, 105, 148, 0.8)
+            );
+            transition: background var(--transition-duration) ease;
+            overflow: hidden;
+        }
+
+        /* Waves */
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 80px;
+            background-image: url('data:image/svg+xml,<svg viewBox="0 0 1200 80" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="waveGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%%" style="stop-color:rgba(255,255,255,0.3)"/><stop offset="100%%" style="stop-color:rgba(0,0,0,0.1)"/></linearGradient></defs><path d="M0,40 Q150,10 300,40 T600,40 T900,40 T1200,40 L1200,80 L0,80 Z" fill="url(%23waveGrad)" stroke="none"/></svg>');
+            background-repeat: repeat-x;
+            background-position: 0 0;
+            opacity: 0.6;
+            animation: wave-move 8s linear infinite;
+        }
+
+        .wave:nth-child(1) {
+            bottom: 0;
+            opacity: 0.4;
+            animation: wave-move 8s linear infinite;
+        }
+
+        .wave:nth-child(2) {
+            bottom: 10px;
+            opacity: 0.5;
+            animation: wave-move 12s linear infinite reverse;
+        }
+
+        .wave:nth-child(3) {
+            bottom: 20px;
+            opacity: 0.3;
+            animation: wave-move 15s linear infinite;
+        }
+
+        @keyframes wave-move {
+            0% { background-position: 0 0; }
+            100% { background-position: 1200px 0; }
+        }
+
+        /* Ship Deck */
+        .ship-deck {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(
+                to bottom,
+                rgba(180, 140, 100, 0.9),
+                rgba(160, 120, 80, 0.95)
+            );
+            border-top: 4px solid #8b7355;
+            z-index: 10;
+        }
+
+        .ship-railing {
+            position: absolute;
+            width: 100%;
+            height: 40px;
+            top: 0;
+            border-top: 2px solid #696969;
+            border-bottom: 1px solid #505050;
+        }
+
+        .railing-post {
+            position: absolute;
+            width: 8px;
+            height: 40px;
+            background: linear-gradient(to right, #505050, #696969, #505050);
+            top: 0;
+        }
+
+        /* Railings */
+        .railing-posts {
+            position: absolute;
+            width: 100%;
+            height: 40px;
+            top: 0;
+            display: flex;
+        }
+
+        .ship-details {
+            position: absolute;
+            width: 100%;
+            height: 80px;
+            top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 5%;
+        }
+
+        .deck-item {
+            width: 60px;
+            height: 40px;
+            background: rgba(100, 100, 100, 0.7);
+            border-radius: 4px;
+            border: 1px solid #505050;
+        }
+
+        /* Horizon */
+        .horizon {
+            position: absolute;
+            bottom: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+            z-index: 3;
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            width: 0;
+            height: 100%;
+            background: rgba(30, 30, 40, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            overflow-y: auto;
+            transition: width 0.4s ease;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+            z-index: 100;
+            color: var(--color-text);
+            box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .settings-panel.open {
+            width: 320px;
+        }
+
+        .settings-panel h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #87CEEB;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+        }
+
+        .settings-panel h3:first-of-type {
+            margin-top: 0;
+        }
+
+        .setting-item {
+            margin-bottom: 18px;
+        }
+
+        .setting-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+        }
+
+        .setting-value {
+            font-weight: 600;
+            color: #87CEEB;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #87CEEB;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(135, 206, 235, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #87CEEB;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(135, 206, 235, 0.5);
+        }
+
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color-text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        select:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #87CEEB;
+            box-shadow: 0 0 10px rgba(135, 206, 235, 0.3);
+        }
+
+        .toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(135, 206, 235, 0.2);
+            border: 2px solid #87CEEB;
+            border-radius: 8px;
+            color: var(--color-text);
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 101;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(135, 206, 235, 0.3);
+            box-shadow: 0 0 15px rgba(135, 206, 235, 0.5);
+        }
+
+        .toggle-btn.open {
+            right: 340px;
+        }
+
+        /* Reset Button */
+        .reset-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 30px;
+            background: linear-gradient(135deg, #ff6b35, #ff4500);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .reset-btn:hover {
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Scrollbar styling */
+        .settings-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .settings-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .settings-panel::-webkit-scrollbar-thumb {
+            background: rgba(135, 206, 235, 0.3);
+            border-radius: 4px;
+        }
+
+        .settings-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(135, 206, 235, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .settings-panel.open {
+                width: 100%;
+            }
+
+            .toggle-btn.open {
+                right: 20px;
+            }
+        }
+
+        /* Rain effect */
+        .rain-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            background: rgba(200, 220, 255, 0.6);
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        /* Stars */
+        .stars {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="scenery">
+            <div class="sky"></div>
+            <div class="clouds-container" id="cloudsContainer"></div>
+            <div class="celestial-body" id="celestialBody"></div>
+            <div class="horizon"></div>
+            
+            <div class="ocean">
+                <div class="rain-effect" id="rainEffect"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+            </div>
+            
+            <div class="ship-deck">
+                <div class="ship-railing">
+                    <div class="railing-posts" id="railingPosts"></div>
+                </div>
+                <div class="ship-details">
+                    <div class="deck-item"></div>
+                    <div class="deck-item"></div>
+                    <div class="deck-item"></div>
+                    <div class="deck-item"></div>
+                    <div class="deck-item"></div>
+                </div>
+            </div>
+        </div>
+
+        <button class="toggle-btn" id="toggleBtn">⚙️</button>
+
+        <div class="settings-panel" id="settingsPanel">
+            <h3>Time of Day</h3>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Time</span>
+                    <span class="setting-value" id="timeDisplay">12:00</span>
+                </div>
+                <input type="range" id="timeSlider" min="0" max="1440" value="720" step="30">
+            </div>
+
+            <h3>Weather</h3>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Condition</span>
+                </div>
+                <select id="weatherSelect">
+                    <option value="clear">Clear Sky</option>
+                    <option value="cloudy">Cloudy</option>
+                    <option value="overcast">Overcast</option>
+                    <option value="stormy">Stormy</option>
+                    <option value="rainy">Rainy</option>
+                </select>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Cloud Cover</span>
+                    <span class="setting-value" id="cloudCoverValue">30%</span>
+                </div>
+                <input type="range" id="cloudCoverSlider" min="0" max="100" value="30" step="10">
+            </div>
+
+            <h3>Ocean Conditions</h3>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Wave Height</span>
+                    <span class="setting-value" id="waveHeightValue">Low</span>
+                </div>
+                <input type="range" id="waveHeightSlider" min="0" max="100" value="30" step="20">
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Wave Speed</span>
+                    <span class="setting-value" id="waveSpeedValue">Normal</span>
+                </div>
+                <input type="range" id="waveSpeedSlider" min="4" max="20" value="8" step="2">
+            </div>
+
+            <h3>Atmosphere</h3>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Visibility</span>
+                    <span class="setting-value" id="visibilityValue">100%</span>
+                </div>
+                <input type="range" id="visibilitySlider" min="20" max="100" value="100" step="10">
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Wind Strength</span>
+                    <span class="setting-value" id="windValue">Calm</span>
+                </div>
+                <input type="range" id="windSlider" min="0" max="100" value="20" step="20">
+            </div>
+
+            <h3>Visual Effects</h3>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Rain Intensity</span>
+                    <span class="setting-value" id="rainValue">0%</span>
+                </div>
+                <input type="range" id="rainSlider" min="0" max="100" value="0" step="10">
+            </div>
+
+            <button class="reset-btn" id="resetBtn">Reset to Default</button>
+        </div>
+    </div>
+
+    <script>
+        // Settings state
+        const settings = {
+            time: 720, // 12:00 (in minutes from 00:00)
+            weather: 'clear',
+            cloudCover: 30,
+            waveHeight: 30,
+            waveSpeed: 8,
+            visibility: 100,
+            wind: 20,
+            rainIntensity: 0
+        };
+
+        const defaultSettings = { ...settings };
+
+        // DOM elements
+        const timeSlider = document.getElementById('timeSlider');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const weatherSelect = document.getElementById('weatherSelect');
+        const cloudCoverSlider = document.getElementById('cloudCoverSlider');
+        const cloudCoverValue = document.getElementById('cloudCoverValue');
+        const waveHeightSlider = document.getElementById('waveHeightSlider');
+        const waveHeightValue = document.getElementById('waveHeightValue');
+        const waveSpeedSlider = document.getElementById('waveSpeedSlider');
+        const waveSpeedValue = document.getElementById('waveSpeedValue');
+        const visibilitySlider = document.getElementById('visibilitySlider');
+        const visibilityValue = document.getElementById('visibilityValue');
+        const windSlider = document.getElementById('windSlider');
+        const windValue = document.getElementById('windValue');
+        const rainSlider = document.getElementById('rainSlider');
+        const rainValue = document.getElementById('rainValue');
+        const resetBtn = document.getElementById('resetBtn');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const sky = document.querySelector('.sky');
+        const ocean = document.querySelector('.ocean');
+        const celestialBody = document.getElementById('celestialBody');
+        const cloudsContainer = document.getElementById('cloudsContainer');
+        const rainEffect = document.getElementById('rainEffect');
+        const wavesContainer = document.querySelector('.ocean');
+        const railingPosts = document.getElementById('railingPosts');
+
+        // Initialize railings
+        function createRailings() {
+            railingPosts.innerHTML = '';
+            for (let i = 0; i < 30; i++) {
+                const post = document.createElement('div');
+                post.className = 'railing-post';
+                post.style.left = (i * (100 / 30)) + '%';
+                railingPosts.appendChild(post);
+            }
+        }
+
+        // Get time in 24h format
+        function getTimeOfDay(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+        }
+
+        // Calculate sky gradient based on time
+        function calculateSkyColor(minutes) {
+            // 0 = midnight, 360 = next midnight
+            const timePercent = minutes / 1440;
+            
+            let skyColor, oceanColor, sunPosition;
+            
+            if (timePercent < 0.25) {
+                // Night (0:00 - 6:00)
+                const nightProgress = timePercent / 0.25;
+                skyColor = `linear-gradient(to bottom, #0a0a1a ${nightProgress * 20}%, #1a1a3a ${50 + nightProgress * 20}%, #2a3a4a)`;
+                oceanColor = `linear-gradient(to bottom, #0a1929, #0a2540)`;
+                sunPosition = -20 - (nightProgress * 30);
+            } else if (timePercent < 0.35) {
+                // Sunrise (6:00 - 8:24)
+                const sunriseProgress = (timePercent - 0.25) / 0.1;
+                const orange = Math.round(255 * sunriseProgress);
+                skyColor = `linear-gradient(to bottom, #1a1a2e, #ff${Math.round(107 + orange/2).toString(16).padStart(2, '0')}35 40%, #87CEEB)`;
+                oceanColor = `linear-gradient(to bottom, #1a3a52, #ff8c42)`;
+                sunPosition = -20 + (sunriseProgress * 40);
+            } else if (timePercent < 0.5) {
+                // Morning (8:24 - 12:00)
+                const morningProgress = (timePercent - 0.35) / 0.15;
+                skyColor = `linear-gradient(to bottom, #87CEEB, #87CEEB ${40 + morningProgress * 20}%, rgba(135, 206, 235, 0.6))`;
+                oceanColor = `linear-gradient(to bottom, #006994, rgba(0, 105, 148, 0.8))`;
+                sunPosition = 20 + (morningProgress * 20);
+            } else if (timePercent < 0.65) {
+                // Noon (12:00 - 15:36)
+                skyColor = `linear-gradient(to bottom, #87CEEB, rgba(135, 206, 235, 0.6))`;
+                oceanColor = `linear-gradient(to bottom, #006994, rgba(0, 105, 148, 0.8))`;
+                sunPosition = 40;
+            } else if (timePercent < 0.75) {
+                // Sunset (15:36 - 18:00)
+                const sunsetProgress = (timePercent - 0.65) / 0.1;
+                skyColor = `linear-gradient(to bottom, #87CEEB ${(1-sunsetProgress)*50}%, #ff4500 ${30 + sunsetProgress*40}%, #ff6b35 ${60 + sunsetProgress*20}%)`;
+                oceanColor = `linear-gradient(to bottom, #ff8c42, #d94c1b)`;
+                sunPosition = 40 + (sunsetProgress * 30);
+            } else {
+                // Dusk to Night (18:00 - 0:00)
+                const duskProgress = (timePercent - 0.75) / 0.25;
+                skyColor = `linear-gradient(to bottom, #ff6b35 ${(1-duskProgress)*30}%, #1a1a2e ${30 + duskProgress*50}%, #0a0a1a)`;
+                oceanColor = `linear-gradient(to bottom, #d94c1b ${(1-duskProgress)*30}%, #0a1929)`;
+                sunPosition = 70 - (duskProgress * 90);
+            }
+            
+            return { skyColor, oceanColor, sunPosition };
+        }
+
+        // Update celestial body
+        function updateCelestialBody(minutes) {
+            const timePercent = minutes / 1440;
+            let sunXPercent = 0;
+            let sunYPercent = 0;
+            let isNight = false;
+
+            if (timePercent < 0.25) {
+                isNight = true;
+                const nightProgress = timePercent / 0.25;
+                sunXPercent = 20 - (nightProgress * 20);
+                sunYPercent = 70 - (nightProgress * 30);
+            } else if (timePercent < 0.75) {
+                isNight = false;
+                const dayProgress = (timePercent - 0.25) / 0.5;
+                sunXPercent = 20 + (dayProgress * 60);
+                sunYPercent = 70 - (Math.sin(dayProgress * Math.PI) * 60);
+            } else {
+                isNight = true;
+                const duskProgress = (timePercent - 0.75) / 0.25;
+                sunXPercent = 80 + (duskProgress * 20);
+                sunYPercent = 10 + (duskProgress * 60);
+            }
+
+            celestialBody.style.left = sunXPercent + '%';
+            celestialBody.style.top = sunYPercent + '%';
+            celestialBody.classList.toggle('night', isNight);
+        }
+
+        // Create clouds
+        function createClouds() {
+            cloudsContainer.innerHTML = '';
+            const cloudCount = Math.ceil((settings.cloudCover / 100) * 15);
+            
+            for (let i = 0; i < cloudCount; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                
+                // Random size
+                const sizes = ['small', 'medium', 'large'];
+                const size = sizes[Math.floor(Math.random() * sizes.length)];
+                cloud.classList.add(size);
+                
+                // Random position
+                cloud.style.left = Math.random() * 100 + '%';
+                cloud.style.top = (Math.random() * 40) + '%';
+                
+                // Weather-specific clouds
+                if (settings.weather === 'stormy' || settings.weather === 'rainy') {
+                    cloud.classList.add('storm');
+                }
+                
+                if (settings.weather === 'rainy') {
+                    cloud.classList.add('rain');
+                }
+                
+                cloudsContainer.appendChild(cloud);
+            }
+        }
+
+        // Create rain effect
+        function createRain() {
+            rainEffect.innerHTML = '';
+            const rainCount = Math.ceil((settings.rainIntensity / 100) * 200);
+            
+            for (let i = 0; i < rainCount; i++) {
+                const raindrop = document.createElement('div');
+                raindrop.className = 'raindrop';
+                raindrop.style.left = Math.random() * 100 + '%';
+                raindrop.style.top = Math.random() * -100 + '%';
+                raindrop.style.animationDuration = (2 + Math.random() * 2) + 's';
+                raindrop.style.animationDelay = Math.random() * 2 + 's';
+                raindrop.style.opacity = settings.rainIntensity / 100;
+                rainEffect.appendChild(raindrop);
+            }
+        }
+
+        // Create stars
+        function createStars() {
+            cloudsContainer.innerHTML = '';
+            const timePercent = settings.time / 1440;
+            const isNight = timePercent < 0.25 || timePercent > 0.75;
+            
+            if (isNight) {
+                const starCount = Math.floor((1 - settings.cloudCover / 100) * 100);
+                for (let i = 0; i < starCount; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'stars';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = (Math.random() * 40) + '%';
+                    star.style.animationDelay = Math.random() * 3 + 's';
+                    cloudsContainer.appendChild(star);
+                }
+            }
+            
+            createClouds();
+        }
+
+        // Update wave animation speed
+        function updateWaveSpeed() {
+            const waves = document.querySelectorAll('.wave');
+            waves.forEach((wave, index) => {
+                const duration = settings.waveSpeed + (index * 4);
+                wave.style.animationDuration = duration + 's';
+            });
+        }
+
+        // Update all visuals
+        function updateScene() {
+            // Update time display
+            timeDisplay.textContent = getTimeOfDay(settings.time);
+
+            // Update sky and ocean colors
+            const colors = calculateSkyColor(settings.time);
+            sky.style.background = colors.skyColor;
+            ocean.style.background = colors.oceanColor;
+
+            // Update celestial body
+            updateCelestialBody(settings.time);
+
+            // Update clouds
+            createStars();
+
+            // Update wave animation
+            updateWaveSpeed();
+
+            // Update rain effect
+            createRain();
+
+            // Update ocean opacity based on visibility
+            ocean.style.opacity = settings.visibility / 100;
+
+            // Update scenery blur for visibility
+            document.querySelector('.scenery').style.filter = `blur(${(100 - settings.visibility) / 50}px)`;
+
+            // Update weather effects
+            if (settings.weather === 'stormy' || settings.weather === 'rainy') {
+                settings.rainIntensity = Math.max(settings.rainIntensity, 30);
+            } else if (settings.weather === 'clear') {
+                settings.rainIntensity = 0;
+                settings.cloudCover = Math.min(settings.cloudCover, 20);
+            }
+        }
+
+        // Event listeners
+        timeSlider.addEventListener('input', (e) => {
+            settings.time = parseInt(e.target.value);
+            updateScene();
+        });
+
+        weatherSelect.addEventListener('change', (e) => {
+            settings.weather = e.target.value;
+            
+            // Auto-adjust settings based on weather
+            if (e.target.value === 'clear') {
+                settings.cloudCover = 10;
+                settings.rainIntensity = 0;
+                settings.wind = 20;
+            } else if (e.target.value === 'cloudy') {
+                settings.cloudCover = 50;
+                settings.rainIntensity = 0;
+            } else if (e.target.value === 'overcast') {
+                settings.cloudCover = 80;
+                settings.rainIntensity = 0;
+            } else if (e.target.value === 'stormy') {
+                settings.cloudCover = 95;
+                settings.rainIntensity = 70;
+                settings.wind = 80;
+                settings.waveHeight = 80;
+            } else if (e.target.value === 'rainy') {
+                settings.cloudCover = 90;
+                settings.rainIntensity = 60;
+                settings.wind = 50;
+            }
+            
+            updateScene();
+            updateSliderValues();
+        });
+
+        cloudCoverSlider.addEventListener('input', (e) => {
+            settings.cloudCover = parseInt(e.target.value);
+            cloudCoverValue.textContent = settings.cloudCover + '%';
+            updateScene();
+        });
+
+        waveHeightSlider.addEventListener('input', (e) => {
+            settings.waveHeight = parseInt(e.target.value);
+            const heights = ['Calm', 'Low', 'Moderate', 'High', 'Very High'];
+            waveHeightValue.textContent = heights[Math.floor(settings.waveHeight / 25)];
+            
+            const ocean = document.querySelector('.ocean');
+            ocean.style.transform = `scaleY(${1 + (settings.waveHeight / 100) * 0.3})`;
+        });
+
+        waveSpeedSlider.addEventListener('input', (e) => {
+            settings.waveSpeed = parseInt(e.target.value);
+            const speeds = ['Slow', 'Slow', 'Normal', 'Fast', 'Fast'];
+            waveSpeedValue.textContent = speeds[Math.floor((settings.waveSpeed - 4) / 4)];
+            updateWaveSpeed();
+        });
+
+        visibilitySlider.addEventListener('input', (e) => {
+            settings.visibility = parseInt(e.target.value);
+            visibilityValue.textContent = settings.visibility + '%';
+            updateScene();
+        });
+
+        windSlider.addEventListener('input', (e) => {
+            settings.wind = parseInt(e.target.value);
+            const winds = ['Calm', 'Light', 'Moderate', 'Strong', 'Very Strong'];
+            windValue.textContent = winds[Math.floor(settings.wind / 25)];
+        });
+
+        rainSlider.addEventListener('input', (e) => {
+            settings.rainIntensity = parseInt(e.target.value);
+            rainValue.textContent = settings.rainIntensity + '%';
+            createRain();
+        });
+
+        // Toggle settings panel
+        toggleBtn.addEventListener('click', () => {
+            settingsPanel.classList.toggle('open');
+            toggleBtn.classList.toggle('open');
+        });
+
+        // Reset button
+        resetBtn.addEventListener('click', () => {
+            Object.assign(settings, defaultSettings);
+            updateSliderValues();
+            updateScene();
+        });
+
+        // Update all slider displays
+        function updateSliderValues() {
+            timeSlider.value = settings.time;
+            cloudCoverSlider.value = settings.cloudCover;
+            waveHeightSlider.value = settings.waveHeight;
+            waveSpeedSlider.value = settings.waveSpeed;
+            visibilitySlider.value = settings.visibility;
+            windSlider.value = settings.wind;
+            rainSlider.value = settings.rainIntensity;
+            weatherSelect.value = settings.weather;
+            
+            cloudCoverValue.textContent = settings.cloudCover + '%';
+            visibilityValue.textContent = settings.visibility + '%';
+            rainValue.textContent = settings.rainIntensity + '%';
+            
+            const heights = ['Calm', 'Low', 'Moderate', 'High', 'Very High'];
+            waveHeightValue.textContent = heights[Math.floor(settings.waveHeight / 25)];
+            
+            const speeds = ['Slow', 'Slow', 'Normal', 'Fast', 'Fast'];
+            waveSpeedValue.textContent = speeds[Math.floor((settings.waveSpeed - 4) / 4)];
+            
+            const winds = ['Calm', 'Light', 'Moderate', 'Strong', 'Very Strong'];
+            windValue.textContent = winds[Math.floor(settings.wind / 25)];
+        }
+
+        // Initialize
+        createRailings();
+        updateScene();
+    </script>
+</body>
+</html>
