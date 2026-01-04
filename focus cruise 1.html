@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caribbean Cruise - Ultra Realistic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+        }
+
+        .main-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scenery {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Sky */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 55%;
+            transition: background 2s ease;
+            z-index: 1;
+        }
+
+        /* Sun rays */
+        .sun-rays {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 55%;
+            pointer-events: none;
+            z-index: 3;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        .sun-ray {
+            position: absolute;
+            width: 2px;
+            height: 40%;
+            background: linear-gradient(to bottom, rgba(255, 255, 200, 0.3), transparent);
+            transform-origin: top center;
+            animation: rotate-ray 20s linear infinite;
+        }
+
+        @keyframes rotate-ray {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Celestial body */
+        .celestial-body {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            z-index: 4;
+            transition: all 2s ease;
+        }
+
+        /* Clouds container */
+        .clouds-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 55%;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+            opacity: 0.8;
+            filter: blur(8px);
+            animation: cloud-drift 120s linear infinite;
+        }
+
+        @keyframes cloud-drift {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(100vw); }
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .cloud.small {
+            width: 80px;
+            height: 30px;
+        }
+
+        .cloud.small::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud.small::after {
+            width: 40px;
+            height: 40px;
+            top: -20px;
+            right: 10px;
+        }
+
+        .cloud.medium {
+            width: 120px;
+            height: 40px;
+        }
+
+        .cloud.medium::before {
+            width: 70px;
+            height: 70px;
+            top: -35px;
+            left: 15px;
+        }
+
+        .cloud.medium::after {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            right: 15px;
+        }
+
+        .cloud.large {
+            width: 200px;
+            height: 60px;
+        }
+
+        .cloud.large::before {
+            width: 100px;
+            height: 100px;
+            top: -50px;
+            left: 30px;
+        }
+
+        .cloud.large::after {
+            width: 80px;
+            height: 80px;
+            top: -40px;
+            right: 30px;
+        }
+
+        .cloud.storm {
+            background: #404040;
+            opacity: 0.9;
+        }
+
+        .cloud.storm::before,
+        .cloud.storm::after {
+            background: #404040;
+        }
+
+        /* Stars */
+        .stars {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 3px white;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* Birds */
+        .bird {
+            position: absolute;
+            width: 30px;
+            height: 20px;
+            z-index: 5;
+            animation: bird-fly 30s linear infinite;
+        }
+
+        @keyframes bird-fly {
+            0% { transform: translateX(-100px) translateY(0); }
+            50% { transform: translateX(50vw) translateY(-20px); }
+            100% { transform: translateX(calc(100vw + 100px)) translateY(0); }
+        }
+
+        .bird::before,
+        .bird::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 3px;
+            background: #333;
+            border-radius: 2px;
+            animation: flap 0.5s ease-in-out infinite;
+        }
+
+        .bird::before {
+            left: 0;
+            transform-origin: right center;
+        }
+
+        .bird::after {
+            right: 0;
+            transform-origin: left center;
+        }
+
+        @keyframes flap {
+            0%, 100% { transform: rotateZ(0deg); }
+            50% { transform: rotateZ(-20deg); }
+        }
+
+        /* Horizon */
+        .horizon {
+            position: absolute;
+            bottom: 45%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            z-index: 6;
+        }
+
+        /* Distant islands */
+        .islands {
+            position: absolute;
+            bottom: 45%;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            z-index: 7;
+        }
+
+        .island {
+            position: absolute;
+            bottom: 0;
+            background: linear-gradient(to bottom, #2a4a3a, #1a3a2a);
+            opacity: 0.6;
+            filter: blur(2px);
+        }
+
+        .island::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 40px;
+            background: linear-gradient(to bottom, #3a5a4a, transparent);
+            border-radius: 50% 50% 0 0;
+        }
+
+        /* Ocean */
+        .ocean {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45%;
+            transition: background 2s ease;
+            overflow: hidden;
+            z-index: 8;
+        }
+
+        /* Water sparkles */
+        .sparkles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            animation: sparkle-twinkle 2s ease-in-out infinite;
+        }
+
+        @keyframes sparkle-twinkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Waves */
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 100px;
+            background-image: url('data:image/svg+xml,<svg viewBox="0 0 1200 100" xmlns="http://www.w3.org/2000/svg"><path d="M0,50 Q150,20 300,50 T600,50 T900,50 T1200,50 L1200,100 L0,100 Z" fill="rgba(255,255,255,0.1)" stroke="none"/></svg>');
+            background-repeat: repeat-x;
+            opacity: 0.6;
+        }
+
+        .wave:nth-child(1) {
+            bottom: 0;
+            animation: wave-move 8s linear infinite;
+            opacity: 0.4;
+        }
+
+        .wave:nth-child(2) {
+            bottom: 20px;
+            animation: wave-move 12s linear infinite reverse;
+            opacity: 0.3;
+        }
+
+        .wave:nth-child(3) {
+            bottom: 40px;
+            animation: wave-move 15s linear infinite;
+            opacity: 0.2;
+        }
+
+        @keyframes wave-move {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Wave foam */
+        .foam {
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent);
+            filter: blur(4px);
+            animation: foam-move 6s ease-in-out infinite;
+        }
+
+        @keyframes foam-move {
+            0%, 100% { transform: scaleX(1); opacity: 0.3; }
+            50% { transform: scaleX(1.1); opacity: 0.5; }
+        }
+
+        /* Dolphins */
+        .dolphin {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            z-index: 9;
+            animation: dolphin-jump 8s ease-in-out infinite;
+        }
+
+        @keyframes dolphin-jump {
+            0%, 100% { transform: translateY(200px) translateX(0) rotateZ(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            25% { transform: translateY(-50px) translateX(200px) rotateZ(-30deg); }
+            50% { transform: translateY(0px) translateX(400px) rotateZ(0deg); }
+            75% { transform: translateY(-30px) translateX(600px) rotateZ(-20deg); }
+            90% { opacity: 1; }
+            100% { transform: translateY(200px) translateX(800px) rotateZ(0deg); opacity: 0; }
+        }
+
+        .dolphin::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4a90a4, #2d5f6f);
+            border-radius: 50% 50% 50% 20%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Rain */
+        .rain-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(to bottom, rgba(200, 220, 255, 0.8), rgba(200, 220, 255, 0.2));
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+
+        /* Lightning */
+        .lightning {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 3px;
+            height: 300px;
+            background: white;
+            box-shadow: 0 0 20px white, 0 0 40px rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            z-index: 21;
+            animation: lightning-strike 4s ease-in-out infinite;
+        }
+
+        @keyframes lightning-strike {
+            0%, 95%, 100% { opacity: 0; }
+            96%, 97% { opacity: 1; }
+            97.5%, 98.5% { opacity: 0; }
+            99%, 99.5% { opacity: 0.8; }
+        }
+
+        /* Ship deck */
+        .ship-deck {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(to bottom, rgba(180, 140, 100, 0.95), rgba(140, 100, 70, 0.98));
+            border-top: 4px solid #8b7355;
+            z-index: 30;
+            animation: ship-sway 6s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+
+        @keyframes ship-sway {
+            0%, 100% { transform: rotateZ(0deg); }
+            25% { transform: rotateZ(-0.5deg); }
+            75% { transform: rotateZ(0.5deg); }
+        }
+
+        .ship-railing {
+            position: absolute;
+            width: 100%;
+            height: 50px;
+            top: 0;
+            border-top: 3px solid #696969;
+            border-bottom: 2px solid #505050;
+        }
+
+        .railing-post {
+            position: absolute;
+            width: 8px;
+            height: 50px;
+            background: linear-gradient(to right, #404040, #606060, #404040);
+            top: 0;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .ship-details {
+            position: absolute;
+            width: 100%;
+            height: 70px;
+            top: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 5%;
+        }
+
+        .deck-item {
+            width: 60px;
+            height: 50px;
+            background: linear-gradient(135deg, rgba(120, 120, 120, 0.8), rgba(80, 80, 80, 0.9));
+            border-radius: 6px;
+            border: 2px solid #505050;
+            box-shadow: 
+                inset 0 2px 4px rgba(255, 255, 255, 0.2),
+                0 4px 8px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .deck-item::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        /* Flag */
+        .flag {
+            position: absolute;
+            top: -80px;
+            right: 10%;
+            width: 50px;
+            height: 30px;
+            z-index: 31;
+        }
+
+        .flag-pole {
+            position: absolute;
+            width: 3px;
+            height: 80px;
+            background: linear-gradient(to bottom, #404040, #606060);
+            left: 0;
+            top: 0;
+        }
+
+        .flag-cloth {
+            position: absolute;
+            width: 50px;
+            height: 30px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            left: 3px;
+            top: 5px;
+            animation: flag-wave 2s ease-in-out infinite;
+            transform-origin: left center;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes flag-wave {
+            0%, 100% { transform: rotateY(0deg) skewX(0deg); }
+            50% { transform: rotateY(10deg) skewX(5deg); }
+        }
+
+        /* Fog effect */
+        .fog {
+            position: absolute;
+            bottom: 45%;
+            left: -100%;
+            width: 300%;
+            height: 200px;
+            background: linear-gradient(to top, rgba(200, 200, 200, 0.4), transparent);
+            filter: blur(20px);
+            opacity: 0;
+            z-index: 15;
+            animation: fog-drift 60s linear infinite;
+        }
+
+        @keyframes fog-drift {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(33.33%); }
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            width: 0;
+            height: 100%;
+            background: rgba(20, 20, 30, 0.97);
+            backdrop-filter: blur(15px);
+            padding: 20px;
+            overflow-y: auto;
+            transition: width 0.4s ease;
+            border-left: 2px solid rgba(135, 206, 235, 0.3);
+            z-index: 100;
+            color: #fff;
+            box-shadow: -8px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .settings-panel.open {
+            width: 340px;
+        }
+
+        .settings-panel h3 {
+            margin-top: 20px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #87CEEB;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid rgba(135, 206, 235, 0.2);
+            padding-bottom: 8px;
+        }
+
+        .settings-panel h3:first-of-type {
+            margin-top: 0;
+        }
+
+        .setting-item {
+            margin-bottom: 18px;
+        }
+
+        .setting-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+        }
+
+        .setting-value {
+            font-weight: 600;
+            color: #87CEEB;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #87CEEB, #4682b4);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(135, 206, 235, 0.6);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(135, 206, 235, 0.8);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #87CEEB, #4682b4);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(135, 206, 235, 0.6);
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 1px solid rgba(135, 206, 235, 0.2);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        select:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(135, 206, 235, 0.4);
+        }
+
+        select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #87CEEB;
+            box-shadow: 0 0 15px rgba(135, 206, 235, 0.3);
+        }
+
+        .toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(135, 206, 235, 0.3), rgba(70, 130, 180, 0.3));
+            border: 2px solid rgba(135, 206, 235, 0.5);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 26px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 101;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle-btn:hover {
+            background: linear-gradient(135deg, rgba(135, 206, 235, 0.4), rgba(70, 130, 180, 0.4));
+            box-shadow: 0 0 25px rgba(135, 206, 235, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .toggle-btn.open {
+            right: 360px;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 30px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .reset-btn:hover {
+            box-shadow: 0 0 25px rgba(231, 76, 60, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+
+        .settings-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .settings-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .settings-panel::-webkit-scrollbar-thumb {
+            background: rgba(135, 206, 235, 0.3);
+            border-radius: 4px;
+        }
+
+        .settings-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(135, 206, 235, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .settings-panel.open {
+                width: 100%;
+            }
+
+            .toggle-btn.open {
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="scenery">
+            <div class="sky" id="sky"></div>
+            <div class="sun-rays" id="sunRays"></div>
+            <div class="celestial-body" id="celestialBody"></div>
+            <div class="clouds-container" id="cloudsContainer"></div>
+            <div class="horizon"></div>
+            <div class="islands" id="islands"></div>
+            <div class="fog" id="fog"></div>
+            
+            <div class="ocean" id="ocean">
+                <div class="sparkles" id="sparkles"></div>
+                <div class="foam"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="rain-effect" id="rainEffect"></div>
+                <div class="lightning" id="lightning"></div>
+            </div>
+            
+            <div class="ship-deck">
+                <div class="flag">
+                    <div class="flag-pole"></div>
+                    <div class="flag-cloth"></div>
+                </div>
+                <div class="ship-railing">
+                    <div id="railingPosts"></div>
+                </div>
+                <div class="ship-details">
+                    <div class="deck-item"></div>
+                    <div class="deck-item"></div>
+                    <div class="deck-item"></div>
+                    <div class="deck-item"></div>
+                    <div class="deck-item"></div>
+                </div>
+            </div>
+        </div>
+
+        <button class="toggle-btn" id="toggleBtn">⚙️</button>
+
+        <div class="settings-panel" id="settingsPanel">
+            <h3>⏰ Time of Day</h3>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Time</span>
+                    <span class="setting-value" id="timeDisplay">12:00</span>
+                </div>
+                <input type="range" id="timeSlider" min="0" max="1440" value="720" step="30">
+            </div>
+
+            <h3>🌤️ Weather</h3>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Condition</span>
+                </div>
+                <select id="weatherSelect">
+                    <option value="clear">Clear Sky ☀️</option>
+                    <option value="cloudy">Cloudy ☁️</option>
+                    <option value="overcast">Overcast 🌥️</option>
+                    <option value="stormy">Stormy ⛈️</option>
+                    <option value="rainy">Rainy 🌧️</option>
+                    <option value="foggy">Foggy 🌫️</option>
+                </select>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Cloud Cover</span>
+                    <span class="setting-value" id="cloudCoverValue">30%</span>
+                </div>
+                <input type="range" id="cloudCoverSlider" min="0" max="100" value="30" step="10">
+            </div>
+
+            <h3>🌊 Ocean Conditions</h3>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Wave Height</span>
+                    <span class="setting-value" id="waveHeightValue">Low</span>
+                </div>
+                <input type="range" id="waveHeightSlider" min="0" max="100" value="30" step="20">
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Wave Speed</span>
+                    <span class="setting-value" id="waveSpeedValue">Normal</span>
+                </div>
+                <input type="range" id="waveSpeedSlider" min="4" max="20" value="8" step="2">
+            </div>
+
+            <h3>🌅 Atmosphere</h3>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Visibility</span>
+                    <span class="setting-value" id="visibilityValue">100%</span>
+                </div>
+                <input type="range" id="visibilitySlider" min="20" max="100" value="100" step="10">
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Wind Strength</span>
+                    <span class="setting-value" id="windValue">Calm</span>
+                </div>
+                <input type="range" id="windSlider" min="0" max="100" value="20" step="20">
+            </div>
+
+            <h3>💧 Effects</h3>
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>Rain Intensity</span>
+                    <span class="setting-value" id="rainValue">0%</span>
+                </div>
+                <input type="range" id="rainSlider" min="0" max="100" value="0" step="10">
+            </div>
+
+            <button class="reset-btn" id="resetBtn">🔄 Reset to Default</button>
+        </div>
+    </div>
+
+    <script>
+        const settings = {
+            time: 720,
+            weather: 'clear',
+            cloudCover: 30,
+            waveHeight: 30,
+            waveSpeed: 8,
+            visibility: 100,
+            wind: 20,
+            rainIntensity: 0
+        };
+
+        const defaultSettings = { ...settings };
+
+        // DOM elements
+        const els = {
+            timeSlider: document.getElementById('timeSlider'),
+            timeDisplay: document.getElementById('timeDisplay'),
+            weatherSelect: document.getElementById('weatherSelect'),
+            cloudCoverSlider: document.getElementById('cloudCoverSlider'),
+            cloudCoverValue: document.getElementById('cloudCoverValue'),
+            waveHeightSlider: document.getElementById('waveHeightSlider'),
+            waveHeightValue: document.getElementById('waveHeightValue'),
+            waveSpeedSlider: document.getElementById('waveSpeedSlider'),
+            waveSpeedValue: document.getElementById('waveSpeedValue'),
+            visibilitySlider: document.getElementById('visibilitySlider'),
+            visibilityValue: document.getElementById('visibilityValue'),
+            windSlider: document.getElementById('windSlider'),
+            windValue: document.getElementById('windValue'),
+            rainSlider: document.getElementById('rainSlider'),
+            rainValue: document.getElementById('rainValue'),
+            resetBtn: document.getElementById('resetBtn'),
+            toggleBtn: document.getElementById('toggleBtn'),
+            settingsPanel: document.getElementById('settingsPanel'),
+            sky: document.getElementById('sky'),
+            ocean: document.getElementById('ocean'),
+            celestialBody: document.getElementById('celestialBody'),
+            cloudsContainer: document.getElementById('cloudsContainer'),
+            rainEffect: document.getElementById('rainEffect'),
+            lightning: document.getElementById('lightning'),
+            sunRays: document.getElementById('sunRays'),
+            fog: document.getElementById('fog'),
+            islands: document.getElementById('islands'),
+            sparkles: document.getElementById('sparkles'),
+            railingPosts: document.getElementById('railingPosts')
+        };
+
+        // Initialize railing posts
+        function createRailings() {
+            els.railingPosts.innerHTML = '';
+            for (let i = 0; i < 40; i++) {
+                const post = document.createElement('div');
+                post.className = 'railing-post';
+                post.style.left = (i * 2.5) + '%';
+                els.railingPosts.appendChild(post);
+            }
+        }
+
+        // Get time display
+        function getTimeDisplay(minutes) {
+            const h = Math.floor(minutes / 60);
+            const m = minutes % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        }
+
+        // Calculate colors based on time
+        function calculateColors(minutes) {
+            const t = minutes / 1440;
+            let skyColor, oceanColor, sunPos, isDay, isSunrise, isSunset;
+
+            if (t < 0.25) {
+                // Night
+                const p = t / 0.25;
+                skyColor = `radial-gradient(ellipse at 50% 100%, #0a0a1a, #000000)`;
+                oceanColor = `linear-gradient(to bottom, #0a1929, #050f1a)`;
+                sunPos = { x: 50, y: 120 };
+                isDay = false;
+            } else if (t < 0.3) {
+                // Dawn/Sunrise
+                const p = (t - 0.25) / 0.05;
+                skyColor = `linear-gradient(to bottom, 
+                    #1a1a3a ${(1-p)*50}%, 
+                    #ff6b35 ${20 + p*30}%, 
+                    #ffa500 ${40 + p*20}%, 
+                    #87CEEB ${60 + p*30}%)`;
+                oceanColor = `linear-gradient(to bottom, #1a3a52, #ff8c42 ${p*30}%, #006994)`;
+                sunPos = { x: 20 + p*15, y: 80 - p*50 };
+                isDay = true;
+                isSunrise = true;
+            } else if (t < 0.5) {
+                // Morning
+                const p = (t - 0.3) / 0.2;
+                skyColor = `linear-gradient(to bottom, #87CEEB, #b0d4f1 50%, #d0e8f7)`;
+                oceanColor = `linear-gradient(to bottom, #006994, #004a6f 50%, #003d5c)`;
+                sunPos = { x: 35 + p*15, y: 30 - p*10 };
+                isDay = true;
+            } else if (t < 0.65) {
+                // Noon
+                skyColor = `linear-gradient(to bottom, #4da6ff, #87CEEB 40%, #b0d4f1)`;
+                oceanColor = `linear-gradient(to bottom, #0077be, #005a8f 50%, #004670)`;
+                sunPos = { x: 50, y: 15 };
+                isDay = true;
+            } else if (t < 0.75) {
+                // Afternoon
+                const p = (t - 0.65) / 0.1;
+                skyColor = `linear-gradient(to bottom, 
+                    #87CEEB ${(1-p)*30}%, 
+                    #ff9a56 ${30 + p*20}%, 
+                    #ff6b35 ${60 + p*20}%)`;
+                oceanColor = `linear-gradient(to bottom, #006994 ${(1-p)*40}%, #ff8c42 ${p*50}%)`;
+                sunPos = { x: 50 + p*15, y: 20 + p*40 };
+                isDay = true;
+                isSunset = true;
+            } else if (t < 0.8) {
+                // Sunset
+                const p = (t - 0.75) / 0.05;
+                skyColor = `linear-gradient(to bottom, 
+                    #ff6b35 ${(1-p)*30}%, 
+                    #ff4500 ${30 + p*20}%, 
+                    #8b008b ${60 + p*20}%, 
+                    #1a1a3a)`;
+                oceanColor = `linear-gradient(to bottom, #d94c1b, #8b2500 ${50 + p*30}%, #0a1929)`;
+                sunPos = { x: 65 + p*15, y: 60 + p*30 };
+                isDay = false;
+                isSunset = true;
+            } else {
+                // Evening/Night
+                const p = (t - 0.8) / 0.2;
+                skyColor = `radial-gradient(ellipse at 50% 100%, #1a1a3a ${(1-p)*30}%, #0a0a1a)`;
+                oceanColor = `linear-gradient(to bottom, #0a1929, #050f1a)`;
+                sunPos = { x: 80 + p*20, y: 90 + p*30 };
+                isDay = false;
+            }
+
+            return { skyColor, oceanColor, sunPos, isDay, isSunrise, isSunset };
+        }
+
+        // Update celestial body
+        function updateCelestialBody(colors) {
+            els.celestialBody.style.left = colors.sunPos.x + '%';
+            els.celestialBody.style.top = colors.sunPos.y + '%';
+            
+            if (colors.isDay) {
+                els.celestialBody.style.background = 'radial-gradient(circle at 30% 30%, #fffacd, #ffd700)';
+                els.celestialBody.style.boxShadow = '0 0 60px rgba(255, 215, 0, 0.9), 0 0 100px rgba(255, 215, 0, 0.5)';
+            } else {
+                els.celestialBody.style.background = 'radial-gradient(circle at 25% 25%, #f5f5f5, #d0d0d0)';
+                els.celestialBody.style.boxShadow = '0 0 40px rgba(220, 220, 220, 0.6), 0 0 80px rgba(220, 220, 220, 0.3)';
+            }
+
+            // Show sun rays during sunrise/sunset
+            if (colors.isSunrise || colors.isSunset) {
+                els.sunRays.style.opacity = '0.4';
+                createSunRays();
+            } else {
+                els.sunRays.style.opacity = '0';
+            }
+        }
+
+        // Create sun rays
+        function createSunRays() {
+            if (els.sunRays.children.length === 0) {
+                for (let i = 0; i < 12; i++) {
+                    const ray = document.createElement('div');
+                    ray.className = 'sun-ray';
+                    ray.style.left = '50%';
+                    ray.style.top = '20%';
+                    ray.style.transform = `rotate(${i * 30}deg)`;
+                    ray.style.animationDelay = `${i * 0.1}s`;
+                    els.sunRays.appendChild(ray);
+                }
+            }
+        }
+
+        // Create clouds
+        function createClouds() {
+            els.cloudsContainer.innerHTML = '';
+            const t = settings.time / 1440;
+            const isNight = t < 0.25 || t > 0.75;
+
+            // Add stars at night
+            if (isNight) {
+                const starCount = Math.floor((1 - settings.cloudCover / 100) * 150);
+                for (let i = 0; i < starCount; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'stars';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 55 + '%';
+                    star.style.animationDelay = Math.random() * 3 + 's';
+                    star.style.animationDuration = (2 + Math.random() * 2) + 's';
+                    els.cloudsContainer.appendChild(star);
+                }
+            }
+
+            // Add clouds
+            const cloudCount = Math.ceil((settings.cloudCover / 100) * 20);
+            const sizes = ['small', 'medium', 'large'];
+            
+            for (let i = 0; i < cloudCount; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud ' + sizes[Math.floor(Math.random() * sizes.length)];
+                
+                if (settings.weather === 'stormy' || settings.weather === 'rainy') {
+                    cloud.classList.add('storm');
+                }
+                
+                cloud.style.left = -100 + (Math.random() * 120) + '%';
+                cloud.style.top = Math.random() * 45 + '%';
+                
+                const speed = 60 + (settings.wind / 100) * 80;
+                cloud.style.animationDuration = speed + Math.random() * 40 + 's';
+                cloud.style.animationDelay = Math.random() * -60 + 's';
+                
+                els.cloudsContainer.appendChild(cloud);
+            }
+
+            // Add birds
+            if (settings.weather === 'clear' || settings.weather === 'cloudy') {
+                const birdCount = Math.floor(Math.random() * 3) + 2;
+                for (let i = 0; i < birdCount; i++) {
+                    const bird = document.createElement('div');
+                    bird.className = 'bird';
+                    bird.style.top = (10 + Math.random() * 30) + '%';
+                    bird.style.animationDuration = (20 + Math.random() * 20) + 's';
+                    bird.style.animationDelay = Math.random() * -20 + 's';
+                    els.cloudsContainer.appendChild(bird);
+                }
+            }
+        }
+
+        // Create rain
+        function createRain() {
+            els.rainEffect.innerHTML = '';
+            const rainCount = Math.ceil((settings.rainIntensity / 100) * 300);
+            
+            for (let i = 0; i < rainCount; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'raindrop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.top = Math.random() * -100 + '%';
+                drop.style.height = (10 + Math.random() * 20) + 'px';
+                drop.style.animationDuration = (0.5 + Math.random() * 0.5) + 's';
+                drop.style.animationDelay = Math.random() * 2 + 's';
+                drop.style.opacity = settings.rainIntensity / 150;
+                els.rainEffect.appendChild(drop);
+            }
+
+            // Lightning for stormy weather
+            if (settings.weather === 'stormy') {
+                els.lightning.style.display = 'block';
+                els.lightning.style.left = (30 + Math.random() * 40) + '%';
+            } else {
+                els.lightning.style.display = 'none';
+            }
+        }
+
+        // Create water sparkles
+        function createSparkles() {
+            els.sparkles.innerHTML = '';
+            const t = settings.time / 1440;
+            const isDaytime = t > 0.25 && t < 0.75;
+            
+            if (isDaytime && settings.visibility > 70) {
+                const sparkleCount = Math.floor((settings.visibility / 100) * 50);
+                for (let i = 0; i < sparkleCount; i++) {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.animationDuration = (1 + Math.random() * 2) + 's';
+                    sparkle.style.animationDelay = Math.random() * 2 + 's';
+                    els.sparkles.appendChild(sparkle);
+                }
+            }
+        }
+
+        // Create islands
+        function createIslands() {
+            els.islands.innerHTML = '';
+            if (settings.visibility > 50) {
+                const islandCount = 2 + Math.floor(Math.random() * 2);
+                for (let i = 0; i < islandCount; i++) {
+                    const island = document.createElement('div');
+                    island.className = 'island';
+                    island.style.left = (i * 35 + Math.random() * 10) + '%';
+                    island.style.width = (80 + Math.random() * 60) + 'px';
+                    island.style.height = (30 + Math.random() * 30) + 'px';
+                    island.style.opacity = (settings.visibility / 100) * 0.6;
+                    els.islands.appendChild(island);
+                }
+            }
+        }
+
+        // Create dolphins
+        function createDolphins() {
+            const existingDolphins = document.querySelectorAll('.dolphin');
+            existingDolphins.forEach(d => d.remove());
+            
+            if (Math.random() > 0.5 && settings.weather !== 'stormy') {
+                const dolphin = document.createElement('div');
+                dolphin.className = 'dolphin';
+                dolphin.style.bottom = '10%';
+                dolphin.style.left = '-50px';
+                els.ocean.appendChild(dolphin);
+            }
+        }
+
+        // Update wave animation
+        function updateWaves() {
+            const waves = document.querySelectorAll('.wave');
+            waves.forEach((wave, i) => {
+                const duration = settings.waveSpeed + (i * 4);
+                wave.style.animationDuration = duration + 's';
+            });
+        }
+
+        // Update fog
+        function updateFog() {
+            if (settings.weather === 'foggy' || settings.visibility < 50) {
+                els.fog.style.opacity = Math.min(0.8, (100 - settings.visibility) / 100);
+            } else {
+                els.fog.style.opacity = '0';
+            }
+        }
+
+        // Update ship sway based on wave height
+        function updateShipSway() {
+            const deck = document.querySelector('.ship-deck');
+            const intensity = settings.waveHeight / 100;
+            deck.style.setProperty('--sway-intensity', intensity);
+        }
+
+        // Main update function
+        function updateScene() {
+            els.timeDisplay.textContent = getTimeDisplay(settings.time);
+            
+            const colors = calculateColors(settings.time);
+            els.sky.style.background = colors.skyColor;
+            els.ocean.style.background = colors.oceanColor;
+            
+            updateCelestialBody(colors);
+            createClouds();
+            createRain();
+            createSparkles();
+            createIslands();
+            updateWaves();
+            updateFog();
+            updateShipSway();
+            
+            // Periodically add dolphins
+            if (Math.random() > 0.98) {
+                createDolphins();
+            }
+            
+            // Apply visibility
+            document.querySelector('.scenery').style.filter = 
+                `blur(${(100 - settings.visibility) / 30}px) brightness(${50 + settings.visibility / 2}%)`;
+        }
+
+        // Event listeners
+        els.timeSlider.addEventListener('input', (e) => {
+            settings.time = parseInt(e.target.value);
+            updateScene();
+        });
+
+        els.weatherSelect.addEventListener('change', (e) => {
+            settings.weather = e.target.value;
+            
+            const presets = {
+                'clear': { cloudCover: 10, rainIntensity: 0, wind: 20, visibility: 100 },
+                'cloudy': { cloudCover: 50, rainIntensity: 0, wind: 30, visibility: 90 },
+                'overcast': { cloudCover: 80, rainIntensity: 0, wind: 40, visibility: 70 },
+                'stormy': { cloudCover: 95, rainIntensity: 70, wind: 80, waveHeight: 80, visibility: 50 },
+                'rainy': { cloudCover: 90, rainIntensity: 60, wind: 50, visibility: 60 },
+                'foggy': { cloudCover: 70, rainIntensity: 10, wind: 10, visibility: 30 }
+            };
+            
+            Object.assign(settings, presets[
