@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WW2 Berlin 1945 - Contemplative Scenery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid rgba(200, 170, 140, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 1000;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+        }
+
+        .controls-container h2 {
+            color: #d4a574;
+            font-size: 18px;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid rgba(200, 170, 140, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            color: #c8aa8c;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(100, 100, 100, 0.5);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #d4a574;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(212, 165, 116, 0.4);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #d4a574;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(212, 165, 116, 0.4);
+        }
+
+        .slider-value {
+            color: #a89968;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 10px;
+            border: 1px solid rgba(200, 170, 140, 0.3);
+            background: rgba(100, 80, 60, 0.5);
+            color: #c8aa8c;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: rgba(150, 120, 90, 0.7);
+            border-color: rgba(200, 170, 140, 0.6);
+            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.2);
+        }
+
+        .btn.active {
+            background: rgba(200, 140, 80, 0.8);
+            border-color: rgba(200, 170, 140, 0.8);
+            color: #f0f0f0;
+        }
+
+        .info-text {
+            color: #8a8a8a;
+            font-size: 11px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(200, 170, 140, 0.2);
+            line-height: 1.5;
+        }
+
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid rgba(200, 170, 140, 0.4);
+            border-radius: 50%;
+            color: #d4a574;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(0, 0, 0, 0.95);
+            border-color: rgba(200, 170, 140, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            .controls-container {
+                width: 280px;
+                top: 70px;
+                right: 10px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(200, 170, 140, 0.4);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(200, 170, 140, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="sceneryCanvas"></canvas>
+    
+    <button class="toggle-btn" id="toggleBtn">⚙️</button>
+    
+    <div class="controls-container" id="controlsContainer" style="display: none;">
+        <h2>Scene Settings</h2>
+        
+        <div class="control-group">
+            <label class="control-label">Time of Day</label>
+            <div class="button-group">
+                <button class="btn" data-time="dawn">Dawn</button>
+                <button class="btn" data-time="morning">Morning</button>
+                <button class="btn" data-time="noon">Noon</button>
+                <button class="btn" data-time="afternoon">Afternoon</button>
+                <button class="btn" data-time="dusk">Dusk</button>
+                <button class="btn" data-time="night">Night</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Weather</label>
+            <div class="button-group">
+                <button class="btn" data-weather="clear">Clear</button>
+                <button class="btn" data-weather="overcast">Overcast</button>
+                <button class="btn" data-weather="rain">Rain</button>
+                <button class="btn" data-weather="fog">Fog</button>
+                <button class="btn" data-weather="smoke">Smoke</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Destruction Level</label>
+            <input type="range" id="destructionSlider" class="slider" min="0" max="100" value="75">
+            <div class="slider-value">
+                <span id="destructionValue">75</span>%
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Camera Distance</label>
+            <input type="range" id="cameraSlider" class="slider" min="5" max="30" value="15" step="0.5">
+            <div class="slider-value">
+                <span id="cameraValue">15</span> units
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Wind Intensity</label>
+            <input type="range" id="windSlider" class="slider" min="0" max="100" value="30">
+            <div class="slider-value">
+                <span id="windValue">30</span>%
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Debris/Dust</label>
+            <input type="range" id="debrisSlider" class="slider" min="0" max="100" value="50">
+            <div class="slider-value">
+                <span id="debrisValue">50</span>%
+            </div>
+        </div>
+
+        <div class="info-text">
+            ⚔️ Berlin 1945<br>
+            May 2nd, End of Battle<br><br>
+            "40% of Berlin's buildings destroyed. Nearly 1.3 million casualties."
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('sceneryCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // State management
+        const scene = {
+            time: 'afternoon',
+            weather: 'overcast',
+            destruction: 75,
+            cameraDistance: 15,
+            wind: 30,
+            debris: 50,
+            animationTime: 0
+        };
+
+        // Particle system for effects
+        const particles = [];
+
+        class Particle {
+            constructor(x, y, vx, vy, type = 'dust', life = 100) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.type = type;
+                this.life = life;
+                this.maxLife = life;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life--;
+
+                if (this.type === 'dust') {
+                    this.vy += 0.05;
+                } else if (this.type === 'smoke') {
+                    this.vy -= 0.02;
+                    this.vx *= 0.98;
+                }
+            }
+
+            draw(ctx) {
+                const alpha = this.life / this.maxLife;
+                
+                if (this.type === 'dust') {
+                    ctx.fillStyle = `rgba(180, 160, 140, ${alpha * 0.3})`;
+                    ctx.fillRect(this.x, this.y, 2, 2);
+                } else if (this.type === 'smoke') {
+                    ctx.fillStyle = `rgba(100, 100, 100, ${alpha * 0.2})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (this.type === 'rain') {
+                    ctx.strokeStyle = `rgba(200, 220, 255, ${alpha * 0.5})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x - this.vx * 2, this.y - this.vy * 2);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Get color based on time of day
+        function getSkyColors() {
+            const colors = {
+                dawn: { sky: 'rgb(100, 80, 120)', ground: 'rgb(60, 50, 55)', light: 0.3 },
+                morning: { sky: 'rgb(150, 140, 180)', ground: 'rgb(70, 65, 70)', light: 0.6 },
+                noon: { sky: 'rgb(180, 180, 200)', ground: 'rgb(90, 85, 85)', light: 0.9 },
+                afternoon: { sky: 'rgb(160, 140, 140)', ground: 'rgb(80, 75, 70)', light: 0.7 },
+                dusk: { sky: 'rgb(120, 80, 100)', ground: 'rgb(40, 35, 35)', light: 0.4 },
+                night: { sky: 'rgb(20, 25, 40)', ground: 'rgb(15, 15, 20)', light: 0.1 }
+            };
+            return colors[scene.time];
+        }
+
+        // Add weather effects
+        function addWeatherEffects() {
+            const intensity = (scene.debris / 100);
+
+            if (scene.weather === 'rain') {
+                for (let i = 0; i < 5; i++) {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height;
+                    particles.push(new Particle(x, y, 2, 5 + Math.random() * 2, 'rain', 60));
+                }
+            } else if (scene.weather === 'smoke' || scene.weather === 'fog') {
+                if (Math.random() < 0.1 * intensity) {
+                    particles.push(new Particle(
+                        Math.random() * canvas.width,
+                        canvas.height * 0.3 + Math.random() * 100,
+                        (Math.random() - 0.5) * 2,
+                        -0.5,
+                        'smoke',
+                        150
+                    ));
+                }
+            }
+
+            // Dust/debris
+            if (Math.random() < (scene.debris / 200)) {
+                particles.push(new Particle(
+                    Math.random() * canvas.width,
+                    canvas.height - 50,
+                    (Math.random() - 0.5) * 2,
+                    -Math.random() * 3,
+                    'dust',
+                    200
+                ));
+            }
+        }
+
+        // Draw building (realistic Berlin structure)
+        function drawBuilding(x, y, width, height, isDestroyed = false, damageLevel = 0) {
+            const colors = getSkyColors();
+            
+            // Base structure - brick
+            ctx.fillStyle = `rgb(120, 100, 90)`;
+            ctx.fillRect(x, y, width, height);
+            
+            // Concrete/plaster overlay
+            ctx.fillStyle = `rgb(140, 130, 120)`;
+            ctx.globalAlpha = 0.6;
+            ctx.fillRect(x, y, width, height * 0.3);
+            ctx.globalAlpha = 1;
+
+            // Windows
+            const windowHeight = 15;
+            const windowWidth = 12;
+            const windowGap = 3;
+            const windowsPerRow = Math.floor(width / (windowWidth + windowGap));
+            const windowRows = Math.floor((height * 0.8) / (windowHeight + windowGap));
+
+            for (let row = 0; row < windowRows; row++) {
+                for (let col = 0; col < windowsPerRow; col++) {
+                    const wx = x + col * (windowWidth + windowGap) + windowGap;
+                    const wy = y + row * (windowHeight + windowGap) + windowGap;
+
+                    if (isDestroyed && Math.random() < (damageLevel / 100)) {
+                        // Destroyed window - dark void
+                        ctx.fillStyle = 'rgb(20, 20, 20)';
+                    } else {
+                        // Reflecting window (based on light level)
+                        const light = getSkyColors().light;
+                        ctx.fillStyle = `rgb(${80 + light * 50}, ${90 + light * 60}, ${100 + light * 70})`;
+                    }
+                    ctx.fillRect(wx, wy, windowWidth, windowHeight);
+
+                    // Window frame
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(wx, wy, windowWidth, windowHeight);
+                }
+            }
+
+            // Battle damage
+            if (damageLevel > 20) {
+                ctx.fillStyle = 'rgb(50, 50, 50)';
+                ctx.globalAlpha = 0.4;
+                const numCraters = Math.floor(damageLevel / 15);
+                for (let i = 0; i < numCraters; i++) {
+                    const cx = x + Math.random() * width;
+                    const cy = y + Math.random() * height * 0.7;
+                    const craterSize = 10 + Math.random() * 20;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, craterSize, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Bullet holes
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.6)';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            // Ruined top if severely damaged
+            if (damageLevel > 60) {
+                ctx.fillStyle = 'rgb(60, 50, 45)';
+                const topDamageHeight = height * 0.15;
+                // Jagged top
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                for (let i = 0; i < width; i += 20) {
+                    const randomHeight = Math.random() * topDamageHeight;
+                    ctx.lineTo(x + i, y - randomHeight);
+                }
+                ctx.lineTo(x + width, y);
+                ctx.lineTo(x + width, y + topDamageHeight);
+                ctx.lineTo(x, y + topDamageHeight);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(x, y + height, width, 3);
+        }
+
+        // Draw ruins/rubble
+        function drawRubble(x, y, size = 40) {
+            ctx.fillStyle = 'rgb(100, 90, 80)';
+            ctx.globalAlpha = 0.7;
+
+            // Main chunks
+            for (let i = 0; i < 3; i++) {
+                const chunkWidth = size * (0.5 + Math.random() * 0.5);
+                const chunkHeight = size * (0.3 + Math.random() * 0.4);
+                ctx.fillRect(x + i * size * 0.3, y, chunkWidth, chunkHeight);
+            }
+
+            ctx.globalAlpha = 1;
+
+            // Cracks
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x, y + size * 0.5);
+            ctx.lineTo(x + size, y + size * 0.3);
+            ctx.stroke();
+        }
+
+        // Draw Brandenburg Gate structure (simplified iconic landmark)
+        function drawBrandenburgGate(x, y, scale = 1) {
+            const colors = getSkyColors();
+            
+            // Main columns
+            ctx.fillStyle = 'rgb(130, 110, 100)';
+            const colWidth = 15 * scale;
+            const colHeight = 80 * scale;
+
+            // Front columns
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(x + i * 35 * scale, y, colWidth, colHeight);
+                
+                // Column damage
+                if (scene.destruction > 40) {
+                    ctx.fillStyle = 'rgb(50, 50, 50)';
+                    ctx.globalAlpha = 0.4;
+                    ctx.fillRect(x + i * 35 * scale + 2, y + colHeight * 0.6, colWidth - 4, colHeight * 0.3);
+                    ctx.globalAlpha = 1;
+                    ctx.fillStyle = 'rgb(130, 110, 100)';
+                }
+            }
+
+            // Top entablature
+            ctx.fillStyle = 'rgb(140, 120, 110)';
+            ctx.fillRect(x - 10 * scale, y - 20 * scale, 150 * scale, 20 * scale);
+        }
+
+        // Main render function
+        function render() {
+            const colors = getSkyColors();
+            
+            // Background sky with gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, colors.sky);
+            gradient.addColorStop(0.7, `rgb(${parseInt(colors.sky.match(/\d+/g)[0]) - 20}, ${parseInt(colors.sky.match(/\d+/g)[1]) - 20}, ${parseInt(colors.sky.match(/\d+/g)[2]) - 20})`);
+            gradient.addColorStop(1, colors.ground);
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Weather overlay
+            if (scene.weather === 'overcast') {
+                ctx.fillStyle = 'rgba(100, 100, 110, 0.15)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else if (scene.weather === 'fog') {
+                ctx.fillStyle = 'rgba(150, 150, 160, 0.3)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else if (scene.weather === 'smoke') {
+                ctx.fillStyle = 'rgba(80, 80, 80, 0.25)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Calculate building positions and damage
+            const buildingDamage = scene.destruction;
+            
+            // Background buildings (distant, less damaged)
+            ctx.globalAlpha = 0.4;
+            drawBuilding(50, 150, 100, 120, buildingDamage > 30, buildingDamage * 0.6);
+            drawBuilding(200, 140, 120, 140, buildingDamage > 40, buildingDamage * 0.7);
+            drawBuilding(canvas.width - 200, 160, 110, 130, buildingDamage > 35, buildingDamage * 0.65);
+            ctx.globalAlpha = 1;
+
+            // Mid-ground buildings
+            const midDamage1 = buildingDamage * 0.85;
+            const midDamage2 = buildingDamage * 0.9;
+            drawBuilding(100, canvas.height - 280, 140, 200, midDamage1 > 50, midDamage1);
+            drawBuilding(300, canvas.height - 250, 160, 180, midDamage2 > 50, midDamage2);
+            drawBuilding(canvas.width - 300, canvas.height - 270, 150, 210, midDamage1 > 50, midDamage1);
+
+            // Brandenburg Gate (iconic landmark)
+            drawBrandenburgGate(canvas.width / 2 - 75, canvas.height * 0.4, 1.2);
+
+            // Foreground ruins and rubble
+            const foregroundDamage = Math.min(buildingDamage, 95);
+            drawRubble(50, canvas.height - 120, 60);
+            drawRubble(200, canvas.height - 140, 70);
+            drawRubble(canvas.width - 150, canvas.height - 130, 65);
+            drawRubble(canvas.width / 2, canvas.height - 100, 80);
+
+            // Draw destroyed buildings as ruins
+            if (buildingDamage > 40) {
+                ctx.fillStyle = 'rgb(80, 70, 60)';
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(400, canvas.height - 200, 120, 160);
+                ctx.globalAlpha = 1;
+
+                // Collapsed top
+                ctx.fillStyle = 'rgb(60, 50, 45)';
+                ctx.beginPath();
+                ctx.moveTo(400, canvas.height - 200);
+                ctx.lineTo(450, canvas.height - 240);
+                ctx.lineTo(520, canvas.height - 210);
+                ctx.lineTo(520, canvas.height - 200);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Particle effects (rain, smoke, dust)
+            addWeatherEffects();
+            particles.forEach(p => {
+                p.update();
+                p.draw(ctx);
+            });
+
+            // Remove dead particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            // Lighting effects (sun, moon)
+            const light = colors.light;
+            if (scene.time === 'noon') {
+                ctx.fillStyle = 'rgba(255, 255, 200, 0.1)';
+                ctx.beginPath();
+                ctx.arc(canvas.width - 100, 100, 80, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (scene.time === 'night') {
+                ctx.fillStyle = 'rgba(200, 200, 255, 0.05)';
+                ctx.beginPath();
+                ctx.arc(canvas.width - 100, 80, 60, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (scene.time === 'dusk' || scene.time === 'dawn') {
+                ctx.fillStyle = 'rgba(255, 150, 100, 0.08)';
+                ctx.beginPath();
+                ctx.arc(canvas.width / 2, 120, 100, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            scene.animationTime++;
+        }
+
+        // Animation loop
+        function animate() {
+            render();
+            requestAnimationFrame(animate);
+        }
+
+        // Control event listeners
+        document.querySelectorAll('[data-time]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                scene.time = e.target.dataset.time;
+                document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('[data-weather]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                scene.weather = e.target.dataset.weather;
+                document.querySelectorAll('[data-weather]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+        });
+
+        document.getElementById('destructionSlider').addEventListener('input', (e) => {
+            scene.destruction = e.target.value;
+            document.getElementById('destructionValue').textContent = e.target.value;
+        });
+
+        document.getElementById('cameraSlider').addEventListener('input', (e) => {
+            scene.cameraDistance = e.target.value;
+            document.getElementById('cameraValue').textContent = e.target.value;
+        });
+
+        document.getElementById('windSlider').addEventListener('input', (e) => {
+            scene.wind = e.target.value;
+            document.getElementById('windValue').textContent = e.target.value;
+        });
+
+        document.getElementById('debrisSlider').addEventListener('input', (e) => {
+            scene.debris = e.target.value;
+            document.getElementById('debrisValue').textContent = e.target.value;
+        });
+
+        document.getElementById('toggleBtn').addEventListener('click', () => {
+            const container = document.getElementById('controlsContainer');
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Set initial active buttons
+        document.querySelector('[data-time="afternoon"]').classList.add('active');
+        document.querySelector('[data-weather="overcast"]').classList.add('active');
+
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
