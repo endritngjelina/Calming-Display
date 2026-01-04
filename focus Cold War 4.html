@@ -1,0 +1,3796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cold War Scenery - Realistic Enhanced Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --color-sky-day: linear-gradient(180deg, #87CEEB 0%, #B0E2FF 40%, #E0F6FF 70%, #F5F5DC 100%);
+            --color-sky-dawn: linear-gradient(180deg, #191970 0%, #FF4500 20%, #FF8C00 40%, #FFD700 60%, #87CEEB 90%);
+            --color-sky-dusk: linear-gradient(180deg, #FF4500 0%, #FF8C00 25%, #FFD700 50%, #4169E1 80%, #191970 100%);
+            --color-sky-night: linear-gradient(180deg, #000428 0%, #004e92 30%, #2d3561 70%, #0a0e27 100%);
+            --color-text: #2c3e50;
+            --color-primary: #e74c3c;
+            --color-secondary: #3498db;
+            --color-usa-blue: #3C3B6E;
+            --color-usa-red: #B22234;
+            --color-ussr-red: #DA0000;
+            --color-ussr-yellow: #FFD700;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: var(--color-sky-day);
+            transition: background 3s ease-in-out;
+            overflow: hidden;
+            height: 100vh;
+            color: var(--color-text);
+        }
+
+        .container {
+            position: absolute;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* SKY & BACKGROUND */
+        #sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70%;
+            transition: background 3s ease-in-out;
+            background: var(--color-sky-day);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* ATMOSPHERIC EFFECTS */
+        .atmosphere {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .atmosphere-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+            opacity: 0.3;
+        }
+
+        /* SUN */
+        .sun {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #FFEC00 0%, #FFA500 40%, #FF4500 70%, transparent 85%);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 80px #FFD700,
+                0 0 150px rgba(255, 165, 0, 0.7),
+                0 0 220px rgba(255, 69, 0, 0.4);
+            transition: all 3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: sunGlow 4s ease-in-out infinite;
+            z-index: 3;
+        }
+
+        .sun-corona {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: coronaPulse 6s ease-in-out infinite;
+            filter: blur(10px);
+        }
+
+        @keyframes sunGlow {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.95; }
+        }
+
+        @keyframes coronaPulse {
+            0%, 100% { transform: scale(0.9); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 0.5; }
+        }
+
+        /* MOON */
+        .moon {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            background: 
+                radial-gradient(circle at 30% 30%, #f8f8ff 0%, #dcdcdc 30%, #a9a9a9 60%, #696969 100%),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="90" height="90"><circle cx="45" cy="45" r="45" fill="%23000" opacity="0.1"/></svg>');
+            border-radius: 50%;
+            box-shadow: 
+                0 0 50px rgba(255, 255, 255, 0.6),
+                inset -15px -15px 30px rgba(0, 0, 0, 0.4),
+                inset 5px 5px 15px rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            transition: opacity 3s ease;
+            z-index: 3;
+        }
+
+        .moon-craters {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(0,0,0,0.2) 2%, transparent 3%),
+                radial-gradient(circle at 60% 40%, rgba(0,0,0,0.15) 3%, transparent 4%),
+                radial-gradient(circle at 40% 70%, rgba(0,0,0,0.25) 2.5%, transparent 3.5%),
+                radial-gradient(circle at 80% 20%, rgba(0,0,0,0.1) 2%, transparent 3%),
+                radial-gradient(circle at 30% 60%, rgba(0,0,0,0.2) 3%, transparent 4%);
+        }
+
+        /* STARS */
+        #stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 2s ease;
+            z-index: 2;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        .star-small {
+            width: 1px;
+            height: 1px;
+            box-shadow: 0 0 3px white;
+        }
+
+        .star-medium {
+            width: 2px;
+            height: 2px;
+            box-shadow: 0 0 5px white, 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+
+        .star-large {
+            width: 3px;
+            height: 3px;
+            box-shadow: 0 0 8px white, 0 0 12px rgba(255, 255, 255, 0.7);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* MILKY WAY */
+        .milky-way {
+            position: absolute;
+            top: 20%;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(90deg, 
+                transparent 0%,
+                rgba(255, 255, 255, 0.03) 20%,
+                rgba(255, 255, 255, 0.08) 40%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0.08) 60%,
+                rgba(255, 255, 255, 0.03) 80%,
+                transparent 100%);
+            opacity: 0;
+            transition: opacity 3s ease;
+            filter: blur(2px);
+            z-index: 1;
+        }
+
+        /* CLOUDS */
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 4;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 100px;
+            animation: floatCloud 60s infinite linear;
+            filter: blur(3px);
+            box-shadow: 
+                0 8px 30px rgba(0, 0, 0, 0.1),
+                inset 0 -2px 5px rgba(0, 0, 0, 0.05);
+            transition: opacity 2s ease;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 100px;
+            filter: blur(2px);
+        }
+
+        .cloud::before {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            left: 15px;
+        }
+
+        .cloud::after {
+            width: 70px;
+            height: 70px;
+            top: -35px;
+            right: 15px;
+        }
+
+        .cloud-high {
+            opacity: 0.6;
+            filter: blur(5px);
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .cloud-medium {
+            opacity: 0.8;
+            filter: blur(3px);
+        }
+
+        .cloud-low {
+            opacity: 0.9;
+            filter: blur(1px);
+        }
+
+        @keyframes floatCloud {
+            0% { transform: translateX(-300px); }
+            100% { transform: translateX(calc(100vw + 300px)); }
+        }
+
+        /* BIRDS */
+        .bird {
+            position: absolute;
+            width: 24px;
+            height: 10px;
+            opacity: 0;
+            animation: flyBird 25s linear infinite;
+            z-index: 5;
+        }
+
+        .bird-body {
+            width: 100%;
+            height: 100%;
+            background: #333;
+            border-radius: 50% 50% 0 0;
+            position: relative;
+        }
+
+        .bird-wing {
+            position: absolute;
+            width: 12px;
+            height: 6px;
+            background: #222;
+            border-radius: 50%;
+            top: -2px;
+            animation: flapWing 0.8s ease-in-out infinite;
+        }
+
+        .bird-wing.left {
+            left: 2px;
+            transform-origin: right center;
+        }
+
+        .bird-wing.right {
+            right: 2px;
+            transform-origin: left center;
+            animation-delay: 0.4s;
+        }
+
+        @keyframes flyBird {
+            0% { 
+                transform: translateX(-150px) translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            50% { transform: translateX(50vw) translateY(-20px) rotate(2deg); }
+            90% { opacity: 1; }
+            100% { 
+                transform: translateX(calc(100vw + 150px)) translateY(-40px) rotate(0deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes flapWing {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(30deg); }
+        }
+
+        /* RAIN */
+        .rain {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(180deg, transparent 0%, rgba(135, 206, 235, 0.9) 30%, rgba(135, 206, 235, 0.7) 100%);
+            animation: fall 1s linear infinite;
+            border-radius: 0 0 1px 1px;
+        }
+
+        .raindrop-splash {
+            position: absolute;
+            width: 8px;
+            height: 3px;
+            background: rgba(135, 206, 235, 0.5);
+            border-radius: 50%;
+            animation: splash 0.5s ease-out;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+
+        @keyframes splash {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        /* LIGHTNING */
+        .lightning {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 7;
+        }
+
+        .lightning-bolt {
+            position: absolute;
+            width: 4px;
+            height: 300px;
+            background: linear-gradient(180deg, 
+                rgba(255, 255, 255, 1) 0%, 
+                rgba(173, 216, 230, 0.9) 20%,
+                rgba(135, 206, 235, 0.7) 50%,
+                transparent 100%);
+            box-shadow: 
+                0 0 30px #fff,
+                0 0 60px rgba(173, 216, 230, 0.8),
+                0 0 100px rgba(135, 206, 235, 0.5);
+            animation: flash 0.15s ease-out;
+            transform-origin: top;
+            clip-path: polygon(50% 0%, 55% 20%, 45% 40%, 60% 60%, 40% 80%, 55% 100%, 45% 100%, 40% 80%, 60% 60%, 45% 40%, 55% 20%, 50% 0%);
+        }
+
+        @keyframes flash {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* SNOW */
+        .snow-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        .snowflake {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: snowFall 8s linear infinite;
+            box-shadow: 
+                0 0 8px rgba(255, 255, 255, 0.8),
+                inset 0 0 2px rgba(255, 255, 255, 0.5);
+        }
+
+        .snowflake-small {
+            width: 5px;
+            height: 5px;
+        }
+
+        .snowflake-medium {
+            width: 8px;
+            height: 8px;
+        }
+
+        .snowflake-large {
+            width: 12px;
+            height: 12px;
+        }
+
+        @keyframes snowFall {
+            0% { 
+                opacity: 1; 
+                transform: translateY(-20px) translateX(0) rotate(0deg);
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateY(100vh) translateX(100px) rotate(360deg);
+            }
+        }
+
+        /* FOG */
+        .fog {
+            position: absolute;
+            width: 100%;
+            height: 60%;
+            top: 40%;
+            opacity: 0;
+            transition: opacity 2s ease;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .fog-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, 
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.6) 30%,
+                rgba(255, 255, 255, 0.7) 50%,
+                rgba(255, 255, 255, 0.6) 70%,
+                rgba(255, 255, 255, 0) 100%);
+            filter: blur(10px);
+            animation: fogFloat 40s infinite linear;
+        }
+
+        .fog-layer:nth-child(2) {
+            animation-delay: -20s;
+            opacity: 0.7;
+        }
+
+        @keyframes fogFloat {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* HORIZON & GROUND */
+        #horizon {
+            position: absolute;
+            top: 70%;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(180deg, #90EE90 0%, #228B22 100%);
+            transition: background 2s ease;
+            z-index: 8;
+        }
+
+        .ground-texture {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 100, 0, 0.2) 1px, transparent 1px),
+                radial-gradient(circle at 30% 40%, rgba(0, 100, 0, 0.15) 1px, transparent 1px),
+                radial-gradient(circle at 70% 60%, rgba(0, 100, 0, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px, 80px 80px, 100px 100px;
+            opacity: 0.5;
+        }
+
+        /* SHADOWS ON GROUND */
+        .ground-shadow {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            background: radial-gradient(ellipse at 50% 100%, rgba(0, 0, 0, 0.4) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 1s ease;
+            z-index: 9;
+        }
+
+        /* USA SIDE (LEFT) */
+        .usa-side {
+            position: absolute;
+            left: 0;
+            top: 70%;
+            width: 50%;
+            height: 30%;
+            border-right: 3px dashed rgba(68, 68, 68, 0.7);
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(144, 238, 144, 0.95) 0%, rgba(34, 139, 34, 0.9) 100%);
+            z-index: 10;
+        }
+
+        /* WAVING FLAG */
+        .usa-flag {
+            position: absolute;
+            top: 10%;
+            left: 8%;
+            width: 160px;
+            height: 100px;
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    var(--color-usa-red) 0px, var(--color-usa-red) 7px,
+                    white 7px, white 14px
+                ),
+                linear-gradient(90deg, var(--color-usa-blue) 0%, var(--color-usa-blue) 40%, transparent 40%);
+            background-size: 100% 100%, 100% 40%;
+            background-position: 0 0, 0 0;
+            background-repeat: no-repeat;
+            border: 3px solid #333;
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.5),
+                inset 0 0 10px rgba(0, 0, 0, 0.1);
+            transform-origin: left center;
+            animation: waveFlagUSA 3s ease-in-out infinite;
+            filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.4));
+            z-index: 15;
+        }
+
+        .usa-flag::before {
+            content: '★ ★ ★ ★ ★ ★ ★';
+            position: absolute;
+            top: 6px;
+            left: 10px;
+            font-size: 9px;
+            color: white;
+            letter-spacing: 4px;
+            line-height: 12px;
+            width: 50px;
+            word-wrap: break-word;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes waveFlagUSA {
+            0%, 100% { 
+                transform: perspective(500px) rotateY(-8deg) rotateX(3deg) translateZ(0);
+            }
+            25% { 
+                transform: perspective(500px) rotateY(-4deg) rotateX(-2deg) translateZ(5px);
+            }
+            50% { 
+                transform: perspective(500px) rotateY(0deg) rotateX(0deg) translateZ(0);
+            }
+            75% { 
+                transform: perspective(500px) rotateY(-4deg) rotateX(2deg) translateZ(5px);
+            }
+        }
+
+        .flagpole {
+            position: absolute;
+            width: 6px;
+            height: 140px;
+            background: linear-gradient(180deg, #8B7355 0%, #654321 30%, #8B7355 70%, #654321 100%);
+            box-shadow: 
+                3px 0 8px rgba(0, 0, 0, 0.4),
+                inset -1px 0 2px rgba(255, 255, 255, 0.3);
+            z-index: 14;
+        }
+
+        .usa-flagpole {
+            top: 10%;
+            left: 8%;
+        }
+
+        /* USA BUILDING */
+        .usa-building {
+            position: absolute;
+            bottom: 15%;
+            left: 15%;
+            width: 250px;
+            height: 270px;
+            background: 
+                linear-gradient(135deg, #e8e8e8 0%, #c0c0c0 100%),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="%23a0a0a0" opacity="0.1"/></svg>');
+            border: 3px solid #666;
+            box-shadow: 
+                inset 0 0 40px rgba(0, 0, 0, 0.2),
+                8px 8px 25px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(255, 255, 255, 0.3) inset;
+            position: relative;
+            z-index: 12;
+        }
+
+        .usa-building::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(135deg, #b0b0b0 0%, #909090 100%);
+            border-bottom: 3px solid #555;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) inset;
+        }
+
+        .usa-building::after {
+            content: 'U.S.A. HEADQUARTERS';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.9),
+                0 0 10px rgba(0, 0, 100, 0.5);
+            letter-spacing: 1px;
+        }
+
+        /* CHIMNEY WITH SMOKE */
+        .chimney {
+            position: absolute;
+            top: -40px;
+            right: 25px;
+            width: 30px;
+            height: 40px;
+            background: linear-gradient(135deg, #8B4513 0%, #654321 30%, #8B4513 70%, #654321 100%);
+            border: 2px solid #333;
+            box-shadow: 
+                inset 0 0 10px rgba(0, 0, 0, 0.3),
+                2px 2px 5px rgba(0, 0, 0, 0.5);
+            z-index: 13;
+        }
+
+        .smoke-particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: riseSmoke 4s ease-out infinite;
+            filter: blur(3px);
+        }
+
+        @keyframes riseSmoke {
+            0% {
+                transform: translateY(0) translateX(0) scale(0.5);
+                opacity: 0.9;
+                background: rgba(200, 200, 200, 0.8);
+            }
+            50% {
+                transform: translateY(-80px) translateX(10px) scale(1.2);
+                opacity: 0.6;
+                background: rgba(230, 230, 230, 0.6);
+            }
+            100% {
+                transform: translateY(-160px) translateX(20px) scale(2);
+                opacity: 0;
+                background: rgba(250, 250, 250, 0.3);
+            }
+        }
+
+        /* ANTENNA */
+        .antenna {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100px;
+            background: linear-gradient(180deg, #777 0%, #999 30%, #777 70%, #555 100%);
+            z-index: 13;
+        }
+
+        .antenna::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #f00 0%, #c00 50%, #900 100%);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 15px #f00,
+                0 0 30px rgba(255, 0, 0, 0.5);
+            animation: blinkLight 1.2s ease-in-out infinite;
+        }
+
+        @keyframes blinkLight {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* SIGNAL WAVES */
+        .signal-wave {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 2px solid rgba(255, 0, 0, 0.6);
+            border-radius: 50%;
+            animation: expandWave 2.5s ease-out infinite;
+        }
+
+        @keyframes expandWave {
+            0% {
+                width: 10px;
+                height: 10px;
+                opacity: 1;
+            }
+            100% {
+                width: 80px;
+                height: 80px;
+                opacity: 0;
+            }
+        }
+
+        /* WINDOWS */
+        .window {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #2a4a6a;
+            border: 2px solid #111;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            transition: all 0.5s ease;
+            box-shadow: 
+                inset 0 0 10px rgba(0, 0, 0, 0.5),
+                0 0 5px rgba(0, 0, 0, 0.3);
+            z-index: 13;
+        }
+
+        .window > div {
+            border: 0.5px solid #222;
+            background: rgba(100, 150, 200, 0.2);
+            transition: background 0.5s ease;
+        }
+
+        .window.lit {
+            background: #ffeb99;
+            box-shadow: 
+                0 0 20px rgba(255, 235, 153, 0.9),
+                inset 0 0 15px rgba(255, 255, 200, 0.7),
+                0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .window.lit > div {
+            background: #ffff99;
+            box-shadow: inset 0 0 5px rgba(255, 255, 150, 0.8);
+        }
+
+        .window.lit::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 200, 0.8) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* DOOR */
+        .door {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 45px;
+            height: 70px;
+            background: linear-gradient(180deg, #5d4037 0%, #3e2723 30%, #5d4037 70%, #3e2723 100%);
+            border: 3px solid #222;
+            border-bottom: none;
+            box-shadow: 
+                inset 0 0 15px rgba(0, 0, 0, 0.5),
+                0 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 13;
+        }
+
+        .door::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #FFD700 0%, #B8860B 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 5px #FFD700;
+        }
+
+        /* SOVIET SIDE (RIGHT) */
+        .soviet-side {
+            position: absolute;
+            right: 0;
+            top: 70%;
+            width: 50%;
+            height: 30%;
+            border-left: 3px dashed rgba(68, 68, 68, 0.7);
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(169, 169, 169, 0.95) 0%, rgba(74, 74, 74, 0.9) 100%);
+            z-index: 10;
+        }
+
+        .soviet-flag {
+            position: absolute;
+            top: 10%;
+            right: 8%;
+            width: 160px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--color-ussr-red) 0%, #B00000 100%);
+            border: 3px solid #333;
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.5),
+                inset 0 0 10px rgba(0, 0, 0, 0.1);
+            transform-origin: left center;
+            animation: waveFlagUSSR 3s ease-in-out infinite;
+            filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.4));
+            z-index: 15;
+        }
+
+        .soviet-flag::before {
+            content: '☭';
+            position: absolute;
+            top: 50%;
+            left: 30%;
+            transform: translate(-50%, -50%);
+            font-size: 50px;
+            color: var(--color-ussr-yellow);
+            text-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.7),
+                0 0 10px rgba(255, 215, 0, 0.5);
+            filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.8));
+        }
+
+        @keyframes waveFlagUSSR {
+            0%, 100% { 
+                transform: perspective(500px) rotateY(8deg) rotateX(3deg) translateZ(0);
+            }
+            25% { 
+                transform: perspective(500px) rotateY(4deg) rotateX(-2deg) translateZ(5px);
+            }
+            50% { 
+                transform: perspective(500px) rotateY(0deg) rotateX(0deg) translateZ(0);
+            }
+            75% { 
+                transform: perspective(500px) rotateY(4deg) rotateX(2deg) translateZ(5px);
+            }
+        }
+
+        .soviet-flagpole {
+            top: 10%;
+            right: 8%;
+        }
+
+        .soviet-building {
+            position: absolute;
+            bottom: 15%;
+            right: 15%;
+            width: 250px;
+            height: 270px;
+            background: 
+                linear-gradient(135deg, #b0b0b0 0%, #808080 100%),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="%23808080" opacity="0.1"/></svg>');
+            border: 3px solid #555;
+            box-shadow: 
+                inset 0 0 40px rgba(0, 0, 0, 0.3),
+                -8px 8px 25px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(255, 255, 255, 0.2) inset;
+            z-index: 12;
+        }
+
+        .soviet-building::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(135deg, #909090 0%, #707070 100%);
+            border-bottom: 3px solid #444;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4) inset;
+        }
+
+        .soviet-building::after {
+            content: 'СОВЕТСКИЙ ШТАБ';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--color-ussr-yellow);
+            text-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.9),
+                0 0 10px rgba(139, 0, 0, 0.5);
+            letter-spacing: 1px;
+        }
+
+        /* RADAR DISH */
+        .radar {
+            position: absolute;
+            top: -70px;
+            right: 25px;
+            width: 60px;
+            height: 35px;
+            background: linear-gradient(135deg, #708090 0%, #2F4F4F 100%);
+            border-radius: 50% 50% 0 0;
+            border: 3px solid #444;
+            transform-origin: center bottom;
+            animation: rotateRadar 5s linear infinite;
+            box-shadow: 
+                inset 0 0 10px rgba(0, 0, 0, 0.5),
+                2px 2px 8px rgba(0, 0, 0, 0.4);
+            z-index: 13;
+        }
+
+        .radar::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 15px;
+            background: #999;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .radar-beam {
+            position: absolute;
+            top: -70px;
+            right: 25px;
+            width: 200px;
+            height: 100px;
+            clip-path: polygon(50% 0%, 55% 100%, 45% 100%);
+            background: linear-gradient(90deg, 
+                transparent 0%,
+                rgba(0, 255, 0, 0.1) 30%,
+                rgba(0, 255, 0, 0.3) 50%,
+                rgba(0, 255, 0, 0.1) 70%,
+                transparent 100%);
+            transform-origin: center bottom;
+            animation: rotateRadar 5s linear infinite;
+            opacity: 0.7;
+            z-index: 12;
+        }
+
+        @keyframes rotateRadar {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        /* GUARD TOWER */
+        .guard-tower {
+            position: absolute;
+            bottom: 10%;
+            width: 45px;
+            height: 100px;
+            background: linear-gradient(180deg, #696969 0%, #505050 30%, #696969 70%, #404040 100%);
+            border: 3px solid #333;
+            box-shadow: 
+                inset 0 0 15px rgba(0, 0, 0, 0.4),
+                3px 3px 10px rgba(0, 0, 0, 0.5);
+            z-index: 14;
+        }
+
+        .usa-guard-tower {
+            left: 35%;
+        }
+
+        .soviet-guard-tower {
+            right: 35%;
+        }
+
+        .guard-tower::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 30px;
+            background: linear-gradient(135deg, #8B4513 0%, #654321 100%);
+            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* SEARCHLIGHT */
+        .searchlight {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25px;
+            height: 25px;
+            background: radial-gradient(circle, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 25px #FFD700,
+                0 0 50px rgba(255, 165, 0, 0.7);
+            z-index: 15;
+        }
+
+        .searchlight-beam {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 250px;
+            background: linear-gradient(180deg, 
+                rgba(255, 255, 200, 0.4) 0%, 
+                rgba(255, 255, 150, 0.2) 30%,
+                rgba(255, 255, 100, 0.1) 70%,
+                transparent 100%);
+            clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+            animation: sweepBeam 6s ease-in-out infinite;
+            transform-origin: top center;
+            filter: blur(2px);
+            z-index: 14;
+        }
+
+        @keyframes sweepBeam {
+            0%, 100% { transform: translateX(-50%) rotate(-40deg); opacity: 0.8; }
+            25% { transform: translateX(-50%) rotate(-20deg); opacity: 1; }
+            50% { transform: translateX(-50%) rotate(0deg); opacity: 0.8; }
+            75% { transform: translateX(-50%) rotate(20deg); opacity: 1; }
+        }
+
+        /* VEHICLES */
+        .vehicle {
+            position: absolute;
+            bottom: 12%;
+            width: 50px;
+            height: 25px;
+            background: #333;
+            border-radius: 5px;
+            animation: driveVehicle 20s linear infinite;
+            box-shadow: 
+                0 5px 10px rgba(0, 0, 0, 0.5),
+                inset 0 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 11;
+        }
+
+        .vehicle::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 8px;
+            width: 10px;
+            height: 10px;
+            background: #222;
+            border-radius: 50%;
+            box-shadow: 
+                25px 0 0 #222,
+                inset 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .vehicle::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 40px;
+            height: 10px;
+            background: #444;
+            border-radius: 2px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes driveVehicle {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(50vw - 100px)); }
+        }
+
+        /* HELICOPTER */
+        .helicopter {
+            position: absolute;
+            width: 70px;
+            height: 35px;
+            animation: flyHelicopter 25s linear infinite;
+            z-index: 9;
+        }
+
+        .helicopter-body {
+            width: 60px;
+            height: 25px;
+            background: linear-gradient(135deg, #2d5016 0%, #1a330d 100%);
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 
+                0 5px 10px rgba(0, 0, 0, 0.5),
+                inset 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .helicopter-rotor {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 6px;
+            background: linear-gradient(90deg, #333 0%, #666 50%, #333 100%);
+            border-radius: 3px;
+            animation: spinRotor 0.08s linear infinite;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .helicopter-rotor::before,
+        .helicopter-rotor::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 80px;
+            height: 6px;
+            background: linear-gradient(90deg, #333 0%, #666 50%, #333 100%);
+            border-radius: 3px;
+            transform: translateY(-50%);
+        }
+
+        .helicopter-rotor::before {
+            transform: translateY(-50%) rotate(60deg);
+        }
+
+        .helicopter-rotor::after {
+            transform: translateY(-50%) rotate(120deg);
+        }
+
+        @keyframes spinRotor {
+            0% { transform: translateX(-50%) rotateZ(0deg); }
+            100% { transform: translateX(-50%) rotateZ(360deg); }
+        }
+
+        @keyframes flyHelicopter {
+            0% { 
+                transform: translateX(-150px) translateY(0);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { 
+                transform: translateX(calc(100vw + 150px)) translateY(-40px);
+                opacity: 0;
+            }
+        }
+
+        /* MISSILE */
+        .missile {
+            position: absolute;
+            width: 12px;
+            height: 50px;
+            background: linear-gradient(180deg, #8B0000 0%, #DC143C 30%, #B22222 70%, #8B0000 100%);
+            border-radius: 6px 6px 0 0;
+            opacity: 0;
+            animation: launchMissile 4s ease-out;
+            box-shadow: 
+                0 0 10px rgba(255, 0, 0, 0.5),
+                inset 0 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 20;
+        }
+
+        .missile::before {
+            content: '';
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 25px solid #FF4500;
+            filter: blur(3px);
+        }
+
+        .missile-trail {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 80px;
+            background: linear-gradient(180deg, 
+                transparent 0%, 
+                rgba(255, 69, 0, 0.8) 30%,
+                rgba(255, 140, 0, 0.9) 70%,
+                rgba(255, 165, 0, 0.6) 100%);
+            filter: blur(4px);
+            animation: trail 4s ease-out;
+            z-index: 19;
+        }
+
+        @keyframes launchMissile {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            70% {
+                transform: translateY(-400px) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-600px) scale(0.8);
+                opacity: 0;
+            }
+        }
+
+        @keyframes trail {
+            0% { height: 0; opacity: 0; }
+            30% { height: 80px; opacity: 1; }
+            100% { height: 80px; opacity: 0; }
+        }
+
+        /* EXPLOSION */
+        .explosion {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0;
+            animation: explode 1.5s ease-out;
+            z-index: 30;
+        }
+
+        @keyframes explode {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+                background: radial-gradient(circle, 
+                    #fff 0%, 
+                    #ff0 15%, 
+                    #f00 30%, 
+                    #800 50%, 
+                    #400 70%, 
+                    transparent 90%);
+                box-shadow: 
+                    0 0 50px #fff,
+                    0 0 100px #ff0,
+                    0 0 150px #f00;
+            }
+            50% {
+                width: 200px;
+                height: 200px;
+                opacity: 1;
+                background: radial-gradient(circle, 
+                    #fff 0%, 
+                    #ff0 10%, 
+                    #f00 25%, 
+                    #800 45%, 
+                    #000 65%, 
+                    transparent 90%);
+                box-shadow: 
+                    0 0 100px #fff,
+                    0 0 200px #ff0,
+                    0 0 300px #f00;
+            }
+            100% {
+                width: 300px;
+                height: 300px;
+                opacity: 0;
+                background: radial-gradient(circle, 
+                    transparent 0%, 
+                    #444 40%, 
+                    #222 60%, 
+                    #000 80%, 
+                    transparent 100%);
+                box-shadow: 0 0 100px rgba(255, 100, 0, 0.3);
+            }
+        }
+
+        .shockwave {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            animation: shockwave 1s ease-out;
+            z-index: 29;
+        }
+
+        @keyframes shockwave {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            100% {
+                width: 400px;
+                height: 400px;
+                opacity: 0;
+            }
+        }
+
+        /* PROPAGANDA POSTERS */
+        .propaganda-poster {
+            position: absolute;
+            width: 90px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 4px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            padding: 10px;
+            box-shadow: 
+                0 6px 15px rgba(0, 0, 0, 0.4),
+                inset 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s ease;
+            z-index: 16;
+        }
+
+        .usa-poster {
+            bottom: 45%;
+            left: 8%;
+            color: #000080;
+            background: linear-gradient(135deg, #fff 0%, #e6f2ff 100%);
+            font-family: 'Arial', sans-serif;
+        }
+
+        .soviet-poster {
+            bottom: 45%;
+            right: 8%;
+            color: #8B0000;
+            background: linear-gradient(135deg, #ffeeee 0%, #ffe6e6 100%);
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* RADIATION SYMBOL */
+        .radiation-symbol {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            opacity: 0;
+            transition: opacity 1s ease;
+            z-index: 25;
+        }
+
+        .radiation-symbol::before {
+            content: '☢';
+            position: absolute;
+            font-size: 100px;
+            color: #9acd32;
+            text-shadow: 
+                0 0 30px #9acd32,
+                0 0 60px #7cfc00,
+                0 0 90px #32cd32;
+            animation: rotateSymbol 6s linear infinite;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
+        }
+
+        @keyframes rotateSymbol {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .radiation-symbol.pulsing::before {
+            animation: 
+                rotateSymbol 6s linear infinite,
+                pulseRadiation 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseRadiation {
+            0%, 100% { 
+                transform: scale(1); 
+                opacity: 1; 
+                text-shadow: 
+                    0 0 30px #9acd32,
+                    0 0 60px #7cfc00,
+                    0 0 90px #32cd32;
+            }
+            50% { 
+                transform: scale(1.3); 
+                opacity: 0.8; 
+                text-shadow: 
+                    0 0 50px #9acd32,
+                    0 0 100px #7cfc00,
+                    0 0 150px #32cd32;
+            }
+        }
+
+        /* FALLOUT PARTICLES */
+        .fallout-particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: fallout 8s linear infinite;
+            opacity: 0;
+            filter: blur(1px);
+            z-index: 24;
+        }
+
+        @keyframes fallout {
+            0% {
+                transform: translateY(-30px) translateX(0);
+                opacity: 0.9;
+                width: 4px;
+                height: 4px;
+                background: #9acd32;
+                box-shadow: 0 0 8px #9acd32;
+            }
+            50% {
+                transform: translateY(50vh) translateX(30px);
+                opacity: 0.6;
+                width: 6px;
+                height: 6px;
+                background: #7cfc00;
+                box-shadow: 0 0 12px #7cfc00;
+            }
+            100% {
+                transform: translateY(100vh) translateX(60px);
+                opacity: 0;
+                width: 3px;
+                height: 3px;
+                background: #32cd32;
+                box-shadow: 0 0 5px #32cd32;
+            }
+        }
+
+        /* CONTROL PANEL */
+        .settings-panel {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%) translateX(100%);
+            background: linear-gradient(135deg, rgba(30, 40, 60, 0.98) 0%, rgba(20, 30, 50, 0.98) 100%);
+            padding: 25px;
+            padding-left: 30px;
+            border-radius: 15px 0 0 15px;
+            color: #f0f0f0;
+            font-size: 14px;
+            width: 380px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 
+                -8px 0 25px rgba(0, 0, 0, 0.7),
+                inset 1px 0 10px rgba(255, 255, 255, 0.1);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+            border-left: 3px solid rgba(52, 152, 219, 0.7);
+        }
+
+        .settings-panel.expanded {
+            transform: translateY(-50%) translateX(0);
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0.8;
+                transform: translateY(-50%) translateX(50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(-50%) translateX(0);
+            }
+        }
+
+        .panel-toggle {
+            position: absolute;
+            left: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 120px;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.95), rgba(41, 128, 185, 0.95));
+            border-radius: 15px 0 0 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 
+                -5px 0 15px rgba(0, 0, 0, 0.4),
+                inset 2px 0 10px rgba(255, 255, 255, 0.2);
+            gap: 8px;
+            z-index: 1001;
+        }
+
+        .panel-toggle:hover {
+            background: linear-gradient(135deg, rgba(41, 128, 185, 1), rgba(52, 152, 219, 1));
+            transform: translateY(-50%) translateX(-5px);
+            box-shadow: 
+                -8px 0 20px rgba(52, 152, 219, 0.6),
+                inset 2px 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .panel-toggle::before {
+            content: '⚙️';
+            font-size: 36px;
+            animation: rotateGear 5s linear infinite paused;
+        }
+
+        .panel-toggle:hover::before {
+            animation-play-state: running;
+        }
+
+        .panel-toggle::after {
+            content: 'CONTROLS';
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes rotateGear {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-group h3 {
+            margin-bottom: 12px;
+            color: #3498db;
+            font-size: 17px;
+            border-bottom: 2px solid rgba(52, 152, 219, 0.5);
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid rgba(52, 152, 219, 0.7);
+        }
+
+        .panel-header h2 {
+            margin: 0;
+            font-size: 22px;
+            color: #3498db;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+
+        .panel-header p {
+            margin: 8px 0 0 0;
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #ddd;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #2c3e50 0%, #34495e 100%);
+            outline: none;
+            margin-bottom: 12px;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            cursor: pointer;
+            box-shadow: 
+                0 0 10px rgba(52, 152, 219, 0.7),
+                0 0 20px rgba(52, 152, 219, 0.3);
+            border: 2px solid white;
+            -webkit-appearance: none;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            cursor: pointer;
+            box-shadow: 
+                0 0 10px rgba(52, 152, 219, 0.7),
+                0 0 20px rgba(52, 152, 219, 0.3);
+            border: 2px solid white;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 70px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn.active {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            box-shadow: 
+                0 0 15px rgba(52, 152, 219, 0.7),
+                inset 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .value-display {
+            display: inline-block;
+            margin-left: 10px;
+            color: #3498db;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+
+        /* Scrollbar styling */
+        .settings-panel::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .settings-panel::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        .settings-panel::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border-radius: 5px;
+            box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.2);
+        }
+
+        .settings-panel::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+        }
+
+        /* Info display */
+        .info-display {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(20, 30, 50, 0.9) 100%);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.4),
+                inset 0 0 10px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            z-index: 999;
+            max-width: 300px;
+        }
+
+        .info-display h2 {
+            margin-bottom: 10px;
+            color: #3498db;
+            font-size: 18px;
+            border-bottom: 2px solid rgba(52, 152, 219, 0.5);
+            padding-bottom: 5px;
+        }
+
+        /* AURORA BOREALIS */
+        .aurora {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            opacity: 0;
+            transition: opacity 3s ease;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .aurora-layer {
+            position: absolute;
+            width: 120%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%,
+                rgba(0, 255, 100, 0.4) 20%,
+                rgba(0, 200, 255, 0.4) 40%,
+                rgba(100, 0, 255, 0.4) 60%,
+                rgba(255, 0, 200, 0.4) 80%,
+                transparent 100%);
+            animation: waveAurora 30s ease-in-out infinite;
+            filter: blur(15px);
+        }
+
+        .aurora-layer:nth-child(2) {
+            top: 20px;
+            opacity: 0.6;
+            animation-delay: -15s;
+            filter: blur(20px);
+        }
+
+        @keyframes waveAurora {
+            0%, 100% {
+                transform: translateX(-10%) scaleY(1);
+            }
+            50% {
+                transform: translateX(10%) scaleY(1.3);
+            }
+        }
+
+        /* TREES */
+        .tree {
+            position: absolute;
+            bottom: 15%;
+            width: 35px;
+            height: 80px;
+            z-index: 11;
+        }
+
+        .tree-trunk {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 25px;
+            background: linear-gradient(180deg, #654321 0%, #4a3219 100%);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .tree-leaves {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 60px solid #228B22;
+            animation: swayTree 4s ease-in-out infinite;
+            filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.3));
+        }
+
+        @keyframes swayTree {
+            0%, 100% { transform: translateX(-50%) rotate(-3deg); }
+            50% { transform: translateX(-50%) rotate(3deg); }
+        }
+
+        /* BARBED WIRE */
+        .barbed-wire {
+            position: absolute;
+            top: 70%;
+            left: 48%;
+            width: 4%;
+            height: 4px;
+            background: repeating-linear-gradient(
+                90deg,
+                #666 0px,
+                #666 6px,
+                transparent 6px,
+                transparent 12px
+            );
+            z-index: 18;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .barbed-wire::before,
+        .barbed-wire::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: repeating-linear-gradient(
+                90deg,
+                #666 0px,
+                #666 6px,
+                transparent 6px,
+                transparent 12px
+            );
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .barbed-wire::before {
+            top: -12px;
+        }
+
+        .barbed-wire::after {
+            top: 12px;
+        }
+
+        .barbed-wire-post {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 40px;
+            background: linear-gradient(180deg, #8B7355 0%, #654321 100%);
+            z-index: 17;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* WARNING SIGNS */
+        .warning-sign {
+            position: absolute;
+            bottom: 25%;
+            width: 45px;
+            height: 45px;
+            background: #FFD700;
+            border: 4px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            transform: rotate(45deg);
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.5),
+                inset 0 0 10px rgba(255, 215, 0, 0.5);
+            z-index: 16;
+        }
+
+        .warning-sign::before {
+            content: '⚠';
+            transform: rotate(-45deg);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .usa-warning {
+            left: 45%;
+        }
+
+        .soviet-warning {
+            right: 45%;
+        }
+
+        /* ANIMATED TITLE */
+        .title {
+            position: fixed;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px;
+            font-weight: 900;
+            color: white;
+            text-shadow: 
+                0 0 15px rgba(0, 0, 0, 0.9),
+                0 0 30px rgba(52, 152, 219, 0.7),
+                0 0 45px rgba(231, 76, 60, 0.7),
+                0 0 60px rgba(52, 152, 219, 0.5);
+            z-index: 999;
+            animation: titleGlow 4s ease-in-out infinite;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(30, 40, 60, 0.8) 100%);
+            padding: 15px 30px;
+            border-radius: 10px;
+            border: 2px solid rgba(52, 152, 219, 0.5);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.5),
+                inset 0 0 20px rgba(52, 152, 219, 0.2);
+        }
+
+        .hint-text {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(30, 40, 60, 0.8) 100%);
+            padding: 12px 25px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            z-index: 999;
+            animation: fadeInOut 5s ease-in-out infinite;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            max-width: 80%;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.6; transform: translateX(-50%) translateY(0); }
+            50% { opacity: 1; transform: translateX(-50%) translateY(-5px); }
+        }
+
+        @keyframes titleGlow {
+            0%, 100% {
+                text-shadow: 
+                    0 0 15px rgba(0, 0, 0, 0.9),
+                    0 0 30px rgba(52, 152, 219, 0.7),
+                    0 0 45px rgba(231, 76, 60, 0.7),
+                    0 0 60px rgba(52, 152, 219, 0.5);
+                box-shadow: 
+                    0 10px 30px rgba(0, 0, 0, 0.5),
+                    inset 0 0 20px rgba(52, 152, 219, 0.2);
+            }
+            50% {
+                text-shadow: 
+                    0 0 20px rgba(0, 0, 0, 0.9),
+                    0 0 40px rgba(52, 152, 219, 0.9),
+                    0 0 60px rgba(231, 76, 60, 0.9),
+                    0 0 80px rgba(52, 152, 219, 0.7);
+                box-shadow: 
+                    0 15px 40px rgba(0, 0, 0, 0.6),
+                    inset 0 0 25px rgba(52, 152, 219, 0.3);
+            }
+        }
+
+        /* People walking */
+        .person {
+            position: absolute;
+            bottom: 12%;
+            width: 18px;
+            height: 45px;
+            animation: walkPerson 25s linear infinite;
+            z-index: 11;
+        }
+
+        .person-body {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 22px;
+            background: #4a4a4a;
+            border-radius: 4px 4px 0 0;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .person-head {
+            position: absolute;
+            bottom: 34px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 10px;
+            background: #ffdbac;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .person-leg {
+            position: absolute;
+            bottom: 0;
+            width: 5px;
+            height: 15px;
+            background: #333;
+            border-radius: 0 0 3px 3px;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .person-leg:nth-child(3) {
+            left: 3px;
+            animation: walkLeg 0.6s ease-in-out infinite;
+        }
+
+        .person-leg:nth-child(4) {
+            right: 3px;
+            animation: walkLeg 0.6s ease-in-out infinite reverse;
+        }
+
+        @keyframes walkPerson {
+            0% { 
+                transform: translateX(-60px);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { 
+                transform: translateX(calc(50vw - 60px));
+                opacity: 0;
+            }
+        }
+
+        @keyframes walkLeg {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(25deg); }
+        }
+
+        /* DEBRIS FROM EXPLOSIONS */
+        .debris {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #333;
+            border-radius: 2px;
+            animation: debrisFall 2s ease-out;
+            opacity: 0;
+            z-index: 31;
+        }
+
+        @keyframes debrisFall {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(100px, 100px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* SMOKE TRAILS */
+        .smoke-trail {
+            position: absolute;
+            width: 30px;
+            height: 100px;
+            background: linear-gradient(180deg, 
+                rgba(100, 100, 100, 0.8) 0%,
+                rgba(150, 150, 150, 0.5) 30%,
+                rgba(200, 200, 200, 0.3) 70%,
+                transparent 100%);
+            border-radius: 50%;
+            filter: blur(10px);
+            animation: smokeRise 3s ease-out;
+            opacity: 0;
+            z-index: 23;
+        }
+
+        @keyframes smokeRise {
+            0% {
+                transform: translateY(0) scale(0.5);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-200px) scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* SOUND WAVES */
+        .sound-wave {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            animation: soundExpand 1s ease-out;
+            opacity: 0;
+            z-index: 26;
+        }
+
+        @keyframes soundExpand {
+            0% {
+                width: 10px;
+                height: 10px;
+                opacity: 1;
+            }
+            100% {
+                width: 300px;
+                height: 300px;
+                opacity: 0;
+            }
+        }
+
+        /* MOONLIGHT BEAM */
+        .moonlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 3s ease;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .settings-panel {
+                width: 320px;
+                font-size: 13px;
+                padding: 20px;
+                padding-left: 25px;
+            }
+
+            .title {
+                font-size: 28px;
+                top: 15px;
+                padding: 12px 20px;
+            }
+
+            .hint-text {
+                font-size: 14px;
+                padding: 10px 20px;
+                bottom: 15px;
+            }
+
+            .control-group h3 {
+                font-size: 15px;
+            }
+
+            .panel-header h2 {
+                font-size: 18px;
+            }
+
+            .panel-toggle {
+                width: 55px;
+                height: 110px;
+                left: -55px;
+            }
+
+            .panel-toggle::before {
+                font-size: 32px;
+            }
+
+            .panel-toggle::after {
+                font-size: 9px;
+            }
+
+            .usa-building, .soviet-building {
+                width: 200px;
+                height: 220px;
+            }
+
+            .usa-flag, .soviet-flag {
+                width: 130px;
+                height: 85px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .settings-panel {
+                width: 280px;
+                padding: 15px;
+                padding-left: 20px;
+            }
+
+            .title {
+                font-size: 22px;
+                padding: 10px 15px;
+            }
+
+            .hint-text {
+                font-size: 12px;
+                padding: 8px 15px;
+                bottom: 10px;
+            }
+
+            .usa-building, .soviet-building {
+                width: 180px;
+                height: 200px;
+                left: 10%;
+                right: 10%;
+            }
+
+            .usa-flag, .soviet-flag {
+                width: 110px;
+                height: 70px;
+            }
+        }
+
+        /* LOADING OVERLAY */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease;
+        }
+
+        .loading-text {
+            color: #3498db;
+            font-size: 24px;
+            margin-top: 20px;
+            animation: loadingPulse 2s infinite;
+        }
+
+        @keyframes loadingPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* ADDITIONAL SHAKE ANIMATIONS */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+
+        @keyframes shakeVertical {
+            0%, 100% { transform: translateY(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateY(-5px); }
+            20%, 40%, 60%, 80% { transform: translateY(5px); }
+        }
+
+        @keyframes driveVehicleRight {
+            0% { transform: translateX(100px); }
+            100% { transform: translateX(calc(-50vw + 100px)); }
+        }
+
+        @keyframes walkPersonRight {
+            0% { transform: translateX(60px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateX(calc(-50vw + 60px)); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="title">COLD WAR SCENARIO</div>
+        <div class="loading-text">Initializing Realistic Simulation...</div>
+    </div>
+
+    <div class="container">
+        <!-- Title -->
+        <div class="title">COLD WAR ERA</div>
+
+        <!-- Hint Text -->
+        <div class="hint-text">Click the ⚙️ button to open/close controls and explore the scene</div>
+
+        <!-- Sky -->
+        <div id="sky">
+            <!-- Atmospheric Effects -->
+            <div class="atmosphere">
+                <div class="atmosphere-layer"></div>
+            </div>
+            
+            <!-- Sun with Corona -->
+            <div class="sun">
+                <div class="sun-corona"></div>
+            </div>
+            
+            <!-- Moon with Craters -->
+            <div class="moon">
+                <div class="moon-craters"></div>
+            </div>
+
+            <!-- Moonlight Beam -->
+            <div class="moonlight" id="moonlight"></div>
+
+            <!-- Stars -->
+            <div id="stars"></div>
+
+            <!-- Milky Way -->
+            <div class="milky-way"></div>
+
+            <!-- Aurora Borealis -->
+            <div class="aurora">
+                <div class="aurora-layer"></div>
+                <div class="aurora-layer"></div>
+            </div>
+
+            <!-- Clouds -->
+            <div class="clouds"></div>
+
+            <!-- Birds -->
+            <div id="birds"></div>
+
+            <!-- Lightning -->
+            <div class="lightning" id="lightning"></div>
+
+            <!-- Rain -->
+            <div class="rain" id="rain"></div>
+
+            <!-- Snow -->
+            <div class="snow-container" id="snow"></div>
+
+            <!-- Fog -->
+            <div class="fog" id="fog">
+                <div class="fog-layer"></div>
+                <div class="fog-layer"></div>
+            </div>
+        </div>
+
+        <!-- Horizon/Ground -->
+        <div id="horizon">
+            <div class="ground-texture"></div>
+            <div class="ground-shadow"></div>
+        </div>
+
+        <!-- USA SIDE -->
+        <div class="usa-side">
+            <!-- Flagpole -->
+            <div class="flagpole usa-flagpole"></div>
+            
+            <!-- Flag -->
+            <div class="usa-flag"></div>
+
+            <!-- Building -->
+            <div class="usa-building">
+                <div class="chimney">
+                    <div class="smoke-particle" style="animation-delay: 0s;"></div>
+                    <div class="smoke-particle" style="animation-delay: 0.5s;"></div>
+                    <div class="smoke-particle" style="animation-delay: 1s;"></div>
+                    <div class="smoke-particle" style="animation-delay: 1.5s;"></div>
+                </div>
+                <div class="antenna">
+                    <div class="signal-wave" style="animation-delay: 0s;"></div>
+                    <div class="signal-wave" style="animation-delay: 0.7s;"></div>
+                    <div class="signal-wave" style="animation-delay: 1.4s;"></div>
+                </div>
+                <div class="door"></div>
+            </div>
+
+            <!-- Guard Tower -->
+            <div class="guard-tower usa-guard-tower">
+                <div class="searchlight">
+                    <div class="searchlight-beam"></div>
+                </div>
+            </div>
+
+            <!-- Trees -->
+            <div class="tree" style="left: 5%; bottom: 18%;">
+                <div class="tree-trunk"></div>
+                <div class="tree-leaves"></div>
+            </div>
+            <div class="tree" style="left: 60%; bottom: 16%; animation-delay: 0.5s;">
+                <div class="tree-trunk"></div>
+                <div class="tree-leaves"></div>
+            </div>
+
+            <!-- Vehicles -->
+            <div class="vehicle" style="animation-delay: 0s;"></div>
+            <div class="vehicle" style="animation-delay: 10s;"></div>
+
+            <!-- People -->
+            <div class="person" style="animation-delay: 2s;">
+                <div class="person-head"></div>
+                <div class="person-body"></div>
+                <div class="person-leg"></div>
+                <div class="person-leg"></div>
+            </div>
+
+            <!-- Propaganda Poster -->
+            <div class="propaganda-poster usa-poster" id="usaPoster">PEACE & FREEDOM</div>
+
+            <!-- Warning Sign -->
+            <div class="warning-sign usa-warning"></div>
+        </div>
+
+        <!-- SOVIET SIDE -->
+        <div class="soviet-side">
+            <!-- Flagpole -->
+            <div class="flagpole soviet-flagpole"></div>
+            
+            <!-- Flag -->
+            <div class="soviet-flag"></div>
+
+            <!-- Building -->
+            <div class="soviet-building">
+                <div class="chimney" style="left: 20px;">
+                    <div class="smoke-particle" style="animation-delay: 0.2s;"></div>
+                    <div class="smoke-particle" style="animation-delay: 0.7s;"></div>
+                    <div class="smoke-particle" style="animation-delay: 1.2s;"></div>
+                    <div class="smoke-particle" style="animation-delay: 1.7s;"></div>
+                </div>
+                <div class="radar"></div>
+                <div class="radar-beam"></div>
+                <div class="door"></div>
+            </div>
+
+            <!-- Guard Tower -->
+            <div class="guard-tower soviet-guard-tower">
+                <div class="searchlight">
+                    <div class="searchlight-beam" style="animation-delay: 2s;"></div>
+                </div>
+            </div>
+
+            <!-- Trees -->
+            <div class="tree" style="right: 5%; bottom: 18%; animation-delay: 1s;">
+                <div class="tree-trunk"></div>
+                <div class="tree-leaves"></div>
+            </div>
+            <div class="tree" style="right: 60%; bottom: 16%; animation-delay: 1.5s;">
+                <div class="tree-trunk"></div>
+                <div class="tree-leaves"></div>
+            </div>
+
+            <!-- Vehicles -->
+            <div class="vehicle" style="animation-delay: 5s; right: 0; animation-name: driveVehicleRight;"></div>
+
+            <!-- People -->
+            <div class="person" style="animation-delay: 7s; right: 0; animation-name: walkPersonRight;">
+                <div class="person-head"></div>
+                <div class="person-body"></div>
+                <div class="person-leg"></div>
+                <div class="person-leg"></div>
+            </div>
+
+            <!-- Propaganda Poster -->
+            <div class="propaganda-poster soviet-poster" id="sovietPoster">МИР И ТРУД</div>
+
+            <!-- Warning Sign -->
+            <div class="warning-sign soviet-warning"></div>
+        </div>
+
+        <!-- Barbed Wire Border -->
+        <div class="barbed-wire"></div>
+        <div class="barbed-wire-post"></div>
+
+        <!-- Helicopters -->
+        <div class="helicopter" id="helicopter1" style="top: 15%; animation-delay: 5s;">
+            <div class="helicopter-body">
+                <div class="helicopter-rotor"></div>
+            </div>
+        </div>
+
+        <!-- Radiation Symbol -->
+        <div class="radiation-symbol" id="radiationSymbol"></div>
+
+        <!-- Missiles Container -->
+        <div id="missilesContainer"></div>
+
+        <!-- Explosions Container -->
+        <div id="explosionsContainer"></div>
+
+        <!-- Fallout Particles -->
+        <div id="falloutContainer"></div>
+
+        <!-- Smoke Trails -->
+        <div id="smokeContainer"></div>
+
+        <!-- Debris Container -->
+        <div id="debrisContainer"></div>
+
+        <!-- Sound Waves Container -->
+        <div id="soundContainer"></div>
+
+        <!-- Settings Panel -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="panel-toggle" id="panelToggle"></div>
+
+            <div class="panel-header">
+                <h2><i class="fas fa-cogs"></i> Control Center</h2>
+                <p>Adjust the Cold War scenario with realistic parameters</p>
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-clock"></i> Time Control</h3>
+                <label>
+                    Time of Day: <span class="value-display" id="timeValue">12:00 PM</span>
+                </label>
+                <input type="range" min="0" max="24" step="0.25" value="12" class="slider" id="timeSlider">
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-cloud"></i> Weather</h3>
+                <div class="button-group">
+                    <button class="btn active" id="weatherClear">Clear</button>
+                    <button class="btn" id="weatherRainy">Rain</button>
+                    <button class="btn" id="weatherSnowy">Snow</button>
+                    <button class="btn" id="weatherFoggy">Fog</button>
+                    <button class="btn" id="weatherStormy">Storm</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-wind"></i> Wind</h3>
+                <label>
+                    Wind Speed: <span class="value-display" id="windValue">Calm</span>
+                </label>
+                <input type="range" min="0" max="100" value="20" class="slider" id="windSlider">
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-leaf"></i> Season</h3>
+                <div class="button-group">
+                    <button class="btn" id="seasonSpring">Spring</button>
+                    <button class="btn active" id="seasonSummer">Summer</button>
+                    <button class="btn" id="seasonFall">Fall</button>
+                    <button class="btn" id="seasonWinter">Winter</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-lightbulb"></i> Building Lights</h3>
+                <div class="button-group">
+                    <button class="btn" id="lightsOn">All On</button>
+                    <button class="btn active" id="lightsOff">Auto</button>
+                    <button class="btn" id="lightsRandom">Random</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-exclamation-triangle"></i> Tension Level</h3>
+                <label>
+                    Status: <span class="value-display" id="tensionValue">Peaceful</span>
+                </label>
+                <input type="range" min="0" max="100" value="30" class="slider" id="tensionSlider">
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-radiation"></i> Radiation</h3>
+                <label>
+                    Level: <span class="value-display" id="radiationValue">Safe (0%)</span>
+                </label>
+                <input type="range" min="0" max="100" value="0" class="slider" id="radiationSlider">
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-flag-usa"></i> USA Activity</h3>
+                <label>
+                    Level: <span class="value-display" id="usaActivityValue">Moderate</span>
+                </label>
+                <input type="range" min="0" max="100" value="50" class="slider" id="usaActivitySlider">
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-hammer"></i> USSR Activity</h3>
+                <label>
+                    Level: <span class="value-display" id="ussrActivityValue">Moderate</span>
+                </label>
+                <input type="range" min="0" max="100" value="50" class="slider" id="ussrActivitySlider">
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-bolt"></i> Special Effects</h3>
+                <div class="button-group">
+                    <button class="btn" id="launchMissile">Launch Missile</button>
+                    <button class="btn" id="triggerExplosion">Explosion</button>
+                    <button class="btn" id="triggerLightning">Lightning</button>
+                    <button class="btn" id="triggerHelicopter">Helicopter</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-sliders-h"></i> Realism Settings</h3>
+                <div class="button-group">
+                    <button class="btn active" id="realismHigh">High</button>
+                    <button class="btn" id="realismMedium">Medium</button>
+                    <button class="btn" id="realismLow">Low</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Display -->
+        <div class="info-display" id="infoDisplay">
+            <h2><i class="fas fa-info-circle"></i> Scene Info</h2>
+            <div id="infoContent">
+                <p><strong>Time:</strong> <span id="infoTime">12:00 PM</span></p>
+                <p><strong>Weather:</strong> <span id="infoWeather">Clear</span></p>
+                <p><strong>Tension:</strong> <span id="infoTension">Peaceful</span></p>
+                <p><strong>Radiation:</strong> <span id="infoRadiation">Safe</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // STATE
+        const state = {
+            time: 12,
+            weather: 'clear',
+            wind: 20,
+            season: 'summer',
+            lightsAuto: true,
+            tension: 30,
+            radiation: 0,
+            usaActivity: 50,
+            ussrActivity: 50,
+            realism: 'high',
+            panelOpen: false
+        };
+
+        // DOM ELEMENTS
+        const sky = document.getElementById('sky');
+        const sun = document.querySelector('.sun');
+        const moon = document.querySelector('.moon');
+        const stars = document.getElementById('stars');
+        const aurora = document.querySelector('.aurora');
+        const milkyWay = document.querySelector('.milky-way');
+        const horizon = document.getElementById('horizon');
+        const rainContainer = document.getElementById('rain');
+        const snowContainer = document.getElementById('snow');
+        const fog = document.getElementById('fog');
+        const lightning = document.getElementById('lightning');
+        const radiationSymbol = document.getElementById('radiationSymbol');
+        const falloutContainer = document.getElementById('falloutContainer');
+        const usaPoster = document.getElementById('usaPoster');
+        const sovietPoster = document.getElementById('sovietPoster');
+        const missilesContainer = document.getElementById('missilesContainer');
+        const explosionsContainer = document.getElementById('explosionsContainer');
+        const smokeContainer = document.getElementById('smokeContainer');
+        const debrisContainer = document.getElementById('debrisContainer');
+        const soundContainer = document.getElementById('soundContainer');
+        const cloudsContainer = document.querySelector('.clouds');
+        const birdsContainer = document.getElementById('birds');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const infoDisplay = document.getElementById('infoDisplay');
+        const infoTime = document.getElementById('infoTime');
+        const infoWeather = document.getElementById('infoWeather');
+        const infoTension = document.getElementById('infoTension');
+        const infoRadiation = document.getElementById('infoRadiation');
+        const moonlight = document.getElementById('moonlight');
+
+        // CONTROL ELEMENTS
+        const timeSlider = document.getElementById('timeSlider');
+        const windSlider = document.getElementById('windSlider');
+        const radiationSlider = document.getElementById('radiationSlider');
+        const tensionSlider = document.getElementById('tensionSlider');
+        const usaActivitySlider = document.getElementById('usaActivitySlider');
+        const ussrActivitySlider = document.getElementById('ussrActivitySlider');
+        const weatherClear = document.getElementById('weatherClear');
+        const weatherRainy = document.getElementById('weatherRainy');
+        const weatherSnowy = document.getElementById('weatherSnowy');
+        const weatherFoggy = document.getElementById('weatherFoggy');
+        const weatherStormy = document.getElementById('weatherStormy');
+        const lightsOn = document.getElementById('lightsOn');
+        const lightsOff = document.getElementById('lightsOff');
+        const lightsRandom = document.getElementById('lightsRandom');
+        const seasonSpring = document.getElementById('seasonSpring');
+        const seasonSummer = document.getElementById('seasonSummer');
+        const seasonFall = document.getElementById('seasonFall');
+        const seasonWinter = document.getElementById('seasonWinter');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const panelToggle = document.getElementById('panelToggle');
+        const launchMissileBtn = document.getElementById('launchMissile');
+        const triggerExplosionBtn = document.getElementById('triggerExplosion');
+        const triggerLightningBtn = document.getElementById('triggerLightning');
+        const triggerHelicopterBtn = document.getElementById('triggerHelicopter');
+        const realismHigh = document.getElementById('realismHigh');
+        const realismMedium = document.getElementById('realismMedium');
+        const realismLow = document.getElementById('realismLow');
+
+        // INITIALIZATION
+        window.addEventListener('load', () => {
+            // Hide loading overlay
+            setTimeout(() => {
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 1000);
+            }, 1500);
+
+            // Initialize scene
+            createStars();
+            createClouds();
+            createBirds();
+            createWindows();
+            updateAll();
+            
+            // Auto-hide hint text after 10 seconds
+            setTimeout(() => {
+                const hint = document.querySelector('.hint-text');
+                if (hint) {
+                    hint.style.transition = 'opacity 1s ease';
+                    hint.style.opacity = '0';
+                    setTimeout(() => hint.remove(), 1000);
+                }
+            }, 10000);
+        });
+
+        // CREATE STARS
+        function createStars() {
+            for (let i = 0; i < 300; i++) {
+                const star = document.createElement('div');
+                const size = Math.random();
+                if (size < 0.6) {
+                    star.className = 'star star-small';
+                } else if (size < 0.9) {
+                    star.className = 'star star-medium';
+                } else {
+                    star.className = 'star star-large';
+                }
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 80 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                stars.appendChild(star);
+            }
+        }
+
+        // CREATE CLOUDS
+        function createClouds() {
+            for (let i = 0; i < 12; i++) {
+                const cloud = document.createElement('div');
+                const cloudType = Math.random();
+                if (cloudType < 0.3) {
+                    cloud.className = 'cloud cloud-high';
+                } else if (cloudType < 0.7) {
+                    cloud.className = 'cloud cloud-medium';
+                } else {
+                    cloud.className = 'cloud cloud-low';
+                }
+                cloud.style.width = (Math.random() * 100 + 100) + 'px';
+                cloud.style.height = (Math.random() * 40 + 40) + 'px';
+                cloud.style.top = (Math.random() * 50 + 5) + '%';
+                cloud.style.left = (Math.random() * 100) + '%';
+                cloud.style.animationDuration = (Math.random() * 40 + 40) + 's';
+                cloud.style.animationDelay = (Math.random() * 20) + 's';
+                cloud.style.opacity = Math.random() * 0.3 + 0.4;
+                cloudsContainer.appendChild(cloud);
+            }
+        }
+
+        // CREATE BIRDS
+        function createBirds() {
+            for (let i = 0; i < 6; i++) {
+                const bird = document.createElement('div');
+                bird.className = 'bird';
+                bird.style.top = (Math.random() * 40 + 10) + '%';
+                bird.style.left = '-150px';
+                bird.style.animationDuration = (Math.random() * 15 + 15) + 's';
+                bird.style.animationDelay = (Math.random() * 20) + 's';
+                
+                const birdBody = document.createElement('div');
+                birdBody.className = 'bird-body';
+                
+                const leftWing = document.createElement('div');
+                leftWing.className = 'bird-wing left';
+                
+                const rightWing = document.createElement('div');
+                rightWing.className = 'bird-wing right';
+                
+                birdBody.appendChild(leftWing);
+                birdBody.appendChild(rightWing);
+                bird.appendChild(birdBody);
+                birdsContainer.appendChild(bird);
+            }
+        }
+
+        // CREATE WINDOWS
+        function createWindows() {
+            const usaBuilding = document.querySelector('.usa-building');
+            const sovietBuilding = document.querySelector('.soviet-building');
+
+            // USA Building Windows
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col < 7; col++) {
+                    const window = document.createElement('div');
+                    window.className = 'window';
+                    window.style.left = (col * 32 + 15) + 'px';
+                    window.style.top = (row * 35 + 70) + 'px';
+                    
+                    for (let i = 0; i < 4; i++) {
+                        const pane = document.createElement('div');
+                        window.appendChild(pane);
+                    }
+                    
+                    usaBuilding.appendChild(window);
+                }
+            }
+
+            // Soviet Building Windows
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col < 7; col++) {
+                    const window = document.createElement('div');
+                    window.className = 'window';
+                    window.style.left = (col * 32 + 15) + 'px';
+                    window.style.top = (row * 35 + 70) + 'px';
+                    
+                    for (let i = 0; i < 4; i++) {
+                        const pane = document.createElement('div');
+                        window.appendChild(pane);
+                    }
+                    
+                    sovietBuilding.appendChild(window);
+                }
+            }
+        }
+
+        // UPDATE FUNCTIONS
+        function updateAll() {
+            updateSkyColor();
+            updateSunMoon();
+            updateStars();
+            updateAurora();
+            updateMilkyWay();
+            updateGroundColor();
+            updateLights();
+            updateRadiation();
+            updateActivity();
+            updatePropaganda();
+            updateTension();
+            updateWeather();
+            updateInfoDisplay();
+        }
+
+        function updateSkyColor() {
+            const time = state.time;
+            let gradient;
+
+            if (time >= 4 && time < 6) {
+                // Dawn
+                gradient = 'linear-gradient(180deg, #191970 0%, #FF4500 10%, #FF8C00 30%, #FFD700 50%, #87CEEB 80%, #B0E2FF 100%)';
+            } else if (time >= 6 && time < 17) {
+                // Day
+                gradient = 'linear-gradient(180deg, #87CEEB 0%, #B0E2FF 40%, #E0F6FF 70%, #F5F5DC 100%)';
+            } else if (time >= 17 && time < 19) {
+                // Dusk
+                gradient = 'linear-gradient(180deg, #FF4500 0%, #FF8C00 20%, #FFD700 40%, #4169E1 70%, #191970 100%)';
+            } else {
+                // Night
+                gradient = 'linear-gradient(180deg, #000428 0%, #004e92 20%, #2d3561 60%, #0a0e27 100%)';
+            }
+
+            sky.style.background = gradient;
+            document.body.style.background = gradient;
+        }
+
+        function updateSunMoon() {
+            const time = state.time;
+            
+            // Sun position (rises at 6am, sets at 6pm)
+            if (time >= 5 && time <= 19) {
+                const progress = (time - 5) / 14;
+                const angle = progress * Math.PI;
+                const x = 50 + Math.cos(angle + Math.PI) * 45;
+                const y = 15 + Math.sin(angle + Math.PI) * 35;
+                
+                sun.style.left = x + '%';
+                sun.style.top = y + '%';
+                sun.style.opacity = '1';
+                moon.style.opacity = '0';
+                moonlight.style.opacity = '0';
+            } else {
+                // Moon position
+                let moonTime = time < 5 ? time + 24 : time;
+                const progress = ((moonTime - 19) % 24) / 14;
+                const angle = progress * Math.PI;
+                const x = 50 + Math.cos(angle + Math.PI) * 45;
+                const y = 15 + Math.sin(angle + Math.PI) * 35;
+                
+                moon.style.left = x + '%';
+                moon.style.top = y + '%';
+                moon.style.opacity = '1';
+                sun.style.opacity = '0';
+                
+                // Moonlight beam during full night
+                if (time >= 21 || time <= 4) {
+                    moonlight.style.opacity = '0.7';
+                } else {
+                    moonlight.style.opacity = '0';
+                }
+            }
+        }
+
+        function updateStars() {
+            const time = state.time;
+            const isNight = time < 5 || time > 20;
+            stars.style.opacity = isNight ? '1' : '0';
+        }
+
+        function updateMilkyWay() {
+            const time = state.time;
+            const isNight = time < 5 || time > 20;
+            milkyWay.style.opacity = isNight ? '0.8' : '0';
+        }
+
+        function updateAurora() {
+            const time = state.time;
+            const isNight = time < 5 || time > 20;
+            const isWinter = state.season === 'winter';
+            
+            if (isNight && isWinter && state.radiation < 30) {
+                aurora.style.opacity = '0.7';
+            } else {
+                aurora.style.opacity = '0';
+            }
+        }
+
+        function updateGroundColor() {
+            let groundGradient;
+            let groundTextureOpacity = 0.5;
+
+            switch (state.season) {
+                case 'spring':
+                    groundGradient = 'linear-gradient(180deg, #98FB98 0%, #32CD32 50%, #228B22 100%)';
+                    groundTextureOpacity = 0.6;
+                    break;
+                case 'summer':
+                    groundGradient = 'linear-gradient(180deg, #90EE90 0%, #00CD00 50%, #228B22 100%)';
+                    groundTextureOpacity = 0.7;
+                    break;
+                case 'fall':
+                    groundGradient = 'linear-gradient(180deg, #DAA520 0%, #B8860B 50%, #8B4513 100%)';
+                    groundTextureOpacity = 0.4;
+                    break;
+                case 'winter':
+                    groundGradient = 'linear-gradient(180deg, #F0F8FF 0%, #E6E6FA 50%, #D3D3D3 100%)';
+                    groundTextureOpacity = 0.3;
+                    break;
+                default:
+                    groundGradient = 'linear-gradient(180deg, #90EE90 0%, #228B22 100%)';
+            }
+
+            horizon.style.background = groundGradient;
+            
+            // Update ground texture opacity
+            const groundTexture = document.querySelector('.ground-texture');
+            groundTexture.style.opacity = groundTextureOpacity;
+
+            // Update USA and Soviet sides
+            const usaSide = document.querySelector('.usa-side');
+            const sovietSide = document.querySelector('.soviet-side');
+
+            if (state.season === 'winter') {
+                usaSide.style.background = 'linear-gradient(180deg, rgba(240, 248, 255, 0.95) 0%, #E6E6FA 100%)';
+                sovietSide.style.background = 'linear-gradient(180deg, rgba(230, 230, 250, 0.95) 0%, #D3D3D3 100%)';
+            } else if (state.season === 'fall') {
+                usaSide.style.background = 'linear-gradient(180deg, rgba(218, 165, 32, 0.9) 0%, rgba(139, 69, 19, 0.9) 100%)';
+                sovietSide.style.background = 'linear-gradient(180deg, rgba(169, 169, 169, 0.95) 0%, rgba(74, 74, 74, 0.9) 100%)';
+            } else {
+                usaSide.style.background = 'linear-gradient(180deg, rgba(144, 238, 144, 0.95) 0%, rgba(34, 139, 34, 0.9) 100%)';
+                sovietSide.style.background = 'linear-gradient(180deg, rgba(169, 169, 169, 0.95) 0%, rgba(74, 74, 74, 0.9) 100%)';
+            }
+        }
+
+        function updateWeather() {
+            updateRain();
+            updateSnow();
+            updateFog();
+            updateClouds();
+        }
+
+        function updateRain() {
+            rainContainer.innerHTML = '';
+            
+            if (state.weather === 'rainy' || state.weather === 'stormy') {
+                const rainIntensity = state.weather === 'stormy' ? 200 : 120;
+                
+                for (let i = 0; i < rainIntensity; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'raindrop';
+                    drop.style.left = Math.random() * 100 + '%';
+                    drop.style.top = Math.random() * -30 + '%';
+                    drop.style.animationDuration = (Math.random() * 0.4 + 0.4) + 's';
+                    drop.style.animationDelay = Math.random() * 2 + 's';
+                    
+                    // Create splash effect at random intervals
+                    if (Math.random() > 0.9) {
+                        setTimeout(() => {
+                            const splash = document.createElement('div');
+                            splash.className = 'raindrop-splash';
+                            splash.style.left = drop.style.left;
+                            splash.style.top = '70%';
+                            rainContainer.appendChild(splash);
+                            setTimeout(() => splash.remove(), 500);
+                        }, parseFloat(drop.style.animationDuration) * 1000 * 0.7);
+                    }
+                    
+                    rainContainer.appendChild(drop);
+                }
+                rainContainer.style.opacity = state.weather === 'stormy' ? '0.9' : '0.7';
+            } else {
+                rainContainer.style.opacity = '0';
+            }
+        }
+
+        function updateSnow() {
+            snowContainer.innerHTML = '';
+            
+            if (state.weather === 'snowy') {
+                for (let i = 0; i < 80; i++) {
+                    const snowflake = document.createElement('div');
+                    const size = Math.random();
+                    if (size < 0.6) {
+                        snowflake.className = 'snowflake snowflake-small';
+                    } else if (size < 0.9) {
+                        snowflake.className = 'snowflake snowflake-medium';
+                    } else {
+                        snowflake.className = 'snowflake snowflake-large';
+                    }
+                    snowflake.style.left = Math.random() * 100 + '%';
+                    snowflake.style.top = Math.random() * -20 + '%';
+                    snowflake.style.animationDuration = (Math.random() * 6 + 4) + 's';
+                    snowflake.style.animationDelay = Math.random() * 8 + 's';
+                    snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+                    snowContainer.appendChild(snowflake);
+                }
+                snowContainer.style.opacity = '1';
+            } else {
+                snowContainer.style.opacity = '0';
+            }
+        }
+
+        function updateFog() {
+            if (state.weather === 'foggy') {
+                fog.style.opacity = '0.8';
+            } else {
+                fog.style.opacity = '0';
+            }
+        }
+
+        function updateClouds() {
+            const clouds = document.querySelectorAll('.cloud');
+            clouds.forEach(cloud => {
+                const baseDuration = parseFloat(cloud.style.animationDuration) || 40;
+                cloud.style.animationDuration = (baseDuration - state.wind / 10) + 's';
+                
+                // Adjust cloud opacity based on weather
+                if (state.weather === 'stormy') {
+                    cloud.style.opacity = Math.min(parseFloat(cloud.style.opacity) || 0.7, 0.9);
+                    cloud.style.background = 'rgba(100, 100, 100, 0.9)';
+                } else if (state.weather === 'rainy') {
+                    cloud.style.opacity = Math.min(parseFloat(cloud.style.opacity) || 0.7, 0.8);
+                    cloud.style.background = 'rgba(150, 150, 150, 0.8)';
+                }
+            });
+        }
+
+        function updateLights() {
+            const windows = document.querySelectorAll('.window');
+            const isNight = state.time < 6 || state.time > 19;
+            
+            windows.forEach(window => {
+                if (state.lightsAuto) {
+                    if (isNight || state.weather === 'foggy' || state.weather === 'stormy') {
+                        if (Math.random() > 0.4) {
+                            window.classList.add('lit');
+                        } else {
+                            window.classList.remove('lit');
+                        }
+                    } else {
+                        if (Math.random() > 0.8) {
+                            window.classList.remove('lit');
+                        }
+                    }
+                } else {
+                    window.classList.add('lit');
+                }
+            });
+        }
+
+        function updateRadiation() {
+            const level = state.radiation;
+            document.getElementById('radiationValue').textContent = 
+                level < 10 ? `Safe (${level}%)` :
+                level < 30 ? `Low (${level}%)` :
+                level < 60 ? `Moderate (${level}%)` :
+                level < 80 ? `High (${level}%)` :
+                `CRITICAL (${level}%)`;
+
+            if (level > 20) {
+                radiationSymbol.style.opacity = (level - 20) / 80;
+                
+                if (level > 40) {
+                    radiationSymbol.classList.add('pulsing');
+                    createFalloutParticles();
+                } else {
+                    radiationSymbol.classList.remove('pulsing');
+                }
+            } else {
+                radiationSymbol.style.opacity = '0';
+                radiationSymbol.classList.remove('pulsing');
+            }
+
+            // Green tint at high radiation
+            if (level > 60) {
+                sky.style.filter = `hue-rotate(${(level - 60) * 3}deg) brightness(0.8) saturate(1.5)`;
+                document.body.style.filter = `hue-rotate(${(level - 60) * 1.5}deg) brightness(0.9)`;
+            } else {
+                sky.style.filter = 'none';
+                document.body.style.filter = 'none';
+            }
+        }
+
+        function createFalloutParticles() {
+            if (Math.random() > 0.8) {
+                const particle = document.createElement('div');
+                particle.className = 'fallout-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * -30 + '%';
+                particle.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                falloutContainer.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 8000);
+            }
+        }
+
+        function updateActivity() {
+            const usaWindows = document.querySelector('.usa-building').querySelectorAll('.window');
+            const sovietWindows = document.querySelector('.soviet-building').querySelectorAll('.window');
+
+            // Update USA building activity
+            usaWindows.forEach(w => {
+                if (Math.random() * 100 < state.usaActivity) {
+                    w.classList.add('lit');
+                } else if (state.lightsAuto) {
+                    // Only turn off if in auto mode
+                    w.classList.remove('lit');
+                }
+            });
+
+            // Update Soviet building activity
+            sovietWindows.forEach(w => {
+                if (Math.random() * 100 < state.ussrActivity) {
+                    w.classList.add('lit');
+                } else if (state.lightsAuto) {
+                    // Only turn off if in auto mode
+                    w.classList.remove('lit');
+                }
+            });
+        }
+
+        function updatePropaganda() {
+            if (state.tension > 80) {
+                usaPoster.textContent = '🚨 ALERT! DEFCON 1';
+                usaPoster.style.background = 'linear-gradient(135deg, #ff0000 0%, #cc0000 100%)';
+                usaPoster.style.color = 'white';
+                usaPoster.style.fontSize = '12px';
+                sovietPoster.textContent = '🚨 ТРЕВОГА!';
+                sovietPoster.style.background = 'linear-gradient(135deg, #cc0000 0%, #990000 100%)';
+                sovietPoster.style.color = '#FFD700';
+                sovietPoster.style.fontSize = '14px';
+            } else if (state.tension > 60) {
+                usaPoster.textContent = 'DEFEND FREEDOM';
+                usaPoster.style.background = 'linear-gradient(135deg, #fff 0%, #e6f2ff 100%)';
+                usaPoster.style.color = '#000080';
+                usaPoster.style.fontSize = '13px';
+                sovietPoster.textContent = 'ЗА РОДИНУ!';
+                sovietPoster.style.background = 'linear-gradient(135deg, #ffeeee 0%, #ffe6e6 100%)';
+                sovietPoster.style.color = '#8B0000';
+                sovietPoster.style.fontSize = '14px';
+            } else if (state.tension > 40) {
+                usaPoster.textContent = 'VIGILANCE';
+                usaPoster.style.background = 'linear-gradient(135deg, #fff 0%, #e6f2ff 100%)';
+                usaPoster.style.color = '#000080';
+                usaPoster.style.fontSize = '14px';
+                sovietPoster.textContent = 'БДИТЕЛЬНОСТЬ';
+                sovietPoster.style.background = 'linear-gradient(135deg, #ffeeee 0%, #ffe6e6 100%)';
+                sovietPoster.style.color = '#8B0000';
+                sovietPoster.style.fontSize = '13px';
+            } else {
+                usaPoster.textContent = 'PEACE & FREEDOM';
+                usaPoster.style.background = 'linear-gradient(135deg, #fff 0%, #e6f2ff 100%)';
+                usaPoster.style.color = '#000080';
+                usaPoster.style.fontSize = '14px';
+                sovietPoster.textContent = 'МИР И ТРУД';
+                sovietPoster.style.background = 'linear-gradient(135deg, #ffeeee 0%, #ffe6e6 100%)';
+                sovietPoster.style.color = '#8B0000';
+                sovietPoster.style.fontSize = '14px';
+            }
+        }
+
+        function updateTension() {
+            const usaBuild = document.querySelector('.usa-building');
+            const sovietBuild = document.querySelector('.soviet-building');
+            
+            if (state.tension > 50) {
+                const glow = (state.tension - 50) / 10;
+                usaBuild.style.filter = `drop-shadow(0 0 ${glow}px #ff0000) brightness(${1 + glow/10})`;
+                sovietBuild.style.filter = `drop-shadow(0 0 ${glow}px #ff0000) brightness(${1 + glow/10})`;
+            } else {
+                usaBuild.style.filter = 'none';
+                sovietBuild.style.filter = 'none';
+            }
+
+            // Auto-trigger effects at high tension
+            if (state.tension > 80 && Math.random() > 0.97) {
+                launchMissile();
+            }
+            
+            if (state.tension > 70 && Math.random() > 0.98) {
+                triggerHelicopter();
+            }
+        }
+
+        function updateInfoDisplay() {
+            const hours = Math.floor(state.time);
+            const minutes = Math.round((state.time - hours) * 60);
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+            infoTime.textContent = displayHours + ':' + minutes.toString().padStart(2, '0') + ' ' + period;
+            
+            infoWeather.textContent = state.weather.charAt(0).toUpperCase() + state.weather.slice(1);
+            
+            infoTension.textContent = 
+                state.tension < 20 ? 'Peaceful' :
+                state.tension < 40 ? 'Calm' :
+                state.tension < 60 ? 'Tense' :
+                state.tension < 80 ? 'Critical' : '🚨 WARNING';
+            
+            infoRadiation.textContent = 
+                state.radiation < 10 ? 'Safe' :
+                state.radiation < 30 ? 'Low' :
+                state.radiation < 60 ? 'Moderate' :
+                state.radiation < 80 ? 'High' : '🚨 CRITICAL';
+        }
+
+        // SPECIAL EFFECTS
+        function launchMissile() {
+            const missile = document.createElement('div');
+            missile.className = 'missile';
+            const isUSA = Math.random() > 0.5;
+            const launchSide = isUSA ? 'USA' : 'USSR';
+            
+            if (isUSA) {
+                missile.style.left = '25%';
+                missile.style.transform = 'rotate(5deg)';
+            } else {
+                missile.style.left = '75%';
+                missile.style.transform = 'rotate(-5deg)';
+            }
+            
+            missile.style.bottom = '30%';
+            missile.innerHTML = '<div class="missile-trail"></div>';
+            
+            missilesContainer.appendChild(missile);
+            
+            // Create initial smoke
+            createSmokeTrail(isUSA ? 25 : 75, 30, 3);
+            
+            // Create sound wave
+            createSoundWave(isUSA ? 25 : 75, 30);
+            
+            setTimeout(() => {
+                missile.style.opacity = '1';
+                missile.style.animation = 'launchMissile 4s ease-out';
+            }, 100);
+            
+            // Create continuous smoke trail
+            const smokeInterval = setInterval(() => {
+                createSmokeTrail(
+                    isUSA ? 25 + Math.random() * 5 : 75 - Math.random() * 5,
+                    30 + Math.random() * 20,
+                    2
+                );
+            }, 200);
+            
+            setTimeout(() => {
+                clearInterval(smokeInterval);
+                missile.remove();
+                if (state.tension > 60 && Math.random() > 0.3) {
+                    triggerExplosion(isUSA ? 75 : 25);
+                }
+            }, 4000);
+        }
+
+        function triggerExplosion(xPercent = 50) {
+            // Create main explosion
+            const explosion = document.createElement('div');
+            explosion.className = 'explosion';
+            explosion.style.left = xPercent + '%';
+            explosion.style.top = '30%';
+            
+            explosionsContainer.appendChild(explosion);
+            
+            // Create shockwave
+            const shockwave = document.createElement('div');
+            shockwave.className = 'shockwave';
+            shockwave.style.left = xPercent + '%';
+            shockwave.style.top = '30%';
+            explosionsContainer.appendChild(shockwave);
+            
+            // Create debris
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const debris = document.createElement('div');
+                    debris.className = 'debris';
+                    debris.style.left = xPercent + '%';
+                    debris.style.top = '30%';
+                    debris.style.background = `hsl(${Math.random() * 30 + 10}, 70%, ${Math.random() * 20 + 20}%)`;
+                    debris.style.width = Math.random() * 8 + 4 + 'px';
+                    debris.style.height = Math.random() * 8 + 4 + 'px';
+                    debrisContainer.appendChild(debris);
+                    setTimeout(() => debris.remove(), 2000);
+                }, i * 50);
+            }
+            
+            // Create sound wave
+            createSoundWave(xPercent, 30);
+            
+            // Create smoke
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    createSmokeTrail(
+                        xPercent + (Math.random() - 0.5) * 10,
+                        30 + Math.random() * 20,
+                        4
+                    );
+                }, i * 200);
+            }
+            
+            setTimeout(() => {
+                explosion.style.opacity = '1';
+                explosion.style.animation = 'explode 1.5s ease-out';
+                shockwave.style.animation = 'shockwave 1s ease-out';
+            }, 100);
+            
+            // Shake effect
+            document.body.style.animation = 'shake 0.8s ease-in-out';
+            sky.style.animation = 'shakeVertical 0.8s ease-in-out';
+            setTimeout(() => {
+                document.body.style.animation = '';
+                sky.style.animation = '';
+            }, 800);
+            
+            setTimeout(() => {
+                explosion.remove();
+                shockwave.remove();
+            }, 1500);
+        }
+
+        function triggerLightning() {
+            // Create multiple bolts
+            const boltCount = state.weather === 'stormy' ? 3 : 1;
+            
+            for (let i = 0; i < boltCount; i++) {
+                setTimeout(() => {
+                    const bolt = document.createElement('div');
+                    bolt.className = 'lightning-bolt';
+                    bolt.style.left = (Math.random() * 80 + 10) + '%';
+                    bolt.style.top = '0';
+                    bolt.style.height = (Math.random() * 100 + 250) + 'px';
+                    
+                    lightning.appendChild(bolt);
+                    lightning.style.opacity = '1';
+                    
+                    // Flash effect
+                    sky.style.filter = 'brightness(3)';
+                    setTimeout(() => {
+                        sky.style.filter = 'brightness(1.5)';
+                    }, 50);
+                    setTimeout(() => {
+                        sky.style.filter = 'none';
+                    }, 100);
+                    
+                    // Create sound wave
+                    createSoundWave(parseFloat(bolt.style.left), 10);
+                    
+                    setTimeout(() => {
+                        bolt.remove();
+                        if (i === boltCount - 1) {
+                            setTimeout(() => {
+                                lightning.style.opacity = '0';
+                            }, 300);
+                        }
+                    }, 200);
+                }, i * 300);
+            }
+        }
+
+        function triggerHelicopter() {
+            const heli = document.createElement('div');
+            heli.className = 'helicopter';
+            heli.style.top = (Math.random() * 30 + 10) + '%';
+            heli.style.left = '-150px';
+            heli.innerHTML = `
+                <div class="helicopter-body">
+                    <div class="helicopter-rotor"></div>
+                </div>
+            `;
+            
+            // Determine side based on tension
+            const isUSA = state.usaActivity > state.ussrActivity;
+            if (!isUSA) {
+                heli.style.left = 'calc(100% + 150px)';
+                heli.style.transform = 'scaleX(-1)';
+                heli.style.animationName = 'flyHelicopterReverse';
+            }
+            
+            sky.appendChild(heli);
+            
+            // Create sound wave
+            createSoundWave(isUSA ? 10 : 90, parseFloat(heli.style.top));
+            
+            setTimeout(() => heli.remove(), 25000);
+        }
+
+        function createSmokeTrail(xPercent, yPercent, duration) {
+            const smoke = document.createElement('div');
+            smoke.className = 'smoke-trail';
+            smoke.style.left = xPercent + '%';
+            smoke.style.top = yPercent + '%';
+            smoke.style.animationDuration = duration + 's';
+            smokeContainer.appendChild(smoke);
+            
+            setTimeout(() => {
+                smoke.style.opacity = '0.8';
+                smoke.style.animation = 'smokeRise ' + duration + 's ease-out';
+            }, 10);
+            
+            setTimeout(() => smoke.remove(), duration * 1000);
+        }
+
+        function createSoundWave(xPercent, yPercent) {
+            const soundWave = document.createElement('div');
+            soundWave.className = 'sound-wave';
+            soundWave.style.left = xPercent + '%';
+            soundWave.style.top = yPercent + '%';
+            soundContainer.appendChild(soundWave);
+            
+            setTimeout(() => {
+                soundWave.style.opacity = '1';
+                soundWave.style.animation = 'soundExpand 1s ease-out';
+            }, 10);
+            
+            setTimeout(() => soundWave.remove(), 1000);
+        }
+
+        // EVENT LISTENERS
+        timeSlider.addEventListener('input', (e) => {
+            state.time = parseFloat(e.target.value);
+            const hours = Math.floor(state.time);
+            const minutes = Math.round((state.time - hours) * 60);
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+            document.getElementById('timeValue').textContent = 
+                displayHours + ':' + minutes.toString().padStart(2, '0') + ' ' + period;
+            updateAll();
+        });
+
+        windSlider.addEventListener('input', (e) => {
+            state.wind = parseFloat(e.target.value);
+            const desc = state.wind < 10 ? 'Calm' :
+                        state.wind < 20 ? 'Light Breeze' :
+                        state.wind < 40 ? 'Moderate Wind' :
+                        state.wind < 60 ? 'Strong Wind' :
+                        state.wind < 80 ? 'Very Strong' : 'Hurricane Force';
+            document.getElementById('windValue').textContent = desc;
+            
+            updateClouds();
+        });
+
+        radiationSlider.addEventListener('input', (e) => {
+            state.radiation = parseFloat(e.target.value);
+            updateRadiation();
+            updateInfoDisplay();
+        });
+
+        tensionSlider.addEventListener('input', (e) => {
+            state.tension = parseFloat(e.target.value);
+            const desc = state.tension < 20 ? 'Peaceful' :
+                        state.tension < 40 ? 'Calm' :
+                        state.tension < 60 ? 'Tense' :
+                        state.tension < 80 ? 'Critical' : '🚨 WARNING';
+            document.getElementById('tensionValue').textContent = desc;
+            updateTension();
+            updatePropaganda();
+            updateInfoDisplay();
+        });
+
+        usaActivitySlider.addEventListener('input', (e) => {
+            state.usaActivity = parseFloat(e.target.value);
+            const desc = state.usaActivity < 20 ? 'Minimal' :
+                        state.usaActivity < 40 ? 'Low' :
+                        state.usaActivity < 60 ? 'Moderate' :
+                        state.usaActivity < 80 ? 'High' : 'Maximum';
+            document.getElementById('usaActivityValue').textContent = desc;
+            updateActivity();
+        });
+
+        ussrActivitySlider.addEventListener('input', (e) => {
+            state.ussrActivity = parseFloat(e.target.value);
+            const desc = state.ussrActivity < 20 ? 'Minimal' :
+                        state.ussrActivity < 40 ? 'Low' :
+                        state.ussrActivity < 60 ? 'Moderate' :
+                        state.ussrActivity < 80 ? 'High' : 'Maximum';
+            document.getElementById('ussrActivityValue').textContent = desc;
+            updateActivity();
+        });
+
+        // Weather buttons
+        weatherClear.addEventListener('click', () => {
+            state.weather = 'clear';
+            setActiveButton([weatherClear], [weatherRainy, weatherSnowy, weatherFoggy, weatherStormy]);
+            updateWeather();
+            updateInfoDisplay();
+        });
+
+        weatherRainy.addEventListener('click', () => {
+            state.weather = 'rainy';
+            setActiveButton([weatherRainy], [weatherClear, weatherSnowy, weatherFoggy, weatherStormy]);
+            updateWeather();
+            updateInfoDisplay();
+        });
+
+        weatherSnowy.addEventListener('click', () => {
+            state.weather = 'snowy';
+            setActiveButton([weatherSnowy], [weatherClear, weatherRainy, weatherFoggy, weatherStormy]);
+            updateWeather();
+            updateInfoDisplay();
+        });
+
+        weatherFoggy.addEventListener('click', () => {
+            state.weather = 'foggy';
+            setActiveButton([weatherFoggy], [weatherClear, weatherRainy, weatherSnowy, weatherStormy]);
+            updateWeather();
+            updateInfoDisplay();
+        });
+
+        weatherStormy.addEventListener('click', () => {
+            state.weather = 'stormy';
+            setActiveButton([weatherStormy], [weatherClear, weatherRainy, weatherSnowy, weatherFoggy]);
+            updateWeather();
+            updateInfoDisplay();
+            // Auto-trigger lightning in stormy weather
+            setTimeout(() => triggerLightning(), 500);
+        });
+
+        // Season buttons
+        seasonSpring.addEventListener('click', () => {
+            state.season = 'spring';
+            setActiveButton([seasonSpring], [seasonSummer, seasonFall, seasonWinter]);
+            updateGroundColor();
+            updateAurora();
+        });
+
+        seasonSummer.addEventListener('click', () => {
+            state.season = 'summer';
+            setActiveButton([seasonSummer], [seasonSpring, seasonFall, seasonWinter]);
+            updateGroundColor();
+            updateAurora();
+        });
+
+        seasonFall.addEventListener('click', () => {
+            state.season = 'fall';
+            setActiveButton([seasonFall], [seasonSpring, seasonSummer, seasonWinter]);
+            updateGroundColor();
+            updateAurora();
+        });
+
+        seasonWinter.addEventListener('click', () => {
+            state.season = 'winter';
+            setActiveButton([seasonWinter], [seasonSpring, seasonSummer, seasonFall]);
+            updateGroundColor();
+            updateAurora();
+        });
+
+        // Lights buttons
+        lightsOn.addEventListener('click', () => {
+            state.lightsAuto = false;
+            setActiveButton([lightsOn], [lightsOff, lightsRandom]);
+            updateLights();
+        });
+
+        lightsOff.addEventListener('click', () => {
+            state.lightsAuto = true;
+            setActiveButton([lightsOff], [lightsOn, lightsRandom]);
+            updateLights();
+        });
+
+        lightsRandom.addEventListener('click', () => {
+            state.lightsAuto = false;
+            setActiveButton([lightsRandom], [lightsOn, lightsOff]);
+            const windows = document.querySelectorAll('.window');
+            windows.forEach(window => {
+                if (Math.random() > 0.5) {
+                    window.classList.add('lit');
+                } else {
+                    window.classList.remove('lit');
+                }
+            });
+        });
+
+        // Realism buttons
+        realismHigh.addEventListener('click', () => {
+            state.realism = 'high';
+            setActiveButton([realismHigh], [realismMedium, realismLow]);
+            // Adjust effects based on realism
+            if (state.realism === 'high') {
+                // More particles, slower animations
+                document.documentElement.style.setProperty('--particle-count', '300');
+            }
+        });
+
+        realismMedium.addEventListener('click', () => {
+            state.realism = 'medium';
+            setActiveButton([realismMedium], [realismHigh, realismLow]);
+            // Adjust effects based on realism
+            if (state.realism === 'medium') {
+                document.documentElement.style.setProperty('--particle-count', '200');
+            }
+        });
+
+        realismLow.addEventListener('click', () => {
+            state.realism = 'low';
+            setActiveButton([realismLow], [realismHigh, realismMedium]);
+            // Adjust effects based on realism
+            if (state.realism === 'low') {
+                document.documentElement.style.setProperty('--particle-count', '100');
+            }
+        });
+
+        // Special effects buttons
+        launchMissileBtn.addEventListener('click', launchMissile);
+        triggerExplosionBtn.addEventListener('click', () => triggerExplosion());
+        triggerLightningBtn.addEventListener('click', triggerLightning);
+        triggerHelicopterBtn.addEventListener('click', triggerHelicopter);
+
+        // Panel toggle - FIXED FUNCTIONALITY
+        panelToggle.addEventListener('click', () => {
+            state.panelOpen = !state.panelOpen;
+            
+            if (state.panelOpen) {
+                settingsPanel.classList.add('expanded');
+                panelToggle.style.background = 'linear-gradient(135deg, rgba(41, 128, 185, 1), rgba(52, 152, 219, 1))';
+                panelToggle.style.transform = 'translateY(-50%) translateX(-8px)';
+                panelToggle.innerHTML = '<span class="toggle-icon">✕</span><span>CLOSE</span>';
+            } else {
+                settingsPanel.classList.remove('expanded');
+                panelToggle.style.background = 'linear-gradient(135deg, rgba(52, 152, 219, 0.95), rgba(41, 128, 185, 0.95))';
+                panelToggle.style.transform = 'translateY(-50%)';
+                panelToggle.innerHTML = '<span class="toggle-icon">⚙️</span><span>CONTROLS</span>';
+            }
+            
+            // Hide hint after first interaction
+            const hint = document.querySelector('.hint-text');
+            if (hint) {
+                setTimeout(() => {
+                    hint.style.transition = 'opacity 1s ease';
+                    hint.style.opacity = '0';
+                    setTimeout(() => hint.remove(), 1000);
+                }, 500);
+            }
+        });
+
+        function setActiveButton(active, inactive) {
+            active.forEach(btn => btn.classList.add('active'));
+            inactive.forEach(btn => btn.classList.remove('active'));
+        }
+
+        // Add reverse helicopter animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes flyHelicopterReverse {
+                0% { 
+                    transform: translateX(150px) translateY(0) scaleX(-1);
+                    opacity: 0;
+                }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { 
+                    transform: translateX(calc(-100vw - 150px)) translateY(-40px) scaleX(-1);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+                20%, 40%, 60%, 80% { transform: translateX(10px); }
+            }
+            
+            @keyframes shakeVertical {
+                0%, 100% { transform: translateY(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateY(-5px); }
+                20%, 40%, 60%, 80% { transform: translateY(5px); }
+            }
+            
+            @keyframes driveVehicleRight {
+                0% { transform: translateX(100px); }
+                100% { transform: translateX(calc(-50vw + 100px)); }
+            }
+            
+            @keyframes walkPersonRight {
+                0% { transform: translateX(60px); opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { transform: translateX(calc(-50vw + 60px)); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Auto-update lights periodically
+        setInterval(() => {
+            if (state.lightsAuto) {
+                updateLights();
+            }
+        }, 5000);
+
+        // Random lightning during storm
+        setInterval(() => {
+            if (state.weather === 'stormy' && Math.random() > 0.93) {
+                triggerLightning();
+            }
+        }, 3000);
+
+        // Random bird spawns
+        setInterval(() => {
+            if (state.time >= 6 && state.time <= 18 && Math.random() > 0.92) {
+                const bird = document.createElement('div');
+                bird.className = 'bird';
+                bird.style.top = (Math.random() * 40 + 10) + '%';
+                bird.style.left = '-150px';
+                bird.style.animationDuration = (Math.random() * 15 + 15) + 's';
+                
+                const birdBody = document.createElement('div');
+                birdBody.className = 'bird-body';
+                
+                const leftWing = document.createElement('div');
+                leftWing.className = 'bird-wing left';
+                
+                const rightWing = document.createElement('div');
+                rightWing.className = 'bird-wing right';
+                
+                birdBody.appendChild(leftWing);
+                birdBody.appendChild(rightWing);
+                bird.appendChild(birdBody);
+                birdsContainer.appendChild(bird);
+                
+                setTimeout(() => bird.remove(), 30000);
+            }
+        }, 4000);
+
+        // Random helicopter at high tension
+        setInterval(() => {
+            if (state.tension > 50 && Math.random() > 0.98) {
+                triggerHelicopter();
+            }
+        }, 8000);
+
+        // Random smoke from chimneys
+        setInterval(() => {
+            if (state.usaActivity > 30 && Math.random() > 0.7) {
+                const chimney = document.querySelector('.usa-building .chimney');
+                if (chimney) {
+                    const smoke = document.createElement('div');
+                    smoke.className = 'smoke-particle';
+                    smoke.style.animationDelay = '0s';
+                    chimney.appendChild(smoke);
+                    setTimeout(() => smoke.remove(), 4000);
+                }
+            }
+            
+            if (state.ussrActivity > 30 && Math.random() > 0.7) {
+                const chimney = document.querySelector('.soviet-building .chimney');
+                if (chimney) {
+                    const smoke = document.createElement('div');
+                    smoke.className = 'smoke-particle';
+                    smoke.style.animationDelay = '0s';
+                    chimney.appendChild(smoke);
+                    setTimeout(() => smoke.remove(), 4000);
+                }
+            }
+        }, 3000);
+
+        // Update info display every second
+        setInterval(() => {
+            updateInfoDisplay();
+        }, 1000);
+    </script>
+</body>
+</html>
