@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waterfall Serenity - Calming Scenery</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+
+            --color-background: var(--color-slate-900);
+            --color-surface: rgba(38, 40, 40, 1);
+            --color-text: var(--color-cream-50);
+            --color-text-secondary: var(--color-gray-300);
+            --color-primary: var(--color-teal-300);
+            --color-primary-hover: var(--color-teal-500);
+            --color-border: rgba(167, 169, 169, 0.3);
+            --color-focus-ring: rgba(50, 184, 198, 0.4);
+
+            --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-md: 16px;
+            --font-size-lg: 18px;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+
+            --radius-sm: 6px;
+            --radius-base: 8px;
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            background: var(--color-background);
+            color: var(--color-text);
+            overflow: hidden;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        canvas {
+            flex: 1;
+            display: block;
+            background: linear-gradient(180deg, 
+                rgba(135, 206, 250, 0.4) 0%,
+                rgba(100, 180, 200, 0.3) 50%,
+                rgba(50, 120, 150, 0.2) 100%);
+        }
+
+        .control-panel {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 320px;
+            background: rgba(19, 52, 59, 0.98);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--color-border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(0);
+            transition: transform var(--duration-normal) var(--ease-standard);
+            padding: var(--space-16);
+        }
+
+        .control-panel.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-24);
+            padding-bottom: var(--space-16);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .panel-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-primary);
+        }
+
+        .toggle-btn {
+            display: none;
+            background: var(--color-primary);
+            color: var(--color-slate-900);
+            border: none;
+            border-radius: var(--radius-base);
+            padding: var(--space-8) var(--space-12);
+            cursor: pointer;
+            font-weight: var(--font-weight-medium);
+            transition: all var(--duration-normal) var(--ease-standard);
+            position: fixed;
+            left: var(--space-16);
+            top: var(--space-16);
+            z-index: 101;
+        }
+
+        .toggle-btn:hover {
+            background: var(--color-primary-hover);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 1024px) {
+            .control-panel {
+                width: 280px;
+            }
+
+            .toggle-btn {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                width: 100%;
+                height: auto;
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                border-right: none;
+                border-top: 1px solid var(--color-border);
+                transform: translateY(100%);
+                max-height: 70vh;
+                padding: var(--space-16);
+            }
+
+            .control-panel.collapsed {
+                transform: translateY(100%);
+            }
+
+            .control-panel.open {
+                transform: translateY(0);
+            }
+
+            .toggle-btn {
+                left: auto;
+                right: var(--space-16);
+                bottom: 100%;
+            }
+
+            canvas {
+                width: 100%;
+            }
+        }
+
+        .control-group {
+            margin-bottom: var(--space-24);
+        }
+
+        .control-label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--space-8);
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-value {
+            font-size: var(--font-size-base);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-8);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(50, 184, 198, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            transition: background var(--duration-normal);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: none;
+            transition: background var(--duration-normal);
+        }
+
+        input[type="range"]:hover::-webkit-slider-thumb,
+        input[type="range"]:hover::-moz-range-thumb {
+            background: var(--color-primary-hover);
+        }
+
+        select {
+            width: 100%;
+            padding: var(--space-8) var(--space-12);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            background: rgba(50, 184, 198, 0.1);
+            color: var(--color-text);
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            transition: all var(--duration-normal);
+        }
+
+        select:hover,
+        select:focus {
+            border-color: var(--color-primary);
+            background: rgba(50, 184, 198, 0.15);
+            outline: none;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-12);
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-12);
+            cursor: pointer;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+        }
+
+        .checkbox-label {
+            font-size: var(--font-size-base);
+            color: var(--color-text);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: var(--color-border);
+            margin: var(--space-20) 0;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: var(--space-12) var(--space-16);
+            background: linear-gradient(135deg, var(--color-primary), var(--color-teal-500));
+            color: var(--color-slate-900);
+            border: none;
+            border-radius: var(--radius-base);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-standard);
+            font-size: var(--font-size-base);
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(50, 184, 198, 0.3);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+
+        .info-text {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-top: var(--space-8);
+            line-height: 1.5;
+        }
+
+        .scroll-indicator {
+            display: none;
+            position: absolute;
+            bottom: var(--space-16);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .scroll-indicator {
+                display: block;
+            }
+
+            .control-panel {
+                padding-bottom: var(--space-48);
+            }
+        }
+
+        /* Scrollbar styling */
+        .control-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .control-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .control-panel::-webkit-scrollbar-thumb {
+            background: rgba(50, 184, 198, 0.3);
+            border-radius: 3px;
+        }
+
+        .control-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(50, 184, 198, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="toggle-btn" id="toggleBtn">☰ Settings</button>
+
+        <div class="control-panel" id="controlPanel">
+            <div class="panel-header">
+                <span class="panel-title">⚙️ Settings</span>
+            </div>
+
+            <!-- Time of Day -->
+            <div class="control-group">
+                <label class="control-label">Time of Day</label>
+                <div class="control-value" id="timeDisplay">Morning</div>
+                <input type="range" id="timeSlider" min="0" max="24" value="7" step="0.5">
+            </div>
+
+            <!-- Weather -->
+            <div class="control-group">
+                <label class="control-label">Weather</label>
+                <select id="weatherSelect">
+                    <option value="clear">☀️ Clear Sky</option>
+                    <option value="cloudy">☁️ Cloudy</option>
+                    <option value="rain">🌧️ Light Rain</option>
+                    <option value="storm">⛈️ Storm</option>
+                    <option value="fog">🌫️ Foggy</option>
+                </select>
+            </div>
+
+            <!-- Waterfall Intensity -->
+            <div class="control-group">
+                <label class="control-label">Waterfall Intensity</label>
+                <div class="control-value" id="intensityDisplay">Moderate</div>
+                <input type="range" id="intensitySlider" min="0.3" max="2" value="1" step="0.1">
+            </div>
+
+            <!-- Water Color -->
+            <div class="control-group">
+                <label class="control-label">Water Color</label>
+                <select id="waterColorSelect">
+                    <option value="clear">💎 Crystal Clear</option>
+                    <option value="tropical">🌴 Tropical Blue</option>
+                    <option value="emerald">💚 Emerald Green</option>
+                    <option value="turquoise">🔵 Turquoise</option>
+                    <option value="milky">⚪ Milky White</option>
+                </select>
+            </div>
+
+            <!-- Mist & Spray -->
+            <div class="control-group">
+                <label class="control-label">Mist & Spray</label>
+                <div class="control-value" id="mistDisplay">Moderate</div>
+                <input type="range" id="mistSlider" min="0" max="100" value="50" step="10">
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Visual Effects -->
+            <div class="control-group">
+                <label class="control-label">Visual Effects</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="rainbowCheck" checked>
+                        <label class="checkbox-label" for="rainbowCheck">Rainbow Effect</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="sunlightCheck" checked>
+                        <label class="checkbox-label" for="sunlightCheck">Sunlight Rays</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="rocksCheck" checked>
+                        <label class="checkbox-label" for="rocksCheck">Rock Details</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="birdsCheck">
+                        <label class="checkbox-label" for="birdsCheck">Birds Flying</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="soundCheck">
+                        <label class="checkbox-label" for="soundCheck">Ambient Sound</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Speed Control -->
+            <div class="control-group">
+                <label class="control-label">Animation Speed</label>
+                <div class="control-value" id="speedDisplay">Normal</div>
+                <input type="range" id="speedSlider" min="0.3" max="2" value="1" step="0.1">
+            </div>
+
+            <div class="section-divider"></div>
+
+            <button class="reset-btn" id="resetBtn">↺ Reset All Settings</button>
+
+            <p class="info-text">
+                🌊 Immerse yourself in the calming beauty of nature. Adjust the settings to create your perfect moment of serenity.
+            </p>
+
+            <div class="scroll-indicator">Scroll for more ↓</div>
+        </div>
+
+        <canvas id="waterfallCanvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('waterfallCanvas');
+        const ctx = canvas.getContext('2d');
+        const controlPanel = document.getElementById('controlPanel');
+        const toggleBtn = document.getElementById('toggleBtn');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Toggle panel on mobile
+        toggleBtn.addEventListener('click', () => {
+            controlPanel.classList.toggle('open');
+        });
+
+        // Close panel when clicking canvas on mobile
+        if (window.innerWidth <= 768) {
+            canvas.addEventListener('click', () => {
+                controlPanel.classList.remove('open');
+            });
+        }
+
+        // Settings
+        const timeSlider = document.getElementById('timeSlider');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const weatherSelect = document.getElementById('weatherSelect');
+        const intensitySlider = document.getElementById('intensitySlider');
+        const intensityDisplay = document.getElementById('intensityDisplay');
+        const waterColorSelect = document.getElementById('waterColorSelect');
+        const mistSlider = document.getElementById('mistSlider');
+        const mistDisplay = document.getElementById('mistDisplay');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const rainbowCheck = document.getElementById('rainbowCheck');
+        const sunlightCheck = document.getElementById('sunlightCheck');
+        const rocksCheck = document.getElementById('rocksCheck');
+        const birdsCheck = document.getElementById('birdsCheck');
+        const soundCheck = document.getElementById('soundCheck');
+        const resetBtn = document.getElementById('resetBtn');
+
+        let settings = {
+            time: 7,
+            weather: 'clear',
+            intensity: 1,
+            waterColor: 'clear',
+            mist: 50,
+            speed: 1,
+            rainbow: true,
+            sunlight: true,
+            rocks: true,
+            birds: false,
+            sound: false
+        };
+
+        // Update displays
+        function updateTimeDisplay() {
+            const hour = Math.floor(settings.time);
+            if (hour < 6) timeDisplay.textContent = 'Night';
+            else if (hour < 9) timeDisplay.textContent = 'Early Morning';
+            else if (hour < 12) timeDisplay.textContent = 'Morning';
+            else if (hour < 15) timeDisplay.textContent = 'Afternoon';
+            else if (hour < 18) timeDisplay.textContent = 'Late Afternoon';
+            else if (hour < 21) timeDisplay.textContent = 'Evening';
+            else timeDisplay.textContent = 'Night';
+        }
+
+        function updateIntensityDisplay() {
+            if (settings.intensity < 0.6) intensityDisplay.textContent = 'Light';
+            else if (settings.intensity < 1.3) intensityDisplay.textContent = 'Moderate';
+            else intensityDisplay.textContent = 'Intense';
+        }
+
+        function updateMistDisplay() {
+            mistDisplay.textContent = settings.mist + '%';
+        }
+
+        function updateSpeedDisplay() {
+            if (settings.speed < 0.6) speedDisplay.textContent = 'Slow';
+            else if (settings.speed < 1.3) speedDisplay.textContent = 'Normal';
+            else speedDisplay.textContent = 'Fast';
+        }
+
+        // Event listeners
+        timeSlider.addEventListener('input', (e) => {
+            settings.time = parseFloat(e.target.value);
+            updateTimeDisplay();
+        });
+
+        weatherSelect.addEventListener('change', (e) => {
+            settings.weather = e.target.value;
+        });
+
+        intensitySlider.addEventListener('input', (e) => {
+            settings.intensity = parseFloat(e.target.value);
+            updateIntensityDisplay();
+        });
+
+        waterColorSelect.addEventListener('change', (e) => {
+            settings.waterColor = e.target.value;
+        });
+
+        mistSlider.addEventListener('input', (e) => {
+            settings.mist = parseFloat(e.target.value);
+            updateMistDisplay();
+        });
+
+        speedSlider.addEventListener('input', (e) => {
+            settings.speed = parseFloat(e.target.value);
+            updateSpeedDisplay();
+        });
+
+        rainbowCheck.addEventListener('change', (e) => {
+            settings.rainbow = e.target.checked;
+        });
+
+        sunlightCheck.addEventListener('change', (e) => {
+            settings.sunlight = e.target.checked;
+        });
+
+        rocksCheck.addEventListener('change', (e) => {
+            settings.rocks = e.target.checked;
+        });
+
+        birdsCheck.addEventListener('change', (e) => {
+            settings.birds = e.target.checked;
+        });
+
+        soundCheck.addEventListener('change', (e) => {
+            settings.sound = e.target.checked;
+        });
+
+        resetBtn.addEventListener('click', () => {
+            settings = {
+                time: 7,
+                weather: 'clear',
+                intensity: 1,
+                waterColor: 'clear',
+                mist: 50,
+                speed: 1,
+                rainbow: true,
+                sunlight: true,
+                rocks: true,
+                birds: false,
+                sound: false
+            };
+
+            timeSlider.value = 7;
+            weatherSelect.value = 'clear';
+            intensitySlider.value = 1;
+            waterColorSelect.value = 'clear';
+            mistSlider.value = 50;
+            speedSlider.value = 1;
+            rainbowCheck.checked = true;
+            sunlightCheck.checked = true;
+            rocksCheck.checked = true;
+            birdsCheck.checked = false;
+            soundCheck.checked = false;
+
+            updateTimeDisplay();
+            updateIntensityDisplay();
+            updateMistDisplay();
+            updateSpeedDisplay();
+        });
+
+        // Particle system for waterfall
+        class WaterParticle {
+            constructor(x, y, vx, vy, life) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.life = life;
+                this.maxLife = life;
+                this.size = Math.random() * 2 + 1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.15 * settings.intensity;
+                this.life--;
+            }
+
+            draw(ctx) {
+                const alpha = (this.life / this.maxLife) * 0.6;
+                ctx.fillStyle = `rgba(200, 240, 255, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        class MistParticle {
+            constructor(x, y, vx, vy, life) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.life = life;
+                this.maxLife = life;
+                this.size = Math.random() * 30 + 20;
+                this.drift = Math.random() * 0.5 - 0.25;
+            }
+
+            update() {
+                this.x += this.vx + this.drift;
+                this.y += this.vy;
+                this.vx *= 0.98;
+                this.life--;
+            }
+
+            draw(ctx) {
+                const alpha = (this.life / this.maxLife) * 0.3;
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        class Bird {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height * 0.3;
+                this.vx = Math.random() * 2 + 1;
+                this.wingPhase = 0;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.wingPhase += 0.05;
+
+                if (this.x > canvas.width + 20) {
+                    this.reset();
+                }
+            }
+
+            draw(ctx) {
+                const wingBeat = Math.sin(this.wingPhase) * 5;
+
+                ctx.fillStyle = 'rgba(50, 50, 50, 0.6)';
+                // Body
+                ctx.beginPath();
+                ctx.ellipse(this.x, this.y, 6, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Left wing
+                ctx.beginPath();
+                ctx.moveTo(this.x - 4, this.y);
+                ctx.lineTo(this.x - 12, this.y - 3 + wingBeat);
+                ctx.lineTo(this.x - 6, this.y + 2);
+                ctx.closePath();
+                ctx.fill();
+
+                // Right wing
+                ctx.beginPath();
+                ctx.moveTo(this.x + 4, this.y);
+                ctx.lineTo(this.x + 12, this.y - 3 + wingBeat);
+                ctx.lineTo(this.x + 6, this.y + 2);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        let waterParticles = [];
+        let mistParticles = [];
+        let birds = [new Bird(), new Bird(), new Bird()];
+
+        function getSkyColor() {
+            const hour = settings.time;
+            const normalizedHour = ((hour + 24) % 24) / 24;
+
+            let r, g, b;
+
+            if (hour >= 6 && hour < 9) {
+                // Early morning
+                const t = (hour - 6) / 3;
+                r = Math.lerp(100, 200, t);
+                g = Math.lerp(150, 220, t);
+                b = Math.lerp(180, 255, t);
+            } else if (hour >= 9 && hour < 17) {
+                // Day
+                const t = (hour - 9) / 8;
+                r = Math.lerp(200, 210, t);
+                g = Math.lerp(220, 180, t);
+                b = 255;
+            } else if (hour >= 17 && hour < 20) {
+                // Sunset
+                const t = (hour - 17) / 3;
+                r = Math.lerp(210, 255, t);
+                g = Math.lerp(180, 100, t);
+                b = Math.lerp(255, 50, t);
+            } else {
+                // Night
+                r = 20;
+                g = 30;
+                b = 60;
+            }
+
+            return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, 1)`;
+        }
+
+        // Helper function for interpolation
+        Math.lerp = (a, b, t) => a + (b - a) * t;
+
+        function getWaterColor() {
+            let baseColor;
+            switch (settings.waterColor) {
+                case 'tropical':
+                    baseColor = 'rgba(30, 150, 200, 0.7)';
+                    break;
+                case 'emerald':
+                    baseColor = 'rgba(50, 180, 120, 0.7)';
+                    break;
+                case 'turquoise':
+                    baseColor = 'rgba(60, 200, 180, 0.7)';
+                    break;
+                case 'milky':
+                    baseColor = 'rgba(200, 220, 240, 0.8)';
+                    break;
+                default:
+                    baseColor = 'rgba(80, 200, 220, 0.6)';
+            }
+            return baseColor;
+        }
+
+        function drawBackground() {
+            const skyColor = getSkyColor();
+            ctx.fillStyle = skyColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Clouds
+            if (settings.weather === 'cloudy' || settings.weather === 'rain' || settings.weather === 'fog') {
+                ctx.fillStyle = 'rgba(200, 200, 200, 0.4)';
+                ctx.beginPath();
+                ctx.arc(canvas.width * 0.2, canvas.height * 0.2, 80, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(canvas.width * 0.3, canvas.height * 0.15, 100, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(canvas.width * 0.8, canvas.height * 0.25, 120, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Fog overlay
+            if (settings.weather === 'fog') {
+                ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Dark overlay for storm
+            if (settings.weather === 'storm') {
+                ctx.fillStyle = 'rgba(30, 30, 50, 0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function drawCliff() {
+            const cliffX = canvas.width * 0.5;
+            const cliffY = canvas.height * 0.3;
+            const cliffWidth = 400;
+            const cliffHeight = 150;
+
+            if (settings.rocks) {
+                // Rock formation
+                ctx.fillStyle = 'rgba(100, 80, 60, 0.8)';
+                ctx.beginPath();
+                ctx.moveTo(cliffX - cliffWidth / 2, cliffY + cliffHeight);
+                ctx.lineTo(cliffX - cliffWidth / 2 + 50, cliffY);
+                ctx.lineTo(cliffX + cliffWidth / 2 - 50, cliffY);
+                ctx.lineTo(cliffX + cliffWidth / 2, cliffY + cliffHeight);
+                ctx.lineTo(cliffX + 100, cliffY + cliffHeight + 50);
+                ctx.lineTo(cliffX - 100, cliffY + cliffHeight + 50);
+                ctx.closePath();
+                ctx.fill();
+
+                // Rock details
+                ctx.strokeStyle = 'rgba(60, 50, 40, 0.6)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(cliffX - cliffWidth / 2 + 50, cliffY);
+                ctx.lineTo(cliffX + cliffWidth / 2 - 50, cliffY);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(cliffX - 50, cliffY + 40);
+                ctx.lineTo(cliffX + 50, cliffY + 40);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(cliffX - 30, cliffY + 80);
+                ctx.lineTo(cliffX + 30, cliffY + 80);
+                ctx.stroke();
+            }
+
+            return { cliffX, cliffY, cliffWidth, cliffHeight };
+        }
+
+        function drawSunlight() {
+            if (!settings.sunlight) return;
+
+            const hour = settings.time;
+            if (hour < 6 || hour > 20) return; // No sunlight at night
+
+            const sunX = (hour - 6) / 14 * canvas.width;
+            const sunY = canvas.height * 0.15;
+
+            // Sun rays
+            ctx.strokeStyle = 'rgba(255, 255, 200, 0.3)';
+            ctx.lineWidth = 3;
+
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI - Math.PI / 2;
+                const x1 = sunX + Math.cos(angle) * 30;
+                const y1 = sunY + Math.sin(angle) * 30;
+                const x2 = sunX + Math.cos(angle) * 100;
+                const y2 = sunY + Math.sin(angle) * 100;
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+
+            // Sun
+            ctx.fillStyle = 'rgba(255, 220, 100, 0.8)';
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 25, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawWaterFall(cliffX, cliffY, cliffWidth) {
+            const waterStartX = cliffX - 80;
+            const waterStartY = cliffY;
+            const waterEndY = canvas.height * 0.8;
+
+            // Main waterfall stream
+            ctx.fillStyle = getWaterColor();
+            ctx.beginPath();
+            ctx.moveTo(waterStartX - 40, waterStartY);
+            ctx.quadraticCurveTo(waterStartX - 30, waterStartY + 100, waterStartX - 20, waterStartY + 300);
+            ctx.lineTo(waterStartX + 40, waterStartY + 300);
+            ctx.quadraticCurveTo(waterStartX + 30, waterStartY + 100, waterStartX + 40, waterStartY);
+            ctx.closePath();
+            ctx.fill();
+
+            // Water highlights
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(waterStartX - 20, waterStartY);
+            ctx.quadraticCurveTo(waterStartX - 15, waterStartY + 150, waterStartX - 10, waterStartY + 300);
+            ctx.stroke();
+
+            // Pool at bottom
+            ctx.fillStyle = getWaterColor();
+            ctx.beginPath();
+            ctx.ellipse(cliffX, waterEndY + 50, 200, 80, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Pool highlights
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(cliffX, waterEndY + 50, 150, 50, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            return { waterStartX, waterStartY, waterEndY };
+        }
+
+        function drawRainbow() {
+            if (!settings.rainbow) return;
+
+            const hour = settings.time;
+            if (hour < 17 || hour > 20) return; // Rainbow during sunset
+
+            const rainbowStartX = canvas.width * 0.3;
+            const rainbowStartY = canvas.height * 0.4;
+            const colors = [
+                'rgba(255, 0, 0, 0.4)',
+                'rgba(255, 127, 0, 0.4)',
+                'rgba(255, 255, 0, 0.4)',
+                'rgba(0, 255, 0, 0.4)',
+                'rgba(0, 0, 255, 0.4)',
+                'rgba(75, 0, 130, 0.4)',
+                'rgba(148, 0, 211, 0.4)'
+            ];
+
+            colors.forEach((color, index) => {
+                const radius = 100 + index * 15;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 12;
+                ctx.beginPath();
+                ctx.arc(rainbowStartX, rainbowStartY, radius, 0, Math.PI, false);
+                ctx.stroke();
+            });
+        }
+
+        function emitWaterParticles(cliffX, cliffY, waterStartX) {
+            const count = Math.ceil(settings.intensity * 20);
+            for (let i = 0; i < count; i++) {
+                const x = waterStartX + (Math.random() - 0.5) * 80;
+                const y = cliffY + Math.random() * 100;
+                const vx = (Math.random() - 0.5) * 2;
+                const vy = Math.random() * 2 + 1;
+                waterParticles.push(new WaterParticle(x, y, vx, vy, 100));
+            }
+        }
+
+        function emitMistParticles(waterStartX, waterEndY) {
+            const count = Math.ceil((settings.mist / 100) * 5);
+            for (let i = 0; i < count; i++) {
+                const x = waterStartX + (Math.random() - 0.5) * 150;
+                const y = waterEndY + Math.random() * 100;
+                const vx = (Math.random() - 0.5) * 0.5;
+                const vy = Math.random() * -1 - 0.5;
+                mistParticles.push(new MistParticle(x, y, vx, vy, 150));
+            }
+        }
+
+        function drawRain() {
+            if (settings.weather !== 'rain' && settings.weather !== 'storm') return;
+
+            const rainIntensity = settings.weather === 'storm' ? 100 : 50;
+            ctx.strokeStyle = 'rgba(150, 200, 255, 0.6)';
+            ctx.lineWidth = 2;
+
+            for (let i = 0; i < rainIntensity; i++) {
+                const x = Math.random() * canvas.width;
+                const y = (Math.random() * canvas.height + Date.now() * 0.5) % canvas.height;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x - 5, y + 20);
+                ctx.stroke();
+            }
+        }
+
+        function animate() {
+            // Clear and draw background
+            drawBackground();
+
+            // Draw elements
+            const { cliffX, cliffY, cliffWidth, cliffHeight } = drawCliff();
+            const { waterStartX, waterStartY, waterEndY } = drawWaterFall(cliffX, cliffY, cliffWidth);
+
+            // Draw sunlight
+            drawSunlight();
+
+            // Emit particles
+            emitWaterParticles(cliffX, cliffY, waterStartX);
+            emitMistParticles(waterStartX, waterEndY);
+
+            // Update and draw water particles
+            waterParticles = waterParticles.filter(p => p.life > 0);
+            waterParticles.forEach(p => {
+                p.update();
+                p.draw(ctx);
+            });
+
+            // Update and draw mist particles
+            mistParticles = mistParticles.filter(p => p.life > 0);
+            mistParticles.forEach(p => {
+                p.update();
+                p.draw(ctx);
+            });
+
+            // Draw rainbow
+            drawRainbow();
+
+            // Draw rain
+            drawRain();
+
+            // Draw and update birds
+            if (settings.birds) {
+                birds.forEach(bird => {
+                    bird.update();
+                    bird.draw(ctx);
+                });
+            }
+
+            // Update displays
+            updateTimeDisplay();
+            updateIntensityDisplay();
+            updateMistDisplay();
+            updateSpeedDisplay();
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
