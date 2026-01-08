@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra-Realistic Vietnam War Battlefield</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #0a0a0a; color: #e0e0e0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        .header { padding: 15px; text-align: center; background: rgba(10, 20, 10, 0.7); border-bottom: 1px solid rgba(100, 120, 100, 0.3); z-index: 100; }
+        h1 { font-size: 1.8rem; margin-bottom: 5px; color: #c9b07e; letter-spacing: 1px; }
+        .subtitle { font-size: 0.9rem; opacity: 0.8; }
+        .container { display: flex; flex: 1; position: relative; }
+        .settings-panel { position: absolute; right: 0; top: 0; width: 300px; height: 100%; background: rgba(15, 25, 15, 0.9); backdrop-filter: blur(8px); border-left: 1px solid rgba(100, 120, 100, 0.3); transform: translateX(100%); transition: transform 0.5s ease; z-index: 10; padding: 20px; overflow-y: auto; box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5); }
+        .settings-panel.open { transform: translateX(0); }
+        .toggle-settings { position: absolute; left: -50px; top: 20px; background: rgba(15, 25, 15, 0.9); border: 1px solid rgba(100, 120, 100, 0.3); border-right: none; border-radius: 5px 0 0 5px; color: #c9b07e; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transition: all 0.3s; }
+        .toggle-settings:hover { background: rgba(25, 35, 25, 0.9); transform: scale(1.05); }
+        .settings-title { color: #c9b07e; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid rgba(100, 120, 100, 0.3); font-size: 1.4rem; }
+        .control-group { margin-bottom: 20px; }
+        .control-label { display: block; margin-bottom: 8px; font-weight: 600; color: #b8c9b0; }
+        select, input[type="range"] { width: 100%; padding: 8px; background: rgba(20, 30, 20, 0.7); border: 1px solid rgba(100, 120, 100, 0.5); border-radius: 4px; color: #e0e0e0; margin-bottom: 10px; cursor: pointer; }
+        input[type="range"] { padding: 0; }
+        .checkbox-group { display: flex; align-items: center; margin-bottom: 10px; }
+        .checkbox-group input { margin-right: 10px; cursor: pointer; }
+        .time-indicator, .sound-indicator { position: absolute; background: rgba(15, 25, 15, 0.85); padding: 10px 15px; border-radius: 5px; border: 1px solid rgba(100, 120, 100, 0.3); z-index: 5; backdrop-filter: blur(5px); }
+        .time-indicator { top: 20px; left: 20px; }
+        .sound-indicator { bottom: 20px; right: 20px; display: flex; align-items: center; }
+        .sound-indicator i { margin-right: 8px; color: #c9b07e; }
+        .scene-container { flex: 1; position: relative; overflow: hidden; }
+        .scene { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .sky { position: absolute; top: 0; left: 0; width: 100%; height: 65%; transition: all 3s ease; overflow: hidden; }
+        .sky.dawn { background: linear-gradient(to bottom, #1a1a2e 0%, #2d1b33 20%, #5d3a3a 60%, #b87a4f 100%); }
+        .sky.day { background: linear-gradient(to bottom, #4a7b9d 0%, #6fa3c9 40%, #8fc1e3 100%); }
+        .sky.dusk { background: linear-gradient(to bottom, #2c3e50 0%, #e74c3c 40%, #f39c12 80%, #d35400 100%); }
+        .sky.night { background: linear-gradient(to bottom, #0f2027 0%, #203a43 50%, #2c5364 100%); }
+        .cloud { position: absolute; background: rgba(255, 255, 255, 0.6); border-radius: 100px; animation: cloud-drift linear infinite; }
+        .cloud::before, .cloud::after { content: ''; position: absolute; background: rgba(255, 255, 255, 0.6); border-radius: 100px; }
+        .stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 2s ease; }
+        .stars.visible { opacity: 1; }
+        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle ease-in-out infinite; }
+        .sun-moon { position: absolute; border-radius: 50%; transition: all 3s ease; }
+        .sun { background: radial-gradient(circle, #ffeb3b, #ff9800); box-shadow: 0 0 80px #ffaa00, 0 0 120px rgba(255, 170, 0, 0.5); }
+        .moon { background: radial-gradient(circle, #f5f5dc, #d3d3d3); box-shadow: 0 0 60px rgba(200, 200, 200, 0.8); }
+        .sun-rays { position: absolute; width: 100%; height: 100%; animation: rotate 40s linear infinite; }
+        .sun-ray { position: absolute; top: 50%; left: 50%; width: 4px; height: 80px; background: linear-gradient(transparent, rgba(255, 235, 59, 0.4)); transform-origin: top center; border-radius: 2px; }
+        .bird { position: absolute; width: 20px; height: 20px; animation: bird-fly linear infinite; }
+        .bird::before, .bird::after { content: ''; position: absolute; top: 50%; width: 10px; height: 2px; background: #333; border-radius: 1px; }
+        .bird::before { left: 0; transform: rotate(-20deg); animation: flap 0.3s ease-in-out infinite; }
+        .bird::after { right: 0; transform: rotate(20deg); animation: flap 0.3s ease-in-out infinite 0.15s; }
+        .ground { position: absolute; bottom: 0; left: 0; width: 100%; height: 35%; transition: all 3s ease; box-shadow: inset 0 10px 30px rgba(0, 0, 0, 0.5); }
+        .ground.dawn { background: linear-gradient(to top, #3d2c2c 0%, #5a4030 50%, #7a5a3a 100%); }
+        .ground.day { background: linear-gradient(to top, #2d5016 0%, #3a5c2d 50%, #4c784c 100%); }
+        .ground.dusk { background: linear-gradient(to top, #3a2c2c 0%, #5a403a 50%, #7a5a4a 100%); }
+        .ground.night { background: linear-gradient(to top, #1c1c1c 0%, #2d2d2d 50%, #3a3a3a 100%); }
+        .grass-blade { position: absolute; bottom: 0; width: 2px; background: linear-gradient(to top, transparent, #4a6b3a); animation: grass-sway ease-in-out infinite; transform-origin: bottom center; }
+        .mountains { position: absolute; bottom: 35%; width: 100%; height: 250px; }
+        .mountain { position: absolute; bottom: 0; }
+        .mountain-1 { width: 0; height: 0; left: 5%; border-left: 150px solid transparent; border-right: 150px solid transparent; border-bottom: 180px solid #1e2d1e; filter: drop-shadow(-10px 10px 15px rgba(0, 0, 0, 0.5)); }
+        .mountain-2 { width: 0; height: 0; left: 30%; border-left: 125px solid transparent; border-right: 125px solid transparent; border-bottom: 140px solid #233323; filter: drop-shadow(-8px 8px 12px rgba(0, 0, 0, 0.4)); }
+        .mountain-3 { width: 0; height: 0; right: 10%; border-left: 140px solid transparent; border-right: 140px solid transparent; border-bottom: 160px solid #1a291a; filter: drop-shadow(-9px 9px 13px rgba(0, 0, 0, 0.45)); }
+        .jungle { position: absolute; bottom: 35%; width: 100%; height: 200px; z-index: 2; }
+        .tree-trunk { position: absolute; bottom: 0; width: 15px; background: linear-gradient(to right, #3d2f1f, #5a4530, #3d2f1f); border-radius: 3px; box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5); }
+        .tree-canopy { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); width: 80px; height: 70px; background: radial-gradient(ellipse at center, #2d4a2d, #1e3d1e); border-radius: 50%; animation: tree-sway ease-in-out infinite; transform-origin: bottom center; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); }
+        .tree-canopy::before, .tree-canopy::after { content: ''; position: absolute; background: radial-gradient(ellipse at center, #2d4a2d, #1e3d1e); border-radius: 50%; }
+        .tree-canopy::before { width: 60px; height: 55px; top: -20px; left: -10px; }
+        .tree-canopy::after { width: 60px; height: 55px; top: -20px; right: -10px; }
+        .river { position: absolute; bottom: 8%; left: 0; width: 100%; height: 80px; transition: all 2s ease; overflow: hidden; box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.5); }
+        .river.dawn { background: linear-gradient(to bottom, rgba(70, 100, 140, 0.6), rgba(50, 80, 120, 0.7)); }
+        .river.day { background: linear-gradient(to bottom, rgba(80, 140, 200, 0.7), rgba(50, 120, 200, 0.8)); }
+        .river.dusk { background: linear-gradient(to bottom, rgba(60, 80, 100, 0.6), rgba(40, 60, 80, 0.7)); }
+        .river.night { background: linear-gradient(to bottom, rgba(30, 50, 80, 0.5), rgba(20, 40, 70, 0.6)); }
+        .ripple { position: absolute; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; animation: ripple-expand 4s ease-out infinite; }
+        .helicopter { position: absolute; top: 20%; width: 120px; height: 50px; z-index: 3; filter: drop-shadow(0 8px 15px rgba(0, 0, 0, 0.6)); }
+        .heli-body { position: relative; width: 100%; height: 100%; background: linear-gradient(to bottom, #5a5a5a, #3a3a3a); border-radius: 15px; }
+        .heli-cockpit { position: absolute; top: 5px; left: 20px; width: 50px; height: 30px; background: linear-gradient(135deg, rgba(100, 150, 200, 0.6), rgba(50, 100, 150, 0.4)); border-radius: 10px; box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.3); }
+        .heli-tail { position: absolute; top: 15px; right: -40px; width: 50px; height: 10px; background: linear-gradient(to right, #4a4a4a, #2a2a2a); border-radius: 3px; }
+        .heli-rotor { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 140px; height: 8px; background: linear-gradient(to right, transparent, #333, transparent); border-radius: 4px; animation: rotor-spin 0.15s linear infinite; filter: blur(1px); }
+        .heli-tail-rotor { position: absolute; top: 50%; right: -45px; width: 3px; height: 25px; background: linear-gradient(to bottom, transparent, #333, transparent); animation: rotor-spin 0.1s linear infinite; filter: blur(0.5px); }
+        .bunker-main { position: relative; width: 140px; height: 70px; background: linear-gradient(to bottom, #6d5a3a, #5d4a2a); border-radius: 8px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7), inset 0 -2px 5px rgba(0, 0, 0, 0.5); }
+        .bunker-roof { position: absolute; top: -15px; left: 5%; width: 90%; height: 25px; background: linear-gradient(to bottom, #5a4a2a, #4a3a1a); border-radius: 5px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5); }
+        .bunker-opening { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30px; height: 35px; background: #1a1a1a; border-radius: 3px; box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.9); }
+        .sandbag { position: absolute; width: 25px; height: 15px; background: linear-gradient(to bottom, #8d7a5a, #7d6a4a); border-radius: 3px; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); }
+        .firefly { position: absolute; width: 3px; height: 3px; background: #ffeb3b; border-radius: 50%; box-shadow: 0 0 10px #ffeb3b, 0 0 20px rgba(255, 235, 59, 0.5); animation: firefly-float ease-in-out infinite, firefly-glow ease-in-out infinite; }
+        .smoke { position: absolute; bottom: 0; width: 30px; height: 30px; background: radial-gradient(circle, rgba(100, 100, 100, 0.6), transparent); border-radius: 50%; animation: smoke-rise 8s ease-out infinite; opacity: 0; }
+        .rain { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 2s ease; z-index: 4; }
+        .rain.active { opacity: 1; }
+        .rain-drop { position: absolute; top: -20px; width: 2px; height: 25px; background: linear-gradient(to bottom, rgba(150, 200, 255, 0.8), transparent); animation: fall linear infinite; box-shadow: 0 0 3px rgba(150, 200, 255, 0.5); }
+        .fog { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 2s ease; z-index: 4; }
+        .fog.active { opacity: 1; }
+        .fog-layer { position: absolute; width: 200%; height: 100%; background: linear-gradient(90deg, transparent 0%, rgba(200, 220, 240, 0.3) 25%, rgba(200, 220, 240, 0.5) 50%, rgba(200, 220, 240, 0.3) 75%, transparent 100%); animation: fog-move 90s linear infinite; }
+        .lightning { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; z-index: 5; }
+        .lightning.flash { animation: lightning-flash 0.5s ease-out; }
+        .ground-mist { position: absolute; bottom: 20%; left: 0; width: 100%; height: 25%; pointer-events: none; opacity: 0; transition: opacity 3s ease; }
+        .ground-mist.visible { opacity: 0.7; }
+        .mist-layer { position: absolute; width: 200%; height: 100%; background: linear-gradient(90deg, transparent 0%, rgba(200, 220, 240, 0.2) 25%, rgba(200, 220, 240, 0.4) 50%, rgba(200, 220, 240, 0.2) 75%, transparent 100%); animation: fog-move 120s linear infinite; }
+        .dust-particle { position: absolute; width: 2px; height: 2px; background: rgba(255, 255, 255, 0.4); border-radius: 50%; animation: dust-float ease-in-out infinite; }
+        @keyframes cloud-drift { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes bird-fly { 0% { transform: translateX(0) translateY(0); } 50% { transform: translateX(50vw) translateY(-30px); } 100% { transform: translateX(100vw) translateY(0); } }
+        @keyframes flap { 0%, 100% { transform: rotate(-20deg); } 50% { transform: rotate(20deg); } }
+        @keyframes grass-sway { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 75% { transform: rotate(-2deg); } }
+        @keyframes tree-sway { 0%, 100% { transform: translateX(-50%) rotate(0deg); } 25% { transform: translateX(-50%) rotate(1deg); } 75% { transform: translateX(-50%) rotate(-1deg); } }
+        @keyframes ripple-expand { 0% { width: 10px; height: 10px; opacity: 0.8; } 100% { width: 100px; height: 100px; opacity: 0; } }
+        @keyframes rotor-spin { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(360deg); } }
+        @keyframes firefly-float { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(20px, -20px); } 50% { transform: translate(-10px, -40px); } 75% { transform: translate(-30px, -20px); } }
+        @keyframes firefly-glow { 0%, 100% { opacity: 0.3; box-shadow: 0 0 5px #ffeb3b; } 50% { opacity: 1; box-shadow: 0 0 20px #ffeb3b, 0 0 30px rgba(255, 235, 59, 0.5); } }
+        @keyframes smoke-rise { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { opacity: 0.8; } 100% { transform: translateY(-200px) scale(2); opacity: 0; } }
+        @keyframes fall { to { transform: translateY(100vh); } }
+        @keyframes fog-move { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+        @keyframes lightning-flash { 0%, 100% { opacity: 0; background: transparent; } 10%, 30%, 50% { opacity: 1; background: rgba(255, 255, 255, 0.8); } 20%, 40% { opacity: 0; background: transparent; } }
+        @keyframes dust-float { 0%, 100% { transform: translate(0, 0); opacity: 0.2; } 25% { transform: translate(20px, -20px); opacity: 0.5; } 50% { transform: translate(-10px, -40px); opacity: 0.3; } 75% { transform: translate(-30px, -20px); opacity: 0.5); } }
+        @keyframes helicopter-fly { 0% { left: -150px; } 100% { left: calc(100% + 150px); } }
+        @media (max-width: 768px) { .settings-panel { width: 250px; } .toggle-settings { left: -40px; width: 40px; height: 40px; font-size: 1.2rem; } h1 { font-size: 1.4rem; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌄 Ultra-Realistic Vietnam War Battlefield 🚁</h1>
+        <div class="subtitle">Immersive environment with dynamic weather, animated wildlife, and realistic effects</div>
+    </div>
+    <div class="container">
+        <div class="settings-panel" id="panel">
+            <div class="toggle-settings" id="toggle"><i class="fas fa-cog"></i></div>
+            <h2 class="settings-title">Environment Settings</h2>
+            <div class="control-group">
+                <label class="control-label">⏰ Time of Day</label>
+                <select id="time">
+                    <option value="dawn">Dawn</option>
+                    <option value="day" selected>Day</option>
+                    <option value="dusk">Dusk</option>
+                    <option value="night">Night</option>
+                </select>
+                <label class="control-label">⏱️ Time Speed (0=Manual)</label>
+                <input type="range" id="speed" min="0" max="10" value="1" step="0.5">
+            </div>
+            <div class="control-group">
+                <label class="control-label">🌦️ Weather</label>
+                <select id="weather">
+                    <option value="clear">Clear</option>
+                    <option value="rain">Rain</option>
+                    <option value="fog">Fog</option>
+                    <option value="storm">Storm</option>
+                </select>
+                <label class="control-label">💨 Intensity</label>
+                <input type="range" id="intensity" min="1" max="10" value="5">
+            </div>
+            <div class="control-group">
+                <label class="control-label">🎬 Elements</label>
+                <div class="checkbox-group"><input type="checkbox" id="heli" checked><label for="heli">Helicopter</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="bunk" checked><label for="bunk">Bunker</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="riv" checked><label for="riv">River</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="smk" checked><label for="smk">Smoke</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="brds" checked><label for="brds">Birds</label></div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">🔊 Sound</label>
+                <div class="checkbox-group"><input type="checkbox" id="snd" checked><label for="snd">Enable</label></div>
+                <label class="control-label">🔉 Volume</label>
+                <input type="range" id="vol" min="0" max="100" value="50">
+            </div>
+            <div class="control-group">
+                <button id="reset" style="width:100%;padding:10px;background:#5a4a2a;color:#e0e0e0;border:none;border-radius:4px;cursor:pointer">Reset All</button>
+            </div>
+        </div>
+        <div class="scene-container">
+            <div class="time-indicator"><i class="fas fa-clock"></i> <span id="timeText">Day</span></div>
+            <div class="sound-indicator"><i class="fas fa-volume-up"></i> <span id="sndText">Sounds enabled</span></div>
+            <div class="scene" id="scene">
+                <div class="sky day" id="sky">
+                    <div id="clouds" style="position:absolute;width:100%;height:100%"></div>
+                    <div class="stars" id="stars"></div>
+                    <div id="birds" style="position:absolute;width:100%;height:100%"></div>
+                </div>
+                <div class="sun-moon sun" id="sunmoon" style="width:100px;height:100px;top:15%;left:40%">
+                    <div class="sun-rays" id="rays"></div>
+                </div>
+                <div class="mountains">
+                    <div class="mountain mountain-1"></div>
+                    <div class="mountain mountain-2"></div>
+                    <div class="mountain mountain-3"></div>
+                </div>
+                <div class="jungle" id="jungle"></div>
+                <div class="ground day" id="ground">
+                    <div id="grass" style="position:absolute;bottom:0;width:100%;height:15%"></div>
+                </div>
+                <div class="river day" id="river">
+                    <div id="ripples" style="position:absolute;width:100%;height:100%"></div>
+                </div>
+                <div class="helicopter" id="heliEl">
+                    <div class="heli-body">
+                        <div class="heli-cockpit"></div>
+                        <div class="heli-tail"><div class="heli-tail-rotor"></div></div>
+                    </div>
+                    <div class="heli-rotor"></div>
+                </div>
+                <div style="position:absolute;bottom:35%;right:15%;width:140px;height:70px;z-index:1" id="bunkEl">
+                    <div class="bunker-main">
+                        <div class="bunker-roof"></div>
+                        <div class="bunker-opening"></div>
+                    </div>
+                    <div id="bags" style="position:absolute;bottom:-10px;left:-20px;width:180px;height:20px"></div>
+                </div>
+                <div id="smokeEl" style="position:absolute;bottom:40%;left:20%;width:100px;height:200px;opacity:0.6"></div>
+                <div class="ground-mist" id="mist">
+                    <div class="mist-layer"></div>
+                    <div class="mist-layer" style="animation-delay:-60s"></div>
+                </div>
+                <div id="flies" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity 2s"></div>
+                <div id="dust" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:0.3"></div>
+                <div class="rain" id="rain"></div>
+                <div class="fog" id="fog">
+                    <div class="fog-layer"></div>
+                    <div class="fog-layer" style="animation-delay:-30s"></div>
+                    <div class="fog-layer" style="animation-delay:-60s"></div>
+                </div>
+                <div class="lightning" id="light"></div>
+            </div>
+        </div>
+    </div>
+    <audio id="a1" loop><source src="https://assets.mixkit.co/sfx/preview/mixkit-forest-ambience-86.mp3"></audio>
+    <audio id="a2" loop><source src="https://assets.mixkit.co/sfx/preview/mixkit-jungle-birds-ambience-17.mp3"></audio>
+    <audio id="a3" loop><source src="https://assets.mixkit.co/sfx/preview/mixkit-crickets-at-dusk-398.mp3"></audio>
+    <audio id="a4" loop><source src="https://assets.mixkit.co/sfx/preview/mixkit-crickets-and-insects-in-the-wild-ambience-39.mp3"></audio>
+    <audio id="a5" loop><source src="https://assets.mixkit.co/sfx/preview/mixkit-rain-ambience-111.mp3"></audio>
+    <audio id="a6" loop><source src="https://assets.mixkit.co/sfx/preview/mixkit-helicopter-flying-close-1001.mp3"></audio>
+    <script>
+        const $ = id => document.getElementById(id);
+        const e = {panel:$('panel'),sky:$('sky'),ground:$('ground'),river:$('river'),sunmoon:$('sunmoon'),rays:$('rays'),jungle:$('jungle'),rain:$('rain'),fog:$('fog'),light:$('light'),heliEl:$('heliEl'),bunkEl:$('bunkEl'),smokeEl:$('smokeEl'),grass:$('grass'),clouds:$('clouds'),stars:$('stars'),birds:$('birds'),flies:$('flies'),dust:$('dust'),mist:$('mist'),ripples:$('ripples'),bags:$('bags')};
+        const c = {time:$('time'),speed:$('speed'),weather:$('weather'),intensity:$('intensity'),heli:$('heli'),bunk:$('bunk'),riv:$('riv'),smk:$('smk'),brds:$('brds'),snd:$('snd'),vol:$('vol')};
+        const a = {dawn:$('a1'),day:$('a2'),dusk:$('a3'),night:$('a4'),rain:$('a5'),heli:$('a6')};
+        let s = {time:'day',weather:'clear',speed:1,intensity:5,heli:true,bunk:true,riv:true,smk:true,brds:true,snd:true,vol:50,cycle:null,light:null};
+        
+        function mk(t,p,st) { const el=document.createElement(t); if(p) p.appendChild(el); if(st) Object.assign(el.style,st); return el; }
+        
+        function clouds() {
+            for(let i=0;i<8;i++) {
+                const cl=mk('div',e.clouds), sz=60+Math.random()*80, t=5+Math.random()*40, d=60+Math.random()*120, dl=Math.random()*60;
+                Object.assign(cl.style,{position:'absolute',background:'rgba(255,255,255,0.6)',borderRadius:'100px',width:sz+'px',height:(sz*0.4)+'px',top:t+'%',left:-sz+'px',animation:`cloud-drift ${d}s linear -${dl}s infinite`});
+                cl.innerHTML=`<style>div:nth-child(${i+1})::before{content:'';position:absolute;background:rgba(255,255,255,0.6);borderRadius:100px;width:${sz*0.7}px;height:${sz*0.6}px;bottom:${sz*0.2}px;left:${sz*0.15}px;}div:nth-child(${i+1})::after{content:'';position:absolute;background:rgba(255,255,255,0.6);borderRadius:100px;width:${sz*0.5}px;height:${sz*0.5}px;bottom:${sz*0.2}px;right:${sz*0.15}px;}</style>`;
+            }
+        }
+        
+        function stars() {
+            for(let i=0;i<100;i++) {
+                const st=mk('div',e.stars), sz=1+Math.random()*2, l=Math.random()*100, t=Math.random()*70, d=2+Math.random()*4, dl=Math.random()*5;
+                Object.assign(st.style,{position:'absolute',background:'white',borderRadius:'50%',width:sz+'px',height:sz+'px',left:l+'%',top:t+'%',animation:`twinkle ${d}s ease-in-out ${dl}s infinite`});
+            }
+        }
+        
+        function trees() {
+            for(let i=0;i<25;i++) {
+                const tr=mk('div',e.jungle), l=Math.random()*100, h=80+Math.random()*100, d=3+Math.random()*4, dl=Math.random()*5;
+                tr.style.cssText=`position:absolute;left:${l}%`;
+                tr.innerHTML=`<div class="tree-trunk" style="height:${h}px"></div><div class="tree-canopy" style="animation-duration:${d}s;animation-delay:${dl}s"></div>`;
+            }
+        }
+        
+        function grass() {
+            for(let i=0;i<150;i++) {
+                const g=mk('div',e.grass), l=Math.random()*100, h=20+Math.random()*40, d=2+Math.random()*3, dl=Math.random()*5;
+                Object.assign(g.style,{position:'absolute',bottom:0,width:'2px',background:'linear-gradient(to top,transparent,#4a6b3a)',left:l+'%',height:h+'px',animation:`grass-sway ${d}s ease-in-out ${dl}s infinite`,transformOrigin:'bottom center'});
+            }
+        }
+        
+        function rain() {
+            for(let i=0;i<300;i++) {
+                const r=mk('div',e.rain), l=Math.random()*100, d=0.5+Math.random(), dl=Math.random()*5;
+                Object.assign(r.style,{position:'absolute',top:'-20px',width:'2px',height:'25px',background:'linear-gradient(to bottom,rgba(150,200,255,0.8),transparent)',left:l+'%',animation:`fall ${d}s linear ${dl}s infinite`,boxShadow:'0 0 3px rgba(150,200,255,0.5)'});
+            }
+        }
+        
+        function flies() {
+            for(let i=0;i<30;i++) {
+                const f=mk('div',e.flies), l=10+Math.random()*80, t=40+Math.random()*40, d1=10+Math.random()*15, d2=2+Math.random()*3, dl=Math.random()*10;
+                Object.assign(f.style,{position:'absolute',width:'3px',height:'3px',background:'#ffeb3b',borderRadius:'50%',left:l+'%',top:t+'%',animation:`firefly-float ${d1}s ease-in-out ${dl}s infinite, firefly-glow ${d2}s ease-in-out ${dl*0.5}s infinite`,boxShadow:'0 0 10px #ffeb3b'});
+            }
+        }
+        
+        function dust() {
+            for(let i=0;i<40;i++) {
+                const d=mk('div',e.dust), l=Math.random()*100, t=30+Math.random()*60, dur=8+Math.random()*12, dl=Math.random()*10;
+                Object.assign(d.style,{position:'absolute',width:'2px',height:'2px',background:'rgba(255,255,255,0.4)',borderRadius:'50%',left:l+'%',top:t+'%',animation:`dust-float ${dur}s ease-in-out ${dl}s infinite`});
+            }
+        }
+        
+        function ripples() {
+            for(let i=0;i<12;i++) {
+                const r=mk('div',e.ripples), l=Math.random()*100, b=Math.random()*80, dl=Math.random()*4;
+                Object.assign(r.style,{position:'absolute',border:'2px solid rgba(255,255,255,0.3)',borderRadius:'50%',left:l+'%',bottom:b+'%',animation:`ripple-expand 4s ease-out ${dl}s infinite`});
+            }
+        }
+        
+        function bags() {
+            for(let i=0;i<7;i++) {
+                const b=mk('div',e.bags), l=i*25;
+                Object.assign(b.style,{position:'absolute',width:'25px',height:'15px',background:'linear-gradient(to bottom,#8d7a5a,#7d6a4a)',borderRadius:'3px',boxShadow:'2px 2px 5px rgba(0,0,0,0.5)',left:l+'px',bottom:(i%2*5)+'px'});
+            }
+        }
+        
+        function rays() {
+            for(let i=0;i<12;i++) {
+                const r=mk('div',e.rays), ang=i*30;
+                Object.assign(r.style,{position:'absolute',top:'50%',left:'50%',width:'4px',height:'80px',background:'linear-gradient(transparent,rgba(255,235,59,0.4))',transformOrigin:'top center',borderRadius:'2px',transform:`rotate(${ang}deg)`});
+            }
+        }
+        
+        function smoke() {
+            for(let i=0;i<5;i++) {
+                const sm=mk('div',e.smokeEl), l=Math.random()*60, dl=Math.random()*8;
+                Object.assign(sm.style,{position:'absolute',bottom:0,width:'30px',height:'30px',background:'radial-gradient(circle,rgba(100,100,100,0.6),transparent)',borderRadius:'50%',left:l+'%',animation:`smoke-rise 8s ease-out ${dl}s infinite`,opacity:0});
+            }
+        }
+        
+        function brds() {
+            for(let i=0;i<5;i++) {
+                const b=mk('div',e.birds), t=10+Math.random()*30, d=30+Math.random()*20, dl=Math.random()*30;
+                b.className='bird';
+                Object.assign(b.style,{top:t+'%',animation:`bird-fly ${d}s linear ${dl}s infinite`});
+            }
+        }
+        
+        function upd() {
+            const t=s.time;
+            $('timeText').textContent=t.charAt(0).toUpperCase()+t.slice(1);
+            e.sky.className='sky '+t;
+            e.ground.className='ground '+t;
+            e.river.className='river '+t;
+            e.stars.classList.toggle('visible',t==='night');
+            e.flies.style.opacity=t==='dusk'||t==='night'?1:0;
+            e.mist.classList.toggle('visible',t==='dawn');
+            
+            let sz,tp,lf,isSun;
+            if(t==='dawn') {sz=60;tp=15;lf=15;isSun=true;}
+            else if(t==='day') {sz=100;tp=10;lf=40;isSun=true;}
+            else if(t==='dusk') {sz=70;tp=15;lf=70;isSun=true;}
+            else {sz=60;tp=20;lf=80;isSun=false;}
+            
+            e.sunmoon.style.cssText=`width:${sz}px;height:${sz}px;top:${tp}%;left:${lf}%`;
+            e.sunmoon.className='sun-moon '+(isSun?'sun':'moon');
+            e.rays.style.display=isSun?'block':'none';
+            
+            e.rain.classList.toggle('active',s.weather==='rain'||s.weather==='storm');
+            e.fog.classList.toggle('active',s.weather==='fog');
+            
+            if(s.weather==='storm') {
+                if(!s.light) s.light=setInterval(()=>{if(Math.random()<0.1){e.light.classList.add('flash');setTimeout(()=>e.light.classList.remove('flash'),500);}},2000);
+            } else {
+                if(s.light) {clearInterval(s.light);s.light=null;}
+            }
+            
+            e.heliEl.style.display=s.heli?'block':'none';
+            e.bunkEl.style.display=s.bunk?'block':'none';
+            e.river.style.display=s.riv?'block':'none';
+            e.smokeEl.style.display=s.smk?'block':'none';
+            e.birds.style.display=s.brds?'block':'none';
+       
