@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vietnam War Battlefield Scenery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background: #87CEEB;
+            overflow: hidden;
+            display: flex;
+        }
+
+        canvas {
+            flex: 1;
+            display: block;
+        }
+
+        .control-panel {
+            width: 320px;
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 3px solid #2a5a2a;
+            font-size: 13px;
+        }
+
+        .control-panel h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #7FBF7F;
+            border-bottom: 2px solid #7FBF7F;
+            padding-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(50, 80, 50, 0.6);
+            border-left: 3px solid #7FBF7F;
+            border-radius: 4px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #7FBF7F;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(127, 191, 127, 0.5);
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #7FBF7F;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 5px rgba(127, 191, 127, 0.5);
+        }
+
+        .control-group select {
+            width: 100%;
+            padding: 8px;
+            background: #1a1a1a;
+            color: #7FBF7F;
+            border: 1px solid #7FBF7F;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .control-group button {
+            width: 100%;
+            padding: 10px;
+            background: #7FBF7F;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .control-group button:hover {
+            background: #9fd99f;
+        }
+
+        .value-display {
+            display: inline-block;
+            background: #7FBF7F;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .weather-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+        }
+
+        .weather-icon {
+            font-size: 24px;
+        }
+
+        .info-text {
+            color: #aaa;
+            font-size: 11px;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                width: 280px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="battlefieldCanvas"></canvas>
+    
+    <div class="control-panel">
+        <h2>⚙️ BATTLE SETTINGS</h2>
+        
+        <div class="control-group">
+            <label>Time of Day</label>
+            <input type="range" id="timeSlider" min="0" max="24" value="12" step="0.1">
+            <span class="value-display" id="timeDisplay">12:00</span>
+            <div class="info-text">Controls sun position, lighting, and sky color</div>
+        </div>
+
+        <div class="control-group">
+            <label>Weather Condition</label>
+            <select id="weatherSelect">
+                <option value="clear">Clear Sky</option>
+                <option value="cloudy">Overcast</option>
+                <option value="rain">Heavy Rain</option>
+                <option value="monsoon">Monsoon Storm</option>
+                <option value="fog">Thick Fog</option>
+            </select>
+            <div class="weather-indicator">
+                <span class="weather-icon" id="weatherIcon">☀️</span>
+                <span id="weatherStatus">Clear visibility, light breeze</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Fog Density <span class="value-display" id="fogValue">30%</span></label>
+            <input type="range" id="fogSlider" min="0" max="100" value="30" step="5">
+            <div class="info-text">Affects visibility and atmospheric depth</div>
+        </div>
+
+        <div class="control-group">
+            <label>Vegetation Density <span class="value-display" id="vegValue">80%</span></label>
+            <input type="range" id="vegSlider" min="20" max="100" value="80" step="10">
+            <div class="info-text">Dense jungle terrain with limited sightlines</div>
+        </div>
+
+        <div class="control-group">
+            <label>Wind Intensity <span class="value-display" id="windValue">5</span></label>
+            <input type="range" id="windSlider" min="0" max="20" value="5" step="1">
+            <div class="info-text">Affects vegetation movement and smoke</div>
+        </div>
+
+        <div class="control-group">
+            <label>Ground Wetness <span class="value-display" id="wetValue">40%</span></label>
+            <input type="range" id="wetSlider" min="0" max="100" value="40" step="5">
+            <div class="info-text">Muddy rice paddies and swamp areas</div>
+        </div>
+
+        <div class="control-group">
+            <label>Smoke/Haze Intensity <span class="value-display" id="smokeValue">20%</span></label>
+            <input type="range" id="smokeSlider" min="0" max="100" value="20" step="5">
+            <div class="info-text">From artillery and mortar fire</div>
+        </div>
+
+        <div class="control-group">
+            <label>Season</label>
+            <select id="seasonSelect">
+                <option value="monsoon">Monsoon Season (May-Oct)</option>
+                <option value="dry">Dry Season (Nov-Apr)</option>
+                <option value="transition">Transition Period</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <button onclick="resetSettings()">Reset to Default</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('battlefieldCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth - 320;
+        canvas.height = window.innerHeight;
+
+        // Settings
+        let settings = {
+            time: 12,
+            weather: 'clear',
+            fogDensity: 30,
+            vegDensity: 80,
+            windIntensity: 5,
+            wetness: 40,
+            smokeIntensity: 20,
+            season: 'monsoon'
+        };
+
+        // Animation variables
+        let animationTime = 0;
+        const particles = [];
+        const vegetation = [];
+        const waterPuddles = [];
+
+        // Initialize vegetation
+        function initializeVegetation() {
+            vegetation.length = 0;
+            const count = Math.floor((settings.vegDensity / 100) * 150);
+            
+            for (let i = 0; i < count; i++) {
+                vegetation.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.7 + canvas.height * 0.3,
+                    width: Math.random() * 80 + 40,
+                    height: Math.random() * 120 + 80,
+                    type: Math.floor(Math.random() * 4),
+                    depth: Math.random(),
+                    sway: Math.random() * Math.PI * 2,
+                    swaySpeed: Math.random() * 0.02 + 0.005
+                });
+            }
+            vegetation.sort((a, b) => a.y - b.y);
+        }
+
+        // Initialize water puddles
+        function initializeWaterPuddles() {
+            waterPuddles.length = 0;
+            if (settings.wetness > 30) {
+                const count = Math.floor(settings.wetness / 10);
+                for (let i = 0; i < count; i++) {
+                    waterPuddles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height * 0.6 + canvas.height * 0.4,
+                        width: Math.random() * 150 + 80,
+                        height: Math.random() * 60 + 30,
+                        reflection: Math.random() * 0.3 + 0.2
+                    });
+                }
+            }
+        }
+
+        // Get sky color based on time
+        function getSkyColor(time) {
+            time = time % 24;
+            
+            if (time < 6) {
+                return '#0a0f1a'; // Night
+            } else if (time < 7) {
+                const t = (time - 6);
+                const r = Math.floor(10 + t * 40);
+                const g = Math.floor(15 + t * 45);
+                const b = Math.floor(26 + t * 40);
+                return `rgb(${r}, ${g}, ${b})`; // Pre-dawn
+            } else if (time < 9) {
+                const t = (time - 7) / 2;
+                const r = Math.floor(60 + t * 80);
+                const g = Math.floor(80 + t * 80);
+                const b = Math.floor(100 + t * 60);
+                return `rgb(${r}, ${g}, ${b})`; // Dawn
+            } else if (time < 17) {
+                return '#87CEEB'; // Day
+            } else if (time < 19) {
+                const t = (time - 17) / 2;
+                const r = Math.floor(200 - t * 100);
+                const g = Math.floor(150 - t * 50);
+                const b = Math.floor(100 + t * 50);
+                return `rgb(${r}, ${g}, ${b})`; // Sunset
+            } else if (time < 20) {
+                const t = time - 19;
+                const r = Math.floor(100 - t * 80);
+                const g = Math.floor(100 - t * 80);
+                const b = Math.floor(150 - t * 100);
+                return `rgb(${r}, ${g}, ${b})`; // Twilight
+            } else {
+                return '#0a0f1a'; // Night
+            }
+        }
+
+        // Get sunlight intensity
+        function getSunIntensity(time) {
+            time = time % 24;
+            if (time < 6 || time >= 20) return 0;
+            if (time >= 6 && time < 8) return (time - 6) / 2;
+            if (time >= 8 && time < 17) return 1;
+            if (time >= 17 && time < 19) return 1 - ((time - 17) / 2);
+            return 0;
+        }
+
+        // Get weather status
+        function getWeatherStatus() {
+            const statuses = {
+                clear: { emoji: '☀️', text: 'Clear visibility, light breeze' },
+                cloudy: { emoji: '⛅', text: 'Overcast, reduced visibility' },
+                rain: { emoji: '🌧️', text: 'Heavy rainfall, muddy terrain' },
+                monsoon: { emoji: '⛈️', text: 'Monsoon conditions, severe storms' },
+                fog: { emoji: '🌫️', text: 'Dense fog, near zero visibility' }
+            };
+            return statuses[settings.weather] || statuses.clear;
+        }
+
+        // Draw sky gradient
+        function drawSky() {
+            const skyColor = getSkyColor(settings.time);
+            canvas.style.backgroundColor = skyColor;
+
+            // Weather overlay
+            if (settings.weather === 'cloudy') {
+                ctx.fillStyle = 'rgba(100, 100, 120, 0.3)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else if (settings.weather === 'monsoon') {
+                ctx.fillStyle = 'rgba(40, 40, 60, 0.6)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else if (settings.weather === 'fog') {
+                ctx.fillStyle = 'rgba(150, 150, 150, 0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Draw distant hills/terrain
+        function drawDistantTerrain() {
+            const sunIntensity = getSunIntensity(settings.time);
+            
+            ctx.fillStyle = `rgba(30, 60, 20, ${0.4 + sunIntensity * 0.3})`;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height * 0.35);
+            
+            for (let x = 0; x <= canvas.width; x += 40) {
+                const y = canvas.height * 0.35 - Math.sin(x * 0.003 + settings.time) * 20;
+                ctx.lineTo(x, y);
+            }
+            
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            ctx.fill();
+        }
+
+        // Draw mist/fog layers
+        function drawFogLayers() {
+            const fogDensity = (settings.fogDensity / 100) * 0.7;
+            
+            // Multiple fog layers
+            for (let layer = 0; layer < 3; layer++) {
+                const yPosition = canvas.height * 0.4 + layer * 30;
+                const speed = 0.0005 * (layer + 1);
+                
+                ctx.fillStyle = `rgba(180, 180, 180, ${fogDensity * (0.3 - layer * 0.08)})`;
+                ctx.fillRect(0, yPosition, canvas.width, 40);
+            }
+        }
+
+        // Draw water reflections
+        function drawWaterPuddles() {
+            if (waterPuddles.length === 0) return;
+
+            waterPuddles.forEach(puddle => {
+                // Puddle surface
+                ctx.fillStyle = `rgba(60, 80, 100, ${0.3 + puddle.reflection * 0.5})`;
+                ctx.beginPath();
+                ctx.ellipse(puddle.x, puddle.y, puddle.width / 2, puddle.height / 2, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Reflection
+                ctx.strokeStyle = `rgba(100, 150, 180, ${puddle.reflection * 0.4})`;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.ellipse(puddle.x, puddle.y, puddle.width / 2 - 5, puddle.height / 2 - 3, 0, 0, Math.PI * 2);
+                ctx.stroke();
+            });
+        }
+
+        // Draw jungle vegetation with parallax
+        function drawVegetation() {
+            vegetation.forEach(plant => {
+                const swayAmount = Math.sin(animationTime * plant.swaySpeed + plant.sway) * 5;
+                const opacity = 0.3 + plant.depth * 0.7;
+                
+                ctx.save();
+                ctx.globalAlpha = opacity;
+                
+                // Draw plant/tree
+                if (plant.type === 0) {
+                    // Tall trees
+                    ctx.fillStyle = '#1a3a0a';
+                    ctx.beginPath();
+                    ctx.moveTo(plant.x + swayAmount, plant.y - plant.height);
+                    ctx.quadraticCurveTo(plant.x + plant.width * 0.3 + swayAmount, plant.y - plant.height * 0.5, plant.x + plant.width + swayAmount, plant.y);
+                    ctx.quadraticCurveTo(plant.x + plant.width * 0.5 + swayAmount, plant.y - plant.height * 0.3, plant.x + swayAmount, plant.y - plant.height);
+                    ctx.fill();
+                } else if (plant.type === 1) {
+                    // Thick bushes
+                    ctx.fillStyle = '#2a5a2a';
+                    ctx.beginPath();
+                    ctx.ellipse(plant.x + swayAmount, plant.y - plant.height * 0.6, plant.width * 0.6, plant.height * 0.5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (plant.type === 2) {
+                    // Jungle vines
+                    ctx.strokeStyle = '#2a5a2a';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(plant.x + swayAmount, plant.y - plant.height);
+                    for (let i = 0; i < 5; i++) {
+                        const yOffset = i * (plant.height / 5);
+                        const xOffset = Math.sin(i * 0.5) * 15 + swayAmount;
+                        ctx.lineTo(plant.x + xOffset, plant.y - plant.height + yOffset);
+                    }
+                    ctx.stroke();
+                } else {
+                    // Dense foliage clusters
+                    ctx.fillStyle = '#3a6a3a';
+                    for (let i = 0; i < 3; i++) {
+                        ctx.beginPath();
+                        ctx.ellipse(plant.x + i * 20 + swayAmount, plant.y - plant.height * (0.3 + i * 0.2), plant.width * 0.3, plant.height * 0.3, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+                
+                ctx.restore();
+            });
+        }
+
+        // Draw particles (rain, smoke)
+        function drawParticles() {
+            if (settings.weather === 'rain' || settings.weather === 'monsoon') {
+                drawRain();
+            }
+            
+            if (settings.smokeIntensity > 0) {
+                drawSmoke();
+            }
+        }
+
+        // Draw rain
+        function drawRain() {
+            const rainIntensity = settings.weather === 'monsoon' ? 200 : 100;
+            
+            for (let i = 0; i < rainIntensity; i++) {
+                const x = (Math.sin(i * 0.1 + animationTime * 0.01) * canvas.width + animationTime * 10) % canvas.width;
+                const y = (i * 5 + animationTime * 20) % canvas.height;
+                
+                ctx.strokeStyle = `rgba(200, 220, 255, ${settings.weather === 'monsoon' ? 0.7 : 0.4})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x - 2, y + 10);
+                ctx.stroke();
+            }
+        }
+
+        // Draw smoke
+        function drawSmoke() {
+            const smokeOpacity = (settings.smokeIntensity / 100) * 0.4;
+            
+            ctx.fillStyle = `rgba(120, 120, 100, ${smokeOpacity})`;
+            for (let i = 0; i < 5; i++) {
+                const x = (canvas.width / 5) * (i + 1) + Math.sin(animationTime * 0.005 + i) * 50;
+                const y = canvas.height * 0.4 - (animationTime * 0.02) % (canvas.height * 0.5);
+                ctx.beginPath();
+                ctx.ellipse(x, y, 80 + Math.sin(animationTime * 0.01 + i) * 30, 60, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Draw ground/rice paddies
+        function drawGround() {
+            const sunIntensity = getSunIntensity(settings.time);
+            
+            // Muddy terrain
+            ctx.fillStyle = `rgba(${60 + sunIntensity * 30}, ${50 + sunIntensity * 25}, ${40 + sunIntensity * 20}, 0.8)`;
+            ctx.fillRect(0, canvas.height * 0.68, canvas.width, canvas.height * 0.32);
+
+            // Rice paddy lines
+            ctx.strokeStyle = `rgba(${100 + sunIntensity * 30}, ${120 + sunIntensity * 30}, ${80 + sunIntensity * 20}, 0.4)`;
+            ctx.lineWidth = 2;
+            
+            for (let x = 0; x < canvas.width; x += 100) {
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height * 0.68);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+
+            // Water in paddies (if wet)
+            if (settings.wetness > 20) {
+                ctx.fillStyle = `rgba(60, 100, 140, ${(settings.wetness / 100) * 0.4})`;
+                for (let x = 50; x < canvas.width; x += 150) {
+                    for (let y = canvas.height * 0.7; y < canvas.height; y += 100) {
+                        ctx.fillRect(x, y, 80, 50);
+                    }
+                }
+            }
+        }
+
+        // Draw atmospheric effects based on time of day
+        function drawAtmosphericEffects() {
+            const sunIntensity = getSunIntensity(settings.time);
+            
+            if (sunIntensity > 0 && sunIntensity < 1) {
+                ctx.fillStyle = `rgba(255, 200, 100, ${(1 - sunIntensity) * 0.2})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Update UI displays
+        function updateUI() {
+            const hours = Math.floor(settings.time);
+            const minutes = Math.floor((settings.time % 1) * 60);
+            document.getElementById('timeDisplay').textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            
+            document.getElementById('fogValue').textContent = `${settings.fogDensity}%`;
+            document.getElementById('vegValue').textContent = `${settings.vegDensity}%`;
+            document.getElementById('windValue').textContent = settings.windIntensity;
+            document.getElementById('wetValue').textContent = `${settings.wetness}%`;
+            document.getElementById('smokeValue').textContent = `${settings.smokeIntensity}%`;
+            
+            const weather = getWeatherStatus();
+            document.getElementById('weatherIcon').textContent = weather.emoji;
+            document.getElementById('weatherStatus').textContent = weather.text;
+        }
+
+        // Setup event listeners
+        function setupControls() {
+            document.getElementById('timeSlider').addEventListener('input', (e) => {
+                settings.time = parseFloat(e.target.value);
+                updateUI();
+            });
+
+            document.getElementById('weatherSelect').addEventListener('change', (e) => {
+                settings.weather = e.target.value;
+                updateUI();
+            });
+
+            document.getElementById('fogSlider').addEventListener('input', (e) => {
+                settings.fogDensity = parseInt(e.target.value);
+                updateUI();
+            });
+
+            document.getElementById('vegSlider').addEventListener('input', (e) => {
+                settings.vegDensity = parseInt(e.target.value);
+                initializeVegetation();
+                updateUI();
+            });
+
+            document.getElementById('windSlider').addEventListener('input', (e) => {
+                settings.windIntensity = parseInt(e.target.value);
+                updateUI();
+            });
+
+            document.getElementById('wetSlider').addEventListener('input', (e) => {
+                settings.wetness = parseInt(e.target.value);
+                initializeWaterPuddles();
+                updateUI();
+            });
+
+            document.getElementById('smokeSlider').addEventListener('input', (e) => {
+                settings.smokeIntensity = parseInt(e.target.value);
+                updateUI();
+            });
+
+            document.getElementById('seasonSelect').addEventListener('change', (e) => {
+                settings.season = e.target.value;
+                if (settings.season === 'monsoon') {
+                    settings.fogDensity = Math.max(settings.fogDensity, 40);
+                    settings.wetness = Math.max(settings.wetness, 60);
+                } else if (settings.season === 'dry') {
+                    settings.fogDensity = Math.max(settings.fogDensity, 10);
+                    settings.wetness = Math.min(settings.wetness, 30);
+                }
+                updateUI();
+            });
+        }
+
+        // Animation loop
+        function animate() {
+            animationTime++;
+
+            drawSky();
+            drawDistantTerrain();
+            drawGround();
+            drawWaterPuddles();
+            drawVegetation();
+            drawFogLayers();
+            drawParticles();
+            drawAtmosphericEffects();
+
+            requestAnimationFrame(animate);
+        }
+
+        // Reset settings
+        function resetSettings() {
+            settings = {
+                time: 12,
+                weather: 'clear',
+                fogDensity: 30,
+                vegDensity: 80,
+                windIntensity: 5,
+                wetness: 40,
+                smokeIntensity: 20,
+                season: 'monsoon'
+            };
+
+            document.getElementById('timeSlider').value = 12;
+            document.getElementById('weatherSelect').value = 'clear';
+            document.getElementById('fogSlider').value = 30;
+            document.getElementById('vegSlider').value = 80;
+            document.getElementById('windSlider').value = 5;
+            document.getElementById('wetSlider').value = 40;
+            document.getElementById('smokeSlider').value = 20;
+            document.getElementById('seasonSelect').value = 'monsoon';
+
+            initializeVegetation();
+            initializeWaterPuddles();
+            updateUI();
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth - 320;
+            canvas.height = window.innerHeight;
+        });
+
+        // Initialize
+        initializeVegetation();
+        initializeWaterPuddles();
+        setupControls();
+        updateUI();
+        animate();
+    </script>
+</body>
+</html>
