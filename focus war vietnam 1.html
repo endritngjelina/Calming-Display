@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calming Vietnam War Battlefield Scenery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 15px;
+            text-align: center;
+            background: rgba(10, 20, 10, 0.7);
+            border-bottom: 1px solid rgba(100, 120, 100, 0.3);
+            z-index: 100;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: #c9b07e;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+
+        /* Scene Container */
+        .scene-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background: rgba(15, 25, 15, 0.85);
+            backdrop-filter: blur(5px);
+            border-left: 1px solid rgba(100, 120, 100, 0.3);
+            transform: translateX(100%);
+            transition: transform 0.5s ease;
+            z-index: 10;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .settings-panel.open {
+            transform: translateX(0);
+        }
+
+        .toggle-settings {
+            position: absolute;
+            left: -50px;
+            top: 20px;
+            background: rgba(15, 25, 15, 0.9);
+            border: 1px solid rgba(100, 120, 100, 0.3);
+            border-right: none;
+            border-radius: 5px 0 0 5px;
+            color: #c9b07e;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .toggle-settings:hover {
+            background: rgba(25, 35, 25, 0.9);
+        }
+
+        .settings-title {
+            color: #c9b07e;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(100, 120, 100, 0.3);
+            font-size: 1.4rem;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #b8c9b0;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            background: rgba(20, 30, 20, 0.7);
+            border: 1px solid rgba(100, 120, 100, 0.5);
+            border-radius: 4px;
+            color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        input[type="range"] {
+            padding: 0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group input {
+            margin-right: 10px;
+        }
+
+        .time-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(15, 25, 15, 0.7);
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid rgba(100, 120, 100, 0.3);
+            z-index: 5;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Scene Elements */
+        .scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: all 2s ease;
+        }
+
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 65%;
+            transition: all 2s ease;
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35%;
+            transition: all 2s ease;
+        }
+
+        /* Sky Colors for Different Times */
+        .sky.dawn {
+            background: linear-gradient(to bottom, #1a1a2e, #2d1b33, #5d3a3a, #b87a4f);
+        }
+
+        .sky.day {
+            background: linear-gradient(to bottom, #4a7b9d, #6fa3c9, #8fc1e3);
+        }
+
+        .sky.dusk {
+            background: linear-gradient(to bottom, #2c3e50, #e74c3c, #f39c12);
+        }
+
+        .sky.night {
+            background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+        }
+
+        /* Ground Colors for Different Times */
+        .ground.dawn {
+            background: linear-gradient(to top, #3d2c2c, #5a4030, #7a5a3a);
+        }
+
+        .ground.day {
+            background: linear-gradient(to top, #2d5016, #3a5c2d, #4c784c);
+        }
+
+        .ground.dusk {
+            background: linear-gradient(to top, #3a2c2c, #5a403a, #7a5a4a);
+        }
+
+        .ground.night {
+            background: linear-gradient(to top, #1c1c1c, #2d2d2d, #3a3a3a);
+        }
+
+        /* Sun/Moon */
+        .sun-moon {
+            position: absolute;
+            border-radius: 50%;
+            transition: all 2s ease;
+        }
+
+        .sun {
+            background: radial-gradient(circle, #ffdd00, #ff6600);
+            box-shadow: 0 0 60px #ffaa00;
+        }
+
+        .moon {
+            background: radial-gradient(circle, #f5f5f5, #aaaaaa);
+            box-shadow: 0 0 40px #aaaaaa;
+        }
+
+        /* Terrain Elements */
+        .mountains {
+            position: absolute;
+            bottom: 35%;
+            width: 100%;
+            height: 200px;
+        }
+
+        .mountain {
+            position: absolute;
+            bottom: 0;
+            background: #2a3d2a;
+            border-radius: 5px;
+        }
+
+        .mountain-1 {
+            width: 300px;
+            height: 150px;
+            left: 5%;
+            background: #1e2d1e;
+        }
+
+        .mountain-2 {
+            width: 250px;
+            height: 120px;
+            left: 30%;
+            background: #233323;
+        }
+
+        .mountain-3 {
+            width: 280px;
+            height: 140px;
+            right: 10%;
+            background: #1a291a;
+        }
+
+        .jungle {
+            position: absolute;
+            bottom: 35%;
+            width: 100%;
+            height: 150px;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 0;
+            width: 40px;
+            height: 100px;
+            background: #2d3e2d;
+            border-radius: 3px;
+        }
+
+        .tree:before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: -30px;
+            width: 100px;
+            height: 80px;
+            background: #1e3d1e;
+            border-radius: 50%;
+        }
+
+        .river {
+            position: absolute;
+            bottom: 10%;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: rgba(50, 100, 150, 0.5);
+            transition: all 2s ease;
+        }
+
+        .river.day {
+            background: rgba(50, 120, 200, 0.6);
+        }
+
+        .river.night {
+            background: rgba(30, 60, 100, 0.4);
+        }
+
+        /* Military Elements */
+        .helicopter {
+            position: absolute;
+            top: 20%;
+            left: 10%;
+            width: 100px;
+            height: 40px;
+            background: #4a4a4a;
+            border-radius: 10px;
+            transition: all 5s linear;
+            z-index: 2;
+        }
+
+        .helicopter:before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            left: 30px;
+            width: 40px;
+            height: 60px;
+            background: #4a4a4a;
+            border-radius: 20px;
+        }
+
+        .helicopter:after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: -30px;
+            width: 60px;
+            height: 5px;
+            background: #4a4a4a;
+            border-radius: 2px;
+        }
+
+        .bunker {
+            position: absolute;
+            bottom: 35%;
+            right: 15%;
+            width: 120px;
+            height: 60px;
+            background: #5d4a2a;
+            border-radius: 5px;
+            z-index: 1;
+        }
+
+        .bunker:before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            width: 100px;
+            height: 20px;
+            background: #4a3a1a;
+            border-radius: 3px;
+        }
+
+        /* Weather Effects */
+        .rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s ease;
+            z-index: 3;
+        }
+
+        .rain.active {
+            opacity: 0.7;
+        }
+
+        .rain-drop {
+            position: absolute;
+            top: -20px;
+            width: 1px;
+            height: 20px;
+            background: rgba(150, 200, 255, 0.7);
+            animation: fall linear infinite;
+        }
+
+        .fog {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(200, 220, 240, 0.1);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s ease;
+            z-index: 4;
+        }
+
+        .fog.active {
+            opacity: 0.6;
+        }
+
+        .fog-layer {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(200, 220, 240, 0.05);
+            animation: fog-move 60s linear infinite;
+        }
+
+        /* Animations */
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        @keyframes fog-move {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(50px); }
+            100% { transform: translateX(0); }
+        }
+
+        @keyframes helicopter-move {
+            0% { left: -100px; }
+            100% { left: 100%; }
+        }
+
+        /* Sound Indicator */
+        .sound-indicator {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(15, 25, 15, 0.7);
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid rgba(100, 120, 100, 0.3);
+            z-index: 5;
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+        }
+
+        .sound-indicator i {
+            margin-right: 8px;
+            color: #c9b07e;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .settings-panel {
+                width: 250px;
+            }
+            
+            .toggle-settings {
+                left: -40px;
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            h1 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Calming Vietnam War Battlefield Scenery</h1>
+        <div class="subtitle">Adjust settings to change time of day, weather, and environmental elements</div>
+    </div>
+
+    <div class="container">
+        <!-- Settings Panel -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="toggle-settings" id="toggleSettings">
+                <i class="fas fa-cog"></i>
+            </div>
+            
+            <h2 class="settings-title">Environment Settings</h2>
+            
+            <div class="control-group">
+                <label class="control-label">Time of Day</label>
+                <select id="timeOfDay">
+                    <option value="dawn">Dawn</option>
+                    <option value="day">Day</option>
+                    <option value="dusk">Dusk</option>
+                    <option value="night">Night</option>
+                </select>
+                
+                <label class="control-label">Time Speed</label>
+                <input type="range" id="timeSpeed" min="0" max="10" value="1" step="0.5">
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label">Weather Conditions</label>
+                <select id="weather">
+                    <option value="clear">Clear</option>
+                    <option value="rain">Rain</option>
+                    <option value="fog">Fog</option>
+                </select>
+                
+                <label class="control-label">Weather Intensity</label>
+                <input type="range" id="weatherIntensity" min="1" max="10" value="5">
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label">Environment Elements</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="helicopter" checked>
+                    <label for="helicopter">Show Helicopter</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="bunker" checked>
+                    <label for="bunker">Show Bunker</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="river" checked>
+                    <label for="river">Show River</label>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label">Ambient Sound</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="sound" checked>
+                    <label for="sound">Enable Ambient Sounds</label>
+                </div>
+                
+                <label class="control-label">Sound Volume</label>
+                <input type="range" id="soundVolume" min="0" max="100" value="50">
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label">Reset to Default</label>
+                <button id="resetBtn" style="width: 100%; padding: 10px; background: #5a4a2a; color: #e0e0e0; border: none; border-radius: 4px; cursor: pointer;">
+                    Reset Settings
+                </button>
+            </div>
+        </div>
+        
+        <!-- Scene Container -->
+        <div class="scene-container">
+            <!-- Time Indicator -->
+            <div class="time-indicator">
+                <i class="fas fa-clock"></i> <span id="currentTime">Dawn</span>
+            </div>
+            
+            <!-- Sound Indicator -->
+            <div class="sound-indicator">
+                <i class="fas fa-volume-up"></i> <span id="soundStatus">Ambient sounds enabled</span>
+            </div>
+            
+            <!-- The Scene -->
+            <div class="scene" id="scene">
+                <!-- Sky -->
+                <div class="sky dawn" id="sky"></div>
+                
+                <!-- Sun/Moon -->
+                <div class="sun-moon sun" id="sunMoon" style="width: 80px; height: 80px; top: 15%; left: 15%;"></div>
+                
+                <!-- Mountains -->
+                <div class="mountains">
+                    <div class="mountain mountain-1"></div>
+                    <div class="mountain mountain-2"></div>
+                    <div class="mountain mountain-3"></div>
+                </div>
+                
+                <!-- Jungle -->
+                <div class="jungle" id="jungle">
+                    <!-- Trees will be generated with JavaScript -->
+                </div>
+                
+                <!-- Ground -->
+                <div class="ground dawn" id="ground"></div>
+                
+                <!-- River -->
+                <div class="river dawn" id="river"></div>
+                
+                <!-- Military Elements -->
+                <div class="helicopter" id="helicopterElement"></div>
+                <div class="bunker" id="bunkerElement"></div>
+                
+                <!-- Weather Effects -->
+                <div class="rain" id="rainEffect"></div>
+                <div class="fog" id="fogEffect"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden audio elements for ambient sounds -->
+    <audio id="dawnSound" loop>
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-forest-ambience-86.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="daySound" loop>
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-jungle-birds-ambience-17.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="duskSound" loop>
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-crickets-at-dusk-398.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="nightSound" loop>
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-crickets-and-insects-in-the-wild-ambience-39.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="rainSound" loop>
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-rain-ambience-111.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="helicopterSound" loop>
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-helicopter-flying-close-1001.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // DOM Elements
+        const settingsPanel = document.getElementById('settingsPanel');
+        const toggleSettings = document.getElementById('toggleSettings');
+        const scene = document.getElementById('scene');
+        const sky = document.getElementById('sky');
+        const ground = document.getElementById('ground');
+        const river = document.getElementById('river');
+        const sunMoon = document.getElementById('sunMoon');
+        const jungle = document.getElementById('jungle');
+        const rainEffect = document.getElementById('rainEffect');
+        const fogEffect = document.getElementById('fogEffect');
+        const helicopterElement = document.getElementById('helicopterElement');
+        const bunkerElement = document.getElementById('bunkerElement');
+        
+        // Control Elements
+        const timeOfDay = document.getElementById('timeOfDay');
+        const timeSpeed = document.getElementById('timeSpeed');
+        const weather = document.getElementById('weather');
+        const weatherIntensity = document.getElementById('weatherIntensity');
+        const helicopterCheck = document.getElementById('helicopter');
+        const bunkerCheck = document.getElementById('bunker');
+        const riverCheck = document.getElementById('river');
+        const soundCheck = document.getElementById('sound');
+        const soundVolume = document.getElementById('soundVolume');
+        const resetBtn = document.getElementById('resetBtn');
+        const currentTime = document.getElementById('currentTime');
+        const soundStatus = document.getElementById('soundStatus');
+        
+        // Audio Elements
+        const dawnSound = document.getElementById('dawnSound');
+        const daySound = document.getElementById('daySound');
+        const duskSound = document.getElementById('duskSound');
+        const nightSound = document.getElementById('nightSound');
+        const rainSound = document.getElementById('rainSound');
+        const helicopterSound = document.getElementById('helicopterSound');
+        
+        // State Variables
+        let currentTimeValue = 'dawn';
+        let currentWeather = 'clear';
+        let isHelicopterVisible = true;
+        let isBunkerVisible = true;
+        let isRiverVisible = true;
+        let isSoundEnabled = true;
+        let soundLevel = 50;
+        let timeMultiplier = 1;
+        let weatherLevel = 5;
+        let rainDrops = [];
+        let autoTimeCycle = null;
+        
+        // Initialize the scene
+        function init() {
+            // Create jungle trees
+            createTrees();
+            
+            // Create rain drops
+            createRainDrops();
+            
+            // Initialize audio
+            updateAudio();
+            
+            // Start auto time cycle
+            startAutoTimeCycle();
+            
+            // Add event listeners
+            setupEventListeners();
+            
+            // Update scene based on initial values
+            updateScene();
+        }
+        
+        function setupEventListeners() {
+            // Toggle settings panel
+            toggleSettings.addEventListener('click', () => {
+                settingsPanel.classList.toggle('open');
+            });
+            
+            // Time of day change
+            timeOfDay.addEventListener('change', () => {
+                currentTimeValue = timeOfDay.value;
+                updateScene();
+                updateAudio();
+                resetAutoTimeCycle();
+            });
+            
+            // Time speed change
+            timeSpeed.addEventListener('input', () => {
+                timeMultiplier = parseFloat(timeSpeed.value);
+                resetAutoTimeCycle();
+            });
+            
+            // Weather change
+            weather.addEventListener('change', () => {
+                currentWeather = weather.value;
+                updateScene();
+                updateAudio();
+            });
+            
+            // Weather intensity change
+            weatherIntensity.addEventListener('input', () => {
+                weatherLevel = parseInt(weatherIntensity.value);
+                updateScene();
+            });
+            
+            // Helicopter toggle
+            helicopterCheck.addEventListener('change', () => {
+                isHelicopterVisible = helicopterCheck.checked;
+                updateScene();
+                updateAudio();
+            });
+            
+            // Bunker toggle
+            bunkerCheck.addEventListener('change', () => {
+                isBunkerVisible = bunkerCheck.checked;
+                updateScene();
+            });
+            
+            // River toggle
+            riverCheck.addEventListener('change', () => {
+                isRiverVisible = riverCheck.checked;
+                updateScene();
+            });
+            
+            // Sound toggle
+            soundCheck.addEventListener('change', () => {
+                isSoundEnabled = soundCheck.checked;
+                updateAudio();
+            });
+            
+            // Sound volume change
+            soundVolume.addEventListener('input', () => {
+                soundLevel = parseInt(soundVolume.value);
+                updateAudio();
+            });
+            
+            // Reset button
+            resetBtn.addEventListener('click', resetSettings);
+        }
+        
+        function createTrees() {
+            // Clear existing trees
+            jungle.innerHTML = '';
+            
+            // Create trees at random positions
+            for (let i = 0; i < 20; i++) {
+                const tree = document.createElement('div');
+                tree.className = 'tree';
+                
+                // Random position
+                const left = Math.random() * 100;
+                const height = 70 + Math.random() * 80;
+                
+                tree.style.left = `${left}%`;
+                tree.style.height = `${height}px`;
+                
+                // Adjust canopy size based on tree height
+                const canopySize = height * 0.8;
+                tree.style.setProperty('--canopy-size', `${canopySize}px`);
+                tree.style.setProperty('--canopy-left', `-${canopySize/3}px`);
+                
+                jungle.appendChild(tree);
+            }
+        }
+        
+        function createRainDrops() {
+            // Clear existing rain drops
+            rainEffect.innerHTML = '';
+            rainDrops = [];
+            
+            // Create rain drops
+            for (let i = 0; i < 200; i++) {
+                const rainDrop = document.createElement('div');
+                rainDrop.className = 'rain-drop';
+                
+                // Random position and animation
+                const left = Math.random() * 100;
+                const animationDuration = 0.5 + Math.random() * 1.5;
+                const animationDelay = Math.random() * 5;
+                
+                rainDrop.style.left = `${left}%`;
+                rainDrop.style.animationDuration = `${animationDuration}s`;
+                rainDrop.style.animationDelay = `${animationDelay}s`;
+                
+                rainEffect.appendChild(rainDrop);
+                rainDrops.push(rainDrop);
+            }
+        }
+        
+        function updateScene() {
+            // Update time indicator
+            currentTime.textContent = currentTimeValue.charAt(0).toUpperCase() + currentTimeValue.slice(1);
+            
+            // Update sky and ground based on time
+            sky.className = `sky ${currentTimeValue}`;
+            ground.className = `ground ${currentTimeValue}`;
+            river.className = `river ${currentTimeValue}`;
+            
+            // Update sun/moon position and appearance
+            updateSunMoon();
+            
+            // Update weather effects
+            updateWeather();
+            
+            // Update visibility of elements
+            helicopterElement.style.display = isHelicopterVisible ? 'block' : 'none';
+            bunkerElement.style.display = isBunkerVisible ? 'block' : 'none';
+            river.style.display = isRiverVisible ? 'block' : 'none';
+            
+            // Update helicopter animation
+            if (isHelicopterVisible) {
+                const animationDuration = 30 / timeMultiplier;
+                helicopterElement.style.animation = `helicopter-move ${animationDuration}s linear infinite`;
+            } else {
+                helicopterElement.style.animation = 'none';
+            }
+            
+            // Update sound status
+            soundStatus.textContent = isSoundEnabled ? 'Ambient sounds enabled' : 'Ambient sounds disabled';
+        }
+        
+        function updateSunMoon() {
+            // Set size and appearance based on time
+            let size, topPos, leftPos, isSun;
+            
+            switch(currentTimeValue) {
+                case 'dawn':
+                    size = 60;
+                    topPos = 15;
+                    leftPos = 15;
+                    isSun = true;
+                    break;
+                case 'day':
+                    size = 80;
+                    topPos = 10;
+                    leftPos = 40;
+                    isSun = true;
+                    break;
+                case 'dusk':
+                    size = 70;
+                    topPos = 15;
+                    leftPos = 70;
+                    isSun = true;
+                    break;
+                case 'night':
+                    size = 60;
+                    topPos = 20;
+                    leftPos = 80;
+                    isSun = false;
+                    break;
+            }
+            
+            // Update sun/moon element
+            sunMoon.style.width = `${size}px`;
+            sunMoon.style.height = `${size}px`;
+            sunMoon.style.top = `${topPos}%`;
+            sunMoon.style.left = `${leftPos}%`;
+            
+            if (isSun) {
+                sunMoon.className = 'sun-moon sun';
+                sunMoon.style.background = 'radial-gradient(circle, #ffdd00, #ff6600)';
+                sunMoon.style.boxShadow = '0 0 60px #ffaa00';
+            } else {
+                sunMoon.className = 'sun-moon moon';
+                sunMoon.style.background = 'radial-gradient(circle, #f5f5f5, #aaaaaa)';
+                sunMoon.style.boxShadow = '0 0 40px #aaaaaa';
+            }
+        }
+        
+        function updateWeather() {
+            // Update rain effect
+            if (currentWeather === 'rain') {
+                rainEffect.classList.add('active');
+                
+                // Adjust rain intensity
+                const opacity = 0.3 + (weatherLevel / 10) * 0.5;
+                rainEffect.style.opacity = opacity;
+                
+                // Adjust rain drop speed
+                rainDrops.forEach(drop => {
+                    const duration = 1 / (weatherLevel / 5);
+                    drop.style.animationDuration = `${duration}s`;
+                });
+            } else {
+                rainEffect.classList.remove('active');
+            }
+            
+            // Update fog effect
+            if (currentWeather === 'fog') {
+                fogEffect.classList.add('active');
+                
+                // Adjust fog intensity
+                const opacity = 0.3 + (weatherLevel / 10) * 0.4;
+                fogEffect.style.opacity = opacity;
+            } else {
+                fogEffect.classList.remove('active');
+            }
+        }
+        
+        function updateAudio() {
+            // Set volume for all sounds
+            const volume = soundLevel / 100;
+            
+            dawnSound.volume = volume;
+            daySound.volume = volume;
+            duskSound.volume = volume;
+            nightSound.volume = volume;
+            rainSound.volume = volume * 0.7;
+            helicopterSound.volume = volume * 0.5;
+            
+            // Stop all sounds first
+            dawnSound.pause();
+            daySound.pause();
+            duskSound.pause();
+            nightSound.pause();
+            rainSound.pause();
+            helicopterSound.pause();
+            
+            if (!isSoundEnabled) return;
+            
+            // Play time of day sound
+            switch(currentTimeValue) {
+                case 'dawn':
+                    dawnSound.play();
+                    break;
+                case 'day':
+                    daySound.play();
+                    break;
+                case 'dusk':
+                    duskSound.play();
+                    break;
+                case 'night':
+                    nightSound.play();
+                    break;
+            }
+            
+            // Play rain sound if active
+            if (currentWeather === 'rain') {
+                rainSound.play();
+            }
+            
+            // Play helicopter sound if visible
+            if (isHelicopterVisible) {
+                helicopterSound.play();
+            }
+        }
+        
+        function startAutoTimeCycle() {
+            // Clear existing cycle
+            if (autoTimeCycle) clearInterval(autoTimeCycle);
+            
+            // Start new cycle
+            autoTimeCycle = setInterval(() => {
+                // Cycle through times
+                const times = ['dawn', 'day', 'dusk', 'night'];
+                const currentIndex = times.indexOf(currentTimeValue);
+                const nextIndex = (currentIndex + 1) % times.length;
+                
+                currentTimeValue = times[nextIndex];
+                timeOfDay.value = currentTimeValue;
+                
+                updateScene();
+                updateAudio();
+            }, 30000 / timeMultiplier); // 30 seconds per time period, adjusted by multiplier
+        }
+        
+        function resetAutoTimeCycle() {
+            startAutoTimeCycle();
+        }
+        
+        function resetSettings() {
+            // Reset all controls to default
+            timeOfDay.value = 'dawn';
+            timeSpeed.value = 1;
+            weather.value = 'clear';
+            weatherIntensity.value = 5;
+            helicopterCheck.checked = true;
+            bunkerCheck.checked = true;
+            riverCheck.checked = true;
+            soundCheck.checked = true;
+            soundVolume.value = 50;
+            
+            // Reset state variables
+            currentTimeValue = 'dawn';
+            timeMultiplier = 1;
+            currentWeather = 'clear';
+            weatherLevel = 5;
+            isHelicopterVisible = true;
+            isBunkerVisible = true;
+            isRiverVisible = true;
+            isSoundEnabled = true;
+            soundLevel = 50;
+            
+            // Update scene and audio
+            updateScene();
+            updateAudio();
+            resetAutoTimeCycle();
+        }
+        
+        // Initialize the application
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
