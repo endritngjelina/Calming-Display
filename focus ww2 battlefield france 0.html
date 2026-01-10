@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WW2 Normandy Battlefield - Interactive Scene</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --sky-clear: #87CEEB;
+            --sky-overcast: #6B8E99;
+            --sky-stormy: #4A5F7F;
+            --ground-grass: #4A7C2C;
+            --ground-mud: #7A6B5D;
+            --smoke-light: rgba(200, 200, 200, 0.3);
+            --smoke-dark: rgba(100, 100, 100, 0.5);
+            --fire-orange: #FF6B1B;
+            --fire-yellow: #FFD700;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--sky-clear);
+            font-family: Arial, sans-serif;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        #main-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--sky-clear) 0%, var(--sky-clear) 40%, var(--ground-grass) 100%);
+        }
+
+        .controls-panel {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 320px;
+            background: rgba(20, 20, 20, 0.95);
+            border: 2px solid #555;
+            border-radius: 10px;
+            padding: 0;
+            max-height: 95vh;
+            overflow-y: auto;
+            z-index: 1000;
+            font-size: 13px;
+            color: #ddd;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .controls-header {
+            background: linear-gradient(to right, #8B0000, #DC143C);
+            color: white;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            border-bottom: 2px solid #555;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .controls-content {
+            padding: 15px;
+            display: block;
+            max-height: calc(95vh - 45px);
+            overflow-y: auto;
+        }
+
+        .controls-content.collapsed {
+            display: none;
+        }
+
+        .control-section {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #FFD700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-value {
+            display: inline-block;
+            float: right;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 3px;
+            color: #FF6B6B;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            margin-top: 8px;
+            cursor: pointer;
+            border-radius: 3px;
+            background: linear-gradient(to right, #666, #999);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #FF6B1B;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(255, 107, 27, 0.7);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #FF6B1B;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 5px rgba(255, 107, 27, 0.7);
+        }
+
+        .toggle-buttons {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .toggle-btn-small {
+            flex: 1;
+            min-width: 45%;
+            padding: 8px 10px;
+            background: #333;
+            color: #ddd;
+            border: 2px solid #555;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn-small:hover {
+            background: #444;
+        }
+
+        .toggle-btn-small.active {
+            background: #FF6B1B;
+            border-color: #FFD700;
+            color: white;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            background: linear-gradient(to right, #8B0000, #DC143C);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .reset-btn:hover {
+            background: linear-gradient(to right, #A52A2A, #FF1744);
+            box-shadow: 0 0 10px rgba(255, 107, 27, 0.5);
+        }
+
+        .info-text {
+            font-size: 11px;
+            color: #999;
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 2px solid #FF6B1B;
+            border-radius: 3px;
+        }
+
+        .tooltip {
+            font-size: 10px;
+            color: #aaa;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="main-canvas"></canvas>
+        
+        <div class="controls-panel">
+            <div class="controls-header">
+                <span>⚙️ Settings</span>
+                <button class="toggle-btn" id="collapse-btn">−</button>
+            </div>
+            <div class="controls-content" id="controls-content">
+                <!-- Time Control -->
+                <div class="control-section">
+                    <label class="control-label">
+                        🕐 Time of Day
+                        <span class="control-value" id="time-value">06:00</span>
+                    </label>
+                    <input type="range" id="time-slider" min="0" max="24" value="6" step="0.5">
+                    <div class="tooltip">Dawn = 6:00 | Noon = 12:00 | Dusk = 18:00 | Night = 24:00</div>
+                </div>
+
+                <!-- Weather Control -->
+                <div class="control-section">
+                    <label class="control-label">🌤️ Weather</label>
+                    <div class="toggle-buttons">
+                        <button class="toggle-btn-small active" data-weather="clear">Clear</button>
+                        <button class="toggle-btn-small" data-weather="overcast">Overcast</button>
+                        <button class="toggle-btn-small" data-weather="rainy">Rainy</button>
+                        <button class="toggle-btn-small" data-weather="stormy">Stormy</button>
+                        <button class="toggle-btn-small" data-weather="fog">Fog</button>
+                    </div>
+                </div>
+
+                <!-- Ground State -->
+                <div class="control-section">
+                    <label class="control-label">🌍 Ground State</label>
+                    <div class="toggle-buttons">
+                        <button class="toggle-btn-small active" data-ground="grass">Grass</button>
+                        <button class="toggle-btn-small" data-ground="mud">Mud/Damaged</button>
+                        <button class="toggle-btn-small" data-ground="snow">Snow</button>
+                    </div>
+                </div>
+
+                <!-- Smoke Intensity -->
+                <div class="control-section">
+                    <label class="control-label">
+                        💨 Smoke Intensity
+                        <span class="control-value" id="smoke-value">30%</span>
+                    </label>
+                    <input type="range" id="smoke-slider" min="0" max="100" value="30" step="5">
+                </div>
+
+                <!-- Fire Activity -->
+                <div class="control-section">
+                    <label class="control-label">
+                        🔥 Fire Activity
+                        <span class="control-value" id="fire-value">40%</span>
+                    </label>
+                    <input type="range" id="fire-slider" min="0" max="100" value="40" step="10">
+                </div>
+
+                <!-- Visibility -->
+                <div class="control-section">
+                    <label class="control-label">
+                        👁️ Visibility Distance
+                        <span class="control-value" id="visibility-value">100%</span>
+                    </label>
+                    <input type="range" id="visibility-slider" min="20" max="100" value="100" step="10">
+                </div>
+
+                <!-- Show Destruction Toggle -->
+                <div class="control-section">
+                    <label class="control-label">🏚️ Destruction Level</label>
+                    <div class="toggle-buttons">
+                        <button class="toggle-btn-small" data-destruction="minimal">Minimal</button>
+                        <button class="toggle-btn-small active" data-destruction="moderate">Moderate</button>
+                        <button class="toggle-btn-small" data-destruction="heavy">Heavy</button>
+                    </div>
+                </div>
+
+                <!-- Ambiance Toggles -->
+                <div class="control-section">
+                    <label class="control-label">🎵 Ambiance</label>
+                    <div class="toggle-buttons">
+                        <button class="toggle-btn-small active" id="birds-btn" data-feature="birds">🐦 Birds</button>
+                        <button class="toggle-btn-small active" id="wind-btn" data-feature="wind">💨 Wind</button>
+                        <button class="toggle-btn-small active" id="explosions-btn" data-feature="explosions">💣 Sounds</button>
+                    </div>
+                </div>
+
+                <!-- Season -->
+                <div class="control-section">
+                    <label class="control-label">🍂 Season</label>
+                    <div class="toggle-buttons">
+                        <button class="toggle-btn-small" data-season="spring">Spring</button>
+                        <button class="toggle-btn-small active" data-season="summer">Summer</button>
+                        <button class="toggle-btn-small" data-season="autumn">Autumn</button>
+                        <button class="toggle-btn-small" data-season="winter">Winter</button>
+                    </div>
+                </div>
+
+                <!-- Wind Intensity -->
+                <div class="control-section">
+                    <label class="control-label">
+                        💨 Wind Strength
+                        <span class="control-value" id="wind-strength-value">Low</span>
+                    </label>
+                    <input type="range" id="wind-strength-slider" min="0" max="3" value="1" step="1">
+                </div>
+
+                <!-- Reset Button -->
+                <button class="reset-btn" id="reset-btn">↻ Reset to Defaults</button>
+
+                <div class="info-text">
+                    ⚔️ <strong>WW2 Normandy Battlefield</strong><br>
+                    June 6, 1944 - Interactive Historical Scene<br>
+                    Adjust settings to experience different conditions soldiers faced.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('main-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // State management
+        const state = {
+            time: 6,
+            weather: 'clear',
+            ground: 'grass',
+            smoke: 30,
+            fire: 40,
+            visibility: 100,
+            destruction: 'moderate',
+            season: 'summer',
+            windStrength: 1,
+            features: {
+                birds: true,
+                wind: true,
+                explosions: true
+            },
+            particles: [],
+            explosions: [],
+            weather_particles: []
+        };
+
+        // Animation frame counter for visual effects
+        let frameCount = 0;
+
+        // Particle system
+        class Particle {
+            constructor(x, y, vx, vy, life, type) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.life = life;
+                this.maxLife = life;
+                this.type = type; // 'smoke', 'dust', 'ash', 'rain', 'snow'
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life -= 1;
+                this.vy += 0.3; // gravity
+            }
+
+            draw(ctx) {
+                const opacity = this.life / this.maxLife;
+                ctx.globalAlpha = opacity * 0.6;
+
+                switch (this.type) {
+                    case 'smoke':
+                        ctx.fillStyle = '#888';
+                        ctx.fillRect(this.x, this.y, 20, 20);
+                        break;
+                    case 'dust':
+                        ctx.fillStyle = '#9a8a7a';
+                        ctx.fillRect(this.x, this.y, 15, 15);
+                        break;
+                    case 'ash':
+                        ctx.fillStyle = '#5a4a4a';
+                        ctx.fillRect(this.x, this.y, 10, 10);
+                        break;
+                    case 'rain':
+                        ctx.strokeStyle = '#6BB3D7';
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y);
+                        ctx.lineTo(this.x, this.y + 8);
+                        ctx.stroke();
+                        break;
+                    case 'snow':
+                        ctx.fillStyle = '#EEF';
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                        ctx.fill();
+                        break;
+                }
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        // Explosion effect
+        class Explosion {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.life = 40;
+                this.maxLife = 40;
+                this.radius = 0;
+            }
+
+            update() {
+                this.life -= 1;
+                this.radius = (1 - this.life / this.maxLife) * 80;
+            }
+
+            draw(ctx) {
+                const opacity = this.life / this.maxLife;
+                
+                // Outer flash
+                ctx.globalAlpha = opacity * 0.3;
+                ctx.fillStyle = '#FF6B1B';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Inner glow
+                ctx.globalAlpha = opacity * 0.6;
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        // Random explosion trigger
+        function triggerRandomExplosion() {
+            if (!state.features.explosions) return;
+            if (Math.random() > state.fire / 100) return;
+
+            const x = Math.random() * canvas.width * 0.7 + canvas.width * 0.15;
+            const y = Math.random() * (canvas.height * 0.4) + canvas.height * 0.3;
+            state.explosions.push(new Explosion(x, y));
+
+            // Create smoke and particles
+            for (let i = 0; i < 15; i++) {
+                const angle = (Math.PI * 2 * i) / 15;
+                const speed = 2 + Math.random() * 2;
+                state.particles.push(new Particle(
+                    x + Math.cos(angle) * 20,
+                    y + Math.sin(angle) * 20,
+                    Math.cos(angle) * speed,
+                    Math.sin(angle) * speed - 2,
+                    60 + Math.random() * 40,
+                    'smoke'
+                ));
+            }
+        }
+
+        // Create weather particles
+        function createWeatherParticles() {
+            state.weather_particles = [];
+            if (state.weather === 'clear' || state.weather === 'fog') return;
+
+            const particleCount = state.weather === 'stormy' ? 400 : 200;
+            for (let i = 0; i < particleCount; i++) {
+                const type = state.weather === 'snow' ? 'snow' : 'rain';
+                const y = Math.random() * canvas.height;
+                const x = Math.random() * canvas.width;
+                const vy = state.weather === 'snow' ? 1 + Math.random() : 4 + Math.random() * 2;
+                state.weather_particles.push(new Particle(x, y, state.windStrength * 0.5, vy, Infinity, type));
+            }
+        }
+
+        // Drawing functions
+        function drawSky() {
+            let skyColor = getTimeBasedColor();
+            const weatherTint = getWeatherTint();
+            
+            ctx.fillStyle = skyColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Apply weather tint
+            ctx.globalAlpha = 0.3;
+            ctx.fillStyle = weatherTint;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1;
+
+            // Sun or moon
+            drawCelestialBodies();
+
+            // Clouds
+            drawClouds();
+        }
+
+        function getTimeBasedColor() {
+            const time = state.time;
+            if (time >= 6 && time < 12) return '#87CEEB'; // morning blue
+            if (time >= 12 && time < 17) return '#87CEEB'; // noon blue
+            if (time >= 17 && time < 19) return '#FF9966'; // sunset
+            if (time >= 19 && time < 21) return '#654321'; // dusk
+            return '#1a1a2e'; // night
+        }
+
+        function getWeatherTint() {
+            switch (state.weather) {
+                case 'clear': return '#fff';
+                case 'overcast': return '#888';
+                case 'rainy': return '#5a5a7a';
+                case 'stormy': return '#3a3a5a';
+                case 'fog': return '#aaa';
+                default: return '#fff';
+            }
+        }
+
+        function drawCelestialBodies() {
+            const time = state.time;
+            
+            if (time >= 6 && time < 18) {
+                // Sun
+                const sunX = (time - 6) / 12 * canvas.width;
+                const sunY = canvas.height * 0.15;
+                const gradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 40);
+                gradient.addColorStop(0, 'rgba(255, 200, 0, 0.8)');
+                gradient.addColorStop(1, 'rgba(255, 150, 0, 0.2)');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(sunX, sunY, 40, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Moon
+                const moonX = canvas.width * 0.2;
+                const moonY = canvas.height * 0.1;
+                ctx.fillStyle = '#e0e0e0';
+                ctx.beginPath();
+                ctx.arc(moonX, moonY, 30, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#1a1a2e';
+                ctx.beginPath();
+                ctx.arc(moonX + 10, moonY, 30, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawClouds() {
+            if (state.weather === 'clear') return;
+
+            ctx.fillStyle = state.weather === 'stormy' ? '#555' : '#ddd';
+            const cloudCount = state.weather === 'stormy' ? 8 : 4;
+
+            for (let i = 0; i < cloudCount; i++) {
+                const x = (frameCount * 0.3 + i * 150) % (canvas.width + 300) - 150;
+                const y = 50 + i * 40;
+                drawCloud(x, y, 100 + i * 20);
+            }
+        }
+
+        function drawCloud(x, y, width) {
+            ctx.beginPath();
+            ctx.arc(x, y, width * 0.3, 0, Math.PI * 2);
+            ctx.arc(x + width * 0.25, y - width * 0.1, width * 0.4, 0, Math.PI * 2);
+            ctx.arc(x + width * 0.5, y, width * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawGround() {
+            const groundY = canvas.height * 0.6;
+
+            // Grass/mud base
+            if (state.ground === 'grass') {
+                ctx.fillStyle = getSeasonColor();
+            } else if (state.ground === 'mud') {
+                ctx.fillStyle = '#5a4a3a';
+            } else if (state.ground === 'snow') {
+                ctx.fillStyle = '#f5f5f0';
+            }
+
+            ctx.fillRect(0, groundY, canvas.width, canvas.height);
+
+            // Draw terrain details
+            drawTerrainDetails(groundY);
+
+            // Draw destruction
+            if (state.destruction !== 'minimal') {
+                drawBattleDestructionFeatures(groundY);
+            }
+
+            // Draw structures
+            drawRuins(groundY);
+
+            // Draw fortifications
+            drawFortifications(groundY);
+        }
+
+        function getSeasonColor() {
+            switch (state.season) {
+                case 'spring': return '#5a8a3a';
+                case 'summer': return '#4a7c2c';
+                case 'autumn': return '#8a7a3a';
+                case 'winter': return '#8a9aaa';
+                default: return '#4a7c2c';
+            }
+        }
+
+        function drawTerrainDetails(groundY) {
+            // Hedgerows (bocage terrain)
+            ctx.fillStyle = 'rgba(30, 100, 20, 0.5)';
+            const hedgePositions = [
+                { x: 0, y: groundY + 30, w: canvas.width * 0.15, h: 40 },
+                { x: canvas.width * 0.25, y: groundY + 60, w: canvas.width * 0.2, h: 35 },
+                { x: canvas.width * 0.6, y: groundY + 20, w: canvas.width * 0.25, h: 50 },
+                { x: canvas.width * 0.85, y: groundY + 40, w: canvas.width * 0.15, h: 45 }
+            ];
+
+            hedgePositions.forEach(h => {
+                ctx.fillRect(h.x, h.y, h.w, h.h);
+            });
+
+            // Shell craters
+            if (state.destruction !== 'minimal') {
+                drawShellCraters(groundY);
+            }
+        }
+
+        function drawShellCraters(groundY) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            const craterPositions = [
+                { x: 200, y: groundY + 100, r: 50 },
+                { x: 500, y: groundY + 80, r: 45 },
+                { x: 800, y: groundY + 120, r: 55 },
+                { x: 1100, y: groundY + 90, r: 40 },
+                { x: 1400, y: groundY + 110, r: 50 }
+            ];
+
+            craterPositions.forEach(c => {
+                ctx.beginPath();
+                ctx.ellipse(c.x, c.y, c.r, c.r * 0.4, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Crater shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.beginPath();
+                ctx.ellipse(c.x, c.y + 5, c.r * 0.8, c.r * 0.25, 0, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawBattleDestructionFeatures(groundY) {
+            // Barbed wire
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 2;
+
+            const wirePositions = [
+                { x1: 300, y1: groundY + 40, x2: 600, y2: groundY + 35 },
+                { x1: 700, y1: groundY + 50, x2: 1000, y2: groundY + 45 },
+                { x1: 1200, y1: groundY + 35, x2: 1500, y2: groundY + 40 }
+            ];
+
+            wirePositions.forEach(w => {
+                ctx.beginPath();
+                ctx.moveTo(w.x1, w.y1);
+                ctx.lineTo(w.x2, w.y2);
+                ctx.stroke();
+            });
+
+            // Anti-tank obstacles
+            if (state.destruction === 'heavy') {
+                drawAntiTankObstacles(groundY);
+            }
+        }
+
+        function drawAntiTankObstacles(groundY) {
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 3;
+
+            const obstacles = [
+                { x: 400, y: groundY + 60 },
+                { x: 700, y: groundY + 75 },
+                { x: 1000, y: groundY + 65 },
+                { x: 1300, y: groundY + 80 }
+            ];
+
+            obstacles.forEach(o => {
+                // Cross pattern (like anti-tank obstacles)
+                ctx.beginPath();
+                ctx.moveTo(o.x - 20, o.y - 30);
+                ctx.lineTo(o.x + 20, o.y + 30);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(o.x + 20, o.y - 30);
+                ctx.lineTo(o.x - 20, o.y + 30);
+                ctx.stroke();
+            });
+        }
+
+        function drawRuins(groundY) {
+            // Destroyed buildings
+            const ruinPositions = [
+                { x: 100, y: groundY - 80, w: 60, h: 80 },
+                { x: 1350, y: groundY - 70, w: 70, h: 70 }
+            ];
+
+            if (state.destruction !== 'minimal') {
+                ruinPositions.forEach(r => {
+                    // Ruined walls
+                    ctx.fillStyle = '#8a7a6a';
+                    ctx.fillRect(r.x, r.y, r.w, r.h);
+
+                    // Broken edges
+                    ctx.fillStyle = '#5a4a3a';
+                    for (let i = 0; i < r.w; i += 10) {
+                        ctx.fillRect(r.x + i, r.y - 5, 8, 5);
+                    }
+
+                    // Windows/damage
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(r.x + 10, r.y + 15, 12, 15);
+                    ctx.fillRect(r.x + 35, r.y + 15, 12, 15);
+
+                    // Rubble
+                    ctx.fillStyle = '#7a6a5a';
+                    for (let i = 0; i < 3; i++) {
+                        ctx.fillRect(r.x + Math.random() * r.w, r.y + r.h + 5, 15, 10);
+                    }
+                });
+            }
+        }
+
+        function drawFortifications(groundY) {
+            // Bunker/trench
+            const bunkerX = canvas.width * 0.7;
+            const bunkerY = groundY + 20;
+
+            ctx.fillStyle = '#4a4a3a';
+            ctx.fillRect(bunkerX, bunkerY, 100, 50);
+
+            // Gun emplacement opening
+            ctx.fillStyle = '#000';
+            ctx.fillRect(bunkerX + 35, bunkerY + 15, 30, 20);
+
+            // Sandbags
+            ctx.fillStyle = '#8a7a6a';
+            for (let i = 0; i < 5; i++) {
+                ctx.fillRect(bunkerX - 30 + i * 25, bunkerY - 10, 20, 12);
+            }
+        }
+
+        function drawVehicles(groundY) {
+            // Destroyed tanks/vehicles
+            const vehiclePositions = [
+                { x: 250, y: groundY + 30, burned: true },
+                { x: 950, y: groundY + 45, burned: false },
+                { x: 1250, y: groundY + 25, burned: true }
+            ];
+
+            if (state.destruction !== 'minimal') {
+                vehiclePositions.forEach(v => {
+                    drawDestroyedTank(v.x, v.y, v.burned);
+                });
+            }
+        }
+
+        function drawDestroyedTank(x, y, burned) {
+            // Tank hull
+            ctx.fillStyle = burned ? '#5a3a2a' : '#6a6a5a';
+            ctx.fillRect(x - 35, y - 20, 70, 40);
+
+            // Turret
+            ctx.beginPath();
+            ctx.ellipse(x, y - 15, 15, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Gun barrel
+            ctx.strokeStyle = burned ? '#4a2a1a' : '#555';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(x + 10, y - 15);
+            ctx.lineTo(x + 40, y - 20);
+            ctx.stroke();
+
+            if (burned) {
+                // Fire on tank
+                ctx.fillStyle = 'rgba(255, 100, 0, 0.5)';
+                ctx.fillRect(x - 30, y - 25, 60, 50);
+            }
+        }
+
+        function drawEffects() {
+            // Draw weather particles
+            state.weather_particles.forEach(p => {
+                p.update();
+                p.draw(ctx);
+
+                // Wrap around
+                if (p.y > canvas.height) {
+                    p.y = -10;
+                }
+                if (p.x > canvas.width) {
+                    p.x = -10;
+                }
+                if (p.x < -10) {
+                    p.x = canvas.width;
+                }
+            });
+
+            // Draw smoke particles
+            for (let i = state.particles.length - 1; i >= 0; i--) {
+                state.particles[i].update();
+                state.particles[i].draw(ctx);
+                if (state.particles[i].life <= 0) {
+                    state.particles.splice(i, 1);
+                }
+            }
+
+            // Draw explosions
+            for (let i = state.explosions.length - 1; i >= 0; i--) {
+                state.explosions[i].update();
+                state.explosions[i].draw(ctx);
+                if (state.explosions[i].life <= 0) {
+                    state.explosions.splice(i, 1);
+                }
+            }
+
+            // Smoke overlay for general atmosphere
+            ctx.fillStyle = `rgba(100, 100, 100, ${state.smoke / 500})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Visibility vignette
+            if (state.visibility < 100) {
+                const vignetteOpacity = (100 - state.visibility) / 200;
+                ctx.fillStyle = `rgba(0, 0, 0, ${vignetteOpacity})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Fog effect
+            if (state.weather === 'fog') {
+                ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Control event listeners
+        document.getElementById('time-slider').addEventListener('input', (e) => {
+            state.time = parseFloat(e.target.value);
+            const hours = Math.floor(state.time);
+            const mins = Math.round((state.time % 1) * 60);
+            document.getElementById('time-value').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+        });
+
+        document.getElementById('smoke-slider').addEventListener('input', (e) => {
+            state.smoke = parseInt(e.target.value);
+            document.getElementById('smoke-value').textContent = state.smoke + '%';
+        });
+
+        document.getElementById('fire-slider').addEventListener('input', (e) => {
+            state.fire = parseInt(e.target.value);
+            document.getElementById('fire-value').textContent = state.fire + '%';
+        });
+
+        document.getElementById('visibility-slider').addEventListener('input', (e) => {
+            state.visibility = parseInt(e.target.value);
+            document.getElementById('visibility-value').textContent = state.visibility + '%';
+        });
+
+        document.getElementById('wind-strength-slider').addEventListener('input', (e) => {
+            state.windStrength = parseInt(e.target.value);
+            const strengths = ['Calm', 'Light', 'Moderate', 'Strong'];
+            document.getElementById('wind-strength-value').textContent = strengths[state.windStrength];
+            createWeatherParticles();
+        });
+
+        // Weather buttons
+        document.querySelectorAll('[data-weather]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-weather]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                state.weather = this.dataset.weather;
+                createWeatherParticles();
+            });
+        });
+
+        // Ground state buttons
+        document.querySelectorAll('[data-ground]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-ground]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                state.ground = this.dataset.ground;
+            });
+        });
+
+        // Destruction level buttons
+        document.querySelectorAll('[data-destruction]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-destruction]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                state.destruction = this.dataset.destruction;
+            });
+        });
+
+        // Season buttons
+        document.querySelectorAll('[data-season]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-season]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                state.season = this.dataset.season;
+            });
+        });
+
+        // Feature toggles
+        document.getElementById('birds-btn').addEventListener('click', function() {
+            state.features.birds = !state.features.birds;
+            this.classList.toggle('active');
+        });
+
+        document.getElementById('wind-btn').addEventListener('click', function() {
+            state.features.wind = !state.features.wind;
+            this.classList.toggle('active');
+            if (!state.features.wind) state.windStrength = 0;
+            createWeatherParticles();
+        });
+
+        document.getElementById('explosions-btn').addEventListener('click', function() {
+            state.features.explosions = !state.features.explosions;
+            this.classList.toggle('active');
+        });
+
+        // Panel collapse
+        document.getElementById('collapse-btn').addEventListener('click', function() {
+            const content = document.getElementById('controls-content');
+            content.classList.toggle('collapsed');
+            this.textContent = content.classList.contains('collapsed') ? '+' : '−';
+        });
+
+        // Reset button
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            state.time = 6;
+            state.weather = 'clear';
+            state.ground = 'grass';
+            state.smoke = 30;
+            state.fire = 40;
+            state.visibility = 100;
+            state.destruction = 'moderate';
+            state.season = 'summer';
+            state.windStrength = 1;
+            state.features.birds = true;
+            state.features.wind = true;
+            state.features.explosions = true;
+
+            // Update UI
+            document.getElementById('time-slider').value = 6;
+            document.getElementById('time-value').textContent = '06:00';
+            document.getElementById('smoke-slider').value = 30;
+            document.getElementById('smoke-value').textContent = '30%';
+            document.getElementById('fire-slider').value = 40;
+            document.getElementById('fire-value').textContent = '40%';
+            document.getElementById('visibility-slider').value = 100;
+            document.getElementById('visibility-value').textContent = '100%';
+            document.getElementById('wind-strength-slider').value = 1;
+            document.getElementById('wind-strength-value').textContent = 'Light';
+
+            document.querySelectorAll('[data-weather]').forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-weather="clear"]').classList.add('active');
+            document.querySelectorAll('[data-ground]').forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-ground="grass"]').classList.add('active');
+            document.querySelectorAll('[data-destruction]').forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-destruction="moderate"]').classList.add('active');
+            document.querySelectorAll('[data-season]').forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-season="summer"]').classList.add('active');
+
+            document.getElementById('birds-btn').classList.add('active');
+            document.getElementById('wind-btn').classList.add('active');
+            document.getElementById('explosions-btn').classList.add('active');
+
+            createWeatherParticles();
+        });
+
+        // Animation loop
+        function animate() {
+            frameCount++;
+
+            // Clear canvas
+            drawSky();
+            drawGround();
+            drawVehicles(canvas.height * 0.6);
+            drawEffects();
+
+            // Trigger random explosions
+            if (frameCount % 20 === 0) {
+                triggerRandomExplosion();
+            }
+
+            // Create ambient particles from destruction
+            if (frameCount % 15 === 0 && state.destruction !== 'minimal') {
+                const dustX = Math.random() * canvas.width * 0.8 + canvas.width * 0.1;
+                const dustY = canvas.height * 0.4 + Math.random() * canvas.height * 0.2;
+                state.particles.push(new Particle(
+                    dustX, dustY,
+                    (Math.random() - 0.5) * 2,
+                    Math.random() * 0.5 - 1.5,
+                    100 + Math.random() * 60,
+                    'dust'
+                ));
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Initialize
+        createWeatherParticles();
+        animate();
+    </script>
+</body>
+</html>
