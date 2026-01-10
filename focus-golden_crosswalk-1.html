@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golden Hour Crosswalk</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #ff9a56, #ffb347, #ffd700);
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            min-width: 250px;
+            max-height: 90vh;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .controls.hidden {
+            transform: translateX(300px);
+        }
+
+        .controls h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 2px solid #ffb347;
+            padding-bottom: 8px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #ffb347;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 35px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #ffb347;
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #ff9a56;
+        }
+
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 999;
+            backdrop-filter: blur(10px);
+        }
+
+        .value-display {
+            display: inline-block;
+            float: right;
+            font-size: 12px;
+            color: #fff;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid #ffb347;
+            cursor: pointer;
+        }
+
+        select option {
+            background: #222;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <button class="toggle-btn" onclick="toggleControls()">⚙️ Controls</button>
+    
+    <div class="controls" id="controls">
+        <h3>Golden Hour Settings</h3>
+        
+        <div class="control-group">
+            <label>Scene Type</label>
+            <select id="sceneType" onchange="changeScene()">
+                <option value="urban">Urban Crosswalk</option>
+                <option value="downtown">Downtown Intersection</option>
+                <option value="suburban">Suburban Street</option>
+                <option value="minimal">Minimal Zen</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Sun Intensity <span class="value-display" id="sunValue">0.8</span></label>
+            <input type="range" id="sunIntensity" min="0.3" max="1" step="0.1" value="0.8" oninput="updateSun()">
+        </div>
+
+        <div class="control-group">
+            <label>Animation Speed <span class="value-display" id="speedValue">1.0x</span></label>
+            <input type="range" id="animSpeed" min="0.2" max="3" step="0.1" value="1" oninput="updateSpeed()">
+        </div>
+
+        <div class="control-group">
+            <label>Pedestrian Frequency <span class="value-display" id="pedValue">5</span></label>
+            <input type="range" id="pedFreq" min="1" max="10" step="1" value="5" oninput="updatePedFreq()">
+        </div>
+
+        <div class="control-group">
+            <label>Sky Color (Top)</label>
+            <input type="color" id="skyColorTop" value="#ff9a56" onchange="updateColors()">
+        </div>
+
+        <div class="control-group">
+            <label>Sky Color (Bottom)</label>
+            <input type="color" id="skyColorBottom" value="#ffd700" onchange="updateColors()">
+        </div>
+
+        <div class="control-group">
+            <label>Shadow Opacity <span class="value-display" id="shadowValue">0.6</span></label>
+            <input type="range" id="shadowOpacity" min="0" max="1" step="0.1" value="0.6" oninput="updateShadow()">
+        </div>
+
+        <div class="control-group">
+            <label>Building Height <span class="value-display" id="buildingValue">200</span></label>
+            <input type="range" id="buildingHeight" min="100" max="400" step="20" value="200" oninput="updateBuildings()">
+        </div>
+
+        <button onclick="toggleClouds()">Toggle Clouds</button>
+        <button onclick="toggleSignal()">Toggle Signal Animation</button>
+        <button onclick="resetSettings()">Reset All Settings</button>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let settings = {
+            sunIntensity: 0.8,
+            animSpeed: 1.0,
+            pedFrequency: 5,
+            skyColorTop: '#ff9a56',
+            skyColorBottom: '#ffd700',
+            shadowOpacity: 0.6,
+            buildingHeight: 200,
+            sceneType: 'urban',
+            showClouds: true,
+            signalAnimating: true
+        };
+
+        let animationTime = 0;
+        let pedestrians = [];
+        let signalState = 'walk';
+        let signalTimer = 0;
+        let clouds = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        function initClouds() {
+            clouds = [];
+            for (let i = 0; i < 5; i++) {
+                clouds.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.3,
+                    size: 40 + Math.random() * 60,
+                    speed: 0.1 + Math.random() * 0.3
+                });
+            }
+        }
+
+        initClouds();
+
+        class Pedestrian {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() > 0.5 ? -50 : canvas.width + 50;
+                this.y = canvas.height * 0.7 + Math.random() * 50;
+                this.speed = (1 + Math.random() * 2) * settings.animSpeed;
+                this.size = 15 + Math.random() * 10;
+                this.direction = this.x < 0 ? 1 : -1;
+                this.color = `hsl(${Math.random() * 360}, 50%, 40%)`;
+                this.walkCycle = Math.random() * Math.PI * 2;
+            }
+
+            update() {
+                this.x += this.speed * this.direction;
+                this.walkCycle += 0.15 * settings.animSpeed;
+
+                if ((this.direction > 0 && this.x > canvas.width + 50) ||
+                    (this.direction < 0 && this.x < -50)) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                // Shadow
+                ctx.fillStyle = `rgba(0, 0, 0, ${settings.shadowOpacity * 0.3})`;
+                ctx.beginPath();
+                ctx.ellipse(0, this.size + 5, this.size * 0.8, this.size * 0.3, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Body
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.size * 0.3, -this.size, this.size * 0.6, this.size * 1.2);
+
+                // Head
+                ctx.beginPath();
+                ctx.arc(0, -this.size * 1.3, this.size * 0.4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Legs (walking animation)
+                const legSwing = Math.sin(this.walkCycle) * this.size * 0.3;
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = this.size * 0.2;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(-legSwing, this.size * 0.6);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(legSwing, this.size * 0.6);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+        }
+
+        function drawGradientSky() {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, settings.skyColorTop);
+            gradient.addColorStop(0.5, settings.skyColorBottom);
+            gradient.addColorStop(1, '#ffedd5');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawSun() {
+            const sunX = canvas.width * 0.85;
+            const sunY = canvas.height * 0.15;
+            const sunRadius = 60;
+
+            // Sun glow
+            const glowGradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunRadius * 3);
+            glowGradient.addColorStop(0, `rgba(255, 200, 100, ${settings.sunIntensity * 0.3})`);
+            glowGradient.addColorStop(0.5, `rgba(255, 180, 80, ${settings.sunIntensity * 0.1})`);
+            glowGradient.addColorStop(1, 'rgba(255, 160, 60, 0)');
+            ctx.fillStyle = glowGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Sun
+            const sunGradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunRadius);
+            sunGradient.addColorStop(0, `rgba(255, 255, 200, ${settings.sunIntensity})`);
+            sunGradient.addColorStop(1, `rgba(255, 180, 100, ${settings.sunIntensity * 0.8})`);
+            ctx.fillStyle = sunGradient;
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawClouds() {
+            if (!settings.showClouds) return;
+
+            ctx.save();
+            clouds.forEach(cloud => {
+                cloud.x += cloud.speed * settings.animSpeed;
+                if (cloud.x > canvas.width + 100) cloud.x = -100;
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath();
+                ctx.arc(cloud.x, cloud.y, cloud.size, 0, Math.PI * 2);
+                ctx.arc(cloud.x + cloud.size * 0.5, cloud.y, cloud.size * 0.8, 0, Math.PI * 2);
+                ctx.arc(cloud.x - cloud.size * 0.5, cloud.y, cloud.size * 0.7, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.restore();
+        }
+
+        function drawBuildings() {
+            const buildingCount = settings.sceneType === 'minimal' ? 2 : 5;
+            const buildingWidth = canvas.width / buildingCount;
+
+            for (let i = 0; i < buildingCount; i++) {
+                const x = i * buildingWidth;
+                const height = settings.buildingHeight + Math.sin(i * 1.5) * 80;
+                const y = canvas.height * 0.5 - height;
+
+                // Building
+                ctx.fillStyle = `rgba(80, 60, 50, 0.8)`;
+                ctx.fillRect(x, y, buildingWidth - 5, height);
+
+                // Windows
+                const windowRows = Math.floor(height / 30);
+                const windowCols = Math.floor(buildingWidth / 40);
+                ctx.fillStyle = `rgba(255, 220, 150, ${settings.sunIntensity * 0.6})`;
+                for (let row = 0; row < windowRows; row++) {
+                    for (let col = 0; col < windowCols; col++) {
+                        if (Math.random() > 0.3) {
+                            const wx = x + col * 40 + 10;
+                            const wy = y + row * 30 + 10;
+                            ctx.fillRect(wx, wy, 15, 20);
+                        }
+                    }
+                }
+
+                // Long shadow
+                ctx.save();
+                ctx.fillStyle = `rgba(0, 0, 0, ${settings.shadowOpacity})`;
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height * 0.5);
+                ctx.lineTo(x + buildingWidth - 5, canvas.height * 0.5);
+                ctx.lineTo(x + buildingWidth - 5 + height * 1.5, canvas.height);
+                ctx.lineTo(x + height * 1.5, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function drawRoad() {
+            const roadY = canvas.height * 0.5;
+            const roadHeight = canvas.height * 0.5;
+
+            // Road
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, roadY, canvas.width, roadHeight);
+
+            // Road lines
+            ctx.strokeStyle = '#ffcc00';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([30, 20]);
+            ctx.beginPath();
+            ctx.moveTo(0, roadY + roadHeight * 0.5);
+            ctx.lineTo(canvas.width, roadY + roadHeight * 0.5);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function drawCrosswalk() {
+            const roadY = canvas.height * 0.5;
+            const stripeWidth = 60;
+            const stripeHeight = canvas.height * 0.3;
+            const startY = roadY + canvas.height * 0.1;
+            const centerX = canvas.width * 0.5;
+
+            // Crosswalk stripes
+            ctx.fillStyle = 'white';
+            for (let i = -4; i <= 4; i++) {
+                const x = centerX + i * (stripeWidth + 15);
+                ctx.fillRect(x, startY, stripeWidth, stripeHeight);
+
+                // Stripe shadows
+                ctx.fillStyle = `rgba(0, 0, 0, ${settings.shadowOpacity})`;
+                ctx.beginPath();
+                ctx.moveTo(x + stripeWidth, startY);
+                ctx.lineTo(x + stripeWidth + stripeHeight * 0.8, startY + stripeHeight);
+                ctx.lineTo(x + stripeHeight * 0.8, startY + stripeHeight);
+                ctx.lineTo(x, startY);
+                ctx.fill();
+                ctx.fillStyle = 'white';
+            }
+        }
+
+        function drawPedestrianSignal() {
+            const signalX = canvas.width * 0.2;
+            const signalY = canvas.height * 0.55;
+
+            // Signal post
+            ctx.fillStyle = '#444';
+            ctx.fillRect(signalX - 5, signalY, 10, canvas.height * 0.15);
+
+            // Signal box
+            ctx.fillStyle = '#222';
+            ctx.fillRect(signalX - 30, signalY - 80, 60, 80);
+
+            // Signal lights
+            if (signalState === 'walk') {
+                ctx.fillStyle = '#00ff00';
+                ctx.font = 'bold 30px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('WALK', signalX, signalY - 30);
+            } else {
+                ctx.fillStyle = '#ff0000';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText("DON'T", signalX, signalY - 45);
+                ctx.fillText('WALK', signalX, signalY - 20);
+            }
+
+            // Countdown timer
+            const countdown = Math.ceil((5 - (signalTimer % 5)) * settings.animSpeed);
+            ctx.fillStyle = '#ffaa00';
+            ctx.font = 'bold 25px Arial';
+            ctx.fillText(countdown, signalX, signalY - 5);
+        }
+
+        function updateSignal() {
+            if (!settings.signalAnimating) return;
+
+            signalTimer += 0.016 * settings.animSpeed;
+            if (signalTimer >= 5) {
+                signalTimer = 0;
+                signalState = signalState === 'walk' ? 'dont-walk' : 'walk';
+            }
+        }
+
+        function animate() {
+            drawGradientSky();
+            drawSun();
+            drawClouds();
+            drawBuildings();
+            drawRoad();
+            drawCrosswalk();
+            drawPedestrianSignal();
+
+            // Update and draw pedestrians
+            while (pedestrians.length < settings.pedFrequency) {
+                pedestrians.push(new Pedestrian());
+            }
+            while (pedestrians.length > settings.pedFrequency) {
+                pedestrians.pop();
+            }
+
+            pedestrians.forEach(ped => {
+                ped.update();
+                ped.draw();
+            });
+
+            updateSignal();
+            animationTime += 0.016 * settings.animSpeed;
+            requestAnimationFrame(animate);
+        }
+
+        // Control functions
+        function toggleControls() {
+            document.getElementById('controls').classList.toggle('hidden');
+        }
+
+        function updateSun() {
+            settings.sunIntensity = parseFloat(document.getElementById('sunIntensity').value);
+            document.getElementById('sunValue').textContent = settings.sunIntensity.toFixed(1);
+        }
+
+        function updateSpeed() {
+            settings.animSpeed = parseFloat(document.getElementById('animSpeed').value);
+            document.getElementById('speedValue').textContent = settings.animSpeed.toFixed(1) + 'x';
+        }
+
+        function updatePedFreq() {
+            settings.pedFrequency = parseInt(document.getElementById('pedFreq').value);
+            document.getElementById('pedValue').textContent = settings.pedFrequency;
+        }
+
+        function updateColors() {
+            settings.skyColorTop = document.getElementById('skyColorTop').value;
+            settings.skyColorBottom = document.getElementById('skyColorBottom').value;
+        }
+
+        function updateShadow() {
+            settings.shadowOpacity = parseFloat(document.getElementById('shadowOpacity').value);
+            document.getElementById('shadowValue').textContent = settings.shadowOpacity.toFixed(1);
+        }
+
+        function updateBuildings() {
+            settings.buildingHeight = parseInt(document.getElementById('buildingHeight').value);
+            document.getElementById('buildingValue').textContent = settings.buildingHeight;
+        }
+
+        function changeScene() {
+            settings.sceneType = document.getElementById('sceneType').value;
+            
+            switch(settings.sceneType) {
+                case 'downtown':
+                    settings.buildingHeight = 350;
+                    settings.pedFrequency = 8;
+                    break;
+                case 'suburban':
+                    settings.buildingHeight = 150;
+                    settings.pedFrequency = 3;
+                    break;
+                case 'minimal':
+                    settings.buildingHeight = 200;
+                    settings.pedFrequency = 2;
+                    break;
+                default:
+                    settings.buildingHeight = 200;
+                    settings.pedFrequency = 5;
+            }
+            
+            document.getElementById('buildingHeight').value = settings.buildingHeight;
+            document.getElementById('pedFreq').value = settings.pedFrequency;
+            updateBuildings();
+            updatePedFreq();
+        }
+
+        function toggleClouds() {
+            settings.showClouds = !settings.showClouds;
+        }
+
+        function toggleSignal() {
+            settings.signalAnimating = !settings.signalAnimating;
+        }
+
+        function resetSettings() {
+            settings = {
+                sunIntensity: 0.8,
+                animSpeed: 1.0,
+                pedFrequency: 5,
+                skyColorTop: '#ff9a56',
+                skyColorBottom: '#ffd700',
+                shadowOpacity: 0.6,
+                buildingHeight: 200,
+                sceneType: 'urban',
+                showClouds: true,
+                signalAnimating: true
+            };
+
+            document.getElementById('sunIntensity').value = 0.8;
+            document.getElementById('animSpeed').value = 1.0;
+            document.getElementById('pedFreq').value = 5;
+            document.getElementById('skyColorTop').value = '#ff9a56';
+            document.getElementById('skyColorBottom').value = '#ffd700';
+            document.getElementById('shadowOpacity').value = 0.6;
+            document.getElementById('buildingHeight').value = 200;
+            document.getElementById('sceneType').value = 'urban';
+
+            updateSun();
+            updateSpeed();
+            updatePedFreq();
+            updateShadow();
+            updateBuildings();
+        }
+
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
