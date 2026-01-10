@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calming WW2 Battlefield - France</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #121212;
+            color: #e0e0e0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 15px;
+            background: rgba(20, 20, 20, 0.8);
+            border-bottom: 1px solid #444;
+            z-index: 100;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            color: #d4b483;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #aaa;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Scenery Styles */
+        .scenery {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            transition: all 1.5s ease;
+        }
+
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70%;
+            transition: all 2s ease;
+        }
+
+        .horizon {
+            position: absolute;
+            bottom: 30%;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .landscape {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70%;
+            background: linear-gradient(to top, #2a2a2a, #3a3a3a);
+            transition: all 2s ease;
+        }
+
+        .sun-moon {
+            position: absolute;
+            border-radius: 50%;
+            transition: all 2s ease;
+            box-shadow: 0 0 40px rgba(255, 255, 200, 0.7);
+        }
+
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 40%;
+            top: 10%;
+            opacity: 0.7;
+            transition: all 2s ease;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            opacity: 0.9;
+        }
+
+        .fog {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        .rain, .snow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .raindrop, .snowflake {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+        }
+
+        .snowflake {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Battlefield Elements */
+        .trench {
+            position: absolute;
+            bottom: 25%;
+            left: 10%;
+            width: 80%;
+            height: 8%;
+            background: #5a4a3a;
+            border-radius: 5px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .barbed-wire {
+            position: absolute;
+            bottom: 33%;
+            left: 5%;
+            width: 90%;
+            height: 2px;
+            background: repeating-linear-gradient(
+                to right,
+                #888 0,
+                #888 10px,
+                transparent 10px,
+                transparent 20px
+            );
+        }
+
+        .ruined-building {
+            position: absolute;
+            bottom: 30%;
+            right: 15%;
+            width: 15%;
+            height: 25%;
+            background: #6b5a4a;
+            clip-path: polygon(0% 100%, 20% 0%, 80% 0%, 100% 100%);
+        }
+
+        .ruined-building::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            width: 60%;
+            height: 40%;
+            background: #4a3a2a;
+        }
+
+        .tank {
+            position: absolute;
+            bottom: 30%;
+            left: 20%;
+            width: 12%;
+            height: 10%;
+            background: #4a4a3a;
+            border-radius: 5px;
+            transform: rotate(-10deg);
+        }
+
+        .tank::after {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: 30%;
+            width: 40%;
+            height: 40%;
+            background: #4a4a3a;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .tank::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: 35%;
+            width: 30%;
+            height: 30%;
+            background: #3a3a2a;
+            border-radius: 3px;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 30%;
+            width: 4%;
+            height: 20%;
+            background: #3a2a1a;
+            border-radius: 2px;
+        }
+
+        .tree::after {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: -150%;
+            width: 400%;
+            height: 300%;
+            background: #2a5a2a;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            border-radius: 50% 50% 0 0;
+        }
+
+        .tree.broken::after {
+            clip-path: polygon(50% 0%, 0% 50%, 100% 50%);
+            height: 150%;
+        }
+
+        .crater {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, #3a3a3a 30%, #2a2a2a 70%);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            width: 350px;
+            background: rgba(30, 30, 30, 0.95);
+            border-left: 1px solid #555;
+            padding: 20px;
+            overflow-y: auto;
+            transition: transform 0.5s ease;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .settings-panel.hidden {
+            transform: translateX(100%);
+        }
+
+        .settings-toggle {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            background: rgba(30, 30, 30, 0.9);
+            border: 1px solid #555;
+            border-right: none;
+            border-radius: 10px 0 0 10px;
+            padding: 15px 10px;
+            cursor: pointer;
+            color: #d4b483;
+            font-size: 1.5rem;
+            z-index: 10;
+        }
+
+        .settings-toggle:hover {
+            background: rgba(40, 40, 40, 0.9);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #555;
+        }
+
+        .settings-header h2 {
+            color: #d4b483;
+            font-size: 1.5rem;
+        }
+
+        .close-settings {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .close-settings:hover {
+            color: #fff;
+        }
+
+        .settings-group {
+            margin-bottom: 25px;
+        }
+
+        .settings-group h3 {
+            margin-bottom: 15px;
+            color: #b8a27a;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-group h3 i {
+            width: 25px;
+        }
+
+        .control {
+            margin-bottom: 15px;
+        }
+
+        .control label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slider-value {
+            min-width: 40px;
+            text-align: center;
+            color: #d4b483;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: #444;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #d4b483;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            background: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: #d4b483;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        .reset-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: #5a4a3a;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .reset-button:hover {
+            background: #6b5a4a;
+        }
+
+        .time-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            color: #d4b483;
+            border: 1px solid rgba(212, 180, 131, 0.3);
+            z-index: 5;
+        }
+
+        .footnote {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.9rem;
+            color: #777;
+            background: rgba(20, 20, 20, 0.8);
+            border-top: 1px solid #444;
+            z-index: 100;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .settings-panel {
+                width: 100%;
+                height: 50%;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                border-left: none;
+                border-top: 1px solid #555;
+            }
+            
+            .settings-panel.hidden {
+                transform: translateY(100%);
+            }
+            
+            .settings-toggle {
+                top: auto;
+                bottom: 0;
+                right: 50%;
+                transform: translateX(50%);
+                border: 1px solid #555;
+                border-bottom: none;
+                border-radius: 10px 10px 0 0;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Calming WW2 Battlefield - France</h1>
+        <p class="subtitle">A peaceful, reflective view of a historical battlefield with customizable time, weather, and visual effects. Use the settings panel to transform the scene.</p>
+    </div>
+
+    <div class="container">
+        <!-- Scenery Container -->
+        <div class="scenery" id="scenery">
+            <!-- Sky elements -->
+            <div class="sky" id="sky"></div>
+            <div class="horizon"></div>
+            
+            <!-- Sun/Moon -->
+            <div class="sun-moon" id="sun-moon"></div>
+            
+            <!-- Clouds -->
+            <div class="clouds" id="clouds"></div>
+            
+            <!-- Weather effects -->
+            <div class="fog" id="fog"></div>
+            <div class="rain" id="rain"></div>
+            <div class="snow" id="snow"></div>
+            
+            <!-- Landscape -->
+            <div class="landscape" id="landscape">
+                <!-- Battlefield elements added via JS -->
+            </div>
+            
+            <!-- Time display -->
+            <div class="time-display" id="time-display">Afternoon: 3:45 PM</div>
+        </div>
+        
+        <!-- Settings Panel -->
+        <div class="settings-toggle" id="settings-toggle">
+            <i class="fas fa-cog"></i>
+        </div>
+        
+        <div class="settings-panel" id="settings-panel">
+            <div class="settings-header">
+                <h2>Scene Settings</h2>
+                <button class="close-settings" id="close-settings">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Time of Day Settings -->
+            <div class="settings-group">
+                <h3><i class="fas fa-clock"></i> Time of Day</h3>
+                <div class="control">
+                    <label for="time-select">Select Time</label>
+                    <select id="time-select">
+                        <option value="morning">Morning (6:00 AM)</option>
+                        <option value="afternoon" selected>Afternoon (3:00 PM)</option>
+                        <option value="evening">Evening (7:00 PM)</option>
+                        <option value="night">Night (11:00 PM)</option>
+                        <option value="dawn">Dawn (5:30 AM)</option>
+                        <option value="dusk">Dusk (8:30 PM)</option>
+                    </select>
+                </div>
+                
+                <div class="control">
+                    <label for="time-slider">Time Adjustment</label>
+                    <div class="slider-container">
+                        <input type="range" id="time-slider" min="0" max="23" step="0.5" value="15">
+                        <span class="slider-value" id="time-value">15:00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Weather Settings -->
+            <div class="settings-group">
+                <h3><i class="fas fa-cloud"></i> Weather Conditions</h3>
+                <div class="control">
+                    <label for="weather-select">Weather Type</label>
+                    <select id="weather-select">
+                        <option value="clear">Clear</option>
+                        <option value="cloudy" selected>Partly Cloudy</option>
+                        <option value="rainy">Rainy</option>
+                        <option value="stormy">Stormy</option>
+                        <option value="snowy">Snowy</option>
+                        <option value="foggy">Foggy</option>
+                    </select>
+                </div>
+                
+                <div class="control">
+                    <label for="cloud-slider">Cloud Density</label>
+                    <div class="slider-container">
+                        <input type="range" id="cloud-slider" min="0" max="100" value="40">
+                        <span class="slider-value" id="cloud-value">40%</span>
+                    </div>
+                </div>
+                
+                <div class="control">
+                    <label for="fog-slider">Fog Intensity</label>
+                    <div class="slider-container">
+                        <input type="range" id="fog-slider" min="0" max="100" value="10">
+                        <span class="slider-value" id="fog-value">10%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Visual Effects -->
+            <div class="settings-group">
+                <h3><i class="fas fa-eye"></i> Visual Effects</h3>
+                
+                <div class="control">
+                    <label for="lighting-slider">Ambient Lighting</label>
+                    <div class="slider-container">
+                        <input type="range" id="lighting-slider" min="10" max="100" value="70">
+                        <span class="slider-value" id="lighting-value">70%</span>
+                    </div>
+                </div>
+                
+                <div class="control">
+                    <label for="animation-slider">Animation Speed</label>
+                    <div class="slider-container">
+                        <input type="range" id="animation-slider" min="0" max="200" value="100">
+                        <span class="slider-value" id="animation-value">100%</span>
+                    </div>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show-stars" checked>
+                    <label for="show-stars">Show Stars at Night</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show-ruins" checked>
+                    <label for="show-ruins">Show Ruins</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show-trenches" checked>
+                    <label for="show-trenches">Show Trenches</label>
+                </div>
+            </div>
+            
+            <button class="reset-button" id="reset-button">Reset to Default Settings</button>
+        </div>
+    </div>
+    
+    <div class="footnote">
+        <p>This is a calming representation of a WW2 battlefield in France. The scene is designed for reflection and remembrance, not to glorify war.</p>
+    </div>
+
+    <script>
+        // DOM Elements
+        const scenery = document.getElementById('scenery');
+        const sky = document.getElementById('sky');
+        const sunMoon = document.getElementById('sun-moon');
+        const clouds = document.getElementById('clouds');
+        const fog = document.getElementById('fog');
+        const rain = document.getElementById('rain');
+        const snow = document.getElementById('snow');
+        const landscape = document.getElementById('landscape');
+        const timeDisplay = document.getElementById('time-display');
+        
+        // Settings elements
+        const settingsPanel = document.getElementById('settings-panel');
+        const settingsToggle = document.getElementById('settings-toggle');
+        const closeSettings = document.getElementById('close-settings');
+        const timeSelect = document.getElementById('time-select');
+        const timeSlider = document.getElementById('time-slider');
+        const timeValue = document.getElementById('time-value');
+        const weatherSelect = document.getElementById('weather-select');
+        const cloudSlider = document.getElementById('cloud-slider');
+        const cloudValue = document.getElementById('cloud-value');
+        const fogSlider = document.getElementById('fog-slider');
+        const fogValue = document.getElementById('fog-value');
+        const lightingSlider = document.getElementById('lighting-slider');
+        const lightingValue = document.getElementById('lighting-value');
+        const animationSlider = document.getElementById('animation-slider');
+        const animationValue = document.getElementById('animation-value');
+        const showStars = document.getElementById('show-stars');
+        const showRuins = document.getElementById('show-ruins');
+        const showTrenches = document.getElementById('show-trenches');
+        const resetButton = document.getElementById('reset-button');
+        
+        // Scene state
+        const sceneState = {
+            time: 15, // 24-hour format (15 = 3:00 PM)
+            timePreset: 'afternoon',
+            weather: 'cloudy',
+            cloudDensity: 40,
+            fogIntensity: 10,
+            ambientLight: 70,
+            animationSpeed: 100,
+            showStarsAtNight: true,
+            showRuins: true,
+            showTrenches: true
+        };
+        
+        // Time presets data
+        const timePresets = {
+            morning: { time: 6, label: "Morning" },
+            afternoon: { time: 15, label: "Afternoon" },
+            evening: { time: 19, label: "Evening" },
+            night: { time: 23, label: "Night" },
+            dawn: { time: 5.5, label: "Dawn" },
+            dusk: { time: 20.5, label: "Dusk" }
+        };
+        
+        // Initialize the scene
+        function initScene() {
+            createBattlefieldElements();
+            updateScene();
+            createClouds();
+            createRain();
+            createSnow();
+            
+            // Event listeners for settings
+            settingsToggle.addEventListener('click', toggleSettingsPanel);
+            closeSettings.addEventListener('click', toggleSettingsPanel);
+            
+            timeSelect.addEventListener('change', updateTimeFromSelect);
+            timeSlider.addEventListener('input', updateTimeFromSlider);
+            weatherSelect.addEventListener('change', updateWeather);
+            cloudSlider.addEventListener('input', updateClouds);
+            fogSlider.addEventListener('input', updateFog);
+            lightingSlider.addEventListener('input', updateLighting);
+            animationSlider.addEventListener('input', updateAnimation);
+            showStars.addEventListener('change', updateStars);
+            showRuins.addEventListener('change', updateRuins);
+            showTrenches.addEventListener('change', updateTrenches);
+            resetButton.addEventListener('click', resetSettings);
+            
+            // Update slider values display
+            timeSlider.value = sceneState.time;
+            updateTimeDisplay();
+            cloudSlider.value = sceneState.cloudDensity;
+            cloudValue.textContent = `${sceneState.cloudDensity}%`;
+            fogSlider.value = sceneState.fogIntensity;
+            fogValue.textContent = `${sceneState.fogIntensity}%`;
+            lightingSlider.value = sceneState.ambientLight;
+            lightingValue.textContent = `${sceneState.ambientLight}%`;
+            animationSlider.value = sceneState.animationSpeed;
+            animationValue.textContent = `${sceneState.animationSpeed}%`;
+            
+            // Start animation loop
+            requestAnimationFrame(animateScene);
+        }
+        
+        // Toggle settings panel visibility
+        function toggleSettingsPanel() {
+            settingsPanel.classList.toggle('hidden');
+        }
+        
+        // Create battlefield elements (trenches, ruins, etc.)
+        function createBattlefieldElements() {
+            // Clear existing elements (except weather effects)
+            const existingElements = landscape.querySelectorAll('.trench, .barbed-wire, .ruined-building, .tank, .tree, .crater');
+            existingElements.forEach(el => el.remove());
+            
+            // Add trenches
+            if (sceneState.showTrenches) {
+                const trench = document.createElement('div');
+                trench.className = 'trench';
+                landscape.appendChild(trench);
+                
+                const barbedWire = document.createElement('div');
+                barbedWire.className = 'barbed-wire';
+                landscape.appendChild(barbedWire);
+            }
+            
+            // Add ruined building
+            if (sceneState.showRuins) {
+                const ruinedBuilding = document.createElement('div');
+                ruinedBuilding.className = 'ruined-building';
+                landscape.appendChild(ruinedBuilding);
+            }
+            
+            // Add tank
+            const tank = document.createElement('div');
+            tank.className = 'tank';
+            landscape.appendChild(tank);
+            
+            // Add trees (some broken)
+            for (let i = 0; i < 8; i++) {
+                const tree = document.createElement('div');
+                tree.className = 'tree';
+                if (i % 3 === 0) tree.classList.add('broken');
+                
+                // Position trees at different locations
+                const left = 5 + (i * 12);
+                const bottom = 30 + (Math.random() * 10);
+                const height = 15 + (Math.random() * 10);
+                
+                tree.style.left = `${left}%`;
+                tree.style.bottom = `${bottom}%`;
+                tree.style.height = `${height}%`;
+                
+                landscape.appendChild(tree);
+            }
+            
+            // Add craters
+            for (let i = 0; i < 5; i++) {
+                const crater = document.createElement('div');
+                crater.className = 'crater';
+                
+                const size = 3 + (Math.random() * 4);
+                const left = 15 + (i * 15) + (Math.random() * 10);
+                const bottom = 25 + (Math.random() * 5);
+                
+                crater.style.width = `${size}%`;
+                crater.style.height = `${size * 0.7}%`;
+                crater.style.left = `${left}%`;
+                crater.style.bottom = `${bottom}%`;
+                
+                landscape.appendChild(crater);
+            }
+        }
+        
+        // Create cloud elements
+        function createClouds() {
+            clouds.innerHTML = '';
+            const cloudCount = Math.floor(sceneState.cloudDensity / 10);
+            
+            for (let i = 0; i < cloudCount; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                
+                const size = 50 + Math.random() * 100;
+                const top = 10 + Math.random() * 30;
+                const left = Math.random() * 100;
+                const opacity = 0.6 + Math.random() * 0.3;
+                const animationDuration = 30 + Math.random() * 40;
+                
+                cloud.style.width = `${size}px`;
+                cloud.style.height = `${size * 0.5}px`;
+                cloud.style.top = `${top}%`;
+                cloud.style.left = `${left}%`;
+                cloud.style.opacity = opacity;
+                cloud.style.animationDuration = `${animationDuration}s`;
+                
+                // Create cloud shape with multiple circles
+                cloud.innerHTML = `
+                    <div style="position:absolute; width:60%; height:80%; background:inherit; border-radius:50%; top:10%; left:5%;"></div>
+                    <div style="position:absolute; width:70%; height:90%; background:inherit; border-radius:50%; top:5%; left:25%;"></div>
+                    <div style="position:absolute; width:50%; height:70%; background:inherit; border-radius:50%; top:20%; left:60%;"></div>
+                `;
+                
+                clouds.appendChild(cloud);
+            }
+            
+            // Add CSS animation for clouds
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes cloudMove {
+                    from { transform: translateX(-100px); }
+                    to { transform: translateX(calc(100vw + 100px)); }
+                }
+                .cloud {
+                    animation: cloudMove linear infinite;
+                    animation-play-state: running;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Create rain particles
+        function createRain() {
+            rain.innerHTML = '';
+            if (sceneState.weather !== 'rainy' && sceneState.weather !== 'stormy') return;
+            
+            const rainCount = sceneState.weather === 'stormy' ? 300 : 150;
+            
+            for (let i = 0; i < rainCount; i++) {
+                const raindrop = document.createElement('div');
+                raindrop.className = 'raindrop';
+                
+                const left = Math.random() * 100;
+                const size = 1 + Math.random() * 2;
+                const animationDuration = 0.5 + Math.random() * 0.5;
+                const animationDelay = Math.random() * 2;
+                
+                raindrop.style.width = `${size}px`;
+                raindrop.style.height = `${size * 3}px`;
+                raindrop.style.left = `${left}%`;
+                raindrop.style.animationDuration = `${animationDuration}s`;
+                raindrop.style.animationDelay = `${animationDelay}s`;
+                
+                rain.appendChild(raindrop);
+            }
+            
+            // Add CSS animation for rain
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fall {
+                    from { transform: translateY(-100px); }
+                    to { transform: translateY(100vh); }
+                }
+                .raindrop {
+                    animation: fall linear infinite;
+                    animation-play-state: running;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Create snow particles
+        function createSnow() {
+            snow.innerHTML = '';
+            if (sceneState.weather !== 'snowy') return;
+            
+            const snowCount = 100;
+            
+            for (let i = 0; i < snowCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                
+                const left = Math.random() * 100;
+                const size = 2 + Math.random() * 4;
+                const animationDuration = 3 + Math.random() * 5;
+                const animationDelay = Math.random() * 5;
+                const opacity = 0.5 + Math.random() * 0.5;
+                
+                snowflake.style.width = `${size}px`;
+                snowflake.style.height = `${size}px`;
+                snowflake.style.left = `${left}%`;
+                snowflake.style.animationDuration = `${animationDuration}s`;
+                snowflake.style.animationDelay = `${animationDelay}s`;
+                snowflake.style.opacity = opacity;
+                
+                snow.appendChild(snowflake);
+            }
+            
+            // Add CSS animation for snow
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes snowFall {
+                    0% { transform: translateY(-100px) translateX(0); }
+                    100% { transform: translateY(100vh) translateX(100px); }
+                }
+                .snowflake {
+                    animation: snowFall linear infinite;
+                    animation-play-state: running;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Update the entire scene based on current state
+        function updateScene() {
+            updateTimeDisplay();
+            updateSky();
+            updateSunMoon();
+            updateWeatherEffects();
+            updateLighting();
+            updateAnimationSpeed();
+        }
+        
+        // Update time display
+        function updateTimeDisplay() {
+            const hour = Math.floor(sceneState.time);
+            const minute = (sceneState.time % 1) * 60;
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            const displayMinute = minute.toString().padStart(2, '0');
+            
+            // Find the current time preset
+            let presetName = 'Custom';
+            for (const [name, preset] of Object.entries(timePresets)) {
+                if (Math.abs(preset.time - sceneState.time) < 0.5) {
+                    presetName = preset.label;
+                    break;
+                }
+            }
+            
+            timeDisplay.textContent = `${presetName}: ${displayHour}:${displayMinute} ${ampm}`;
+            timeValue.textContent = `${hour.toString().padStart(2, '0')}:${displayMinute}`;
+        }
+        
+        // Update sky based on time and weather
+        function updateSky() {
+            let skyGradient = '';
+            
+            // Time-based sky colors
+            if (sceneState.time >= 5 && sceneState.time < 8) { // Dawn
+                skyGradient = 'linear-gradient(to bottom, #ff7e5f, #feb47b, #86a8e7, #5b86e5)';
+            } else if (sceneState.time >= 8 && sceneState.time < 17) { // Day
+                skyGradient = 'linear-gradient(to bottom, #87CEEB, #E0F7FF)';
+            } else if (sceneState.time >= 17 && sceneState.time < 20) { // Evening
+                skyGradient = 'linear-gradient(to bottom, #ff7e5f, #feb47b, #5b86e5)';
+            } else { // Night
+                skyGradient = 'linear-gradient(to bottom, #0a0a2a, #1a1a3a)';
+            }
+            
+            // Weather adjustments
+            if (sceneState.weather === 'cloudy' || sceneState.weather === 'rainy' || sceneState.weather === 'stormy') {
+                // Add gray tones for cloudy weather
+                if (sceneState.time >= 8 && sceneState.time < 20) {
+                    skyGradient = 'linear-gradient(to bottom, #a0a0a0, #c0c0c0, #d0d0d0)';
+                } else {
+                    skyGradient = 'linear-gradient(to bottom, #2a2a2a, #3a3a3a)';
+                }
+            } else if (sceneState.weather === 'foggy') {
+                skyGradient = 'linear-gradient(to bottom, #d0d0d0, #e0e0e0)';
+            } else if (sceneState.weather === 'snowy') {
+                skyGradient = 'linear-gradient(to bottom, #b0b0c0, #d0d0e0)';
+            }
+            
+            sky.style.background = skyGradient;
+            
+            // Add stars at night if enabled
+            if (sceneState.time >= 20 || sceneState.time < 6) {
+                if (sceneState.showStarsAtNight && sceneState.weather !== 'cloudy' && sceneState.weather !== 'rainy' && sceneState.weather !== 'stormy') {
+                    addStars();
+                } else {
+                    removeStars();
+                }
+            } else {
+                removeStars();
+            }
+        }
+        
+        // Add stars to the sky
+        function addStars() {
+            // Remove existing stars
+            removeStars();
+            
+            // Add new stars
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.style.position = 'absolute';
+                star.style.width = `${1 + Math.random() * 2}px`;
+                star.style.height = star.style.width;
+                star.style.backgroundColor = 'white';
+                star.style.borderRadius = '50%';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 60}%`;
+                star.style.opacity = `${0.5 + Math.random() * 0.5}`;
+                star.style.boxShadow = '0 0 5px white';
+                star.className = 'star';
+                
+                // Add twinkling animation
+                star.style.animation = `twinkle ${2 + Math.random() * 3}s infinite alternate`;
+                
+                sky.appendChild(star);
+            }
+            
+            // Add twinkling animation keyframes
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes twinkle {
+                    0% { opacity: 0.3; }
+                    100% { opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Remove stars from sky
+        function removeStars() {
+            const stars = sky.querySelectorAll('.star');
+            stars.forEach(star => star.remove());
+        }
+        
+        // Update sun/moon position and appearance
+        function updateSunMoon() {
+            // Calculate position based on time (0-24 hours)
+            const hour = sceneState.time;
+            let left, bottom, size, color, boxShadow;
+            
+            // Convert hour to angle (0-24 hours to 0-360 degrees)
+            // Sun rises in the east (left) and sets in the west (right)
+            const angle = ((hour - 6) / 24) * 360; // 6 AM = 0 degrees
+            const radians = (angle * Math.PI) / 180;
+            
+            // Calculate position along an arc
+            const radius = 40; // Percentage from center
+            left = 50 + radius * Math.cos(radians);
+            bottom = 30 + radius * Math.sin(radians);
+            
+            // Adjust for nighttime (moon)
+            if (hour >= 18 || hour < 6) {
+                // Moon
+                color = '#f0f0f0';
+                size = 40;
+                boxShadow = '0 0 30px rgba(240, 240, 240, 0.7)';
+                
+                // Add moon phases or craters
+                sunMoon.innerHTML = `
+                    <div style="position:absolute; width:80%; height:80%; background:#ddd; border-radius:50%; top:10%; left:10%;"></div>
+                    <div style="position:absolute; width:30%; height:30%; background:#ccc; border-radius:50%; top:30%; left:20%;"></div>
+                    <div style="position:absolute; width:20%; height:20%; background:#bbb; border-radius:50%; top:50%; left:60%;"></div>
+                `;
+            } else {
+                // Sun
+                color = hour >= 17 || hour < 8 ? '#ff8c00' : '#ffdd00';
+                size = hour >= 17 || hour < 8 ? 45 : 50;
+                boxShadow = hour >= 17 || hour < 8 ? 
+                    '0 0 40px rgba(255, 140, 0, 0.8)' : 
+                    '0 0 50px rgba(255, 221, 0, 0.9)';
+                sunMoon.innerHTML = '';
+            }
+            
+            // Adjust for weather
+            if (sceneState.weather === 'cloudy' || sceneState.weather === 'rainy' || sceneState.weather === 'stormy' || sceneState.weather === 'foggy') {
+                boxShadow = '0 0 20px rgba(255, 255, 200, 0.3)';
+                size *= 0.7;
+            }
+            
+            // Apply styles
+            sunMoon.style.left = `${left}%`;
+            sunMoon.style.bottom = `${bottom}%`;
+            sunMoon.style.width = `${size}px`;
+            sunMoon.style.height = `${size}px`;
+            sunMoon.style.backgroundColor = color;
+            sunMoon.style.boxShadow = boxShadow;
+            
+            // Hide if behind heavy clouds
+            if (sceneState.weather === 'stormy' || (sceneState.weather === 'cloudy' && sceneState.cloudDensity > 70)) {
+                sunMoon.style.opacity = '0.3';
+            } else {
+                sunMoon.style.opacity = '1';
+            }
+        }
+        
+        // Update weather effects visibility
+        function updateWeatherEffects() {
+            // Update clouds
+            clouds.style.opacity = sceneState.cloudDensity / 100;
+            
+            // Update rain
+            if (sceneState.weather === 'rainy' || sceneState.weather === 'stormy') {
+                rain.style.opacity = sceneState.weather === 'stormy' ? '0.8' : '0.6';
+                createRain();
+            } else {
+                rain.style.opacity = '0';
+            }
+            
+            // Update snow
+            if (sceneState.weather === 'snowy') {
+                snow.style.opacity = '0.8';
+                createSnow();
+            } else {
+                snow.style.opacity = '0';
+            }
+            
+            // Update fog
+            fog.style.opacity = sceneState.fogIntensity / 100;
+            
+            // Update landscape based on weather
+            let landscapeColor = '';
+            if (sceneState.weather === 'rainy' || sceneState.weather === 'stormy') {
+                landscapeColor = 'linear-gradient(to top, #2a2a2a, #3a3a3a, #4a4a4a)';
+            } else if (sceneState.weather === 'snowy') {
+                landscapeColor = 'linear-gradient(to top, #3a3a4a, #4a4a5a, #5a5a6a)';
+                
+                // Add snow on ground
+                landscape.style.backgroundImage = `
+                    ${landscapeColor},
+                    radial-gradient(circle at 20% 80%, white 2px, transparent 3px),
+                    radial-gradient(circle at 40% 60%, white 1px, transparent 2px),
+                    radial-gradient(circle at 60% 70%, white 3px, transparent 4px),
+                    radial-gradient(circle at 80% 50%, white 2px, transparent 3px)
+                `;
+                return;
+            } else if (sceneState.weather === 'foggy') {
+                landscapeColor = 'linear-gradient(to top, #3a3a3a, #4a4a4a)';
+            } else {
+                landscapeColor = 'linear-gradient(to top, #2a2a2a, #3a3a3a)';
+            }
+            
+            landscape.style.background = landscapeColor;
+        }
+        
+        // Update lighting based on ambient light setting
+        function updateLighting() {
+            const brightness = sceneState.ambientLight / 100;
+            scenery.style.filter = `brightness(${brightness})`;
+        }
+        
+        // Update animation speed
+        function updateAnimationSpeed() {
+            const speed = sceneState.animationSpeed / 100;
+            const elements = document.querySelectorAll('.cloud, .raindrop, .snowflake, .star');
+            elements.forEach(el => {
+                el.style.animationDuration = `${parseFloat(getComputedStyle(el).animationDuration) / speed}s`;
+            });
+        }
+        
+        // Update time from select dropdown
+        function updateTimeFromSelect() {
+            const preset = timePresets[timeSelect.value];
+            sceneState.time = preset.time;
+            sceneState.timePreset = timeSelect.value;
+            timeSlider.value = sceneState.time;
+            updateScene();
+        }
+        
+        // Update time from slider
+        function updateTimeFromSlider() {
+            sceneState.time = parseFloat(timeSlider.value);
+            
+            // Update select to match if it's close to a preset
+            let foundPreset = false;
+            for (const [name, preset] of Object.entries(timePresets)) {
+                if (Math.abs(preset.time - sceneState.time) < 0.5) {
+                    timeSelect.value = name;
+                    sceneState.timePreset = name;
+                    foundPreset = true;
+                    break;
+                }
+            }
+            
+            if (!foundPreset) {
+                timeSelect.value = '';
+                sceneState.timePreset = 'custom';
+            }
+            
+            updateScene();
+        }
+        
+        // Update weather
+        function updateWeather() {
+            sceneState.weather = weatherSelect.value;
+            
+            // Adjust cloud density based on weather
+            if (sceneState.weather === 'clear') {
+                sceneState.cloudDensity = 10;
+            } else if (sceneState.weather === 'cloudy') {
+                sceneState.cloudDensity = 40;
+            } else if (sceneState.weather === 'rainy' || sceneState.weather === 'stormy' || sceneState.weather === 'foggy') {
+                sceneState.cloudDensity = 80;
+            } else if (sceneState.weather === 'snowy') {
+                sceneState.cloudDensity = 60;
+            }
+            
+            cloudSlider.value = sceneState.cloudDensity;
+            cloudValue.textContent = `${sceneState.cloudDensity}%`;
+            
+            // Adjust fog based on weather
+            if (sceneState.weather === 'foggy') {
+                sceneState.fogIntensity = 70;
+            } else if (sceneState.weather === 'rainy' || sceneState.weather === 'stormy') {
+                sceneState.fogIntensity = 30;
+            } else {
+                sceneState.fogIntensity = 10;
+            }
+            
+            fogSlider.value = sceneState.fogIntensity;
+            fogValue.textContent = `${sceneState.fogIntensity}%`;
+            
+            updateScene();
+        }
+        
+        // Update clouds
+        function updateClouds() {
+            sceneState.cloudDensity = parseInt(cloudSlider.value);
+            cloudValue.textContent = `${sceneState.cloudDensity}%`;
+            createClouds();
+            updateScene();
+        }
+        
+        // Update fog
+        function updateFog() {
+            sceneState.fogIntensity = parseInt(fogSlider.value);
+            fogValue.textContent = `${sceneState.fogIntensity}%`;
+            updateScene();
+        }
+        
+        // Update lighting
+        function updateLightingControl() {
+            sceneState.ambientLight = parseInt(lightingSlider.value);
+            lightingValue.textContent = `${sceneState.ambientLight}%`;
+            updateScene();
+        }
+        
+        // Update animation
+        function updateAnimation() {
+            sceneState.animationSpeed = parseInt(animationSlider.value);
+            animationValue.textContent = `${sceneState.animationSpeed}%`;
+            updateScene();
+        }
+        
+        // Update stars visibility
+        function updateStars() {
+            sceneState.showStarsAtNight = showStars.checked;
+            updateScene();
+        }
+        
+        // Update ruins visibility
+        function updateRuins() {
+            sceneState.showRuins = showRuins.checked;
+            createBattlefieldElements();
+        }
+        
+        // Update trenches visibility
+        function updateTrenches() {
+            sceneState.showTrenches = showTrenches.checked;
+            createBattlefieldElements();
+        }
+        
+        // Reset all settings to default
+        function resetSettings() {
+            sceneState.time = 15;
+            sceneState.timePreset = 'afternoon';
+            sceneState.weather = 'cloudy';
+            sceneState.cloudDensity = 40;
+            sceneState.fogIntensity = 10;
+            sceneState.ambientLight = 70;
+            sceneState.animationSpeed = 100;
+            sceneState.showStarsAtNight = true;
+            sceneState.showRuins = true;
+            sceneState.showTrenches = true;
+            
+            // Update UI controls
+            timeSelect.value = 'afternoon';
+            timeSlider.value = sceneState.time;
+            weatherSelect.value = sceneState.weather;
+            cloudSlider.value = sceneState.cloudDensity;
+            fogSlider.value = sceneState.fogIntensity;
+            lightingSlider.value = sceneState.ambientLight;
+            animationSlider.value = sceneState.animationSpeed;
+            showStars.checked = sceneState.showStarsAtNight;
+            showRuins.checked = sceneState.showRuins;
+            showTrenches.checked = sceneState.showTrenches;
+            
+            // Update displays
+            cloudValue.textContent = `${sceneState.cloudDensity}%`;
+            fogValue.textContent = `${sceneState.fogIntensity}%`;
+            lightingValue.textContent = `${sceneState.ambientLight}%`;
+            animationValue.textContent = `${sceneState.animationSpeed}%`;
+            
+            // Update scene
+            updateScene();
+            createBattlefieldElements();
+        }
+        
+        // Animation loop for continuous updates
+        function animateScene() {
+            // Slowly change time if in a preset mode (not custom)
+            if (sceneState.timePreset !== 'custom') {
+                // Very slowly advance time (1 hour per 2 minutes real time)
+                sceneState.time += 0.0083; // 1/120 of an hour per frame at 60fps
+                if (sceneState.time >= 24) sceneState.time -= 24;
+                
+                // Update slider and select if still close to a preset
+                timeSlider.value = sceneState.time;
+                updateTimeDisplay();
+                
+                // Check if still in preset
+                let inPreset = false;
+                for (const [name, preset] of Object.entries(timePresets)) {
+                    if (Math.abs(preset.time - sceneState.time) < 0.5) {
+                        if (sceneState.timePreset !== name) {
+                            sceneState.timePreset = name;
+                            timeSelect.value = name;
+                        }
+                        inPreset = true;
+                        break;
+                    }
+                }
+                
+                if (!inPreset) {
+                    sceneState.timePreset = 'custom';
+                    timeSelect.value = '';
+                }
+                
+                updateSky();
+                updateSunMoon();
+            }
+            
+            requestAnimationFrame(animateScene);
+        }
+        
+        // Fix the duplicate function name issue
+        lightingSlider.addEventListener('input', updateLightingControl);
+        
+        // Initialize the scene when page loads
+        window.addEventListener('DOMContentLoaded', initScene);
+    </script>
+</body>
+</html>
