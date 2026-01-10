@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rooftop Clotheslines - A Calming Experience</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-background: var(--color-charcoal-700);
+            --color-surface: var(--color-charcoal-800);
+            --color-text: var(--color-gray-200);
+            --color-primary: var(--color-teal-300);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --radius-base: 8px;
+            --font-size-sm: 12px;
+            --font-size-md: 14px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--color-background);
+            color: var(--color-text);
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .canvas-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls-panel {
+            background: rgba(38, 40, 40, 0.95);
+            border-top: 1px solid rgba(119, 124, 124, 0.3);
+            padding: var(--space-16);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-16);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-8);
+        }
+
+        .control-label {
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            color: var(--color-teal-300);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: var(--space-8);
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: var(--space-8) var(--space-12);
+            border: 1px solid rgba(50, 184, 198, 0.3);
+            background: transparent;
+            color: var(--color-teal-300);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: var(--font-size-md);
+            transition: all 200ms ease;
+            min-width: 90px;
+        }
+
+        button:hover {
+            background: rgba(50, 184, 198, 0.15);
+            border-color: var(--color-teal-300);
+        }
+
+        button.active {
+            background: var(--color-teal-300);
+            color: var(--color-charcoal-800);
+            font-weight: 600;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: var(--space-8);
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(50, 184, 198, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-teal-300);
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-teal-300);
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-300);
+            min-width: 30px;
+            text-align: right;
+        }
+
+        .title {
+            position: absolute;
+            top: var(--space-16);
+            left: var(--space-16);
+            z-index: 10;
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: var(--color-teal-300);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .controls-panel {
+                grid-template-columns: 1fr;
+                max-height: 160px;
+            }
+
+            .title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="canvas-wrapper">
+            <div class="title">Rooftop Clotheslines</div>
+            <canvas id="canvas"></canvas>
+        </div>
+        
+        <div class="controls-panel">
+            <div class="control-group">
+                <label class="control-label">🌅 Scenery</label>
+                <div class="button-group">
+                    <button class="active" data-scenery="sunset">Sunset</button>
+                    <button data-scenery="dawn">Dawn</button>
+                    <button data-scenery="night">Night</button>
+                    <button data-scenery="afternoon">Afternoon</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">👕 Clothes Amount</label>
+                <div class="slider-group">
+                    <input type="range" id="clothesSlider" min="5" max="25" value="12">
+                    <span class="slider-value" id="clothesValue">12</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">💨 Wind Speed</label>
+                <div class="slider-group">
+                    <input type="range" id="windSlider" min="0.5" max="3" step="0.1" value="1">
+                    <span class="slider-value" id="windValue">1.0</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">✨ Effects</label>
+                <div class="button-group">
+                    <button class="active" data-effect="antenna">Antenna Blink</button>
+                    <button data-effect="birds">Birds</button>
+                    <button data-effect="clouds">Clouds</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            const wrapper = canvas.parentElement;
+            canvas.width = wrapper.clientWidth;
+            canvas.height = wrapper.clientHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // State management
+        const state = {
+            scenery: 'sunset',
+            clothesAmount: 12,
+            windSpeed: 1,
+            effects: new Set(['antenna']),
+            time: 0
+        };
+
+        // Color palettes for different times of day
+        const palettes = {
+            sunset: {
+                sky: ['#FF6B35', '#FF8C42', '#FF9F5A', '#FFA366', '#FFB26B'],
+                horizon: '#FF8C42',
+                light: '#FFE0B2',
+                building: ['#2C1B47', '#3D2664', '#4E3581']
+            },
+            dawn: {
+                sky: ['#A67BA1', '#B89DB0', '#C9BFBF', '#D9D4CF', '#E8E3D8'],
+                horizon: '#D9A5D6',
+                light: '#F0E5FF',
+                building: ['#1B2B3D', '#2D3E50', '#3F5166']
+            },
+            night: {
+                sky: ['#0A0E27', '#1A1A3E', '#2A2A4E', '#1F1F3D', '#0F0F2E'],
+                horizon: '#1A1A3E',
+                light: '#2A2A4E',
+                building: ['#0D0D1F', '#151530', '#1D1D40']
+            },
+            afternoon: {
+                sky: ['#87CEEB', '#A0D8FF', '#B0E0FF', '#87CEEB', '#6BB6E8'],
+                horizon: '#87CEEB',
+                light: '#E0F6FF',
+                building: ['#34495E', '#425970', '#4A6B82']
+            }
+        };
+
+        // Cloth colors
+        const clothColors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
+            '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B195', '#C7CEEA'
+        ];
+
+        // Control listeners
+        document.querySelectorAll('[data-scenery]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-scenery]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                state.scenery = e.target.dataset.scenery;
+            });
+        });
+
+        document.querySelectorAll('[data-effect]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.target.classList.toggle('active');
+                const effect = e.target.dataset.effect;
+                if (state.effects.has(effect)) {
+                    state.effects.delete(effect);
+                } else {
+                    state.effects.add(effect);
+                }
+            });
+        });
+
+        document.getElementById('clothesSlider').addEventListener('input', (e) => {
+            state.clothesAmount = parseInt(e.target.value);
+            document.getElementById('clothesValue').textContent = state.clothesAmount;
+        });
+
+        document.getElementById('windSlider').addEventListener('input', (e) => {
+            state.windSpeed = parseFloat(e.target.value);
+            document.getElementById('windValue').textContent = state.windSpeed.toFixed(1);
+        });
+
+        // Drawing functions
+        function drawGradientSky() {
+            const palette = palettes[state.scenery];
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.7);
+            
+            const colors = palette.sky;
+            colors.forEach((color, i) => {
+                gradient.addColorStop(i / (colors.length - 1), color);
+            });
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.7);
+        }
+
+        function drawBuildings() {
+            const palette = palettes[state.scenery];
+            const buildingColors = palette.building;
+            
+            const buildingWidth = canvas.width / 5;
+            let x = 0;
+
+            for (let i = 0; i < 5; i++) {
+                const colorIdx = i % buildingColors.length;
+                ctx.fillStyle = buildingColors[colorIdx];
+                const height = canvas.height * (0.4 + Math.random() * 0.3);
+                ctx.fillRect(x, canvas.height - height, buildingWidth, height);
+
+                // Windows
+                ctx.fillStyle = 'rgba(255, 200, 0, 0.6)';
+                const windowSize = 8;
+                for (let wx = x + 15; wx < x + buildingWidth; wx += 20) {
+                    for (let wy = canvas.height - height + 20; wy < canvas.height - 30; wy += 20) {
+                        if (Math.random() > 0.3) {
+                            ctx.fillRect(wx, wy, windowSize, windowSize);
+                        }
+                    }
+                }
+
+                x += buildingWidth;
+            }
+        }
+
+        function drawClotheslines() {
+            const lineY = canvas.height * 0.35;
+            const spacing = canvas.width / (state.clothesAmount + 1);
+
+            // Draw lines
+            ctx.strokeStyle = 'rgba(200, 200, 200, 0.7)';
+            ctx.lineWidth = 2;
+
+            for (let i = 1; i <= state.clothesAmount; i++) {
+                ctx.beginPath();
+                ctx.moveTo(spacing * i, lineY - 10);
+                ctx.lineTo(spacing * i, lineY + 10);
+                ctx.stroke();
+            }
+
+            // Draw clothesline rope
+            ctx.strokeStyle = 'rgba(180, 180, 180, 0.5)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(0, lineY);
+            ctx.lineTo(canvas.width, lineY);
+            ctx.stroke();
+        }
+
+        function drawClothes() {
+            const lineY = canvas.height * 0.35;
+            const spacing = canvas.width / (state.clothesAmount + 1);
+            const clothWidth = 30;
+            const clothHeight = 50;
+
+            for (let i = 1; i <= state.clothesAmount; i++) {
+                const x = spacing * i;
+                const colorIdx = (i + Math.floor(state.time / 10)) % clothColors.length;
+                const sway = Math.sin((state.time * state.windSpeed + i) * 0.02) * 8;
+                const swing = Math.sin((state.time * state.windSpeed * 1.5 + i) * 0.015) * 15;
+
+                ctx.save();
+                ctx.translate(x + sway, lineY);
+                ctx.rotate(swing * 0.01);
+
+                // Cloth piece
+                ctx.fillStyle = clothColors[colorIdx];
+                ctx.fillRect(-clothWidth / 2, 0, clothWidth, clothHeight);
+
+                // Cloth detail/pattern
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.lineWidth = 1;
+                for (let j = 0; j < 3; j++) {
+                    ctx.beginPath();
+                    ctx.moveTo(-clothWidth / 2, clothHeight * (j + 1) / 3);
+                    ctx.lineTo(clothWidth / 2, clothHeight * (j + 1) / 3);
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        function drawAntenna() {
+            const antennaPoles = [
+                { x: canvas.width * 0.15, height: 120 },
+                { x: canvas.width * 0.85, height: 140 }
+            ];
+
+            antennaPoles.forEach(pole => {
+                // Antenna pole
+                ctx.strokeStyle = 'rgba(150, 150, 150, 0.6)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(pole.x, canvas.height - 150);
+                ctx.lineTo(pole.x, canvas.height - 150 - pole.height);
+                ctx.stroke();
+
+                // Blinking light
+                const blinkIntensity = Math.abs(Math.sin(state.time * 0.02)) > 0.7 ? 1 : 0.3;
+                ctx.fillStyle = `rgba(255, 0, 0, ${blinkIntensity})`;
+                ctx.beginPath();
+                ctx.arc(pole.x, canvas.height - 150 - pole.height, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
+        }
+
+        function drawBirds() {
+            const birdCount = 3;
+            for (let i = 0; i < birdCount; i++) {
+                const x = ((state.time * state.windSpeed * 0.3 + i * 100) % (canvas.width + 100)) - 50;
+                const y = canvas.height * 0.15 + Math.sin((state.time + i * 1000) * 0.01) * 30;
+                
+                ctx.fillStyle = 'rgba(100, 100, 100, 0.6)';
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                const wingFlap = Math.sin(state.time * 0.04 + i) * 0.3;
+                ctx.beginPath();
+                ctx.moveTo(x - 4, y);
+                ctx.lineTo(x - 12, y - wingFlap);
+                ctx.lineTo(x - 4, y + 2);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(x + 4, y);
+                ctx.lineTo(x + 12, y - wingFlap);
+                ctx.lineTo(x + 4, y + 2);
+                ctx.stroke();
+            }
+        }
+
+        function drawClouds() {
+            const cloudCount = 4;
+            for (let i = 0; i < cloudCount; i++) {
+                const x = ((state.time * state.windSpeed * 0.1 + i * 150) % (canvas.width + 200)) - 100;
+                const y = canvas.height * (0.15 + (i % 2) * 0.1);
+                const scale = 1 + (i % 2) * 0.3;
+
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + (i % 2) * 0.2})`;
+                
+                // Cloud puffs
+                const puffs = [
+                    [0, 0, 30],
+                    [-35, 5, 25],
+                    [35, 5, 25],
+                    [-15, -15, 20],
+                    [15, -15, 20]
+                ];
+
+                puffs.forEach(([px, py, r]) => {
+                    ctx.beginPath();
+                    ctx.arc(x + px * scale, y + py * scale, r * scale, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            // Clear canvas
+            ctx.fillStyle = palettes[state.scenery].horizon;
+            ctx.fillRect(0, canvas.height * 0.7, canvas.width, canvas.height * 0.3);
+
+            // Draw scene
+            drawGradientSky();
+            
+            if (state.effects.has('clouds')) {
+                drawClouds();
+            }
+
+            drawBuildings();
+            drawClotheslines();
+            
+            if (state.effects.has('antenna')) {
+                drawAntenna();
+            }
+
+            drawClothes();
+
+            if (state.effects.has('birds')) {
+                drawBirds();
+            }
+
+            state.time++;
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
