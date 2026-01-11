@@ -1,0 +1,2502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyper-Realistic Lighthouse - Immersive Experience</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Scene Container */
+        .scene {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            filter: contrast(1.1) brightness(1.05);
+            perspective: 1000px;
+        }
+
+        /* Sky with atmospheric scattering */
+        .sky {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                #050810 0%,
+                #0a1020 10%,
+                #152035 25%,
+                #1e2a45 45%,
+                #2a3555 65%,
+                #3a4a75 85%,
+                #4a5a85 100%);
+            transition: background 5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sky.dusk {
+            background: radial-gradient(ellipse at top,
+                #1a142a 0%,
+                #2d1a3a 10%,
+                #b56534 30%,
+                #d97742 50%,
+                #f5a962 70%,
+                #e8c8a0 85%,
+                #4a5a85 100%);
+        }
+
+        .sky.storm {
+            background: linear-gradient(to bottom,
+                #04040c 0%,
+                #0c0c1c 15%,
+                #181830 35%,
+                #202048 60%,
+                #283058 85%,
+                #303868 100%);
+        }
+
+        /* Atmospheric depth layers */
+        .atmosphere-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center,
+                rgba(100, 120, 200, 0.1) 0%,
+                transparent 70%);
+            animation: atmosphere-drift 120s linear infinite;
+        }
+
+        @keyframes atmosphere-drift {
+            0% { transform: translateX(0) rotate(0.01deg); }
+            100% { transform: translateX(10px) rotate(0.01deg); }
+        }
+
+        /* Realistic stars with proper astrophysics */
+        .stars-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star-cluster {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            filter: blur(0.5px);
+        }
+
+        .star {
+            position: absolute;
+            background: currentColor;
+            border-radius: 50%;
+            animation: twinkle var(--twinkle-duration) ease-in-out infinite var(--twinkle-delay);
+            box-shadow: 0 0 var(--star-glow, 4px) currentColor;
+        }
+
+        .star.small { 
+            width: 0.8px; 
+            height: 0.8px; 
+            --star-glow: 2px;
+        }
+        .star.medium { 
+            width: 1.2px; 
+            height: 1.2px; 
+            --star-glow: 3px;
+        }
+        .star.large { 
+            width: 2px; 
+            height: 2px; 
+            --star-glow: 5px;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { 
+                opacity: 0.1; 
+                transform: scale(1);
+                filter: brightness(0.8);
+            }
+            25% { 
+                opacity: 0.4; 
+                transform: scale(1.15);
+                filter: brightness(1.2);
+            }
+            50% { 
+                opacity: 0.8; 
+                transform: scale(1.3);
+                filter: brightness(1.5);
+            }
+            75% { 
+                opacity: 0.4; 
+                transform: scale(1.1);
+                filter: brightness(1.1);
+            }
+        }
+
+        /* Milky Way with realistic dust clouds */
+        .milky-way {
+            position: absolute;
+            top: 15%;
+            left: 5%;
+            width: 90%;
+            height: 50%;
+            background: 
+                radial-gradient(ellipse at 30% 40%, 
+                    rgba(120, 140, 220, 0.15) 0%,
+                    rgba(90, 110, 190, 0.08) 20%,
+                    transparent 60%),
+                radial-gradient(ellipse at 70% 60%, 
+                    rgba(80, 100, 180, 0.12) 0%,
+                    rgba(60, 80, 160, 0.06) 25%,
+                    transparent 65%);
+            filter: blur(25px);
+            opacity: 0.6;
+            animation: milky-way-rotate 1800s linear infinite;
+            mix-blend-mode: screen;
+        }
+
+        @keyframes milky-way-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Moon with realistic phases and libration */
+        .moon {
+            position: absolute;
+            top: 12%;
+            right: 18%;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at 35% 35%, 
+                #fff9e6 0%, 
+                #f5e6d3 20%,
+                #e8dcc8 45%,
+                #d4c8b8 70%,
+                #b8a898 90%);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 80px rgba(255, 250, 230, 0.5),
+                0 0 160px rgba(255, 250, 230, 0.3),
+                0 0 240px rgba(255, 250, 230, 0.1),
+                inset 15px 15px 40px rgba(255, 255, 255, 0.4),
+                inset -15px -15px 40px rgba(0, 0, 0, 0.3);
+            opacity: 0.95;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 200, 0.4));
+            animation: moon-float 60s ease-in-out infinite;
+        }
+
+        .moon-phase {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 65% 35%, 
+                rgba(0, 0, 0, 0.8) 0%,
+                rgba(0, 0, 0, 0.4) 40%,
+                transparent 70%);
+            border-radius: 50%;
+            mix-blend-mode: multiply;
+        }
+
+        @keyframes moon-float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-5px, -8px) rotate(0.5deg); }
+            50% { transform: translate(0, -10px) rotate(1deg); }
+            75% { transform: translate(5px, -8px) rotate(0.5deg); }
+        }
+
+        /* Volumetric clouds with 3D layers */
+        .clouds-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            transform-style: preserve-3d;
+        }
+
+        .cloud-layer {
+            position: absolute;
+            width: 300%;
+            height: 300px;
+            background: radial-gradient(ellipse at center, 
+                rgba(255, 255, 255, var(--cloud-opacity)) 0%, 
+                transparent 70%);
+            border-radius: 50%;
+            animation: cloud-drift var(--cloud-speed) linear infinite;
+            filter: blur(var(--cloud-blur));
+            transform: translateZ(var(--cloud-depth));
+            mix-blend-mode: overlay;
+        }
+
+        @keyframes cloud-drift {
+            from { transform: translateX(-100px) translateZ(var(--cloud-depth)); }
+            to { transform: translateX(calc(100vw + 100px)) translateZ(var(--cloud-depth)); }
+        }
+
+        /* Ocean with physically-based rendering */
+        .ocean-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50%;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .ocean {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                #0a1a2a 0%,
+                #152a3a 15%,
+                #203a4a 35%,
+                #2a4a5a 60%,
+                #355a6a 85%,
+                #406a7a 100%);
+            transition: background 5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ocean.dusk {
+            background: linear-gradient(to bottom,
+                #2a3a4a 0%,
+                #354a5a 20%,
+                #405a6a 45%,
+                #4a6a7a 70%,
+                #557a8a 90%,
+                #608a9a 100%);
+        }
+
+        .ocean.storm {
+            background: linear-gradient(to bottom,
+                #1a2a3a 0%,
+                #203040 25%,
+                #253545 50%,
+                #2a3a4a 75%,
+                #304050 90%,
+                #354555 100%);
+        }
+
+        /* Water surface with Fresnel effect */
+        .water-surface {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(to bottom,
+                    transparent 0%,
+                    rgba(255, 255, 255, 0.02) 10%,
+                    rgba(255, 255, 255, 0.05) 30%,
+                    rgba(255, 255, 255, 0.02) 50%,
+                    transparent 100%),
+                repeating-linear-gradient(90deg,
+                    transparent,
+                    transparent 50px,
+                    rgba(255, 255, 255, 0.01) 50px,
+                    rgba(255, 255, 255, 0.01) 52px);
+            mix-blend-mode: screen;
+            animation: surface-undulate 12s ease-in-out infinite;
+            filter: blur(0.5px);
+        }
+
+        @keyframes surface-undulate {
+            0%, 100% { transform: translateY(0) scaleY(1); opacity: 0.3; }
+            33% { transform: translateY(-3px) scaleY(1.02); opacity: 0.5; }
+            66% { transform: translateY(2px) scaleY(0.98); opacity: 0.4; }
+        }
+
+        /* Physically accurate waves */
+        .wave-system {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .wave-front {
+            position: absolute;
+            bottom: 0;
+            width: 300%;
+            height: 120px;
+            background: linear-gradient(to top,
+                rgba(255, 255, 255, 0.15) 0%,
+                rgba(255, 255, 255, 0.08) 30%,
+                rgba(255, 255, 255, 0.03) 60%,
+                transparent 100%);
+            clip-path: polygon(
+                0% 100%,
+                100% 100%,
+                100% 20%,
+                98% 15%,
+                96% 12%,
+                94% 10%,
+                92% 9%,
+                90% 8%,
+                88% 7%,
+                85% 6%,
+                82% 5%,
+                78% 4%,
+                74% 3%,
+                70% 2%,
+                65% 1%,
+                60% 0%,
+                55% 0%,
+                50% 0%,
+                45% 0%,
+                40% 0%,
+                35% 1%,
+                30% 2%,
+                25% 3%,
+                20% 4%,
+                15% 5%,
+                10% 6%,
+                5% 7%,
+                2% 8%,
+                0% 10%
+            );
+            animation: wave-front-move var(--wave-front-speed) linear infinite;
+            filter: blur(2px);
+        }
+
+        .wave-back {
+            position: absolute;
+            bottom: 20px;
+            width: 300%;
+            height: 80px;
+            background: linear-gradient(to top,
+                rgba(255, 255, 255, 0.08) 0%,
+                rgba(255, 255, 255, 0.03) 40%,
+                transparent 100%);
+            clip-path: polygon(
+                0% 100%,
+                100% 100%,
+                100% 30%,
+                95% 25%,
+                90% 20%,
+                85% 15%,
+                80% 10%,
+                75% 5%,
+                70% 0%,
+                65% 0%,
+                60% 0%,
+                55% 0%,
+                50% 0%,
+                45% 0%,
+                40% 0%,
+                35% 0%,
+                30% 0%,
+                25% 0%,
+                20% 0%,
+                15% 0%,
+                10% 0%,
+                5% 0%,
+                0% 0%
+            );
+            animation: wave-back-move calc(var(--wave-front-speed) * 1.5) linear infinite;
+            filter: blur(3px);
+            opacity: 0.6;
+        }
+
+        @keyframes wave-front-move {
+            from { transform: translateX(0); }
+            to { transform: translateX(-33.333%); }
+        }
+
+        @keyframes wave-back-move {
+            from { transform: translateX(0); }
+            to { transform: translateX(-25%); }
+        }
+
+        /* Foam and spray */
+        .foam {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30px;
+            background: radial-gradient(ellipse at center,
+                rgba(255, 255, 255, 0.3) 0%,
+                rgba(255, 255, 255, 0.15) 30%,
+                transparent 70%);
+            filter: blur(5px);
+            animation: foam-fade 4s ease-in-out infinite;
+            mix-blend-mode: screen;
+        }
+
+        @keyframes foam-fade {
+            0%, 100% { opacity: 0.2; transform: scaleY(0.8); }
+            50% { opacity: 0.4; transform: scaleY(1.1); }
+        }
+
+        /* Volumetric fog with light absorption */
+        .fog-system {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            transform-style: preserve-3d;
+        }
+
+        .fog-volume {
+            position: absolute;
+            width: 300%;
+            height: 400px;
+            background: radial-gradient(ellipse at center, 
+                rgba(180, 200, 240, var(--fog-density)) 0%, 
+                rgba(150, 180, 220, calc(var(--fog-density) * 0.7)) 30%,
+                transparent 80%);
+            filter: blur(80px);
+            animation: fog-volume-drift var(--fog-speed) linear infinite;
+            mix-blend-mode: screen;
+            transform: translateZ(var(--fog-depth));
+            opacity: var(--fog-opacity);
+        }
+
+        @keyframes fog-volume-drift {
+            from { transform: translateX(0) translateZ(var(--fog-depth)); }
+            to { transform: translateX(-33.333%) translateZ(var(--fog-depth)); }
+        }
+
+        /* Detailed rocky island with erosion */
+        .island {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 220px;
+            z-index: 10;
+            filter: 
+                drop-shadow(0 5px 15px rgba(0, 0, 0, 0.6))
+                contrast(1.1);
+        }
+
+        .rock-formation {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 100%;
+        }
+
+        .rock-mass {
+            position: absolute;
+            background: 
+                linear-gradient(135deg, 
+                    #2a2a2a 0%, 
+                    #252525 20%,
+                    #202020 40%,
+                    #1a1a1a 60%,
+                    #151515 80%,
+                    #101010 100%),
+                repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.1) 2px,
+                    rgba(0, 0, 0, 0.1) 4px);
+            border-radius: 50% 50% 0 0;
+            box-shadow: 
+                inset -8px -8px 30px rgba(0, 0, 0, 0.7),
+                inset 8px 8px 30px rgba(255, 255, 255, 0.1),
+                0 10px 40px rgba(0, 0, 0, 0.8);
+            filter: brightness(var(--rock-brightness));
+        }
+
+        .rock-texture {
+            position: absolute;
+            background: 
+                radial-gradient(circle at 30% 30%, 
+                    rgba(50, 50, 50, 0.8) 0%,
+                    transparent 70%),
+                radial-gradient(circle at 70% 70%, 
+                    rgba(30, 30, 30, 0.6) 0%,
+                    transparent 60%);
+            border-radius: inherit;
+            mix-blend-mode: overlay;
+        }
+
+        /* Moss and vegetation */
+        .vegetation {
+            position: absolute;
+            width: 100%;
+            height: 40px;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at center,
+                    rgba(40, 80, 40, 0.6) 0%,
+                    rgba(30, 60, 30, 0.4) 50%,
+                    transparent 100%);
+            filter: blur(3px);
+            mix-blend-mode: multiply;
+        }
+
+        /* Lighthouse with realistic materials */
+        .lighthouse-complex {
+            position: absolute;
+            bottom: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15;
+            filter: 
+                drop-shadow(0 10px 40px rgba(0, 0, 0, 0.8))
+                contrast(1.05);
+        }
+
+        .lighthouse {
+            position: relative;
+            width: 85px;
+            height: 360px;
+            transform-style: preserve-3d;
+        }
+
+        /* Foundation with weathering */
+        .foundation {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 60px;
+            background: 
+                linear-gradient(45deg, 
+                    #3a3a3a 0%, 
+                    #454545 25%,
+                    #505050 50%,
+                    #454545 75%,
+                    #3a3a3a 100%),
+                repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(0, 0, 0, 0.2) 3px,
+                    rgba(0, 0, 0, 0.2) 4px);
+            border-radius: 10px;
+            box-shadow: 
+                0 8px 30px rgba(0, 0, 0, 0.7),
+                inset 0 3px 8px rgba(255, 255, 255, 0.15);
+        }
+
+        /* Main tower with stone texture */
+        .tower {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85px;
+            height: 280px;
+            background: 
+                linear-gradient(75deg, 
+                    #d0b890 0%, 
+                    #e0c8a0 15%,
+                    #f0d8b0 30%,
+                    #e8d0a8 50%,
+                    #d8c098 70%,
+                    #c8b088 85%,
+                    #b8a078 100%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" opacity="0.05"><pattern id="brick" width="20" height="10" patternUnits="userSpaceOnUse"><rect width="20" height="10" fill="none" stroke="%23000" stroke-width="0.5"/></pattern><rect width="100" height="100" fill="url(%23brick)"/></svg>');
+            border-radius: 12px 12px 0 0;
+            box-shadow: 
+                inset -8px 0 25px rgba(0, 0, 0, 0.5),
+                inset 8px 0 25px rgba(255, 255, 255, 0.3),
+                0 0 40px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Rust and weathering effects */
+        .weathering {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 30% 40%, 
+                    rgba(139, 69, 19, 0.3) 0%,
+                    transparent 50%),
+                radial-gradient(circle at 70% 60%, 
+                    rgba(160, 82, 45, 0.2) 0%,
+                    transparent 50%);
+            border-radius: inherit;
+            mix-blend-mode: multiply;
+        }
+
+        /* Red stripe with paint texture */
+        .stripe {
+            position: absolute;
+            top: 40%;
+            left: 2px;
+            right: 2px;
+            height: 60px;
+            background: 
+                linear-gradient(75deg, 
+                    #a02020 0%, 
+                    #b83030 20%,
+                    #d04040 40%,
+                    #e05050 60%,
+                    #d04040 80%,
+                    #b83030 100%),
+                repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 5px,
+                    rgba(0, 0, 0, 0.1) 5px,
+                    rgba(0, 0, 0, 0.1) 6px);
+            box-shadow: 
+                inset 0 -4px 15px rgba(0, 0, 0, 0.5),
+                inset 0 4px 15px rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        /* Windows with internal details */
+        .window-frame {
+            position: absolute;
+            width: 22px;
+            height: 28px;
+            background: linear-gradient(135deg, 
+                #1a1a2a 0%, 
+                #2a2a3a 50%,
+                #3a3a4a 100%);
+            border-radius: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 
+                0 0 25px rgba(0, 0, 0, 0.9),
+                inset 0 0 20px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
+
+        .window-glass {
+            position: absolute;
+            width: 18px;
+            height: 24px;
+            top: 2px;
+            left: 2px;
+            background: 
+                linear-gradient(135deg, 
+                    rgba(60, 100, 160, 0.8) 0%,
+                    rgba(80, 130, 200, 0.9) 50%,
+                    rgba(100, 160, 240, 1) 100%),
+                repeating-linear-gradient(90deg,
+                    transparent,
+                    transparent 1px,
+                    rgba(255, 255, 255, 0.1) 1px,
+                    rgba(255, 255, 255, 0.1) 2px);
+            border-radius: 4px;
+            animation: window-flicker var(--flicker-duration) ease-in-out infinite var(--flicker-delay);
+            box-shadow: 
+                inset 0 0 20px rgba(255, 255, 255, 0.3),
+                0 0 30px rgba(100, 150, 255, 0.6);
+        }
+
+        .window-sill {
+            position: absolute;
+            bottom: -4px;
+            width: 26px;
+            height: 4px;
+            background: linear-gradient(to right, 
+                #3a3a3a 0%, 
+                #4a4a4a 50%,
+                #3a3a3a 100%);
+            border-radius: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        @keyframes window-flicker {
+            0%, 100% { 
+                opacity: 0.7; 
+                filter: brightness(0.9);
+            }
+            10%, 90% { 
+                opacity: 0.9; 
+                filter: brightness(1.1);
+            }
+            50% { 
+                opacity: 1; 
+                filter: brightness(1.3);
+            }
+        }
+
+        /* Lantern room with detailed architecture */
+        .lantern-housing {
+            position: absolute;
+            top: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85px;
+            height: 70px;
+            background: 
+                linear-gradient(45deg, 
+                    rgba(20, 20, 20, 0.95) 0%, 
+                    rgba(40, 40, 40, 0.9) 50%,
+                    rgba(20, 20, 20, 0.95) 100%),
+                repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 255, 255, 0.05) 2px,
+                    rgba(255, 255, 255, 0.05) 3px);
+            border-radius: 8px 8px 0 0;
+            border: 4px solid rgba(60, 60, 60, 0.9);
+            box-shadow: 
+                0 -10px 40px rgba(0, 0, 0, 0.8),
+                inset 0 0 30px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .lantern-frame {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(45deg, 
+                    transparent 0%,
+                    rgba(100, 150, 200, 0.2) 25%,
+                    rgba(150, 200, 255, 0.3) 50%,
+                    rgba(100, 150, 200, 0.2) 75%,
+                    transparent 100%);
+            filter: blur(0.5px);
+            mix-blend-mode: screen;
+        }
+
+        /* Realistic beacon with lens optics */
+        .beacon-assembly {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 55px;
+            height: 55px;
+        }
+
+        .fresnel-lens {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 30% 30%, 
+                    rgba(255, 255, 255, 0.9) 0%,
+                    rgba(255, 255, 200, 0.7) 20%,
+                    rgba(255, 255, 150, 0.5) 40%,
+                    rgba(255, 255, 100, 0.3) 60%,
+                    transparent 80%),
+                repeating-conic-gradient(
+                    from 0deg,
+                    transparent 0deg 1deg,
+                    rgba(255, 255, 255, 0.1) 1deg 2deg);
+            border-radius: 50%;
+            animation: lens-rotate 20s linear infinite;
+            filter: brightness(1.3);
+            z-index: 2;
+        }
+
+        .lamp-filament {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, 
+                #ffff00 0%, 
+                #ffcc00 30%,
+                #ff9900 60%,
+                #ff6600 90%);
+            border-radius: 50%;
+            filter: blur(2px);
+            animation: filament-glow 0.5s ease-in-out infinite;
+            z-index: 3;
+        }
+
+        @keyframes lens-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes filament-glow {
+            0%, 100% { 
+                opacity: 0.8; 
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+        }
+
+        /* Volumetric light beam with caustics */
+        .light-shaft {
+            position: absolute;
+            top: -180px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 600px;
+            background: linear-gradient(to bottom,
+                rgba(255, 255, 240, 1) 0%,
+                rgba(255, 255, 220, 0.95) 5%,
+                rgba(255, 255, 200, 0.85) 15%,
+                rgba(255, 250, 180, 0.7) 30%,
+                rgba(255, 245, 160, 0.5) 50%,
+                rgba(255, 240, 140, 0.3) 70%,
+                transparent 100%);
+            transform-origin: center 180px;
+            animation: shaft-rotate var(--shaft-speed) linear infinite;
+            filter: blur(10px) contrast(1.5);
+            pointer-events: none;
+            z-index: 20;
+            mix-blend-mode: screen;
+        }
+
+        .light-shaft-outer {
+            position: absolute;
+            top: -180px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 600px;
+            background: linear-gradient(to bottom,
+                rgba(255, 255, 220, 0.2) 0%,
+                rgba(255, 250, 200, 0.15) 20%,
+                rgba(255, 245, 180, 0.1) 40%,
+                rgba(255, 240, 160, 0.05) 60%,
+                transparent 100%);
+            transform-origin: center 180px;
+            animation: shaft-rotate var(--shaft-speed) linear infinite reverse;
+            filter: blur(20px);
+            pointer-events: none;
+            z-index: 19;
+            mix-blend-mode: screen;
+        }
+
+        @keyframes shaft-rotate {
+            from { transform: translateX(-50%) rotate(0deg); }
+            to { transform: translateX(-50%) rotate(360deg); }
+        }
+
+        /* Light interaction with environment */
+        .caustics {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 400px;
+            background: 
+                radial-gradient(ellipse at 30% 10%, 
+                    rgba(255, 250, 210, 0.4) 0%,
+                    rgba(255, 245, 190, 0.2) 20%,
+                    rgba(255, 240, 170, 0.1) 40%,
+                    transparent 70%),
+                radial-gradient(ellipse at 70% 20%, 
+                    rgba(255, 245, 195, 0.3) 0%,
+                    rgba(255, 240, 175, 0.15) 25%,
+                    transparent 60%);
+            filter: blur(50px);
+            pointer-events: none;
+            z-index: 5;
+            animation: 
+                caustics-pulse 3s ease-in-out infinite,
+                caustics-shift 15s ease-in-out infinite;
+            mix-blend-mode: screen;
+            opacity: var(--caustics-intensity);
+        }
+
+        @keyframes caustics-pulse {
+            0%, 100% { opacity: calc(var(--caustics-intensity) * 0.8); }
+            50% { opacity: var(--caustics-intensity); }
+        }
+
+        @keyframes caustics-shift {
+            0% { transform: translateX(-50%) translateY(0) scale(1); }
+            33% { transform: translateX(calc(-50% - 20px)) translateY(-10px) scale(1.05); }
+            66% { transform: translateX(calc(-50% + 20px)) translateY(5px) scale(0.95); }
+            100% { transform: translateX(-50%) translateY(0) scale(1); }
+        }
+
+        /* Atmospheric glow around lighthouse */
+        .aureole {
+            position: absolute;
+            bottom: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 500px;
+            background: radial-gradient(ellipse at center,
+                rgba(255, 250, 210, 0.1) 0%,
+                rgba(255, 245, 190, 0.05) 30%,
+                rgba(255, 240, 170, 0.02) 50%,
+                transparent 80%);
+            filter: blur(40px);
+            pointer-events: none;
+            z-index: 14;
+            mix-blend-mode: screen;
+            opacity: var(--aureole-intensity);
+        }
+
+        /* Weather effects */
+        .precipitation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s;
+            transform-style: preserve-3d;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            height: 25px;
+            background: linear-gradient(to bottom,
+                transparent 0%,
+                rgba(180, 200, 240, 0.8) 30%,
+                rgba(150, 180, 220, 0.9) 70%,
+                transparent 100%);
+            animation: rain-fall linear infinite;
+            filter: blur(0.5px);
+            transform: translateZ(50px);
+        }
+
+        @keyframes rain-fall {
+            from { 
+                transform: translateY(-100px) translateX(var(--rain-drift)) translateZ(50px);
+                opacity: 0;
+            }
+            10% { opacity: 0.8; }
+            to { 
+                transform: translateY(100vh) translateX(calc(var(--rain-drift) * 2)) translateZ(50px);
+                opacity: 0;
+            }
+        }
+
+        /* Snow effect */
+        .snowflake {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            filter: blur(1px);
+            animation: snow-fall linear infinite;
+        }
+
+        @keyframes snow-fall {
+            from { 
+                transform: translateY(-100px) translateX(var(--snow-drift)) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.9; }
+            to { 
+                transform: translateY(100vh) translateX(calc(var(--snow-drift) * 3)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Enhanced lightning */
+        .lightning-bolt {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at var(--lightning-x) var(--lightning-y),
+                    rgba(200, 220, 255, 0) 0%,
+                    rgba(200, 220, 255, 0) 40%,
+                    rgba(200, 220, 255, var(--lightning-intensity)) 50%,
+                    rgba(200, 220, 255, 0) 60%);
+            pointer-events: none;
+            z-index: 30;
+            mix-blend-mode: screen;
+        }
+
+        .thunder-rumble {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            pointer-events: none;
+            z-index: 29;
+            animation: thunder-rumble-animation 3s ease-out;
+        }
+
+        @keyframes thunder-rumble-animation {
+            0% { background: rgba(0, 0, 0, 0); }
+            10% { background: rgba(50, 50, 100, 0.1); }
+            100% { background: rgba(0, 0, 0, 0); }
+        }
+
+        /* Birds/seagulls */
+        .birds {
+            position: absolute;
+            width: 100%;
+            height: 30%;
+            top: 20%;
+            pointer-events: none;
+            z-index: 8;
+        }
+
+        .bird {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            background: 
+                radial-gradient(ellipse at 70% 50%,
+                    rgba(255, 255, 255, 0.9) 0%,
+                    rgba(200, 200, 200, 0.8) 70%,
+                    transparent 100%);
+            border-radius: 50%;
+            filter: blur(0.5px);
+            animation: bird-fly 20s linear infinite var(--bird-delay);
+            opacity: var(--bird-opacity);
+        }
+
+        @keyframes bird-fly {
+            0% { 
+                transform: translateX(-100px) translateY(var(--bird-y)) scale(0.8);
+                opacity: 0;
+            }
+            5% { opacity: var(--bird-opacity); }
+            95% { opacity: var(--bird-opacity); }
+            100% { 
+                transform: translateX(calc(100vw + 100px)) translateY(calc(var(--bird-y) + 50px)) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Control Panel */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(10, 15, 25, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            color: white;
+            max-width: 350px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(100, 150, 255, 0.1),
+                inset 0 1px 3px rgba(255, 255, 255, 0.1);
+            transition: 
+                transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.4s ease;
+        }
+
+        .controls.minimized {
+            transform: translateY(calc(100% - 60px));
+            opacity: 0.7;
+        }
+
+        .controls.minimized .controls-content {
+            display: none;
+        }
+
+        .controls-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            user-select: none;
+            padding: 5px;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            padding-bottom: 15px;
+        }
+
+        .controls-title {
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(45deg, #5aaaff, #2a7aff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(90, 170, 255, 0.3);
+        }
+
+        .minimize-btn {
+            background: rgba(100, 150, 255, 0.15);
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            color: #aaccff;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .minimize-btn:hover {
+            background: rgba(100, 150, 255, 0.3);
+            border-color: #5aaaff;
+            transform: rotate(90deg);
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+            color: #aaccff;
+            font-weight: 500;
+        }
+
+        .control-value {
+            color: #5aaaff;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 4px 12px;
+            background: rgba(90, 170, 255, 0.15);
+            border-radius: 12px;
+            border: 1px solid rgba(90, 170, 255, 0.3);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, 
+                rgba(90, 170, 255, 0.2) 0%, 
+                rgba(90, 170, 255, 0.8) 100%);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5aaaff, #2a7aff);
+            cursor: pointer;
+            box-shadow: 
+                0 0 15px rgba(90, 170, 255, 0.8),
+                0 0 30px rgba(90, 170, 255, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid white;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
+            box-shadow: 
+                0 0 20px rgba(90, 170, 255, 1),
+                0 0 40px rgba(90, 170, 255, 0.6);
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 12px 16px;
+            background: rgba(90, 170, 255, 0.1);
+            border: 1px solid rgba(90, 170, 255, 0.3);
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:hover {
+            background: rgba(90, 170, 255, 0.25);
+            border-color: #5aaaff;
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 25px rgba(90, 170, 255, 0.3),
+                0 0 0 1px rgba(90, 170, 255, 0.2);
+        }
+
+        .btn.active {
+            background: linear-gradient(135deg, #5aaaff, #2a7aff);
+            border-color: #5aaaff;
+            color: white;
+            box-shadow: 
+                0 0 30px rgba(90, 170, 255, 0.6),
+                inset 0 1px 3px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-full {
+            grid-column: 1 / -1;
+        }
+
+        .separator {
+            height: 1px;
+            background: linear-gradient(to right, 
+                transparent 0%, 
+                rgba(90, 170, 255, 0.3) 30%, 
+                rgba(90, 170, 255, 0.6) 50%,
+                rgba(90, 170, 255, 0.3) 70%,
+                transparent 100%);
+            margin: 30px 0;
+        }
+
+        /* FPS Counter */
+        .performance-monitor {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(10, 15, 25, 0.9);
+            color: #5aaaff;
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(90, 170, 255, 0.2);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            gap: 15px;
+        }
+
+        .fps-value {
+            color: #5affaa;
+            font-weight: bold;
+        }
+
+        /* Audio visualizer (for ambient sounds) */
+        .audio-visualizer {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 200px;
+            height: 60px;
+            background: rgba(10, 15, 25, 0.8);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(90, 170, 255, 0.2);
+        }
+
+        .audio-bar {
+            flex: 1;
+            background: linear-gradient(to top, #5aaaff, #2a7aff);
+            border-radius: 2px;
+            animation: audio-pulse 1s ease-in-out infinite;
+            animation-delay: calc(var(--bar-index) * 0.1s);
+        }
+
+        @keyframes audio-pulse {
+            0%, 100% { height: 20%; }
+            50% { height: 80%; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .controls {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+                padding: 20px;
+            }
+
+            .lighthouse {
+                width: 65px;
+                height: 280px;
+            }
+
+            .tower {
+                width: 65px;
+                height: 220px;
+            }
+
+            .moon {
+                width: 70px;
+                height: 70px;
+                right: 10%;
+            }
+
+            .island {
+                width: 400px;
+            }
+
+            .performance-monitor {
+                top: 10px;
+                right: 10px;
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Loading screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1s ease;
+        }
+
+        .loading-progress {
+            width: 300px;
+            height: 4px;
+            background: rgba(90, 170, 255, 0.2);
+            border-radius: 2px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .loading-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #5aaaff, #2a7aff);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div style="font-size: 24px; color: #5aaaff; margin-bottom: 20px;">Loading Hyper-Realistic Lighthouse...</div>
+        <div class="loading-progress">
+            <div class="loading-bar" id="loadingBar"></div>
+        </div>
+    </div>
+
+    <!-- Main Scene -->
+    <div class="scene" id="scene">
+        <!-- Sky -->
+        <div class="sky" id="sky">
+            <div class="atmosphere-layer"></div>
+            <div class="stars-container" id="starsContainer"></div>
+            <div class="milky-way"></div>
+            <div class="moon" id="moon">
+                <div class="moon-phase"></div>
+            </div>
+            <div class="clouds-container" id="cloudsContainer"></div>
+            <div class="birds" id="birds"></div>
+        </div>
+
+        <!-- Weather Effects -->
+        <div class="precipitation" id="precipitation"></div>
+        <div class="lightning-bolt" id="lightningBolt"></div>
+        <div class="thunder-rumble" id="thunderRumble"></div>
+
+        <!-- Fog System -->
+        <div class="fog-system" id="fogSystem"></div>
+
+        <!-- Ocean -->
+        <div class="ocean-container">
+            <div class="ocean" id="ocean">
+                <div class="water-surface"></div>
+                <div class="wave-system">
+                    <div class="wave-front"></div>
+                    <div class="wave-front"></div>
+                    <div class="wave-back"></div>
+                    <div class="foam"></div>
+                </div>
+                <div class="caustics" id="caustics"></div>
+            </div>
+        </div>
+
+        <!-- Lighthouse Glow -->
+        <div class="aureole" id="aureole"></div>
+
+        <!-- Island -->
+        <div class="island">
+            <div class="rock-formation">
+                <div class="rock-mass" style="width: 200px; height: 180px; left: 10%; bottom: 0;">
+                    <div class="rock-texture"></div>
+                </div>
+                <div class="rock-mass" style="width: 250px; height: 200px; left: 40%; bottom: 0;">
+                    <div class="rock-texture"></div>
+                </div>
+                <div class="rock-mass" style="width: 180px; height: 160px; left: 70%; bottom: 0;">
+                    <div class="rock-texture"></div>
+                </div>
+                <div class="vegetation"></div>
+            </div>
+        </div>
+
+        <!-- Lighthouse -->
+        <div class="lighthouse-complex">
+            <div class="light-shaft-outer" id="lightShaftOuter"></div>
+            <div class="light-shaft" id="lightShaft"></div>
+            
+            <div class="lighthouse">
+                <div class="foundation"></div>
+                <div class="tower">
+                    <div class="weathering"></div>
+                    <div class="stripe"></div>
+                    <div class="window-frame" style="top: 15%;">
+                        <div class="window-glass"></div>
+                        <div class="window-sill"></div>
+                    </div>
+                    <div class="window-frame" style="top: 45%;">
+                        <div class="window-glass"></div>
+                        <div class="window-sill"></div>
+                    </div>
+                    <div class="window-frame" style="top: 75%;">
+                        <div class="window-glass"></div>
+                        <div class="window-sill"></div>
+                    </div>
+                </div>
+                <div class="lantern-housing">
+                    <div class="lantern-frame"></div>
+                    <div class="beacon-assembly">
+                        <div class="fresnel-lens"></div>
+                        <div class="lamp-filament"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Monitor -->
+    <div class="performance-monitor" id="performanceMonitor">
+        <span>FPS: <span class="fps-value" id="fpsValue">60</span></span>
+        <span>|</span>
+        <span>MEM: <span id="memValue">Normal</span></span>
+    </div>
+
+    <!-- Audio Visualizer -->
+    <div class="audio-visualizer" id="audioVisualizer">
+        <div class="audio-bar" style="--bar-index: 0;"></div>
+        <div class="audio-bar" style="--bar-index: 1;"></div>
+        <div class="audio-bar" style="--bar-index: 2;"></div>
+        <div class="audio-bar" style="--bar-index: 3;"></div>
+        <div class="audio-bar" style="--bar-index: 4;"></div>
+        <div class="audio-bar" style="--bar-index: 5;"></div>
+        <div class="audio-bar" style="--bar-index: 6;"></div>
+        <div class="audio-bar" style="--bar-index: 7;"></div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="controls" id="controls">
+        <div class="controls-header" onclick="toggleControls()">
+            <div class="controls-title">⚙️ HYPER-REALISTIC CONTROLS</div>
+            <button class="minimize-btn" id="minimizeBtn">−</button>
+        </div>
+        <div class="controls-content">
+            <!-- Atmosphere -->
+            <div class="control-group">
+                <label class="control-label">
+                    Atmosphere
+                    <span class="control-value" id="atmosphereValue">Night</span>
+                </label>
+                <div class="button-grid">
+                    <button class="btn" onclick="setAtmosphere('dusk')">Golden Hour</button>
+                    <button class="btn active" onclick="setAtmosphere('night')">Starry Night</button>
+                    <button class="btn" onclick="setAtmosphere('storm')">Thunderstorm</button>
+                </div>
+            </div>
+
+            <!-- Weather -->
+            <div class="control-group">
+                <label class="control-label">
+                    Weather Intensity
+                    <span class="control-value" id="weatherValue">0%</span>
+                </label>
+                <input type="range" id="weatherIntensity" min="0" max="100" value="0" oninput="updateWeather(this.value)">
+            </div>
+
+            <!-- Fog Density -->
+            <div class="control-group">
+                <label class="control-label">
+                    Volumetric Fog
+                    <span class="control-value" id="fogValue">50%</span>
+                </label>
+                <input type="range" id="fogDensity" min="0" max="100" value="50" oninput="updateFog(this.value)">
+            </div>
+
+            <!-- Ocean Waves -->
+            <div class="control-group">
+                <label class="control-label">
+                    Wave Energy
+                    <span class="control-value" id="waveValue">50%</span>
+                </label>
+                <input type="range" id="waveEnergy" min="0" max="100" value="50" oninput="updateWaves(this.value)">
+            </div>
+
+            <!-- Beacon -->
+            <div class="control-group">
+                <label class="control-label">
+                    Beacon Power
+                    <span class="control-value" id="beaconValue">80%</span>
+                </label>
+                <input type="range" id="beaconPower" min="0" max="100" value="80" oninput="updateBeacon(this.value)">
+            </div>
+
+            <!-- Rotation Speed -->
+            <div class="control-group">
+                <label class="control-label">
+                    Rotation Speed
+                    <span class="control-value" id="speedValue">Normal</span>
+                </label>
+                <input type="range" id="rotationSpeed" min="20" max="200" value="100" oninput="updateRotation(this.value)">
+            </div>
+
+            <!-- Lightning -->
+            <div class="control-group">
+                <label class="control-label">
+                    Lightning Frequency
+                    <span class="control-value" id="lightningValue">Occasional</span>
+                </label>
+                <input type="range" id="lightningFrequency" min="0" max="100" value="30" oninput="updateLightning(this.value)">
+            </div>
+
+            <!-- Wildlife -->
+            <div class="control-group">
+                <label class="control-label">
+                    Wildlife Activity
+                    <span class="control-value" id="wildlifeValue">Low</span>
+                </label>
+                <input type="range" id="wildlifeActivity" min="0" max="100" value="20" oninput="updateWildlife(this.value)">
+            </div>
+
+            <div class="separator"></div>
+
+            <!-- Presets -->
+            <div class="control-group">
+                <label class="control-label">Environment Presets</label>
+                <div class="button-grid">
+                    <button class="btn" onclick="applyPreset('serene')">Serene</button>
+                    <button class="btn" onclick="applyPreset('misty')">Misty Coast</button>
+                    <button class="btn" onclick="applyPreset('stormy')">Stormy Night</button>
+                    <button class="btn" onclick="applyPreset('aurora')">Aurora View</button>
+                    <button class="btn" onclick="applyPreset('calm')">Calm Waters</button>
+                    <button class="btn" onclick="applyPreset('dramatic')">Dramatic</button>
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <!-- Actions -->
+            <div class="button-grid">
+                <button class="btn" onclick="randomizeEnvironment()">🎲 Randomize</button>
+                <button class="btn" onclick="resetEnvironment()">↻ Reset</button>
+                <button class="btn" onclick="toggleTimeLapse()" id="timeLapseBtn">⏱️ Time Lapse</button>
+            </div>
+            <button class="btn btn-full" onclick="togglePause()" id="pauseBtn">⏸️ Pause All</button>
+            <button class="btn btn-full" onclick="toggleSound()" id="soundBtn">🔊 Enable Sound</button>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced state with more parameters
+        let state = {
+            atmosphere: 'night',
+            weatherIntensity: 0,
+            fogDensity: 50,
+            waveEnergy: 50,
+            beaconPower: 80,
+            rotationSpeed: 100,
+            lightningFrequency: 30,
+            wildlifeActivity: 20,
+            isPaused: false,
+            isTimeLapse: false,
+            isSoundEnabled: false,
+            precipitationType: 'none' // rain, snow, none
+        };
+
+        // Performance tracking
+        let frameCount = 0;
+        let lastTime = performance.now();
+        let fps = 60;
+        let memoryUsage = { jsHeapSizeLimit: 0, totalJSHeapSize: 0, usedJSHeapSize: 0 };
+        let lightningTimeout;
+        let timeLapseInterval;
+        let loadingProgress = 0;
+
+        // Initialize everything
+        async function init() {
+            showLoadingScreen();
+            
+            // Load components in sequence for better performance
+            await loadComponent('stars', generateRealisticStars);
+            await loadComponent('clouds', generateVolumetricClouds);
+            await loadComponent('moon', generateMoonDetails);
+            await loadComponent('rocks', generateRockDetails);
+            await loadComponent('birds', generateBirds);
+            await loadComponent('fog', generateFogVolumes);
+            
+            // Set initial state
+            updateAllControls();
+            
+            // Start performance monitoring
+            requestAnimationFrame(updatePerformance);
+            
+            // Start time lapse if enabled
+            if (state.isTimeLapse) {
+                startTimeLapse();
+            }
+            
+            hideLoadingScreen();
+        }
+
+        // Loading system
+        function showLoadingScreen() {
+            document.getElementById('loadingScreen').style.display = 'flex';
+        }
+
+        function hideLoadingScreen() {
+            document.getElementById('loadingScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+            }, 1000);
+        }
+
+        async function loadComponent(name, generator) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    generator();
+                    loadingProgress += 100 / 6;
+                    document.getElementById('loadingBar').style.width = loadingProgress + '%';
+                    resolve();
+                }, 100);
+            });
+        }
+
+        // Performance monitoring
+        function updatePerformance(timestamp) {
+            frameCount++;
+            
+            if (timestamp >= lastTime + 1000) {
+                fps = Math.round((frameCount * 1000) / (timestamp - lastTime));
+                document.getElementById('fpsValue').textContent = fps;
+                
+                // Update memory indicator
+                if (performance.memory) {
+                    memoryUsage = performance.memory;
+                    const usedMB = Math.round(memoryUsage.usedJSHeapSize / 1048576);
+                    const totalMB = Math.round(memoryUsage.jsHeapSizeLimit / 1048576);
+                    const percent = Math.round((usedMB / totalMB) * 100);
+                    
+                    let memStatus = 'Normal';
+                    if (percent > 80) memStatus = 'High';
+                    if (percent > 95) memStatus = 'Critical';
+                    
+                    document.getElementById('memValue').textContent = memStatus;
+                    document.getElementById('memValue').style.color = 
+                        percent > 80 ? '#ff5a5a' : percent > 60 ? '#ffaa5a' : '#5affaa';
+                }
+                
+                frameCount = 0;
+                lastTime = timestamp;
+            }
+            
+            requestAnimationFrame(updatePerformance);
+        }
+
+        // Realistic star generation with constellations
+        function generateRealisticStars() {
+            const container = document.getElementById('starsContainer');
+            const starCount = window.innerWidth > 768 ? 500 : 200;
+            
+            container.innerHTML = '';
+            
+            // Create multiple layers for parallax effect
+            for (let layer = 0; layer < 3; layer++) {
+                const cluster = document.createElement('div');
+                cluster.className = 'star-cluster';
+                cluster.style.opacity = 0.3 + (layer * 0.3);
+                cluster.style.filter = `blur(${layer * 0.3}px)`;
+                
+                for (let i = 0; i < starCount / 3; i++) {
+                    const star = document.createElement('div');
+                    const size = Math.random();
+                    
+                    star.className = 'star ';
+                    if (size < 0.7) star.className += 'small';
+                    else if (size < 0.9) star.className += 'medium';
+                    else star.className += 'large';
+                    
+                    // Position with some clustering (realistic distribution)
+                    let x, y;
+                    if (Math.random() > 0.7) {
+                        // Cluster in Milky Way region
+                        x = 30 + Math.random() * 40;
+                        y = 15 + Math.random() * 50;
+                    } else {
+                        // Random distribution
+                        x = Math.random() * 100;
+                        y = Math.random() * 80;
+                    }
+                    
+                    star.style.left = x + '%';
+                    star.style.top = y + '%';
+                    
+                    // Realistic color based on temperature
+                    const temp = Math.random();
+                    if (temp < 0.7) {
+                        star.style.color = '#ffffff'; // White (Sun-like)
+                    } else if (temp < 0.85) {
+                        star.style.color = '#ffeb3b'; // Yellow
+                    } else if (temp < 0.95) {
+                        star.style.color = '#4a9eff'; // Blue
+                    } else {
+                        star.style.color = '#ff5a5a'; // Red
+                    }
+                    
+                    star.style.setProperty('--twinkle-duration', (Math.random() * 8 + 4) + 's');
+                    star.style.setProperty('--twinkle-delay', Math.random() * 10 + 's');
+                    star.style.opacity = Math.random() * 0.8 + 0.2;
+                    star.style.transform = `translateZ(${layer * 100}px)`;
+                    
+                    cluster.appendChild(star);
+                }
+                
+                container.appendChild(cluster);
+            }
+        }
+
+        // Volumetric cloud system
+        function generateVolumetricClouds() {
+            const container = document.getElementById('cloudsContainer');
+            const layers = 5;
+            
+            container.innerHTML = '';
+            
+            for (let i = 0; i < layers; i++) {
+                const cloudLayer = document.createElement('div');
+                cloudLayer.className = 'cloud-layer';
+                cloudLayer.style.top = (10 + Math.random() * 50) + '%';
+                cloudLayer.style.left = (Math.random() * -100) + '%';
+                cloudLayer.style.width = (300 + Math.random() * 400) + 'px';
+                cloudLayer.style.height = (100 + Math.random() * 200) + 'px';
+                cloudLayer.style.setProperty('--cloud-speed', (80 + Math.random() * 60) + 's');
+                cloudLayer.style.setProperty('--cloud-opacity', (0.03 + Math.random() * 0.07).toString());
+                cloudLayer.style.setProperty('--cloud-blur', (30 + Math.random() * 20) + 'px');
+                cloudLayer.style.setProperty('--cloud-depth', (i * 50 - 100) + 'px');
+                cloudLayer.style.animationDelay = (Math.random() * 40) + 's';
+                
+                container.appendChild(cloudLayer);
+            }
+        }
+
+        // Detailed moon with realistic features
+        function generateMoonDetails() {
+            const moon = document.getElementById('moon');
+            const craterCount = 25;
+            
+            for (let i = 0; i < craterCount; i++) {
+                const crater = document.createElement('div');
+                crater.className = 'moon-crater';
+                crater.style.top = Math.random() * 85 + 7.5 + '%';
+                crater.style.left = Math.random() * 85 + 7.5 + '%';
+                
+                const size = Math.random() * 20 + 8;
+                crater.style.width = size + 'px';
+                crater.style.height = size * (0.8 + Math.random() * 0.4) + 'px';
+                
+                crater.style.opacity = Math.random() * 0.4 + 0.1;
+                crater.style.background = `radial-gradient(circle at 30% 30%, 
+                    rgba(0, 0, 0, ${0.2 + Math.random() * 0.3}) 0%,
+                    transparent 70%)`;
+                crater.style.borderRadius = '50%';
+                
+                moon.appendChild(crater);
+            }
+            
+            // Add maria (dark regions)
+            const mare = document.createElement('div');
+            mare.className = 'moon-crater';
+            mare.style.top = '40%';
+            mare.style.left = '20%';
+            mare.style.width = '60px';
+            mare.style.height = '40px';
+            mare.style.opacity = '0.3';
+            mare.style.background = 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, transparent 70%)';
+            mare.style.borderRadius = '40%';
+            moon.appendChild(mare);
+        }
+
+        // Detailed rock generation
+        function generateRockDetails() {
+            const rocks = document.querySelectorAll('.rock-mass');
+            
+            rocks.forEach(rock => {
+                const crackCount = Math.floor(Math.random() * 8) + 4;
+                
+                for (let i = 0; i < crackCount; i++) {
+                    const crack = document.createElement('div');
+                    crack.style.position = 'absolute';
+                    crack.style.top = Math.random() * 80 + 10 + '%';
+                    crack.style.left = Math.random() * 80 + 10 + '%';
+                    crack.style.width = Math.random() * 30 + 10 + 'px';
+                    crack.style.height = '2px';
+                    crack.style.background = 'linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.5), transparent)';
+                    crack.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    crack.style.opacity = 0.3 + Math.random() * 0.4;
+                    
+                    rock.appendChild(crack);
+                }
+                
+                // Add moss patches
+                const mossCount = Math.floor(Math.random() * 5) + 2;
+                for (let i = 0; i < mossCount; i++) {
+                    const moss = document.createElement('div');
+                    moss.style.position = 'absolute';
+                    moss.style.bottom = Math.random() * 30 + '%';
+                    moss.style.left = Math.random() * 80 + 10 + '%';
+                    moss.style.width = Math.random() * 40 + 20 + 'px';
+                    moss.style.height = Math.random() * 20 + 10 + 'px';
+                    moss.style.background = 'radial-gradient(ellipse at center, rgba(40, 80, 40, 0.6) 0%, transparent 70%)';
+                    moss.style.borderRadius = '50%';
+                    moss.style.filter = 'blur(2px)';
+                    
+                    rock.appendChild(moss);
+                }
+            });
+        }
+
+        // Bird generation
+        function generateBirds() {
+            const birds = document.getElementById('birds');
+            const birdCount = Math.floor(state.wildlifeActivity / 20) + 2;
+            
+            birds.innerHTML = '';
+            
+            for (let i = 0; i < birdCount; i++) {
+                const bird = document.createElement('div');
+                bird.className = 'bird';
+                bird.style.setProperty('--bird-y', (Math.random() * 30 + 10) + '%');
+                bird.style.setProperty('--bird-delay', (Math.random() * 30) + 's');
+                bird.style.setProperty('--bird-opacity', (0.3 + Math.random() * 0.4).toString());
+                bird.style.animationDuration = (15 + Math.random() * 15) + 's';
+                
+                birds.appendChild(bird);
+            }
+        }
+
+        // Volumetric fog
+        function generateFogVolumes() {
+            const fogSystem = document.getElementById('fogSystem');
+            const volumeCount = 3;
+            
+            fogSystem.innerHTML = '';
+            
+            for (let i = 0; i < volumeCount; i++) {
+                const volume = document.createElement('div');
+                volume.className = 'fog-volume';
+                volume.style.bottom = (i * 100) + 'px';
+                volume.style.setProperty('--fog-density', (0.05 + Math.random() * 0.1).toString());
+                volume.style.setProperty('--fog-speed', (40 + Math.random() * 20) + 's');
+                volume.style.setProperty('--fog-depth', (i * 50 - 100) + 'px');
+                volume.style.setProperty('--fog-opacity', (state.fogDensity / 100).toString());
+                volume.style.animationDelay = (Math.random() * 20) + 's';
+                
+                fogSystem.appendChild(volume);
+            }
+        }
+
+        // Atmosphere control
+        function setAtmosphere(type) {
+            state.atmosphere = type;
+            const sky = document.getElementById('sky');
+            const ocean = document.getElementById('ocean');
+            const moon = document.getElementById('moon');
+            
+            sky.className = 'sky ' + type;
+            ocean.className = 'ocean ' + type;
+            
+            // Update moon visibility
+            if (type === 'night') {
+                moon.style.opacity = '0.95';
+                moon.style.filter = 'drop-shadow(0 0 15px rgba(255, 255, 200, 0.4))';
+            } else if (type === 'dusk') {
+                moon.style.opacity = '0.6';
+                moon.style.filter = 'drop-shadow(0 0 10px rgba(255, 200, 100, 0.3))';
+            } else {
+                moon.style.opacity = '0.2';
+                moon.style.filter = 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.1))';
+            }
+            
+            // Update precipitation type
+            if (type === 'storm') {
+                state.precipitationType = 'rain';
+                updatePrecipitation();
+            } else {
+                state.precipitationType = 'none';
+                updatePrecipitation();
+            }
+            
+            // Update buttons
+            document.querySelectorAll('.button-grid .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.getElementById('atmosphereValue').textContent = 
+                type.charAt(0).toUpperCase() + type.slice(1);
+            
+            // Update all dependent effects
+            updateFogVariables();
+            updateWaveVariables();
+            updateBeamVariables();
+            scheduleLightning();
+        }
+
+        // Weather control
+        function updateWeather(value) {
+            state.weatherIntensity = parseInt(value);
+            document.getElementById('weatherValue').textContent = value + '%';
+            
+            if (state.weatherIntensity > 30) {
+                state.precipitationType = 'rain';
+            } else if (state.weatherIntensity > 60) {
+                state.precipitationType = 'snow';
+            } else {
+                state.precipitationType = 'none';
+            }
+            
+            updatePrecipitation();
+        }
+
+        // Precipitation system
+        function updatePrecipitation() {
+            const precipitation = document.getElementById('precipitation');
+            precipitation.innerHTML = '';
+            
+            if (state.precipitationType === 'none' || state.weatherIntensity < 10) {
+                precipitation.style.opacity = '0';
+                return;
+            }
+            
+            const intensity = state.weatherIntensity / 100;
+            precipitation.style.opacity = intensity.toString();
+            
+            const particleCount = Math.floor(intensity * 300);
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                
+                if (state.precipitationType === 'rain') {
+                    particle.className = 'raindrop';
+                    particle.style.width = (1 + Math.random() * 1.5) + 'px';
+                    particle.style.height = (15 + Math.random() * 20) + 'px';
+                    particle.style.setProperty('--rain-drift', (Math.random() * 20 - 10) + 'px');
+                    particle.style.animationDuration = (0.5 + Math.random() * 1) + 's';
+                    particle.style.opacity = (0.3 + Math.random() * 0.5).toString();
+                } else if (state.precipitationType === 'snow') {
+                    particle.className = 'snowflake';
+                    particle.style.width = (2 + Math.random() * 3) + 'px';
+                    particle.style.height = particle.style.width;
+                    particle.style.setProperty('--snow-drift', (Math.random() * 50 - 25) + 'px');
+                    particle.style.animationDuration = (2 + Math.random() * 3) + 's';
+                    particle.style.opacity = (0.4 + Math.random() * 0.5).toString();
+                }
+                
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                
+                precipitation.appendChild(particle);
+            }
+        }
+
+        // Fog control
+        function updateFog(value) {
+            state.fogDensity = parseInt(value);
+            document.getElementById('fogValue').textContent = value + '%';
+            updateFogVariables();
+        }
+
+        function updateFogVariables() {
+            const fogVolumes = document.querySelectorAll('.fog-volume');
+            fogVolumes.forEach(volume => {
+                volume.style.setProperty('--fog-opacity', (state.fogDensity / 100).toString());
+            });
+            
+            // Adjust fog color based on atmosphere
+            if (state.atmosphere === 'dusk') {
+                fogVolumes.forEach(volume => {
+                    volume.style.background = 
+                        'radial-gradient(ellipse at center, rgba(200, 150, 100, var(--fog-density)) 0%, transparent 80%)';
+                });
+            } else if (state.atmosphere === 'storm') {
+                fogVolumes.forEach(volume => {
+                    volume.style.background = 
+                        'radial-gradient(ellipse at center, rgba(100, 100, 150, var(--fog-density)) 0%, transparent 80%)';
+                });
+            }
+        }
+
+        // Wave control
+        function updateWaves(value) {
+            state.waveEnergy = parseInt(value);
+            document.getElementById('waveValue').textContent = value + '%';
+            updateWaveVariables();
+        }
+
+        function updateWaveVariables() {
+            const energy = state.waveEnergy / 100;
+            document.documentElement.style.setProperty('--wave-front-speed', (8 + energy * 6) + 's');
+            
+            // Update wave height and opacity
+            const waveFronts = document.querySelectorAll('.wave-front');
+            waveFronts.forEach(wave => {
+                wave.style.height = (80 + energy * 80) + 'px';
+                wave.style.opacity = (0.1 + energy * 0.2).toString();
+            });
+        }
+
+        // Beacon control
+        function updateBeacon(value) {
+            state.beaconPower = parseInt(value);
+            document.getElementById('beaconValue').textContent = value + '%';
+            updateBeamVariables();
+        }
+
+        // Rotation speed
+        function updateRotation(value) {
+            state.rotationSpeed = parseInt(value);
+            
+            let label = 'Very Slow';
+            if (value > 40) label = 'Slow';
+            if (value > 70) label = 'Normal';
+            if (value > 100) label = 'Fast';
+            if (value > 140) label = 'Very Fast';
+            if (value > 170) label = 'Strobe';
+            
+            document.getElementById('speedValue').textContent = label;
+            updateBeamVariables();
+        }
+
+        function updateBeamVariables() {
+            const speed = 5 / (state.rotationSpeed / 100);
+            document.documentElement.style.setProperty('--shaft-speed', speed + 's');
+            
+            // Update beam intensity based on power
+            const beam = document.getElementById('lightShaft');
+            const outerBeam = document.getElementById('lightShaftOuter');
+            const caustics = document.getElementById('caustics');
+            const aureole = document.getElementById('aureole');
+            
+            const intensity = state.beaconPower / 100;
+            beam.style.opacity = (0.3 + intensity * 0.7).toString();
+            outerBeam.style.opacity = (0.1 + intensity * 0.2).toString();
+            caustics.style.setProperty('--caustics-intensity', (intensity * 0.4).toString());
+            aureole.style.setProperty('--aureole-intensity', (intensity * 0.12).toString());
+        }
+
+        // Lightning system
+        function updateLightning(value) {
+            state.lightningFrequency = parseInt(value);
+            
+            let label = 'None';
+            if (value > 0 && value < 20) label = 'Rare';
+            else if (value >= 20 && value < 40) label = 'Occasional';
+            else if (value >= 40 && value < 60) label = 'Frequent';
+            else if (value >= 60 && value < 80) label = 'Very Frequent';
+            else if (value >= 80) label = 'Constant';
+            
+            document.getElementById('lightningValue').textContent = label;
+            scheduleLightning();
+        }
+
+        function scheduleLightning() {
+            clearTimeout(lightningTimeout);
+            
+            if (state.lightningFrequency > 0 && (state.atmosphere === 'storm' || Math.random() < 0.3)) {
+                const minDelay = 3000;
+                const maxDelay = 15000;
+                const factor = state.lightningFrequency / 100;
+                const nextDelay = minDelay + (maxDelay - minDelay) * (1 - factor);
+                
+                lightningTimeout = setTimeout(() => {
+                    if (!state.isPaused && Math.random() < 0.8) {
+                        triggerLightning();
+                    }
+                    scheduleLightning();
+                }, nextDelay);
+            }
+        }
+
+        function triggerLightning() {
+            const bolt = document.getElementById('lightningBolt');
+            const rumble = document.getElementById('thunderRumble');
+            
+            // Random position
+            const x = Math.random() * 80 + 10;
+            const y = Math.random() * 50 + 10;
+            
+            // Intensity based on frequency
+            const intensity = Math.min(1, state.lightningFrequency / 100 + Math.random() * 0.3);
+            
+            bolt.style.setProperty('--lightning-x', x + '%');
+            bolt.style.setProperty('--lightning-y', y + '%');
+            bolt.style.setProperty('--lightning-intensity', intensity.toString());
+            
+            // Flash sequence
+            let flashCount = Math.floor(intensity * 3) + 1;
+            let currentFlash = 0;
+            
+            function flash() {
+                if (currentFlash >= flashCount) return;
+                
+                bolt.style.opacity = '1';
+                rumble.style.animation = 'none';
+                
+                setTimeout(() => {
+                    bolt.style.opacity = '0';
+                    rumble.style.animation = 'thunder-rumble-animation 3s ease-out';
+                }, 50 + Math.random() * 100);
+                
+                currentFlash++;
+                setTimeout(flash, 200 + Math.random() * 300);
+            }
+            
+            flash();
+        }
+
+        // Wildlife control
+        function updateWildlife(value) {
+            state.wildlifeActivity = parseInt(value);
+            
+            let label = 'None';
+            if (value > 0 && value < 20) label = 'Low';
+            else if (value >= 20 && value < 40) label = 'Moderate';
+            else if (value >= 40 && value < 60) label = 'High';
+            else if (value >= 60) label = 'Very High';
+            
+            document.getElementById('wildlifeValue').textContent = label;
+            generateBirds();
+        }
+
+        // Preset system
+        function applyPreset(preset) {
+            const presets = {
+                serene: {
+                    atmosphere: 'night',
+                    weatherIntensity: 0,
+                    fogDensity: 20,
+                    waveEnergy: 25,
+                    beaconPower: 70,
+                    rotationSpeed: 80,
+                    lightningFrequency: 0,
+                    wildlifeActivity: 30
+                },
+                misty: {
+                    atmosphere: 'dusk',
+                    weatherIntensity: 10,
+                    fogDensity: 80,
+                    waveEnergy: 40,
+                    beaconPower: 90,
+                    rotationSpeed: 90,
+                    lightningFrequency: 10,
+                    wildlifeActivity: 15
+                },
+                stormy: {
+                    atmosphere: 'storm',
+                    weatherIntensity: 80,
+                    fogDensity: 60,
+                    waveEnergy: 90,
+                    beaconPower: 100,
+                    rotationSpeed: 120,
+                    lightningFrequency: 70,
+                    wildlifeActivity: 5
+                },
+                aurora: {
+                    atmosphere: 'night',
+                    weatherIntensity: 0,
+                    fogDensity: 40,
+                    waveEnergy: 35,
+                    beaconPower: 85,
+                    rotationSpeed: 110,
+                    lightningFrequency: 0,
+                    wildlifeActivity: 25
+                },
+                calm: {
+                    atmosphere: 'dusk',
+                    weatherIntensity: 5,
+                    fogDensity: 30,
+                    waveEnergy: 20,
+                    beaconPower: 60,
+                    rotationSpeed: 70,
+                    lightningFrequency: 0,
+                    wildlifeActivity: 40
+                },
+                dramatic: {
+                    atmosphere: 'storm',
+                    weatherIntensity: 60,
+                    fogDensity: 70,
+                    waveEnergy: 75,
+                    beaconPower: 95,
+                    rotationSpeed: 150,
+                    lightningFrequency: 50,
+                    wildlifeActivity: 10
+                }
+            };
+
+            if (presets[preset]) {
+                Object.assign(state, presets[preset]);
+                updateAllControls();
+            }
+        }
+
+        // Randomize environment
+        function randomizeEnvironment() {
+            state.atmosphere = ['night', 'dusk', 'storm'][Math.floor(Math.random() * 3)];
+            state.weatherIntensity = Math.floor(Math.random() * 100);
+            state.fogDensity = Math.floor(Math.random() * 100);
+            state.waveEnergy = Math.floor(Math.random() * 100);
+            state.beaconPower = Math.floor(Math.random() * 100);
+            state.rotationSpeed = Math.floor(Math.random() * 180) + 20;
+            state.lightningFrequency = Math.floor(Math.random() * 100);
+            state.wildlifeActivity = Math.floor(Math.random() * 100);
+            
+            updateAllControls();
+        }
+
+        // Reset environment
+        function resetEnvironment() {
+            state = {
+                atmosphere: 'night',
+                weatherIntensity: 0,
+                fogDensity: 50,
+                waveEnergy: 50,
+                beaconPower: 80,
+                rotationSpeed: 100,
+                lightningFrequency: 30,
+                wildlifeActivity: 20,
+                isPaused: false,
+                isTimeLapse: false,
+                isSoundEnabled: false,
+                precipitationType: 'none'
+            };
+            
+            updateAllControls();
+        }
+
+        // Update all controls
+        function updateAllControls() {
+            // Update slider values
+            document.getElementById('weatherIntensity').value = state.weatherIntensity;
+            document.getElementById('fogDensity').value = state.fogDensity;
+            document.getElementById('waveEnergy').value = state.waveEnergy;
+            document.getElementById('beaconPower').value = state.beaconPower;
+            document.getElementById('rotationSpeed').value = state.rotationSpeed;
+            document.getElementById('lightningFrequency').value = state.lightningFrequency;
+            document.getElementById('wildlifeActivity').value = state.wildlifeActivity;
+            
+            // Update displayed values
+            updateWeather(state.weatherIntensity);
+            updateFog(state.fogDensity);
+            updateWaves(state.waveEnergy);
+            updateBeacon(state.beaconPower);
+            updateRotation(state.rotationSpeed);
+            updateLightning(state.lightningFrequency);
+            updateWildlife(state.wildlifeActivity);
+            
+            // Set atmosphere
+            const sky = document.getElementById('sky');
+            const ocean = document.getElementById('ocean');
+            const moon = document.getElementById('moon');
+            
+            sky.className = 'sky ' + state.atmosphere;
+            ocean.className = 'ocean ' + state.atmosphere;
+            
+            // Update atmosphere buttons
+            document.querySelectorAll('.button-grid .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const atmosphereButtons = document.querySelectorAll('.button-grid .btn');
+            atmosphereButtons.forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(state.atmosphere)) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            document.getElementById('atmosphereValue').textContent = 
+                state.atmosphere.charAt(0).toUpperCase() + state.atmosphere.slice(1);
+            
+            // Update precipitation
+            if (state.atmosphere === 'storm' || state.weatherIntensity > 30) {
+                state.precipitationType = 'rain';
+            } else {
+                state.precipitationType = 'none';
+            }
+            updatePrecipitation();
+            
+            // Schedule lightning
+            scheduleLightning();
+            
+            // Generate birds
+            generateBirds();
+        }
+
+        // Time lapse
+        function toggleTimeLapse() {
+            state.isTimeLapse = !state.isTimeLapse;
+            const btn = document.getElementById('timeLapseBtn');
+            
+            if (state.isTimeLapse) {
+                startTimeLapse();
+                btn.textContent = '⏱️ Stop Time Lapse';
+            } else {
+                stopTimeLapse();
+                btn.textContent = '⏱️ Time Lapse';
+            }
+        }
+
+        function startTimeLapse() {
+            let timeIndex = 0;
+            const atmospheres = ['dusk', 'night', 'storm'];
+            
+            timeLapseInterval = setInterval(() => {
+                if (!state.isPaused) {
+                    state.atmosphere = atmospheres[timeIndex];
+                    timeIndex = (timeIndex + 1) % atmospheres.length;
+                    
+                    // Randomize other parameters slightly
+                    state.fogDensity = Math.max(0, Math.min(100, state.fogDensity + (Math.random() * 20 - 10)));
+                    state.waveEnergy = Math.max(0, Math.min(100, state.waveEnergy + (Math.random() * 30 - 15)));
+                    state.weatherIntensity = state.atmosphere === 'storm' ? 
+                        Math.min(100, state.weatherIntensity + 10) : 
+                        Math.max(0, state.weatherIntensity - 5);
+                    
+                    updateAllControls();
+                }
+            }, 5000); // Change every 5 seconds
+        }
+
+        function stopTimeLapse() {
+            clearInterval(timeLapseInterval);
+        }
+
+        // Pause/resume
+        function togglePause() {
+            state.isPaused = !state.isPaused;
+            const btn = document.getElementById('pauseBtn');
+            
+            if (state.isPaused) {
+                // Pause all animations
+                document.querySelectorAll('*').forEach(el => {
+                    if (el.style.animationPlayState !== undefined) {
+                        el.style.animationPlayState = 'paused';
+                    }
+                });
+                btn.textContent = '▶️ Resume All';
+            } else {
+                // Resume all animations
+                document.querySelectorAll('*').forEach(el => {
+                    if (el.style.animationPlayState !== undefined) {
+                        el.style.animationPlayState = 'running';
+                    }
+                });
+                btn.textContent = '⏸️ Pause All';
+            }
+        }
+
+        // Sound control
+        function toggleSound() {
+            state.isSoundEnabled = !state.isSoundEnabled;
+            const btn = document.getElementById('soundBtn');
+            
+            if (state.isSoundEnabled) {
+                btn.textContent = '🔇 Disable Sound';
+                // In a real implementation, you would play ambient sounds here
+                // For now, we'll just update the visualizer
+                document.getElementById('audioVisualizer').style.opacity = '1';
+            } else {
+                btn.textContent = '🔊 Enable Sound';
+                document.getElementById('audioVisualizer').style.opacity = '0.3';
+            }
+        }
+
+        // Control panel
+        function toggleControls() {
+            const controls = document.getElementById('controls');
+            const btn = document.getElementById('minimizeBtn');
+            controls.classList.toggle('minimized');
+            btn.textContent = controls.classList.contains('minimized') ? '+' : '−';
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && e.target === document.body) {
+                e.preventDefault();
+                togglePause();
+            }
+            if (e.key === 'Escape') {
+                toggleControls();
+            }
+            if (e.key === 'r' || e.key === 'R') {
+                randomizeEnvironment();
+            }
+            if (e.key === 't' || e.key === 'T') {
+                toggleTimeLapse();
+            }
+            if (e.key === '1') applyPreset('serene');
+            if (e.key === '2') applyPreset('misty');
+            if (e.key === '3') applyPreset('stormy');
+            if (e.key === '4') applyPreset('aurora');
+            if (e.key === '5') applyPreset('calm');
+            if (e.key === '6') applyPreset('dramatic');
+        });
+
+        // Focus management for keyboard controls
+        document.addEventListener('click', () => {
+            if (document.activeElement === document.body) return;
+            document.body.focus();
+        });
+
+        document.body.tabIndex = 0;
+        document.body.focus();
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            generateRealisticStars();
+            generateVolumetricClouds();
+            generateBirds();
+            updatePrecipitation();
+        });
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
