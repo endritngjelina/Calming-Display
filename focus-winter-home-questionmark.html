@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blizzard Cabin Sanctuary</title>
+    <style>
+        :root {
+            --color-bg-1: rgba(29, 78, 216, 0.15);
+            --color-bg-2: rgba(180, 83, 9, 0.15);
+            --color-bg-3: rgba(21, 128, 61, 0.15);
+            --color-bg-4: rgba(185, 28, 28, 0.15);
+            --color-bg-5: rgba(107, 33, 168, 0.15);
+            --color-bg-6: rgba(194, 65, 12, 0.15);
+            --color-bg-7: rgba(190, 24, 93, 0.15);
+            --color-bg-8: rgba(8, 145, 178, 0.15);
+            --color-background: #0f1419;
+            --color-surface: #1a1f2e;
+            --color-text: #e8e8e8;
+            --color-text-secondary: #a0a8b8;
+            --color-primary: #32b8c6;
+            --color-primary-hover: #2ea6b4;
+            --color-primary-active: #1a6470;
+            --color-secondary: rgba(119, 124, 124, 0.15);
+            --color-secondary-hover: rgba(119, 124, 124, 0.25);
+            --color-secondary-active: rgba(119, 124, 124, 0.3);
+            --color-border: rgba(119, 124, 124, 0.3);
+            --color-focus-ring: rgba(50, 184, 198, 0.4);
+            --color-success: #32b8c6;
+            --color-error: #ff5459;
+            --color-warning: #e68161;
+            --color-info: #a7a9a9;
+            --radius-sm: 6px;
+            --radius-base: 8px;
+            --radius-md: 10px;
+            --radius-lg: 12px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-background);
+            color: var(--color-text);
+        }
+
+        .scene-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #1a2332 0%, #0f1419 50%, #0a0e16 100%);
+            overflow: hidden;
+        }
+
+        /* ===== PARALLAX SNOW LAYERS ===== */
+        .snow-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .snowflake {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ffffff;
+            border-radius: 50%;
+            opacity: 0.7;
+            filter: blur(0.5px);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+        }
+
+        /* ===== CABIN ===== */
+        .cabin-wrapper {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 350px;
+            z-index: 50;
+        }
+
+        .cabin {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 20px 60px rgba(0, 0, 0, 0.8));
+        }
+
+        /* Cabin structure */
+        .cabin-base {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 200px;
+            background: linear-gradient(135deg, #4a3728 0%, #2d2419 100%);
+            border: 3px solid #1a1410;
+            border-radius: 20px 20px 0 0;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6), inset -2px -2px 8px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        /* Log texture */
+        .log-texture {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(90deg, transparent 0, transparent 20px, rgba(0, 0, 0, 0.1) 20px, rgba(0, 0, 0, 0.1) 21px),
+                repeating-linear-gradient(0deg, transparent 0, transparent 15px, rgba(0, 0, 0, 0.15) 15px, rgba(0, 0, 0, 0.15) 16px);
+            opacity: 0.8;
+        }
+
+        /* Roof */
+        .cabin-roof {
+            position: absolute;
+            bottom: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-bottom: 100px solid #2d2419;
+            filter: drop-shadow(0 -10px 20px rgba(0, 0, 0, 0.6));
+            z-index: 10;
+        }
+
+        .roof-snow {
+            position: absolute;
+            bottom: 195px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 330px;
+            height: 35px;
+            background: linear-gradient(180deg, #ffffff 0%, #f0f8ff 100%);
+            border-radius: 50% 50% 0 0;
+            opacity: 0.95;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6), 0 4px 12px rgba(0, 0, 0, 0.5);
+            animation: snowShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes snowShimmer {
+            0%, 100% { opacity: 0.95; }
+            50% { opacity: 1; }
+        }
+
+        /* Windows */
+        .window-frame {
+            position: absolute;
+            background: linear-gradient(135deg, #1a1410 0%, #0f0b08 100%);
+            border: 2px solid #0a0705;
+            border-radius: 6px;
+        }
+
+        .window-frame.left {
+            bottom: 100px;
+            left: 40px;
+            width: 80px;
+            height: 80px;
+        }
+
+        .window-frame.right {
+            bottom: 100px;
+            right: 40px;
+            width: 80px;
+            height: 80px;
+        }
+
+        .window-glass {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 200, 100, 0.4), rgba(255, 150, 50, 0.2));
+            border-radius: 4px;
+            animation: windowGlow 4s ease-in-out infinite;
+            overflow: hidden;
+        }
+
+        @keyframes windowGlow {
+            0%, 100% { background: radial-gradient(circle at 30% 30%, rgba(255, 200, 100, 0.4), rgba(255, 150, 50, 0.2)); }
+            50% { background: radial-gradient(circle at 30% 30%, rgba(255, 220, 120, 0.5), rgba(255, 170, 60, 0.3)); }
+        }
+
+        .window-pane {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+        }
+
+        .window-pane.tl { top: 0; left: 0; }
+        .window-pane.tr { top: 0; right: 0; }
+        .window-pane.bl { bottom: 0; left: 0; }
+        .window-pane.br { bottom: 0; right: 0; }
+
+        /* Chimney */
+        .chimney {
+            position: absolute;
+            bottom: 200px;
+            right: 60px;
+            width: 35px;
+            height: 120px;
+            background: linear-gradient(90deg, #5a4535 0%, #3d302a 100%);
+            border: 2px solid #2d2419;
+            border-radius: 2px;
+            box-shadow: inset -2px 0 4px rgba(0, 0, 0, 0.5), 2px 0 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .chimney-smoke {
+            position: absolute;
+            bottom: 115px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent);
+            border-radius: 50%;
+            animation: smokeRise 4s ease-in infinite;
+            opacity: 0;
+        }
+
+        .chimney-smoke:nth-child(1) { animation-delay: 0s; }
+        .chimney-smoke:nth-child(2) { animation-delay: 1s; width: 25px; height: 25px; }
+        .chimney-smoke:nth-child(3) { animation-delay: 2s; width: 30px; height: 30px; }
+
+        @keyframes smokeRise {
+            0% {
+                bottom: 115px;
+                opacity: 0;
+                transform: translateX(-50%) scale(0.8);
+            }
+            20% {
+                opacity: 0.6;
+            }
+            80% {
+                opacity: 0.3;
+            }
+            100% {
+                bottom: 200px;
+                opacity: 0;
+                transform: translateX(20px) scale(1.5);
+            }
+        }
+
+        /* Door */
+        .door {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 90px;
+            background: linear-gradient(90deg, #8b6f47 0%, #6b5437 100%);
+            border: 2px solid #4a3728;
+            border-radius: 4px 4px 0 0;
+            box-shadow: inset 1px 1px 3px rgba(255, 255, 255, 0.1), inset -1px -1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .door-knob {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle at 30% 30%, #ffeb3b, #ffc107);
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Snow accumulation on cabin */
+        .snow-cap {
+            position: absolute;
+            width: 100%;
+            bottom: 0;
+            height: 20px;
+            background: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
+            opacity: 0.9;
+        }
+
+        /* Ground/Snow bank */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(180deg, #e8f4f8 0%, #d0e8f0 100%);
+            box-shadow: inset 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ===== CONTROL PANEL ===== */
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 31, 46, 0.95);
+            border: 1px solid rgba(50, 184, 198, 0.3);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            max-width: 280px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .control-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-group {
+            margin-bottom: 16px;
+        }
+
+        .control-label {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+        }
+
+        .control-label input[type="range"] {
+            width: 100%;
+            margin: 8px 0;
+            cursor: pointer;
+        }
+
+        .slider-value {
+            display: inline-block;
+            font-size: 11px;
+            color: var(--color-primary);
+            margin-left: 8px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--color-primary);
+            color: var(--color-background);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all var(--duration-normal) var(--ease-standard);
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            background: var(--color-primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(50, 184, 198, 0.3);
+        }
+
+        .btn:active {
+            background: var(--color-primary-active);
+            transform: translateY(0);
+        }
+
+        /* Scenery buttons */
+        .scenery-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .scenery-btn {
+            padding: 8px;
+            background: rgba(50, 184, 198, 0.1);
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-standard);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .scenery-btn:hover {
+            background: rgba(50, 184, 198, 0.2);
+        }
+
+        .scenery-btn.active {
+            background: var(--color-primary);
+            color: var(--color-background);
+        }
+
+        /* Stars */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 30;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #ffffff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Moon */
+        .moon {
+            position: absolute;
+            top: 40px;
+            right: 80px;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 35% 35%, #fffacd, #fff8dc);
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(255, 250, 205, 0.3);
+            opacity: 0;
+            z-index: 25;
+        }
+
+        .moon.active {
+            animation: moonGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes moonGlow {
+            0%, 100% { opacity: 0.6; box-shadow: 0 0 40px rgba(255, 250, 205, 0.3); }
+            50% { opacity: 0.8; box-shadow: 0 0 60px rgba(255, 250, 205, 0.5); }
+        }
+
+        /* Aurora effect */
+        .aurora {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 200, 0.1), transparent);
+            opacity: 0;
+            animation: auroraWave 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .aurora.active {
+            animation: auroraWave 8s ease-in-out infinite;
+        }
+
+        @keyframes auroraWave {
+            0%, 100% { opacity: 0; transform: translateX(-100%); }
+            50% { opacity: 0.3; transform: translateX(100%); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .controls {
+                max-width: 200px;
+                padding: 15px;
+                top: 10px;
+                right: 10px;
+            }
+
+            .cabin-wrapper {
+                width: 280px;
+                height: 250px;
+            }
+
+            .cabin-base {
+                width: 220px;
+                height: 150px;
+                bottom: 45px;
+            }
+
+            .cabin-roof {
+                border-left: 120px solid transparent;
+                border-right: 120px solid transparent;
+                border-bottom: 75px solid #2d2419;
+                bottom: 150px;
+            }
+
+            .roof-snow {
+                width: 250px;
+                height: 25px;
+                bottom: 145px;
+            }
+
+            .chimney {
+                height: 90px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <!-- Background aurora/glow -->
+        <div class="aurora" id="aurora"></div>
+
+        <!-- Moon -->
+        <div class="moon" id="moon"></div>
+
+        <!-- Stars -->
+        <div class="stars" id="stars"></div>
+
+        <!-- Parallax snow layers -->
+        <div class="snow-layer" id="snowLayer1"></div>
+        <div class="snow-layer" id="snowLayer2"></div>
+        <div class="snow-layer" id="snowLayer3"></div>
+
+        <!-- Cabin -->
+        <div class="cabin-wrapper">
+            <div class="cabin">
+                <div class="cabin-roof"></div>
+                <div class="roof-snow"></div>
+
+                <div class="cabin-base">
+                    <div class="log-texture"></div>
+
+                    <!-- Left window -->
+                    <div class="window-frame left">
+                        <div class="window-glass">
+                            <div class="window-pane tl"></div>
+                            <div class="window-pane tr"></div>
+                            <div class="window-pane bl"></div>
+                            <div class="window-pane br"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right window -->
+                    <div class="window-frame right">
+                        <div class="window-glass">
+                            <div class="window-pane tl"></div>
+                            <div class="window-pane tr"></div>
+                            <div class="window-pane bl"></div>
+                            <div class="window-pane br"></div>
+                        </div>
+                    </div>
+
+                    <!-- Door -->
+                    <div class="door">
+                        <div class="door-knob"></div>
+                    </div>
+                </div>
+
+                <!-- Chimney with smoke -->
+                <div class="chimney">
+                    <div class="chimney-smoke"></div>
+                    <div class="chimney-smoke"></div>
+                    <div class="chimney-smoke"></div>
+                </div>
+
+                <div class="snow-cap"></div>
+            </div>
+        </div>
+
+        <!-- Ground -->
+        <div class="ground"></div>
+
+        <!-- Control Panel -->
+        <div class="controls">
+            <div class="control-title">⚙ Ambiance</div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <input type="checkbox" id="snowToggle" checked>
+                    Heavy Snow
+                </label>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <input type="checkbox" id="moonToggle">
+                    Moonlight
+                </label>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <input type="checkbox" id="auroraToggle">
+                    Aurora
+                </label>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <input type="checkbox" id="starsToggle">
+                    Stars
+                </label>
+            </div>
+
+            <div class="control-group">
+                <label>
+                    <span class="control-label" style="display: block; margin-bottom: 8px;">Snow Speed</span>
+                    <input type="range" id="snowSpeed" min="0.5" max="3" step="0.1" value="1">
+                    <span class="slider-value" id="speedValue">1.0x</span>
+                </label>
+            </div>
+
+            <div class="scenery-buttons">
+                <button class="scenery-btn active" data-scenery="blizzard">Blizzard</button>
+                <button class="scenery-btn" data-scenery="gentle">Gentle Snow</button>
+                <button class="scenery-btn" data-scenery="calm">Calm Night</button>
+                <button class="scenery-btn" data-scenery="magical">Magical</button>
+            </div>
+
+            <button class="btn" id="fullscreenBtn">Fullscreen</button>
+        </div>
+    </div>
+
+    <script>
+        // Parallax snow system
+        class SnowParticle {
+            constructor(layer, index, speedMultiplier = 1) {
+                this.layer = layer;
+                this.element = document.createElement('div');
+                this.element.className = 'snowflake';
+                this.layer.appendChild(this.element);
+
+                this.size = Math.random() * 6 + 2;
+                this.speed = (Math.random() * 2 + 1) * speedMultiplier;
+                this.x = Math.random() * window.innerWidth;
+                this.y = Math.random() * window.innerHeight - window.innerHeight;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.opacity = Math.random() * 0.7 + 0.3;
+
+                this.updateStyle();
+            }
+
+            updateStyle() {
+                this.element.style.width = this.size + 'px';
+                this.element.style.height = this.size + 'px';
+                this.element.style.left = this.x + 'px';
+                this.element.style.top = this.y + 'px';
+                this.element.style.opacity = this.opacity;
+            }
+
+            update() {
+                this.y += this.speed;
+                this.x += this.vx;
+                this.vx += (Math.random() - 0.5) * 0.2;
+
+                if (this.x < -10) this.x = window.innerWidth + 10;
+                if (this.x > window.innerWidth + 10) this.x = -10;
+                if (this.y > window.innerHeight + 10) {
+                    this.y = -10;
+                    this.x = Math.random() * window.innerWidth;
+                }
+
+                this.updateStyle();
+            }
+        }
+
+        class SnowLayer {
+            constructor(layerId, particleCount, speedMultiplier = 1) {
+                this.layer = document.getElementById(layerId);
+                this.particles = [];
+                this.speedMultiplier = speedMultiplier;
+                this.animationId = null;
+                this.isAnimating = false;
+
+                this.init(particleCount);
+            }
+
+            init(count) {
+                for (let i = 0; i < count; i++) {
+                    this.particles.push(new SnowParticle(this.layer, i, this.speedMultiplier));
+                }
+            }
+
+            setSpeedMultiplier(multiplier) {
+                this.speedMultiplier = multiplier;
+                this.particles.forEach(p => p.speed = (Math.random() * 2 + 1) * multiplier);
+            }
+
+            animate() {
+                if (!this.isAnimating) return;
+
+                this.particles.forEach(p => p.update());
+                this.animationId = requestAnimationFrame(() => this.animate());
+            }
+
+            start() {
+                this.isAnimating = true;
+                this.animate();
+            }
+
+            stop() {
+                this.isAnimating = false;
+                if (this.animationId) cancelAnimationFrame(this.animationId);
+            }
+
+            clear() {
+                this.particles.forEach(p => p.element.remove());
+                this.particles = [];
+            }
+        }
+
+        // Initialize snow layers
+        const snowLayer1 = new SnowLayer('snowLayer1', 60, 0.5);
+        const snowLayer2 = new SnowLayer('snowLayer2', 40, 1);
+        const snowLayer3 = new SnowLayer('snowLayer3', 20, 1.5);
+
+        // Initialize stars
+        function initStars() {
+            const starsContainer = document.getElementById('stars');
+            starsContainer.innerHTML = '';
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * window.innerWidth + 'px';
+                star.style.top = Math.random() * (window.innerHeight * 0.6) + 'px';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // UI Controls
+        const snowToggle = document.getElementById('snowToggle');
+        const moonToggle = document.getElementById('moonToggle');
+        const auroraToggle = document.getElementById('auroraToggle');
+        const starsToggle = document.getElementById('starsToggle');
+        const snowSpeed = document.getElementById('snowSpeed');
+        const speedValue = document.getElementById('speedValue');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const sceneryButtons = document.querySelectorAll('.scenery-btn');
+
+        // Event listeners
+        snowToggle.addEventListener('change', () => {
+            if (snowToggle.checked) {
+                snowLayer1.start();
+                snowLayer2.start();
+                snowLayer3.start();
+            } else {
+                snowLayer1.stop();
+                snowLayer2.stop();
+                snowLayer3.stop();
+            }
+        });
+
+        moonToggle.addEventListener('change', () => {
+            const moon = document.getElementById('moon');
+            moon.classList.toggle('active');
+        });
+
+        auroraToggle.addEventListener('change', () => {
+            const aurora = document.getElementById('aurora');
+            aurora.classList.toggle('active');
+        });
+
+        starsToggle.addEventListener('change', () => {
+            const stars = document.getElementById('stars');
+            if (starsToggle.checked) {
+                initStars();
+                stars.style.opacity = '1';
+            } else {
+                stars.style.opacity = '0';
+            }
+        });
+
+        snowSpeed.addEventListener('input', (e) => {
+            const multiplier = parseFloat(e.target.value);
+            speedValue.textContent = multiplier.toFixed(1) + 'x';
+            snowLayer1.setSpeedMultiplier(multiplier * 0.5);
+            snowLayer2.setSpeedMultiplier(multiplier);
+            snowLayer3.setSpeedMultiplier(multiplier * 1.5);
+        });
+
+        fullscreenBtn.addEventListener('click', () => {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(() => {});
+            }
+        });
+
+        // Scenery presets
+        sceneryButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                sceneryButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const scenery = btn.dataset.scenery;
+                applyScenery(scenery);
+            });
+        });
+
+        function applyScenery(type) {
+            const container = document.querySelector('.scene-container');
+            const moon = document.getElementById('moon');
+            const aurora = document.getElementById('aurora');
+
+            switch(type) {
+                case 'blizzard':
+                    container.style.background = 'linear-gradient(180deg, #0a1428 0%, #0f1419 50%, #050810 100%)';
+                    snowToggle.checked = true;
+                    snowToggle.dispatchEvent(new Event('change'));
+                    moonToggle.checked = false;
+                    auroraToggle.checked = false;
+                    starsToggle.checked = false;
+                    moon.classList.remove('active');
+                    aurora.classList.remove('active');
+                    document.getElementById('stars').style.opacity = '0';
+                    snowSpeed.value = '2';
+                    speedValue.textContent = '2.0x';
+                    snowLayer1.setSpeedMultiplier(1);
+                    snowLayer2.setSpeedMultiplier(2);
+                    snowLayer3.setSpeedMultiplier(3);
+                    break;
+
+                case 'gentle':
+                    container.style.background = 'linear-gradient(180deg, #1a2537 0%, #0f1419 50%, #0a0e16 100%)';
+                    snowToggle.checked = true;
+                    snowToggle.dispatchEvent(new Event('change'));
+                    moonToggle.checked = true;
+                    moon.classList.add('active');
+                    auroraToggle.checked = false;
+                    starsToggle.checked = false;
+                    aurora.classList.remove('active');
+                    document.getElementById('stars').style.opacity = '0';
+                    snowSpeed.value = '0.7';
+                    speedValue.textContent = '0.7x';
+                    snowLayer1.setSpeedMultiplier(0.35);
+                    snowLayer2.setSpeedMultiplier(0.7);
+                    snowLayer3.setSpeedMultiplier(1.05);
+                    break;
+
+                case 'calm':
+                    container.style.background = 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
+                    snowToggle.checked = false;
+                    snowToggle.dispatchEvent(new Event('change'));
+                    moonToggle.checked = true;
+                    moon.classList.add('active');
+                    starsToggle.checked = true;
+                    document.getElementById('stars').style.opacity = '1';
+                    initStars();
+                    auroraToggle.checked = false;
+                    aurora.classList.remove('active');
+                    break;
+
+                case 'magical':
+                    container.style.background = 'linear-gradient(180deg, #0f0a1f 0%, #1a0f2e 50%, #0a0015 100%)';
+                    snowToggle.checked = true;
+                    snowToggle.dispatchEvent(new Event('change'));
+                    moonToggle.checked = false;
+                    moon.classList.remove('active');
+                    auroraToggle.checked = true;
+                    aurora.classList.add('active');
+                    starsToggle.checked = true;
+                    document.getElementById('stars').style.opacity = '1';
+                    initStars();
+                    snowSpeed.value = '1.2';
+                    speedValue.textContent = '1.2x';
+                    snowLayer1.setSpeedMultiplier(0.6);
+                    snowLayer2.setSpeedMultiplier(1.2);
+                    snowLayer3.setSpeedMultiplier(1.8);
+                    break;
+            }
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            // Snow will reposition automatically
+        });
+
+        // Start animation
+        snowLayer1.start();
+        snowLayer2.start();
+        snowLayer3.start();
+
+        // Initialize
+        initStars();
+        document.getElementById('stars').style.opacity = '0';
+    </script>
+</body>
+</html>
