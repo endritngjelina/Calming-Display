@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storm Over Fields - Enhanced</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+        }
+
+        .scene-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Sky gradient backgrounds */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 65%;
+            z-index: 10;
+            transition: background 1.2s ease;
+        }
+
+        .sky.clear {
+            background: linear-gradient(180deg, #87CEEB 0%, #B0E0F6 50%, #E0F6FF 100%);
+        }
+
+        .sky.partly-cloudy {
+            background: linear-gradient(180deg, #6B8FA3 0%, #8BA9B8 50%, #C8D8E4 100%);
+        }
+
+        .sky.overcast {
+            background: linear-gradient(180deg, #4A5568 0%, #6B7785 40%, #8A9099 100%);
+        }
+
+        .sky.storm {
+            background: linear-gradient(180deg, #1a1a2e 0%, #2d3748 40%, #4a5568 100%);
+        }
+
+        .sky.severe {
+            background: linear-gradient(180deg, #0f0f1e 0%, #1a1a2e 50%, #2d3748 100%);
+        }
+
+        /* Atmospheric grain/noise */
+        .atmosphere-grain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 65%;
+            z-index: 11;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E");
+            animation: grain-shift 0.3s steps(4) infinite;
+            pointer-events: none;
+        }
+
+        @keyframes grain-shift {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(-2%, -2%); }
+            50% { transform: translate(2%, 2%); }
+            75% { transform: translate(-2%, 2%); }
+        }
+
+        /* Regular clouds */
+        .clouds-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 65%;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .cloud {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(30px);
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .cloud-1 {
+            width: 350px;
+            height: 120px;
+            top: 10%;
+            left: 5%;
+            background: radial-gradient(ellipse at 30% 40%, rgba(255, 255, 255, 0.9), rgba(220, 220, 230, 0.5), transparent);
+            animation: cloud-drift-1 80s infinite ease-in-out;
+        }
+
+        .cloud-2 {
+            width: 280px;
+            height: 100px;
+            top: 20%;
+            right: 10%;
+            background: radial-gradient(ellipse at 40% 50%, rgba(255, 255, 255, 0.85), rgba(210, 210, 220, 0.4), transparent);
+            animation: cloud-drift-2 70s infinite ease-in-out;
+        }
+
+        .cloud-3 {
+            width: 320px;
+            height: 110px;
+            top: 35%;
+            left: 30%;
+            background: radial-gradient(ellipse at 35% 45%, rgba(255, 255, 255, 0.8), rgba(200, 200, 210, 0.35), transparent);
+            animation: cloud-drift-3 90s infinite ease-in-out;
+        }
+
+        .cloud-4 {
+            width: 300px;
+            height: 95px;
+            top: 15%;
+            left: 60%;
+            background: radial-gradient(ellipse at 40% 40%, rgba(255, 255, 255, 0.75), rgba(215, 215, 225, 0.4), transparent);
+            animation: cloud-drift-4 85s infinite ease-in-out;
+        }
+
+        /* Storm clouds */
+        .storm-clouds {
+            position: absolute;
+            width: 100%;
+            height: 65%;
+            z-index: 30;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        .storm-cloud {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(45px);
+        }
+
+        .storm-1 {
+            width: 600px;
+            height: 240px;
+            top: 5%;
+            left: -10%;
+            background: radial-gradient(ellipse at 40% 50%, rgba(50, 50, 70, 0.95), rgba(30, 30, 50, 0.7), transparent);
+            animation: storm-roll 20s ease-in-out infinite;
+        }
+
+        .storm-2 {
+            width: 700px;
+            height: 280px;
+            top: 15%;
+            left: 20%;
+            background: radial-gradient(ellipse at 35% 45%, rgba(40, 40, 60, 0.9), rgba(25, 25, 45, 0.6), transparent);
+            animation: storm-roll-slow 25s ease-in-out infinite;
+        }
+
+        .storm-3 {
+            width: 550px;
+            height: 220px;
+            top: 30%;
+            left: 50%;
+            background: radial-gradient(ellipse at 45% 50%, rgba(45, 45, 65, 0.85), rgba(28, 28, 48, 0.55), transparent);
+            animation: storm-roll-slower 30s ease-in-out infinite;
+        }
+
+        .storm-4 {
+            width: 650px;
+            height: 260px;
+            top: 10%;
+            right: 10%;
+            background: radial-gradient(ellipse at 30% 40%, rgba(35, 35, 55, 0.88), rgba(22, 22, 42, 0.58), transparent);
+            animation: storm-roll-reverse 22s ease-in-out infinite;
+        }
+
+        /* Fog/mist layer */
+        .mist-layer {
+            position: absolute;
+            bottom: 30%;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            z-index: 25;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            pointer-events: none;
+        }
+
+        .mist {
+            position: absolute;
+            bottom: 0;
+            background: radial-gradient(ellipse at 50% 100%, rgba(200, 200, 210, 0.4), transparent);
+            filter: blur(40px);
+            border-radius: 50%;
+        }
+
+        .mist-1 {
+            width: 500px;
+            height: 150px;
+            left: 10%;
+            animation: mist-drift-1 40s infinite ease-in-out;
+        }
+
+        .mist-2 {
+            width: 600px;
+            height: 180px;
+            left: 50%;
+            animation: mist-drift-2 50s infinite ease-in-out;
+        }
+
+        .mist-3 {
+            width: 450px;
+            height: 140px;
+            right: 15%;
+            animation: mist-drift-3 45s infinite ease-in-out;
+        }
+
+        /* Rain layer */
+        .rain-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 60;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .rain-sheet {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 0%, rgba(200, 210, 220, 0.15) 40%, rgba(180, 190, 200, 0.1) 100%);
+            opacity: 0;
+            animation: rain-sweep 8s linear infinite;
+        }
+
+        .rain-drop {
+            position: absolute;
+            width: 2px;
+            height: 50px;
+            background: linear-gradient(to bottom, transparent, rgba(200, 210, 220, 0.6), transparent);
+            opacity: 0;
+        }
+
+        /* Horizon */
+        .horizon {
+            position: absolute;
+            bottom: 35%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.15);
+            z-index: 35;
+        }
+
+        /* Fields */
+        .fields {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35%;
+            z-index: 15;
+            transition: all 1s ease;
+        }
+
+        .field-layer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            transition: filter 1s ease;
+        }
+
+        .field-far {
+            height: 40%;
+            bottom: 60%;
+            background: linear-gradient(180deg, #6B8A6B 0%, #5A7A5A 100%);
+        }
+
+        .field-mid {
+            height: 35%;
+            bottom: 25%;
+            background: linear-gradient(180deg, #5A7A5A 0%, #4A6A4A 100%);
+        }
+
+        .field-near {
+            height: 25%;
+            bottom: 0;
+            background: linear-gradient(180deg, #4A6A4A 0%, #3A5A3A 100%);
+        }
+
+        .grass-texture {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.02) 2px,
+                rgba(0, 0, 0, 0.02) 4px
+            );
+            opacity: 0.5;
+        }
+
+        .field-sway {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.05) 30%,
+                rgba(255, 255, 255, 0.08) 50%,
+                rgba(255, 255, 255, 0.05) 70%,
+                transparent 100%
+            );
+            animation: field-wave 4s ease-in-out infinite;
+        }
+
+        /* Tree line */
+        .tree-line {
+            position: absolute;
+            bottom: 28%;
+            width: 100%;
+            height: 12%;
+            z-index: 40;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 0;
+        }
+
+        .tree-trunk {
+            position: absolute;
+            bottom: 0;
+            background: rgba(30, 25, 20, 0.8);
+            box-shadow: 1px 0 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .tree-canopy {
+            position: absolute;
+            bottom: 0;
+            background: radial-gradient(ellipse at 50% 60%, rgba(35, 60, 35, 0.9), rgba(25, 50, 25, 0.7), rgba(20, 40, 20, 0.3));
+            border-radius: 50%;
+            filter: blur(2px);
+        }
+
+        /* Lightning */
+        .lightning-container {
+            position: absolute;
+            width: 100%;
+            height: 65%;
+            top: 0;
+            left: 0;
+            z-index: 70;
+            pointer-events: none;
+        }
+
+        .lightning-bolt {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .bolt-segment {
+            position: absolute;
+            background: linear-gradient(to bottom, 
+                rgba(255, 255, 255, 1) 0%, 
+                rgba(200, 220, 255, 0.9) 50%,
+                rgba(180, 200, 255, 0.7) 100%
+            );
+            box-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(200, 220, 255, 0.6),
+                0 0 30px rgba(180, 200, 255, 0.4);
+        }
+
+        .lightning-flash {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, 
+                rgba(200, 220, 255, 0.5), 
+                transparent 60%
+            );
+            opacity: 0;
+            z-index: 69;
+        }
+
+        .sky-flash {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(200, 220, 255, 0.3);
+            opacity: 0;
+            z-index: 68;
+        }
+
+        /* Control panel */
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(10, 10, 15, 0.92);
+            border: 1px solid rgba(100, 120, 150, 0.4);
+            border-radius: 12px;
+            padding: 24px;
+            z-index: 100;
+            min-width: 340px;
+            max-width: 380px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(100, 120, 150, 0.3);
+        }
+
+        .panel-icon {
+            font-size: 28px;
+        }
+
+        .panel-title {
+            color: #A0C4E8;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            display: block;
+            color: #8BA4C0;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(60, 70, 90, 0.6);
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6BA8D8, #4A88B8);
+            cursor: pointer;
+            box-shadow: 0 0 0 2px rgba(107, 168, 216, 0.3),
+                        0 2px 8px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 0 3px rgba(107, 168, 216, 0.5),
+                        0 3px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6BA8D8, #4A88B8);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 0 2px rgba(107, 168, 216, 0.3),
+                        0 2px 8px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        .slider-value {
+            color: #A0C4E8;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: right;
+            letter-spacing: 0.3px;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .preset-btn {
+            padding: 12px 16px;
+            border: 1px solid rgba(100, 120, 150, 0.4);
+            background: rgba(40, 50, 70, 0.4);
+            color: #8BA4C0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .preset-btn:hover {
+            background: rgba(60, 80, 110, 0.6);
+            border-color: rgba(107, 168, 216, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .preset-btn.active {
+            background: linear-gradient(135deg, rgba(74, 136, 184, 0.8), rgba(58, 108, 148, 0.8));
+            border-color: rgba(107, 168, 216, 0.9);
+            color: #E8F4FF;
+            box-shadow: 0 4px 16px rgba(74, 136, 184, 0.4);
+        }
+
+        .toggle-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(10, 10, 15, 0.92);
+            border: 1px solid rgba(100, 120, 150, 0.4);
+            border-radius: 12px;
+            padding: 12px 16px;
+            z-index: 101;
+            backdrop-filter: blur(15px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .toggle-panel:hover {
+            background: rgba(20, 25, 35, 0.95);
+            transform: translateY(-2px);
+        }
+
+        .toggle-icon {
+            color: #A0C4E8;
+            font-size: 24px;
+        }
+
+        /* Animations */
+        @keyframes cloud-drift-1 {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(60px, -15px); }
+            66% { transform: translate(120px, 5px); }
+        }
+
+        @keyframes cloud-drift-2 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-80px, 20px); }
+        }
+
+        @keyframes cloud-drift-3 {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(50px, 15px); }
+            75% { transform: translate(-30px, -10px); }
+        }
+
+        @keyframes cloud-drift-4 {
+            0%, 100% { transform: translate(0, 0); }
+            40% { transform: translate(-70px, -20px); }
+            80% { transform: translate(40px, 10px); }
+        }
+
+        @keyframes storm-roll {
+            0% { transform: translate(-150px, 0); }
+            50% { transform: translate(200px, 20px); }
+            100% { transform: translate(-150px, 0); }
+        }
+
+        @keyframes storm-roll-slow {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(250px, -30px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        @keyframes storm-roll-slower {
+            0% { transform: translate(100px, 0); }
+            50% { transform: translate(-200px, 25px); }
+            100% { transform: translate(100px, 0); }
+        }
+
+        @keyframes storm-roll-reverse {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(-180px, 15px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        @keyframes mist-drift-1 {
+            0%, 100% { transform: translateX(0); opacity: 0.3; }
+            50% { transform: translateX(100px); opacity: 0.6; }
+        }
+
+        @keyframes mist-drift-2 {
+            0%, 100% { transform: translateX(0); opacity: 0.4; }
+            50% { transform: translateX(-80px); opacity: 0.7; }
+        }
+
+        @keyframes mist-drift-3 {
+            0%, 100% { transform: translateX(0); opacity: 0.35; }
+            50% { transform: translateX(60px); opacity: 0.65; }
+        }
+
+        @keyframes rain-sweep {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes field-wave {
+            0%, 100% { transform: translateX(-100%); opacity: 0; }
+            50% { opacity: 0.6; transform: translateX(100%); }
+        }
+
+        @keyframes lightning-strike {
+            0%, 100% { opacity: 0; }
+            3% { opacity: 1; }
+            6% { opacity: 0; }
+            9% { opacity: 0.8; }
+            12% { opacity: 0; }
+        }
+
+        @keyframes flash-effect {
+            0%, 100% { opacity: 0; }
+            3% { opacity: 0.6; }
+            6% { opacity: 0; }
+            9% { opacity: 0.4; }
+            12% { opacity: 0; }
+        }
+
+        @keyframes sky-flash {
+            0%, 100% { opacity: 0; }
+            3% { opacity: 0.35; }
+            6% { opacity: 0; }
+            9% { opacity: 0.25; }
+            12% { opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                min-width: auto;
+                max-width: none;
+                padding: 16px;
+            }
+
+            .preset-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <!-- Sky -->
+        <div class="sky clear" id="sky"></div>
+        
+        <!-- Atmospheric grain -->
+        <div class="atmosphere-grain"></div>
+
+        <!-- Regular clouds -->
+        <div class="clouds-layer" id="cloudsLayer">
+            <div class="cloud cloud-1"></div>
+            <div class="cloud cloud-2"></div>
+            <div class="cloud cloud-3"></div>
+            <div class="cloud cloud-4"></div>
+        </div>
+
+        <!-- Storm clouds -->
+        <div class="storm-clouds" id="stormClouds">
+            <div class="storm-cloud storm-1"></div>
+            <div class="storm-cloud storm-2"></div>
+            <div class="storm-cloud storm-3"></div>
+            <div class="storm-cloud storm-4"></div>
+        </div>
+
+        <!-- Mist layer -->
+        <div class="mist-layer" id="mistLayer">
+            <div class="mist mist-1"></div>
+            <div class="mist mist-2"></div>
+            <div class="mist mist-3"></div>
+        </div>
+
+        <!-- Horizon -->
+        <div class="horizon"></div>
+
+        <!-- Tree line -->
+        <div class="tree-line" id="treeLine"></div>
+
+        <!-- Fields -->
+        <div class="fields" id="fields">
+            <div class="field-layer field-far">
+                <div class="grass-texture"></div>
+            </div>
+            <div class="field-layer field-mid">
+                <div class="grass-texture"></div>
+                <div class="field-sway"></div>
+            </div>
+            <div class="field-layer field-near">
+                <div class="grass-texture"></div>
+                <div class="field-sway" style="animation-delay: -2s;"></div>
+            </div>
+        </div>
+
+        <!-- Rain -->
+        <div class="rain-container" id="rainContainer">
+            <div class="rain-sheet"></div>
+        </div>
+
+        <!-- Lightning -->
+        <div class="lightning-container" id="lightningContainer">
+            <div class="sky-flash" id="skyFlash"></div>
+        </div>
+
+        <!-- Control Panel Toggle (Mobile) -->
+        <div class="toggle-panel" id="togglePanel">
+            <div class="toggle-icon">⚙️</div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel" id="controlPanel">
+            <div class="panel-header">
+                <div class="panel-icon">⛈️</div>
+                <div class="panel-title">Storm Control</div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Storm Intensity</label>
+                <div class="slider-container">
+                    <input type="range" id="stormSlider" min="0" max="100" value="0">
+                    <div class="slider-value" id="stormValue">Clear Sky</div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Wind Speed</label>
+                <div class="slider-container">
+                    <input type="range" id="windSlider" min="0" max="100" value="0">
+                    <div class="slider-value" id="windValue">Calm</div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Lightning Activity</label>
+                <div class="slider-container">
+                    <input type="range" id="lightningSlider" min="0" max="100" value="0">
+                    <div class="slider-value" id="lightningValue">None</div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Rain Intensity</label>
+                <div class="slider-container">
+                    <input type="range" id="rainSlider" min="0" max="100" value="0">
+                    <div class="slider-value" id="rainValue">No Rain</div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Atmosphere</label>
+                <div class="slider-container">
+                    <input type="range" id="mistSlider" min="0" max="100" value="30">
+                    <div class="slider-value" id="mistValue">Light</div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Scene Presets</label>
+                <div class="preset-buttons">
+                    <button class="preset-btn active" data-preset="clear">☀️ Clear</button>
+                    <button class="preset-btn" data-preset="building">🌥️ Building</button>
+                    <button class="preset-btn" data-preset="approaching">⛈️ Approaching</button>
+                    <button class="preset-btn" data-preset="intense">🌩️ Intense</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elements
+        const sky = document.getElementById('sky');
+        const stormClouds = document.getElementById('stormClouds');
+        const cloudsLayer = document.getElementById('cloudsLayer');
+        const mistLayer = document.getElementById('mistLayer');
+        const fields = document.getElementById('fields');
+        const rainContainer = document.getElementById('rainContainer');
+        const lightningContainer = document.getElementById('lightningContainer');
+        const skyFlash = document.getElementById('skyFlash');
+        const treeLine = document.getElementById('treeLine');
+
+        // Sliders
+        const stormSlider = document.getElementById('stormSlider');
+        const windSlider = document.getElementById('windSlider');
+        const lightningSlider = document.getElementById('lightningSlider');
+        const rainSlider = document.getElementById('rainSlider');
+        const mistSlider = document.getElementById('mistSlider');
+
+        // State
+        let lightningInterval = null;
+        let rainDrops = [];
+
+        // Initialize tree line
+        function createTreeLine() {
+            treeLine.innerHTML = '';
+            const treeCount = 18;
+            
+            for (let i = 0; i < treeCount; i++) {
+                const tree = document.createElement('div');
+                tree.className = 'tree';
+                tree.style.left = (i * (100 / treeCount) + Math.random() * 3) + '%';
+                
+                const baseHeight = 50 + Math.random() * 60;
+                const variation = 0.7 + Math.random() * 0.6;
+                const height = baseHeight * variation;
+                
+                const trunk = document.createElement('div');
+                trunk.className = 'tree-trunk';
+                trunk.style.width = (6 + Math.random() * 4) + 'px';
+                trunk.style.height = (height * 0.35) + 'px';
+                trunk.style.left = '50%';
+                trunk.style.transform = 'translateX(-50%)';
+                
+                const canopy = document.createElement('div');
+                canopy.className = 'tree-canopy';
+                canopy.style.width = (40 + Math.random() * 30) + 'px';
+                canopy.style.height = height + 'px';
+                canopy.style.left = '50%';
+                canopy.style.transform = 'translateX(-50%)';
+                
+                tree.appendChild(trunk);
+                tree.appendChild(canopy);
+                treeLine.appendChild(tree);
+            }
+        }
+
+        // Update storm intensity
+        function updateStorm(value) {
+            const clouds = cloudsLayer.querySelectorAll('.cloud');
+            
+            if (value === 0) {
+                document.getElementById('stormValue').textContent = 'Clear Sky';
+                sky.className = 'sky clear';
+                stormClouds.style.opacity = '0';
+                clouds.forEach(cloud => cloud.style.opacity = '0.7');
+            } else if (value < 25) {
+                document.getElementById('stormValue').textContent = 'Partly Cloudy';
+                sky.className = 'sky partly-cloudy';
+                stormClouds.style.opacity = value / 100;
+                clouds.forEach(cloud => cloud.style.opacity = '0.8');
+            } else if (value < 50) {
+                document.getElementById('stormValue').textContent = 'Overcast';
+                sky.className = 'sky overcast';
+                stormClouds.style.opacity = 0.4 + (value / 100);
+                clouds.forEach(cloud => cloud.style.opacity = '0.6');
+            } else if (value < 75) {
+                document.getElementById('stormValue').textContent = 'Storm Clouds';
+                sky.className = 'sky storm';
+                stormClouds.style.opacity = 0.7 + (value / 200);
+                clouds.forEach(cloud => cloud.style.opacity = '0.3');
+            } else {
+                document.getElementById('stormValue').textContent = 'Severe Storm';
+                sky.className = 'sky severe';
+                stormClouds.style.opacity = '0.95';
+                clouds.forEach(cloud => cloud.style.opacity = '0.1');
+            }
+            
+            // Adjust field brightness
+            const darkness = value / 150;
+            fields.style.filter = `brightness(${1 - darkness})`;
+        }
+
+        // Update wind
+        function updateWind(value) {
+            const labels = ['Calm', 'Light Breeze', 'Moderate', 'Strong Wind', 'Gale Force'];
+            const index = Math.min(Math.floor(value / 20), 4);
+            document.getElementById('windValue').textContent = labels[index];
+            
+            const swayElements = document.querySelectorAll('.field-sway');
+            swayElements.forEach((el, i) => {
+                if (value > 10) {
+                    el.style.opacity = value / 100;
+                    const speed = 6 - (value / 100) * 4;
+                    el.style.animationDuration = speed + 's';
+                } else {
+                    el.style.opacity = '0';
+                }
+            });
+        }
+
+        // Lightning system
+        function updateLightning(value) {
+            if (lightningInterval) {
+                clearInterval(lightningInterval);
+                lightningInterval = null;
+            }
+            
+            const labels = ['None', 'Rare', 'Occasional', 'Frequent', 'Constant'];
+            const index = Math.min(Math.floor(value / 20), 4);
+            document.getElementById('lightningValue').textContent = labels[index];
+            
+            if (value > 0) {
+                const interval = 12000 - (value / 100) * 10000;
+                lightningInterval = setInterval(() => {
+                    createLightning();
+                }, Math.max(interval, 1000));
+            }
+        }
+
+        function createLightning() {
+            const bolt = document.createElement('div');
+            bolt.className = 'lightning-bolt';
+            bolt.style.animation = 'lightning-strike 0.6s ease-out';
+            
+            const startX = 20 + Math.random() * 60;
+            const startY = 10 + Math.random() * 30;
+            
+            // Main bolt
+            const mainBolt = createBoltSegment(startX, startY, startX + (Math.random() - 0.5) * 8, startY + 25 + Math.random() * 15, 4);
+            bolt.appendChild(mainBolt);
+            
+            // Branches
+            const branchCount = 2 + Math.floor(Math.random() * 3);
+            for (let i = 0; i < branchCount; i++) {
+                const branchY = startY + 10 + Math.random() * 20;
+                const branch = createBoltSegment(
+                    startX, branchY,
+                    startX + (Math.random() - 0.5) * 15,
+                    branchY + 8 + Math.random() * 12,
+                    2
+                );
+                bolt.appendChild(branch);
+            }
+            
+            // Flash effects
+            const flash = document.createElement('div');
+            flash.className = 'lightning-flash';
+            flash.style.left = startX + '%';
+            flash.style.top = startY + '%';
+            flash.style.width = '40%';
+            flash.style.height = '50%';
+            flash.style.animation = 'flash-effect 0.6s ease-out';
+            
+            skyFlash.style.animation = 'sky-flash 0.6s ease-out';
+            
+            lightningContainer.appendChild(bolt);
+            lightningContainer.appendChild(flash);
+            
+            setTimeout(() => {
+                bolt.remove();
+                flash.remove();
+                skyFlash.style.animation = 'none';
+            }, 600);
+        }
+
+        function createBoltSegment(x1, y1, x2, y2, width) {
+            const segment = document.createElement('div');
+            segment.className = 'bolt-segment';
+            
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+            
+            segment.style.left = x1 + '%';
+            segment.style.top = y1 + '%';
+            segment.style.width = width + 'px';
+            segment.style.height = (length * 1.5) + 'vh';
+            segment.style.transform = `rotate(${angle + 90}deg)`;
+            segment.style.transformOrigin = 'top center';
+            
+            return segment;
+        }
+
+        // Rain system
+        function updateRain(value) {
+            const labels = ['No Rain', 'Drizzle', 'Light Rain', 'Moderate Rain', 'Heavy Rain'];
+            const index = Math.min(Math.floor(value / 20), 4);
+            document.getElementById('rainValue').textContent = labels[index];
+            
+            rainContainer.style.opacity = value / 100;
+            
+            // Clear existing rain drops
+            rainDrops.forEach(drop => drop.remove());
+            rainDrops = [];
+            
+            if (value > 0) {
+                const dropCount = Math.floor(value / 2);
+                for (let i = 0; i < dropCount; i++) {
+                    setTimeout(() => createRainDrop(), i * 50);
+                }
+            }
+        }
+
+        function createRainDrop() {
+            if (rainSlider.value == 0) return;
+            
+            const drop = document.createElement('div');
+            drop.className = 'rain-drop';
+            drop.style.left = Math.random() * 100 + '%';
+            drop.style.top = '-50px';
+            
+            const duration = 0.5 + Math.random() * 0.5;
+            const delay = Math.random() * 2;
+            
+            drop.style.animation = `none`;
+            drop.style.opacity = '0';
+            
+            rainContainer.appendChild(drop);
+            rainDrops.push(drop);
+            
+            setTimeout(() => {
+                drop.style.transition = `top ${duration}s linear, opacity 0.1s`;
+                drop.style.top = '100vh';
+                drop.style.opacity = '0.6';
+            }, 50);
+            
+            setTimeout(() => {
+                drop.remove();
+                rainDrops = rainDrops.filter(d => d !== drop);
+                if (rainSlider.value > 0) {
+                    createRainDrop();
+                }
+            }, (duration + delay) * 1000);
+        }
+
+        // Update mist
+        function updateMist(value) {
+            const labels = ['None', 'Light', 'Moderate', 'Heavy', 'Dense'];
+            const index = Math.min(Math.floor(value / 20), 4);
+            document.getElementById('mistValue').textContent = labels[index];
+            
+            mistLayer.style.opacity = value / 100;
+        }
+
+        // Preset scenes
+        const presets = {
+            clear: { storm: 0, wind: 5, lightning: 0, rain: 0, mist: 20 },
+            building: { storm: 35, wind: 30, lightning: 10, rain: 15, mist: 40 },
+            approaching: { storm: 65, wind: 60, lightning: 45, rain: 50, mist: 55 },
+            intense: { storm: 95, wind: 85, lightning: 80, rain: 85, mist: 70 }
+        };
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const preset = presets[btn.dataset.preset];
+                stormSlider.value = preset.storm;
+                windSlider.value = preset.wind;
+                lightningSlider.value = preset.lightning;
+                rainSlider.value = preset.rain;
+                mistSlider.value = preset.mist;
+                
+                updateStorm(preset.storm);
+                updateWind(preset.wind);
+                updateLightning(preset.lightning);
+                updateRain(preset.rain);
+                updateMist(preset.mist);
+            });
+        });
+
+        // Slider events
+        stormSlider.addEventListener('input', (e) => updateStorm(parseInt(e.target.value)));
+        windSlider.addEventListener('input', (e) => updateWind(parseInt(e.target.value)));
+        lightningSlider.addEventListener('input', (e) => updateLightning(parseInt(e.target.value)));
+        rainSlider.addEventListener('input', (e) => updateRain(parseInt(e.target.value)));
+        mistSlider.addEventListener('input', (e) => updateMist(parseInt(e.target.value)));
+
+        // Initialize
+        createTreeLine();
+        updateStorm(0);
+        updateWind(5);
+        updateLightning(0);
+        updateRain(0);
+        updateMist(30);
+
+        // Mobile panel toggle
+        const togglePanel = document.getElementById('togglePanel');
+        const controlPanel = document.getElementById('controlPanel');
+        
+        if (window.innerWidth <= 768) {
+            togglePanel.style.display = 'block';
+            controlPanel.style.display = 'none';
+            
+            togglePanel.addEventListener('click', () => {
+                if (controlPanel.style.display === 'none') {
+                    controlPanel.style.display = 'block';
+                    togglePanel.style.display = 'none';
+                }
+            });
+            
+            controlPanel.addEventListener('click', (e) => {
+                if (e.target === controlPanel) {
+                    controlPanel.style.display = 'none';
+                    togglePanel.style.display = 'block';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
