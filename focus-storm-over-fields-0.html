@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storm Over Fields</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+
+            --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --space-16: 16px;
+            --space-20: 20px;
+            --radius-base: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: var(--font-family-base);
+            background: #1a1a1a;
+        }
+
+        .scene-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Sky gradient backgrounds */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            z-index: 10;
+            transition: all 0.6s ease;
+        }
+
+        .sky.calm-day {
+            background: linear-gradient(180deg, #87ceeb 0%, #e0f6ff 100%);
+        }
+
+        .sky.approaching-storm {
+            background: linear-gradient(180deg, #4a5568 0%, #7a8a96 40%, #a8956f 100%);
+        }
+
+        .sky.dark-storm {
+            background: linear-gradient(180deg, #1a1a2e 0%, #2d3748 50%, #5a6578 100%);
+        }
+
+        /* Storm clouds */
+        .clouds-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .cloud {
+            position: absolute;
+            background: radial-gradient(ellipse at 30% 40%, rgba(255, 255, 255, 0.8), rgba(200, 200, 200, 0.4), transparent);
+            border-radius: 50%;
+            filter: blur(25px);
+        }
+
+        .cloud-1 {
+            width: 300px;
+            height: 100px;
+            top: 15%;
+            left: -10%;
+            opacity: 0.6;
+            animation: drift-cloud-1 60s infinite ease-in-out;
+        }
+
+        .cloud-2 {
+            width: 250px;
+            height: 80px;
+            top: 25%;
+            right: 5%;
+            opacity: 0.5;
+            animation: drift-cloud-2 50s infinite ease-in-out;
+        }
+
+        .cloud-3 {
+            width: 280px;
+            height: 90px;
+            top: 40%;
+            left: 20%;
+            opacity: 0.4;
+            animation: drift-cloud-3 70s infinite ease-in-out;
+        }
+
+        /* Storm clouds (dark, heavy) */
+        .storm-clouds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 30;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .storm-cloud {
+            position: absolute;
+            background: radial-gradient(ellipse at 35% 45%, rgba(60, 60, 80, 0.9), rgba(30, 30, 50, 0.6), transparent);
+            border-radius: 50%;
+            filter: blur(40px);
+        }
+
+        .storm-1 {
+            width: 500px;
+            height: 200px;
+            top: 10%;
+            left: -20%;
+            animation: storm-roll-in 8s ease-in-out infinite;
+        }
+
+        .storm-2 {
+            width: 600px;
+            height: 250px;
+            top: 20%;
+            left: -15%;
+            animation: storm-roll-in-slow 12s ease-in-out infinite;
+        }
+
+        .storm-3 {
+            width: 450px;
+            height: 180px;
+            top: 35%;
+            left: -25%;
+            animation: storm-roll-in-slower 15s ease-in-out infinite;
+        }
+
+        .horizon {
+            position: absolute;
+            bottom: 40%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.1);
+            z-index: 35;
+        }
+
+        /* Fields/Farmland */
+        .fields {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            z-index: 15;
+            transition: all 0.6s ease;
+        }
+
+        .field-base {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+        }
+
+        .field-light {
+            background: linear-gradient(180deg, #90c590 0%, #7ba575 100%);
+        }
+
+        .field-medium {
+            background: linear-gradient(180deg, #6a9a6a 0%, #558a55 100%);
+        }
+
+        .field-dark {
+            background: linear-gradient(180deg, #4a7a4a 0%, #2d5a2d 100%);
+        }
+
+        /* Trees on horizon */
+        .tree-line {
+            position: absolute;
+            bottom: 30%;
+            width: 100%;
+            height: 15%;
+            z-index: 25;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 0;
+        }
+
+        .tree-trunk {
+            position: absolute;
+            bottom: 0;
+            background: rgba(40, 30, 20, 0.7);
+        }
+
+        .tree-canopy {
+            position: absolute;
+            bottom: 0;
+            background: radial-gradient(ellipse at 50% 60%, rgba(30, 60, 30, 0.8), rgba(20, 40, 20, 0.5), transparent);
+            border-radius: 50%;
+        }
+
+        /* Lightning */
+        .lightning-container {
+            position: absolute;
+            width: 100%;
+            height: 60%;
+            top: 0;
+            left: 0;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        .lightning-bolt {
+            position: absolute;
+            width: 4px;
+            background: linear-gradient(to bottom, #ffffff, #d4d4ff);
+            filter: blur(2px);
+            box-shadow: 0 0 20px rgba(200, 220, 255, 0.8);
+            opacity: 0;
+        }
+
+        .lightning-flash {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(200, 220, 255, 0.3);
+            opacity: 0;
+            z-index: 49;
+        }
+
+        /* Wind effect - grass/field ripples */
+        .wind-layer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+            z-index: 14;
+            opacity: 0;
+        }
+
+        .wind-gust {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.15) 50%, transparent 100%);
+            opacity: 0;
+        }
+
+        /* Control panel */
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(200, 220, 255, 0.3);
+            border-radius: var(--radius-base);
+            padding: 20px;
+            z-index: 100;
+            min-width: 300px;
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-title {
+            color: #87ceeb;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            display: block;
+            color: #b0b0b0;
+            font-size: 12px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: 1px solid rgba(200, 220, 255, 0.4);
+            background: rgba(33, 128, 141, 0.2);
+            color: #87ceeb;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            background: rgba(33, 128, 141, 0.4);
+            border-color: rgba(200, 220, 255, 0.7);
+            box-shadow: 0 0 10px rgba(135, 206, 235, 0.3);
+        }
+
+        .btn.active {
+            background: rgba(33, 128, 141, 0.8);
+            border-color: rgba(200, 220, 255, 1);
+            box-shadow: 0 0 15px rgba(135, 206, 235, 0.6);
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(100, 100, 120, 0.5);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #87ceeb;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(135, 206, 235, 0.6);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #87ceeb;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 8px rgba(135, 206, 235, 0.6);
+        }
+
+        .slider-value {
+            color: #87ceeb;
+            font-size: 11px;
+            text-align: right;
+        }
+
+        /* Animations */
+        @keyframes drift-cloud-1 {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(50px) translateY(-10px); }
+            50% { transform: translateX(100px) translateY(0); }
+            75% { transform: translateX(50px) translateY(10px); }
+        }
+
+        @keyframes drift-cloud-2 {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            33% { transform: translateX(-40px) translateY(15px); }
+            66% { transform: translateX(0) translateY(-10px); }
+        }
+
+        @keyframes drift-cloud-3 {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(80px) translateY(20px); }
+        }
+
+        @keyframes storm-roll-in {
+            0% { transform: translateX(-100px); opacity: 0; }
+            50% { opacity: 0.6; }
+            100% { transform: translateX(200px); opacity: 0.3; }
+        }
+
+        @keyframes storm-roll-in-slow {
+            0% { transform: translateX(-150px); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateX(300px); opacity: 0.2; }
+        }
+
+        @keyframes storm-roll-in-slower {
+            0% { transform: translateX(-80px); opacity: 0; }
+            50% { opacity: 0.4; }
+            100% { transform: translateX(250px); opacity: 0.15; }
+        }
+
+        @keyframes lightning-strike {
+            0%, 100% { opacity: 0; }
+            5% { opacity: 1; }
+            10% { opacity: 0; }
+            15% { opacity: 1; }
+            20% { opacity: 0; }
+        }
+
+        @keyframes flash-screen {
+            0%, 100% { opacity: 0; }
+            5% { opacity: 0.4; }
+            10% { opacity: 0; }
+            15% { opacity: 0.3; }
+            20% { opacity: 0; }
+        }
+
+        @keyframes wind-blow {
+            0%, 100% { opacity: 0; transform: translateX(-100%); }
+            50% { opacity: 0.15; transform: translateX(100%); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <!-- Sky -->
+        <div class="sky calm-day"></div>
+
+        <!-- Regular clouds (calm) -->
+        <div class="clouds-back">
+            <div class="cloud cloud-1"></div>
+            <div class="cloud cloud-2"></div>
+            <div class="cloud cloud-3"></div>
+        </div>
+
+        <!-- Horizon line -->
+        <div class="horizon"></div>
+
+        <!-- Tree line -->
+        <div class="tree-line" id="treeLine"></div>
+
+        <!-- Storm clouds (overlay) -->
+        <div class="storm-clouds" id="stormClouds">
+            <div class="storm-cloud storm-1"></div>
+            <div class="storm-cloud storm-2"></div>
+            <div class="storm-cloud storm-3"></div>
+        </div>
+
+        <!-- Fields -->
+        <div class="fields" id="fields">
+            <div class="field-base field-light"></div>
+        </div>
+
+        <!-- Wind effect layer -->
+        <div class="wind-layer" id="windLayer">
+            <div class="wind-gust"></div>
+        </div>
+
+        <!-- Lightning -->
+        <div class="lightning-container" id="lightningContainer">
+            <div class="lightning-flash" id="lightningFlash"></div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="panel-title">⚡ Storm Control</div>
+
+            <div class="control-group">
+                <div class="control-label">Storm Intensity</div>
+                <div class="slider-group">
+                    <input type="range" id="stormIntensity" min="0" max="100" value="0">
+                    <span class="slider-value" id="stormValue">Clear Sky</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">Wind Gusts</div>
+                <div class="slider-group">
+                    <input type="range" id="windIntensity" min="0" max="100" value="0">
+                    <span class="slider-value" id="windValue">Calm</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">Lightning Frequency</div>
+                <div class="slider-group">
+                    <input type="range" id="lightningFrequency" min="0" max="100" value="0">
+                    <span class="slider-value" id="lightningValue">None</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">Field Brightness</div>
+                <div class="slider-group">
+                    <input type="range" id="fieldBrightness" min="0" max="100" value="100">
+                    <span class="slider-value" id="brightnessValue">Bright</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">Presets</div>
+                <div class="control-buttons">
+                    <button class="btn active" data-preset="calm">Calm Day</button>
+                    <button class="btn" data-preset="approaching">Approaching</button>
+                    <button class="btn" data-preset="dark">Dark Storm</button>
+                    <button class="btn" data-preset="intense">Intense</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const stormIntensitySlider = document.getElementById('stormIntensity');
+        const windIntensitySlider = document.getElementById('windIntensity');
+        const lightningFrequencySlider = document.getElementById('lightningFrequency');
+        const fieldBrightnessSlider = document.getElementById('fieldBrightness');
+
+        const stormClouds = document.getElementById('stormClouds');
+        const sky = document.querySelector('.sky');
+        const fields = document.getElementById('fields');
+        const windLayer = document.getElementById('windLayer');
+        const lightningContainer = document.getElementById('lightningContainer');
+        const treeLine = document.getElementById('treeLine');
+
+        let activeStrike = null;
+        let lightningTimeout = null;
+
+        // Initialize tree line
+        function createTreeLine() {
+            treeLine.innerHTML = '';
+            const treeCount = 15;
+            for (let i = 0; i < treeCount; i++) {
+                const tree = document.createElement('div');
+                tree.className = 'tree';
+                tree.style.left = (i * (100 / treeCount)) + '%';
+                tree.style.width = '60px';
+
+                const height = 60 + Math.random() * 40;
+                const trunk = document.createElement('div');
+                trunk.className = 'tree-trunk';
+                trunk.style.width = '8px';
+                trunk.style.height = height * 0.3 + 'px';
+                trunk.style.left = '50%';
+                trunk.style.transform = 'translateX(-50%)';
+
+                const canopy = document.createElement('div');
+                canopy.className = 'tree-canopy';
+                canopy.style.width = '50px';
+                canopy.style.height = height + 'px';
+                canopy.style.left = '50%';
+                canopy.style.transform = 'translateX(-50%)';
+
+                tree.appendChild(trunk);
+                tree.appendChild(canopy);
+                treeLine.appendChild(tree);
+            }
+        }
+
+        // Update storm intensity
+        stormIntensitySlider.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            updateStormIntensity(value);
+        });
+
+        function updateStormIntensity(value) {
+            // Update storm value display
+            if (value === 0) {
+                document.getElementById('stormValue').textContent = 'Clear Sky';
+                sky.className = 'sky calm-day';
+                stormClouds.style.opacity = '0';
+                fields.querySelector('.field-base').className = 'field-base field-light';
+            } else if (value < 35) {
+                document.getElementById('stormValue').textContent = 'Approaching';
+                sky.className = 'sky approaching-storm';
+                stormClouds.style.opacity = value / 100;
+                fields.querySelector('.field-base').className = 'field-base field-medium';
+            } else if (value < 70) {
+                document.getElementById('stormValue').textContent = 'Heavy';
+                sky.className = 'sky dark-storm';
+                stormClouds.style.opacity = 0.7 + (value - 35) / 100;
+                fields.querySelector('.field-base').className = 'field-base field-dark';
+            } else {
+                document.getElementById('stormValue').textContent = 'Severe';
+                sky.className = 'sky dark-storm';
+                stormClouds.style.opacity = 0.9;
+                fields.querySelector('.field-base').className = 'field-base field-dark';
+            }
+        }
+
+        // Wind effect
+        windIntensitySlider.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            updateWind(value);
+        });
+
+        function updateWind(value) {
+            const labels = ['Calm', 'Light', 'Moderate', 'Strong', 'Severe'];
+            const labelIndex = Math.floor(value / 25);
+            document.getElementById('windValue').textContent = labels[Math.min(labelIndex, 4)];
+
+            windLayer.style.opacity = value / 100;
+
+            if (value > 0) {
+                const duration = 2 - (value / 100) * 1.5;
+                windLayer.querySelector('.wind-gust').style.animation = `wind-blow ${duration}s linear infinite`;
+            }
+        }
+
+        // Lightning effect
+        lightningFrequencySlider.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            updateLightning(value);
+        });
+
+        function updateLightning(value) {
+            if (lightningTimeout) clearTimeout(lightningTimeout);
+
+            const labels = ['None', 'Occasional', 'Frequent', 'Intense'];
+            const labelIndex = Math.floor(value / 34);
+            document.getElementById('lightningValue').textContent = labels[Math.min(labelIndex, 3)];
+
+            if (value === 0) {
+                lightningContainer.innerHTML = '';
+            } else {
+                const interval = 10000 - (value / 100) * 8000;
+                scheduleNextLightning(interval);
+            }
+        }
+
+        function scheduleNextLightning(interval) {
+            lightningTimeout = setTimeout(() => {
+                strikeRandomly();
+                const frequency = lightningFrequencySlider.value;
+                const nextInterval = 10000 - (frequency / 100) * 8000 + (Math.random() - 0.5) * 3000;
+                scheduleNextLightning(nextInterval);
+            }, interval);
+        }
+
+        function strikeRandomly() {
+            const posX = Math.random() * 80 + 10;
+            const startY = Math.random() * 30;
+            const height = 200 + Math.random() * 300;
+
+            const bolt = document.createElement('div');
+            bolt.className = 'lightning-bolt';
+            bolt.style.left = posX + '%';
+            bolt.style.top = startY + '%';
+            bolt.style.height = height + 'px';
+            bolt.style.animation = 'lightning-strike 0.5s ease-out';
+
+            const flash = document.createElement('div');
+            flash.className = 'lightning-flash';
+            flash.style.animation = 'flash-screen 0.5s ease-out';
+
+            lightningContainer.appendChild(bolt);
+            lightningContainer.appendChild(flash);
+
+            setTimeout(() => {
+                bolt.remove();
+                flash.remove();
+            }, 500);
+        }
+
+        // Field brightness
+        fieldBrightnessSlider.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            const fieldBase = fields.querySelector('.field-base');
+            const darkening = 1 - (100 - value) / 200;
+            fieldBase.style.opacity = darkening;
+
+            if (value === 100) {
+                document.getElementById('brightnessValue').textContent = 'Bright';
+            } else if (value > 60) {
+                document.getElementById('brightnessValue').textContent = 'Dim';
+            } else if (value > 30) {
+                document.getElementById('brightnessValue').textContent = 'Dark';
+            } else {
+                document.getElementById('brightnessValue').textContent = 'Pitch Black';
+            }
+        });
+
+        // Preset buttons
+        document.querySelectorAll('[data-preset]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-preset]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const preset = btn.dataset.preset;
+                if (preset === 'calm') {
+                    stormIntensitySlider.value = 0;
+                    windIntensitySlider.value = 5;
+                    lightningFrequencySlider.value = 0;
+                    fieldBrightnessSlider.value = 100;
+                } else if (preset === 'approaching') {
+                    stormIntensitySlider.value = 35;
+                    windIntensitySlider.value = 40;
+                    lightningFrequencySlider.value = 20;
+                    fieldBrightnessSlider.value = 80;
+                } else if (preset === 'dark') {
+                    stormIntensitySlider.value = 60;
+                    windIntensitySlider.value = 70;
+                    lightningFrequencySlider.value = 60;
+                    fieldBrightnessSlider.value = 40;
+                } else if (preset === 'intense') {
+                    stormIntensitySlider.value = 100;
+                    windIntensitySlider.value = 100;
+                    lightningFrequencySlider.value = 100;
+                    fieldBrightnessSlider.value = 20;
+                }
+
+                updateStormIntensity(stormIntensitySlider.value);
+                updateWind(windIntensitySlider.value);
+                updateLightning(lightningFrequencySlider.value);
+            });
+        });
+
+        // Initialize
+        createTreeLine();
+        updateStormIntensity(0);
+        updateWind(5);
+        updateLightning(0);
+    </script>
+</body>
+</html>
