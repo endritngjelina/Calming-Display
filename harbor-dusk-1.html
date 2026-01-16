@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harbor at Dusk</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 12px;
+            color: white;
+            backdrop-filter: blur(10px);
+            max-width: 280px;
+            z-index: 100;
+        }
+
+        .controls h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #ffa726;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #ccc;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .control-group select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+        }
+
+        .control-group select option {
+            background: #2a2a2a;
+            color: white;
+        }
+
+        .toggle-btn {
+            background: rgba(255, 167, 38, 0.3);
+            border: 2px solid #ffa726;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .toggle-btn.active {
+            background: #ffa726;
+        }
+
+        .toggle-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffa726;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffa726;
+            cursor: pointer;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="controls">
+        <h3>⚓ Harbor Controls</h3>
+        
+        <div class="control-group">
+            <label>Scenery</label>
+            <select id="scenery">
+                <option value="dusk">Harbor at Dusk</option>
+                <option value="night">Harbor at Night</option>
+                <option value="dawn">Harbor at Dawn</option>
+                <option value="stormy">Stormy Harbor</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Wave Speed: <span id="waveSpeedVal">1.0</span>x</label>
+            <input type="range" id="waveSpeed" min="0.1" max="3" step="0.1" value="1">
+        </div>
+
+        <div class="control-group">
+            <label>Boat Count: <span id="boatCountVal">5</span></label>
+            <input type="range" id="boatCount" min="1" max="10" step="1" value="5">
+        </div>
+
+        <div class="control-group">
+            <label>Toggle Elements</label>
+            <div class="toggle-controls">
+                <button class="toggle-btn active" data-toggle="lighthouse">Lighthouse</button>
+                <button class="toggle-btn active" data-toggle="birds">Birds</button>
+                <button class="toggle-btn active" data-toggle="stars">Stars</button>
+                <button class="toggle-btn active" data-toggle="reflections">Reflections</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        // Settings
+        let settings = {
+            scenery: 'dusk',
+            waveSpeed: 1,
+            boatCount: 5,
+            lighthouse: true,
+            birds: true,
+            stars: true,
+            reflections: true
+        };
+
+        // Color schemes for different times
+        const colorSchemes = {
+            dusk: {
+                skyTop: '#1a1f3a',
+                skyMiddle: '#4a5f8f',
+                skyBottom: '#ff7e5f',
+                water: '#2a3f5f',
+                waterHighlight: '#4a6f8f'
+            },
+            night: {
+                skyTop: '#0a0e1a',
+                skyMiddle: '#1a1f3a',
+                skyBottom: '#2a2f4a',
+                water: '#0a1f2f',
+                waterHighlight: '#1a3f4f'
+            },
+            dawn: {
+                skyTop: '#4a5f7f',
+                skyMiddle: '#ff9a7f',
+                skyBottom: '#ffca9f',
+                water: '#3a5f7f',
+                waterHighlight: '#5a7f9f'
+            },
+            stormy: {
+                skyTop: '#2a2f3a',
+                skyMiddle: '#3a4f5f',
+                skyBottom: '#4a5f6f',
+                water: '#2a3f4f',
+                waterHighlight: '#3a5f6f'
+            }
+        };
+
+        // Boats
+        let boats = [];
+        class Boat {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = height * 0.5 + Math.random() * height * 0.2;
+                this.size = 20 + Math.random() * 30;
+                this.bobSpeed = 0.02 + Math.random() * 0.02;
+                this.bobOffset = Math.random() * Math.PI * 2;
+                this.driftSpeed = 0.1 + Math.random() * 0.2;
+                this.hue = Math.random() * 60 + 160;
+            }
+
+            update(time) {
+                this.bobOffset += this.bobSpeed * settings.waveSpeed;
+                this.x += this.driftSpeed * settings.waveSpeed;
+                if (this.x > width + this.size) {
+                    this.x = -this.size;
+                    this.y = height * 0.5 + Math.random() * height * 0.2;
+                }
+            }
+
+            draw(time) {
+                const bobAmount = Math.sin(this.bobOffset) * 3;
+                const y = this.y + bobAmount;
+                
+                ctx.save();
+                ctx.translate(this.x, y);
+                
+                // Boat hull
+                ctx.fillStyle = `hsl(${this.hue}, 40%, 30%)`;
+                ctx.beginPath();
+                ctx.moveTo(-this.size * 0.6, 0);
+                ctx.lineTo(this.size * 0.6, 0);
+                ctx.lineTo(this.size * 0.4, this.size * 0.4);
+                ctx.lineTo(-this.size * 0.4, this.size * 0.4);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Cabin
+                ctx.fillStyle = `hsl(${this.hue}, 30%, 40%)`;
+                ctx.fillRect(-this.size * 0.3, -this.size * 0.3, this.size * 0.6, this.size * 0.4);
+                
+                // Window (lit)
+                ctx.fillStyle = 'rgba(255, 220, 150, 0.8)';
+                ctx.fillRect(-this.size * 0.15, -this.size * 0.2, this.size * 0.3, this.size * 0.15);
+                
+                // Mast
+                ctx.strokeStyle = `hsl(${this.hue}, 20%, 25%)`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, -this.size * 0.3);
+                ctx.lineTo(0, -this.size * 1.2);
+                ctx.stroke();
+                
+                // Flag
+                ctx.fillStyle = `hsl(${(this.hue + 180) % 360}, 60%, 50%)`;
+                ctx.beginPath();
+                ctx.moveTo(0, -this.size * 1.2);
+                ctx.lineTo(this.size * 0.3, -this.size * 1.1);
+                ctx.lineTo(0, -this.size);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.restore();
+
+                // Reflection
+                if (settings.reflections) {
+                    ctx.save();
+                    ctx.globalAlpha = 0.3;
+                    ctx.translate(this.x, y);
+                    ctx.scale(1, -0.5);
+                    ctx.translate(0, -this.size * 0.8);
+                    
+                    ctx.fillStyle = `hsl(${this.hue}, 40%, 30%)`;
+                    ctx.beginPath();
+                    ctx.moveTo(-this.size * 0.6, 0);
+                    ctx.lineTo(this.size * 0.6, 0);
+                    ctx.lineTo(this.size * 0.4, this.size * 0.4);
+                    ctx.lineTo(-this.size * 0.4, this.size * 0.4);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    ctx.restore();
+                }
+            }
+        }
+
+        // Birds
+        let birds = [];
+        class Bird {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height * 0.4;
+                this.speed = 1 + Math.random() * 2;
+                this.wingPhase = Math.random() * Math.PI * 2;
+            }
+
+            update(time) {
+                this.x += this.speed;
+                this.wingPhase += 0.1;
+                if (this.x > width + 50) {
+                    this.x = -50;
+                    this.y = Math.random() * height * 0.4;
+                }
+            }
+
+            draw(time) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.6)';
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                
+                const wingOffset = Math.sin(this.wingPhase) * 10;
+                
+                // Left wing
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(-10, wingOffset - 5, -15, wingOffset);
+                ctx.stroke();
+                
+                // Right wing
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(10, wingOffset - 5, 15, wingOffset);
+                ctx.stroke();
+                
+                ctx.restore();
+            }
+        }
+
+        // Stars
+        let stars = [];
+        class Star {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height * 0.5;
+                this.size = Math.random() * 2;
+                this.twinkleSpeed = 0.02 + Math.random() * 0.03;
+                this.twinkleOffset = Math.random() * Math.PI * 2;
+            }
+
+            update(time) {
+                this.twinkleOffset += this.twinkleSpeed;
+            }
+
+            draw(time) {
+                const brightness = (Math.sin(this.twinkleOffset) + 1) / 2;
+                ctx.fillStyle = `rgba(255, 255, 255, ${brightness * 0.8})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Lighthouse
+        const lighthouse = {
+            x: width * 0.85,
+            y: height * 0.6,
+            angle: 0,
+            
+            update(time) {
+                this.angle += 0.005 * settings.waveSpeed;
+            },
+            
+            draw(time) {
+                // Tower
+                ctx.fillStyle = '#8a9aa8';
+                ctx.fillRect(this.x - 15, this.y - 80, 30, 80);
+                
+                // Red stripe
+                ctx.fillStyle = '#c44536';
+                ctx.fillRect(this.x - 15, this.y - 60, 30, 15);
+                
+                // Top
+                ctx.fillStyle = '#6a7a88';
+                ctx.beginPath();
+                ctx.moveTo(this.x - 20, this.y - 80);
+                ctx.lineTo(this.x + 20, this.y - 80);
+                ctx.lineTo(this.x + 15, this.y - 95);
+                ctx.lineTo(this.x - 15, this.y - 95);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Light beam
+                ctx.save();
+                ctx.translate(this.x, this.y - 87);
+                ctx.rotate(this.angle);
+                
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 300);
+                gradient.addColorStop(0, 'rgba(255, 255, 150, 0.6)');
+                gradient.addColorStop(0.3, 'rgba(255, 255, 150, 0.2)');
+                gradient.addColorStop(1, 'rgba(255, 255, 150, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, 300, -0.2, 0.2);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        };
+
+        // Waves
+        let waveOffset = 0;
+        function drawWaves(time, colors) {
+            waveOffset += 0.01 * settings.waveSpeed;
+            
+            // Water
+            const waterGrad = ctx.createLinearGradient(0, height * 0.5, 0, height);
+            waterGrad.addColorStop(0, colors.water);
+            waterGrad.addColorStop(1, colors.waterHighlight);
+            ctx.fillStyle = waterGrad;
+            ctx.fillRect(0, height * 0.5, width, height * 0.5);
+            
+            // Waves
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 2;
+            
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                for (let x = 0; x < width; x += 5) {
+                    const y = height * 0.5 + i * 50 + Math.sin(x * 0.01 + waveOffset + i) * 10;
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+        }
+
+        // Initialize
+        function initScene() {
+            boats = [];
+            for (let i = 0; i < settings.boatCount; i++) {
+                boats.push(new Boat());
+            }
+            
+            birds = [];
+            for (let i = 0; i < 8; i++) {
+                birds.push(new Bird());
+            }
+            
+            stars = [];
+            for (let i = 0; i < 100; i++) {
+                stars.push(new Star());
+            }
+        }
+
+        // Animation loop
+        function animate(time) {
+            const colors = colorSchemes[settings.scenery];
+            
+            // Sky gradient
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.6);
+            skyGrad.addColorStop(0, colors.skyTop);
+            skyGrad.addColorStop(0.5, colors.skyMiddle);
+            skyGrad.addColorStop(1, colors.skyBottom);
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, width, height);
+            
+            // Stars
+            if (settings.stars && (settings.scenery === 'night' || settings.scenery === 'dusk')) {
+                stars.forEach(star => {
+                    star.update(time);
+                    star.draw(time);
+                });
+            }
+            
+            // Sun/Moon
+            if (settings.scenery !== 'stormy') {
+                const celestialY = height * 0.3;
+                const celestialX = width * 0.2;
+                const gradient = ctx.createRadialGradient(celestialX, celestialY, 0, celestialX, celestialY, 60);
+                
+                if (settings.scenery === 'night') {
+                    gradient.addColorStop(0, '#ffffee');
+                    gradient.addColorStop(1, 'rgba(255, 255, 238, 0)');
+                } else {
+                    gradient.addColorStop(0, '#ffe87f');
+                    gradient.addColorStop(1, 'rgba(255, 232, 127, 0)');
+                }
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(celestialX, celestialY, 60, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Draw water and waves
+            drawWaves(time, colors);
+            
+            // Lighthouse
+            if (settings.lighthouse) {
+                lighthouse.update(time);
+                lighthouse.draw(time);
+            }
+            
+            // Boats
+            boats.forEach(boat => {
+                boat.update(time);
+                boat.draw(time);
+            });
+            
+            // Birds
+            if (settings.birds) {
+                birds.forEach(bird => {
+                    bird.update(time);
+                    bird.draw(time);
+                });
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        // Controls
+        document.getElementById('scenery').addEventListener('change', (e) => {
+            settings.scenery = e.target.value;
+        });
+
+        document.getElementById('waveSpeed').addEventListener('input', (e) => {
+            settings.waveSpeed = parseFloat(e.target.value);
+            document.getElementById('waveSpeedVal').textContent = settings.waveSpeed.toFixed(1);
+        });
+
+        document.getElementById('boatCount').addEventListener('input', (e) => {
+            settings.boatCount = parseInt(e.target.value);
+            document.getElementById('boatCountVal').textContent = settings.boatCount;
+            initScene();
+        });
+
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const toggle = btn.dataset.toggle;
+                settings[toggle] = !settings[toggle];
+                btn.classList.toggle('active');
+            });
+        });
+
+        // Start
+        initScene();
+        animate(0);
+    </script>
+</body>
+</html>
