@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot Air Balloon Sky - Immersive Experience</title>
+    <style>
+        :root {
+            /* Color System */
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+            --color-purple-400: rgba(147, 112, 219, 1);
+            --color-purple-500: rgba(106, 90, 205, 1);
+            --color-pink-400: rgba(255, 105, 180, 1);
+            --color-pink-500: rgba(219, 112, 147, 1);
+            --color-green-400: rgba(50, 205, 50, 1);
+            --color-green-500: rgba(34, 139, 34, 1);
+
+            /* RGB versions for opacity control */
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --color-slate-500-rgb: 98, 108, 113;
+            --color-red-500-rgb: 192, 21, 47;
+            --color-red-400-rgb: 255, 84, 89;
+            --color-orange-500-rgb: 168, 75, 47;
+            --color-orange-400-rgb: 230, 129, 97;
+
+            /* Semantic Color Tokens (Light Mode) */
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-primary-active: var(--color-teal-700);
+            --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+            --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-btn-primary-text: var(--color-cream-50);
+            --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-error: var(--color-red-500);
+            --color-success: var(--color-teal-500);
+            --color-warning: var(--color-orange-500);
+            --color-info: var(--color-slate-500);
+            --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+            --color-select-caret: rgba(var(--color-slate-900-rgb), 0.8);
+
+            /* Common style patterns */
+            --focus-ring: 0 0 0 3px var(--color-focus-ring);
+            --focus-outline: 2px solid var(--color-primary);
+
+            /* Typography */
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system,
+                BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo,
+                Monaco, Consolas, monospace;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-md: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-size-2xl: 20px;
+            --font-size-3xl: 24px;
+            --font-size-4xl: 30px;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 550;
+            --font-weight-bold: 600;
+            --line-height-tight: 1.2;
+            --line-height-normal: 1.5;
+            --letter-spacing-tight: -0.01em;
+
+            /* Spacing */
+            --space-0: 0;
+            --space-1: 1px;
+            --space-2: 2px;
+            --space-4: 4px;
+            --space-6: 6px;
+            --space-8: 8px;
+            --space-10: 10px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --space-32: 32px;
+
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-base: 8px;
+            --radius-md: 10px;
+            --radius-lg: 12px;
+            --radius-full: 9999px;
+
+            /* Shadows */
+            --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04),
+                0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04),
+                0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.03);
+
+            /* Animation */
+            --duration-fast: 150ms;
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-out: cubic-bezier(0, 0, 0.2, 1);
+            --ease-in: cubic-bezier(0.4, 0, 1, 1);
+        }
+
+        @font-face {
+            font-family: 'FKGroteskNeue';
+            src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2')
+                format('woff2');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: #000;
+            user-select: none;
+        }
+
+        /* Sky Container */
+        #sky {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            transition: background 3s ease;
+        }
+
+        #sky.sunrise {
+            background: linear-gradient(to bottom, 
+                #87CEEB 0%, 
+                #FFB6C1 50%, 
+                #FFD700 100%);
+        }
+
+        #sky.day {
+            background: linear-gradient(to bottom, 
+                #64b3f4 0%, 
+                #87CEEB 100%);
+        }
+
+        #sky.sunset {
+            background: linear-gradient(to bottom, 
+                #1a1a2e 0%, 
+                #ff6b6b 50%, 
+                #f9ca24 100%);
+        }
+
+        #sky.night {
+            background: linear-gradient(to bottom, 
+                #0f0c29 0%, 
+                #302b63 50%, 
+                #24243e 100%);
+        }
+
+        /* Sun/Moon */
+        .celestial-body {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            transition: all 3s ease;
+            z-index: 10;
+        }
+
+        .sun {
+            background: radial-gradient(circle, #FFA500 0%, #FF8C00 100%);
+            box-shadow: 0 0 60px rgba(255, 165, 0, 0.6);
+        }
+
+        .sun.sunrise {
+            bottom: 10%;
+            right: 15%;
+        }
+
+        .sun.day {
+            top: 10%;
+            right: 50%;
+            transform: translateX(50%);
+        }
+
+        .sun.sunset {
+            top: 15%;
+            right: 12%;
+            box-shadow: 0 0 80px rgba(255, 71, 87, 0.7);
+            background: radial-gradient(circle, #ff4757 0%, #ff3838 100%);
+        }
+
+        .moon {
+            background: radial-gradient(circle, #f5f5f5 0%, #d3d3d3 100%);
+            box-shadow: 0 0 60px rgba(255, 255, 255, 0.4);
+            top: 10%;
+            left: 15%;
+        }
+
+        /* Stars */
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 4s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Clouds */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 100px;
+            opacity: 0.6;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 100px;
+        }
+
+        .cloud::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud::after {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            right: 10px;
+        }
+
+        /* Birds */
+        .bird {
+            position: absolute;
+            width: 30px;
+            height: 2px;
+            background: transparent;
+        }
+
+        .bird::before,
+        .bird::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .bird::before {
+            left: 0;
+            transform: rotate(-20deg);
+            transform-origin: right center;
+            animation: wingFlap 0.5s ease-in-out infinite alternate;
+        }
+
+        .bird::after {
+            right: 0;
+            transform: rotate(20deg);
+            transform-origin: left center;
+            animation: wingFlap 0.5s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes wingFlap {
+            0% { transform: rotate(-20deg); }
+            100% { transform: rotate(-40deg); }
+        }
+
+        /* Hot Air Balloons */
+        .balloon {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 20;
+        }
+
+        .balloon:hover {
+            transform: scale(1.05);
+            z-index: 30;
+        }
+
+        .balloon-envelope {
+            position: relative;
+            border-radius: 50% 50% 45% 45%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .balloon-basket {
+            width: 40%;
+            height: 20%;
+            background: #8B4513;
+            border: 2px solid #654321;
+            margin-top: 5px;
+            position: relative;
+        }
+
+        .balloon-rope {
+            width: 2px;
+            background: rgba(139, 69, 19, 0.6);
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Interactive Elements */
+        .floating-text {
+            position: absolute;
+            font-size: var(--font-size-sm);
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: var(--space-4) var(--space-8);
+            border-radius: var(--radius-base);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+
+        /* Control Panel */
+        #controlToggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s var(--ease-standard);
+            z-index: 1001;
+            backdrop-filter: blur(10px);
+        }
+
+        #controlToggle:hover {
+            transform: scale(1.1) rotate(90deg);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: var(--shadow-xl);
+        }
+
+        #controlPanel {
+            position: fixed;
+            bottom: 30px;
+            right: 110px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-lg);
+            padding: var(--space-24);
+            box-shadow: var(--shadow-xl);
+            min-width: 340px;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateX(500px);
+            opacity: 0;
+            transition: all 0.4s var(--ease-standard);
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #controlPanel.visible {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        #controlPanel h2 {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-text);
+            margin-bottom: var(--space-20);
+            text-align: center;
+        }
+
+        .control-group {
+            margin-bottom: var(--space-20);
+        }
+
+        .control-group label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text);
+            margin-bottom: var(--space-8);
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--color-secondary);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--color-primary-hover);
+            transform: scale(1.2);
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .button-group {
+            display: flex;
+            gap: var(--space-8);
+            margin-bottom: var(--space-16);
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            padding: var(--space-10) var(--space-16);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            background: var(--color-surface);
+            color: var(--color-text);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 70px;
+        }
+
+        .btn:hover {
+            background: var(--color-secondary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .toggle-btn {
+            width: 100%;
+            padding: var(--space-12) var(--space-16);
+            border: none;
+            border-radius: var(--radius-base);
+            background: var(--color-primary);
+            color: white;
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: var(--space-12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-8);
+        }
+
+        .toggle-btn:hover {
+            background: var(--color-primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .toggle-btn.off {
+            background: var(--color-secondary);
+            color: var(--color-text);
+        }
+
+        .slider-value {
+            display: inline-block;
+            float: right;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* Vignette Effect */
+        #vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+            z-index: 999;
+        }
+
+        /* Particles */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Fullscreen styles */
+        :fullscreen #controlToggle,
+        :-webkit-full-screen #controlToggle,
+        :-moz-full-screen #controlToggle {
+            bottom: 20px;
+            right: 20px;
+        }
+
+        :fullscreen #controlPanel,
+        :-webkit-full-screen #controlPanel,
+        :-moz-full-screen #controlPanel {
+            bottom: 20px;
+            right: 100px;
+        }
+
+        /* Info tooltip */
+        .info-text {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+            text-align: center;
+            margin-top: var(--space-16);
+            padding-top: var(--space-16);
+            border-top: 1px solid var(--color-border);
+        }
+
+        /* Scrollbar styling */
+        #controlPanel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #controlPanel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #controlPanel::-webkit-scrollbar-thumb {
+            background: var(--color-secondary);
+            border-radius: 3px;
+        }
+
+        #controlPanel::-webkit-scrollbar-thumb:hover {
+            background: var(--color-secondary-hover);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #controlPanel {
+                min-width: 300px;
+                right: 20px;
+                bottom: 100px;
+            }
+            
+            #controlToggle {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+
+        /* Performance optimizations */
+        .will-change {
+            will-change: transform, opacity;
+        }
+    </style>
+</head>
+<body>
+    <div id="sky" class="day">
+        <div class="celestial-body sun day"></div>
+        <div class="celestial-body moon"></div>
+    </div>
+    
+    <div id="vignette"></div>
+    
+    <button id="controlToggle" aria-label="Toggle controls">⚙️</button>
+    
+    <div id="controlPanel">
+        <h2>Sky Experience Controls</h2>
+        
+        <div class="control-group">
+            <label>Time of Day</label>
+            <div class="button-group">
+                <button class="btn" data-time="sunrise">Sunrise</button>
+                <button class="btn active" data-time="day">Day</button>
+                <button class="btn" data-time="sunset">Sunset</button>
+                <button class="btn" data-time="night">Night</button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Balloon Count <span class="slider-value" id="balloonCountValue">12</span></label>
+            <input type="range" id="balloonCount" min="3" max="20" value="12">
+        </div>
+        
+        <div class="control-group">
+            <label>Animation Speed</label>
+            <div class="button-group">
+                <button class="btn" data-speed="slow">Slow</button>
+                <button class="btn active" data-speed="medium">Medium</button>
+                <button class="btn" data-speed="fast">Fast</button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Cloud Density</label>
+            <div class="button-group">
+                <button class="btn" data-clouds="none">None</button>
+                <button class="btn" data-clouds="light">Light</button>
+                <button class="btn active" data-clouds="moderate">Moderate</button>
+                <button class="btn" data-clouds="dense">Dense</button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Parallax Intensity</label>
+            <div class="button-group">
+                <button class="btn" data-parallax="low">Low</button>
+                <button class="btn active" data-parallax="medium">Medium</button>
+                <button class="btn" data-parallax="high">High</button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Weather Effects</label>
+            <div class="button-group">
+                <button class="btn active" data-weather="clear">Clear</button>
+                <button class="btn" data-weather="rain">Rain</button>
+                <button class="btn" data-weather="snow">Snow</button>
+            </div>
+        </div>
+        
+        <button class="toggle-btn" id="birdsToggle">🐦 Birds: ON</button>
+        <button class="toggle-btn" id="starsToggle">✨ Stars: ON</button>
+        <button class="toggle-btn" id="interactiveToggle">👆 Interactive: ON</button>
+        <button class="toggle-btn" id="pauseToggle">⏸️ Pause</button>
+        <button class="toggle-btn" id="fullscreenToggle">⛶ Fullscreen</button>
+        
+        <div class="info-text">
+            Click on balloons for surprises! • Press 'R' to randomize
+        </div>
+    </div>
+
+    <script>
+        // Enhanced Configuration
+        const config = {
+            balloonPatterns: [
+                { colors: ['#FF6B6B', '#FFE66D', '#4ECDC4'] },
+                { colors: ['#A8E6CF', '#FFD3B6', '#FFAAA5'] },
+                { colors: ['#FF88DC', '#FFC8F0', '#F8F988'] },
+                { colors: ['#95E1D3', '#F38181', '#EAFFD0'] },
+                { colors: ['#6C5CE7', '#FD79A8', '#FDCB6E'] },
+                { colors: ['#FF9F1C', '#FFBF69', '#FFFFFF'] },
+                { colors: ['#A663CC', '#B298DC', '#D6B6F2'] },
+                { colors: ['#2EC4B6', '#CBF3F0', '#FF9F1C'] },
+                { colors: ['#E71D36', '#FF9F1C', '#2EC4B6'] },
+                { colors: ['#011627', '#2EC4B6', '#E71D36'] }
+            ],
+            speeds: {
+                slow: 0.3,
+                medium: 0.6,
+                fast: 1.0
+            },
+            cloudDensity: {
+                none: 0,
+                light: 3,
+                moderate: 6,
+                dense: 10
+            },
+            parallaxIntensity: {
+                low: 0.5,
+                medium: 1.0,
+                high: 1.5
+            },
+            balloonMessages: [
+                "Hello! ✨",
+                "Up, up and away! 🎈",
+                "Beautiful day for flying!",
+                "Wheee! 🎉",
+                "Look at that view!",
+                "Floating through the sky",
+                "Hot air balloon adventure!",
+                "Peaceful skies ☁️"
+            ]
+        };
+
+        // Enhanced State
+        let state = {
+            timeOfDay: 'day',
+            balloonCount: 12,
+            animationSpeed: 'medium',
+            cloudDensity: 'moderate',
+            showBirds: true,
+            showStars: true,
+            interactiveMode: true,
+            parallaxIntensity: 'medium',
+            weather: 'clear',
+            isPaused: false,
+            balloons: [],
+            clouds: [],
+            birds: [],
+            stars: [],
+            particles: [],
+            lastFrameTime: performance.now()
+        };
+
+        // Elements
+        const sky = document.getElementById('sky');
+        const controlToggle = document.getElementById('controlToggle');
+        const controlPanel = document.getElementById('controlPanel');
+        const balloonCountSlider = document.getElementById('balloonCount');
+        const balloonCountValue = document.getElementById('balloonCountValue');
+        const birdsToggle = document.getElementById('birdsToggle');
+        const starsToggle = document.getElementById('starsToggle');
+        const interactiveToggle = document.getElementById('interactiveToggle');
+        const pauseToggle = document.getElementById('pauseToggle');
+        const fullscreenToggle = document.getElementById('fullscreenToggle');
+
+        // Animation frame ID
+        let animationFrameId = null;
+
+        // Utility Functions
+        function random(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function createParticle(x, y, color, size = 3) {
+            const particle = document.createElement('div');
+            particle.className = 'particle will-change';
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.background = color;
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            
+            particle.x = x;
+            particle.y = y;
+            particle.vx = random(-2, 2);
+            particle.vy = random(-2, 2);
+            particle.life = 1;
+            particle.decay = random(0.01, 0.03);
+            
+            sky.appendChild(particle);
+            state.particles.push(particle);
+            return particle;
+        }
+
+        function createBalloon() {
+            const balloon = document.createElement('div');
+            balloon.className = 'balloon will-change';
+            
+            const size = random(60, 120);
+            const pattern = config.balloonPatterns[Math.floor(Math.random() * config.balloonPatterns.length)];
+            
+            const envelope = document.createElement('div');
+            envelope.className = 'balloon-envelope';
+            envelope.style.width = size + 'px';
+            envelope.style.height = size * 1.2 + 'px';
+            
+            // Create striped pattern
+            const stripes = pattern.colors.length;
+            const gradient = pattern.colors.map((color, i) => {
+                const start = (i / stripes) * 100;
+                const end = ((i + 1) / stripes) * 100;
+                return `${color} ${start}%, ${color} ${end}%`;
+            }).join(', ');
+            
+            envelope.style.background = `linear-gradient(to bottom, ${gradient})`;
+            
+            const rope = document.createElement('div');
+            rope.className = 'balloon-rope';
+            rope.style.height = size * 0.3 + 'px';
+            
+            const basket = document.createElement('div');
+            basket.className = 'balloon-basket';
+            basket.style.width = size * 0.4 + 'px';
+            basket.style.height = size * 0.2 + 'px';
+            
+            balloon.appendChild(envelope);
+            envelope.appendChild(rope);
+            balloon.appendChild(basket);
+            
+            // Position and animation properties
+            balloon.x = random(-100, window.innerWidth);
+            balloon.y = random(10, window.innerHeight * 0.7);
+            balloon.speedX = random(0.2, 0.5);
+            balloon.speedY = random(-0.1, 0.1);
+            balloon.layer = random(0.3, 1);
+            balloon.swayOffset = random(0, Math.PI * 2);
+            balloon.swaySpeed = random(0.01, 0.02);
+            balloon.colors = pattern.colors;
+            
+            balloon.style.left = balloon.x + 'px';
+            balloon.style.top = balloon.y + 'px';
+            balloon.style.opacity = 0.7 + (balloon.layer * 0.3);
+            balloon.style.transform = `scale(${balloon.layer})`;
+            
+            // Add click interaction
+            if (state.interactiveMode) {
+                balloon.addEventListener('click', handleBalloonClick);
+            }
+            
+            sky.appendChild(balloon);
+            return balloon;
+        }
+
+        function handleBalloonClick(e) {
+            if (!state.interactiveMode) return;
+            
+            const balloon = e.currentTarget;
+            const rect = balloon.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            // Create particle explosion
+            for (let i = 0; i < 15; i++) {
+                createParticle(x, y, balloon.colors[randomInt(0, balloon.colors.length - 1)]);
+            }
+            
+            // Show floating text
+            const message = config.balloonMessages[randomInt(0, config.balloonMessages.length - 1)];
+            showFloatingText(x, y, message);
+            
+            // Add a bounce effect
+            balloon.style.transform = `scale(${balloon.layer}) translateY(-10px)`;
+            setTimeout(() => {
+                balloon.style.transform = `scale(${balloon.layer})`;
+            }, 200);
+        }
+
+        function showFloatingText(x, y, text) {
+            const textEl = document.createElement('div');
+            textEl.className = 'floating-text';
+            textEl.textContent = text;
+            textEl.style.left = x + 'px';
+            textEl.style.top = y + 'px';
+            
+            document.body.appendChild(textEl);
+            
+            // Animate the text
+            setTimeout(() => {
+                textEl.style.opacity = '1';
+                textEl.style.transform = 'translateY(0)';
+            }, 10);
+            
+            setTimeout(() => {
+                textEl.style.opacity = '0';
+                textEl.style.transform = 'translateY(-20px)';
+            }, 2000);
+            
+            setTimeout(() => {
+                document.body.removeChild(textEl);
+            }, 2300);
+        }
+
+        function createCloud() {
+            const cloud = document.createElement('div');
+            cloud.className = 'cloud will-change';
+            
+            const width = random(80, 150);
+            const height = width * 0.6;
+            
+            cloud.style.width = width + 'px';
+            cloud.style.height = height + 'px';
+            
+            cloud.x = random(-200, window.innerWidth);
+            cloud.y = random(10, window.innerHeight * 0.5);
+            cloud.speedX = random(0.1, 0.3);
+            cloud.layer = random(0.2, 0.8);
+            
+            cloud.style.left = cloud.x + 'px';
+            cloud.style.top = cloud.y + 'px';
+            cloud.style.opacity = 0.4 + (cloud.layer * 0.2);
+            cloud.style.transform = `scale(${cloud.layer})`;
+            
+            sky.appendChild(cloud);
+            return cloud;
+        }
+
+        function createBird() {
+            const bird = document.createElement('div');
+            bird.className = 'bird will-change';
+            
+            bird.x = random(-50, window.innerWidth);
+            bird.y = random(50, window.innerHeight * 0.4);
+            bird.speedX = random(1, 2);
+            bird.speedY = random(-0.2, 0.2);
+            
+            bird.style.left = bird.x + 'px';
+            bird.style.top = bird.y + 'px';
+            
+            sky.appendChild(bird);
+            return bird;
+        }
+
+        function createStar() {
+            const star = document.createElement('div');
+            star.className = 'star will-change';
+            
+            const size = random(1, 3);
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            
+            star.x = random(0, window.innerWidth);
+            star.y = random(0, window.innerHeight * 0.7);
+            star.twinkleOffset = random(0, Math.PI * 2);
+            
+            star.style.left = star.x + 'px';
+            star.style.top = star.y + 'px';
+            star.style.opacity = random(0.3, 0.8);
+            
+            sky.appendChild(star);
+            return star;
+        }
+
+        function createWeatherEffect() {
+            // This would create rain or snow particles based on state.weather
+            // Simplified implementation for demo
+        }
+
+        // Update Functions
+        function updateBalloons() {
+            const targetCount = state.balloonCount;
+            const currentCount = state.balloons.length;
+            
+            if (currentCount < targetCount) {
+                for (let i = currentCount; i < targetCount; i++) {
+                    state.balloons.push(createBalloon());
+                }
+            } else if (currentCount > targetCount) {
+                for (let i = currentCount - 1; i >= targetCount; i--) {
+                    if (state.balloons[i].parentNode) {
+                        sky.removeChild(state.balloons[i]);
+                    }
+                    state.balloons.pop();
+                }
+            }
+        }
+
+        function updateClouds() {
+            const targetCount = config.cloudDensity[state.cloudDensity];
+            const currentCount = state.clouds.length;
+            
+            if (currentCount < targetCount) {
+                for (let i = currentCount; i < targetCount; i++) {
+                    state.clouds.push(createCloud());
+                }
+            } else if (currentCount > targetCount) {
+                for (let i = currentCount - 1; i >= targetCount; i--) {
+                    if (state.clouds[i].parentNode) {
+                        sky.removeChild(state.clouds[i]);
+                    }
+                    state.clouds.pop();
+                }
+            }
+        }
+
+        function updateBirds() {
+            if (state.showBirds && state.birds.length === 0) {
+                for (let i = 0; i < 5; i++) {
+                    state.birds.push(createBird());
+                }
+            } else if (!state.showBirds && state.birds.length > 0) {
+                state.birds.forEach(bird => {
+                    if (bird.parentNode) {
+                        sky.removeChild(bird);
+                    }
+                });
+                state.birds = [];
+            }
+        }
+
+        function updateStars() {
+            if (state.showStars && state.stars.length === 0) {
+                for (let i = 0; i < 100; i++) {
+                    state.stars.push(createStar());
+                }
+            } else if (!state.showStars && state.stars.length > 0) {
+                state.stars.forEach(star => {
+                    if (star.parentNode) {
+                        sky.removeChild(star);
+                    }
+                });
+                state.stars = [];
+            }
+        }
+
+        function updateTimeOfDay() {
+            const sunElement = document.querySelector('.sun');
+            const moonElement = document.querySelector('.moon');
+            
+            sky.className = state.timeOfDay;
+            sunElement.className = `celestial-body sun ${state.timeOfDay}`;
+            moonElement.className = `celestial-body moon ${state.timeOfDay}`;
+            
+            // Show/hide stars based on time of day
+            if (state.timeOfDay === 'night') {
+                state.showStars = true;
+                starsToggle.textContent = '✨ Stars: ON';
+                starsToggle.classList.remove('off');
+                updateStars();
+            } else if (state.timeOfDay !== 'night' && state.showStars) {
+                // Keep stars visible if user manually enabled them
+                updateStars();
+            }
+        }
+
+        function updateInteractiveMode() {
+            state.balloons.forEach(balloon => {
+                if (state.interactiveMode) {
+                    balloon.addEventListener('click', handleBalloonClick);
+                    balloon.style.cursor = 'pointer';
+                } else {
+                    balloon.removeEventListener('click', handleBalloonClick);
+                    balloon.style.cursor = 'default';
+                }
+            });
+        }
+
+        // Animation Loop
+        function animate(currentTime) {
+            if (state.isPaused) {
+                animationFrameId = requestAnimationFrame(animate);
+                return;
+            }
+            
+            const deltaTime = (currentTime - state.lastFrameTime) / 16.67; // Normalize to 60fps
+            state.lastFrameTime = currentTime;
+            
+            const speedMultiplier = config.speeds[state.animationSpeed] * deltaTime;
+            const parallaxMultiplier = config.parallaxIntensity[state.parallaxIntensity];
+            
+            // Animate balloons
+            state.balloons.forEach(balloon => {
+                balloon.x += balloon.speedX * speedMultiplier * balloon.layer * parallaxMultiplier;
+                balloon.y += balloon.speedY * speedMultiplier;
+                
+                // Sway effect
+                balloon.swayOffset += balloon.swaySpeed * speedMultiplier;
+                const swayX = Math.sin(balloon.swayOffset) * 20;
+                const swayRotation = Math.sin(balloon.swayOffset) * 3;
+                
+                // Bounce at edges
+                if (balloon.y < 0 || balloon.y > window.innerHeight * 0.8) {
+                    balloon.speedY *= -1;
+                }
+                
+                // Loop horizontally
+                if (balloon.x > window.innerWidth + 100) {
+                    balloon.x = -100;
+                }
+                
+                balloon.style.left = (balloon.x + swayX) + 'px';
+                balloon.style.top = balloon.y + 'px';
+                balloon.style.transform = `scale(${balloon.layer}) rotate(${swayRotation}deg)`;
+            });
+            
+            // Animate clouds
+            state.clouds.forEach(cloud => {
+                cloud.x += cloud.speedX * speedMultiplier * cloud.layer * parallaxMultiplier;
+                
+                if (cloud.x > window.innerWidth + 200) {
+                    cloud.x = -200;
+                }
+                
+                cloud.style.left = cloud.x + 'px';
+            });
+            
+            // Animate birds
+            state.birds.forEach(bird => {
+                bird.x += bird.speedX * speedMultiplier;
+                bird.y += bird.speedY * speedMultiplier;
+                
+                if (bird.y < 30 || bird.y > window.innerHeight * 0.5) {
+                    bird.speedY *= -1;
+                }
+                
+                if (bird.x > window.innerWidth + 100) {
+                    bird.x = -50;
+                    bird.y = random(50, window.innerHeight * 0.4);
+                }
+                
+                bird.style.left = bird.x + 'px';
+                bird.style.top = bird.y + 'px';
+            });
+            
+            // Animate stars (twinkle)
+            state.stars.forEach(star => {
+                star.twinkleOffset += 0.02 * speedMultiplier;
+                star.style.opacity = 0.3 + Math.sin(star.twinkleOffset) * 0.5;
+            });
+            
+            // Animate particles
+            state.particles = state.particles.filter(particle => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.life -= particle.decay;
+                
+                particle.style.left = particle.x + 'px';
+                particle.style.top = particle.y + 'px';
+                particle.style.opacity = particle.life;
+                
+                if (particle.life <= 0) {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                    return false;
+                }
+                return true;
+            });
+            
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        // Randomize scene
+        function randomizeScene() {
+            // Random time of day
+            const times = ['sunrise', 'day', 'sunset', 'night'];
+            state.timeOfDay = times[randomInt(0, times.length - 1)];
+            document.querySelectorAll('[data-time]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.time === state.timeOfDay);
+            });
+            updateTimeOfDay();
+            
+            // Random balloon count
+            state.balloonCount = randomInt(5, 15);
+            balloonCountSlider.value = state.balloonCount;
+            balloonCountValue.textContent = state.balloonCount;
+            updateBalloons();
+            
+            // Random animation speed
+            const speeds = ['slow', 'medium', 'fast'];
+            state.animationSpeed = speeds[randomInt(0, speeds.length - 1)];
+            document.querySelectorAll('[data-speed]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.speed === state.animationSpeed);
+            });
+            
+            // Random cloud density
+            const clouds = ['none', 'light', 'moderate', 'dense'];
+            state.cloudDensity = clouds[randomInt(0, clouds.length - 1)];
+            document.querySelectorAll('[data-clouds]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.clouds === state.cloudDensity);
+            });
+            updateClouds();
+            
+            // Random parallax
+            const parallaxes = ['low', 'medium', 'high'];
+            state.parallaxIntensity = parallaxes[randomInt(0, parallaxes.length - 1)];
+            document.querySelectorAll('[data-parallax]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.parallax === state.parallaxIntensity);
+            });
+            
+            // Show notification
+            showFloatingText(
+                window.innerWidth / 2, 
+                window.innerHeight / 2, 
+                "Randomized! 🎲"
+            );
+        }
+
+        // Event Listeners
+        controlToggle.addEventListener('click', () => {
+            controlPanel.classList.toggle('visible');
+        });
+
+        // Time of day buttons
+        document.querySelectorAll('[data-time]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.timeOfDay = btn.dataset.time;
+                updateTimeOfDay();
+            });
+        });
+
+        // Balloon count slider
+        balloonCountSlider.addEventListener('input', (e) => {
+            state.balloonCount = parseInt(e.target.value);
+            balloonCountValue.textContent = state.balloonCount;
+            updateBalloons();
+        });
+
+        // Animation speed buttons
+        document.querySelectorAll('[data-speed]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-speed]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.animationSpeed = btn.dataset.speed;
+            });
+        });
+
+        // Cloud density buttons
+        document.querySelectorAll('[data-clouds]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-clouds]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.cloudDensity = btn.dataset.clouds;
+                updateClouds();
+            });
+        });
+
+        // Parallax intensity buttons
+        document.querySelectorAll('[data-parallax]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-parallax]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.parallaxIntensity = btn.dataset.parallax;
+            });
+        });
+
+        // Weather buttons
+        document.querySelectorAll('[data-weather]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-weather]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.weather = btn.dataset.weather;
+                // Weather effects implementation would go here
+            });
+        });
+
+        // Birds toggle
+        birdsToggle.addEventListener('click', () => {
+            state.showBirds = !state.showBirds;
+            birdsToggle.textContent = state.showBirds ? '🐦 Birds: ON' : '🐦 Birds: OFF';
+            birdsToggle.classList.toggle('off');
+            updateBirds();
+        });
+
+        // Stars toggle
+        starsToggle.addEventListener('click', () => {
+            state.showStars = !state.showStars;
+            starsToggle.textContent = state.showStars ? '✨ Stars: ON' : '✨ Stars: OFF';
+            starsToggle.classList.toggle('off');
+            updateStars();
+        });
+
+        // Interactive toggle
+        interactiveToggle.addEventListener('click', () => {
+            state.interactiveMode = !state.interactiveMode;
+            interactiveToggle.textContent = state.interactiveMode ? '👆 Interactive: ON' : '👆 Interactive: OFF';
+            interactiveToggle.classList.toggle('off');
+            updateInteractiveMode();
+        });
+
+        // Pause toggle
+        pauseToggle.addEventListener('click', () => {
+            state.isPaused = !state.isPaused;
+            pauseToggle.textContent = state.isPaused ? '▶️ Play' : '⏸️ Pause';
+        });
+
+        // Fullscreen toggle
+        fullscreenToggle.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                fullscreenToggle.textContent = '⛶ Exit Fullscreen';
+            } else {
+                document.exitFullscreen();
+                fullscreenToggle.textContent = '⛶ Fullscreen';
+            }
+        });
+
+        // Handle fullscreen change
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                fullscreenToggle.textContent = '⛶ Fullscreen';
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // 'R' key to randomize
+            if (e.key === 'r' || e.key === 'R') {
+                randomizeScene();
+            }
+            
+            // Spacebar to pause/play
+            if (e.code === 'Space') {
+                e.preventDefault();
+                state.isPaused = !state.isPaused;
+                pauseToggle.textContent = state.isPaused ? '▶️ Play' : '⏸️ Pause';
+            }
+            
+            // Escape to close control panel
+            if (e.code === 'Escape' && controlPanel.classList.contains('visible')) {
+                controlPanel.classList.remove('visible');
+            }
+        });
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            // Reset positions if needed (simplified for demo)
+        });
+
+        // Initialize
+        function init() {
+            updateBalloons();
+            updateClouds();
+            updateBirds();
+            updateStars();
+            updateTimeOfDay();
+            updateInteractiveMode();
+            state.lastFrameTime = performance.now();
+            animate(state.lastFrameTime);
+        }
+
+        // Start the experience
+        init();
+    </script>
+</body>
+</html>
