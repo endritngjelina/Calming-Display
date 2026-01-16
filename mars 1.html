@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mars Zen Experience</title>
+    <style>
+        :root {
+            --mars-surface: #C1440E;
+            --mars-rock: #8B4513;
+            --mars-sky: #CC9966;
+            --mars-dust: #DEB887;
+            --mars-dark: #663300;
+            --color-primary: #CC9966;
+            --color-text: #fff;
+            --color-bg: rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .scene-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: opacity 1s ease;
+        }
+
+        .scene-container.fade-out {
+            opacity: 0;
+        }
+
+        /* Mars Scene */
+        .mars-scene {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                #FFD4A3 0%, 
+                #E8A87C 25%, 
+                #CC8866 50%, 
+                #B67762 75%, 
+                #9B5F4A 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .mars-surface {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(to bottom, #B8642E, #8B3A0E);
+            border-radius: 50% 50% 0 0 / 20px 20px 0 0;
+        }
+
+        .dust-particle {
+            position: absolute;
+            background: rgba(222, 184, 135, 0.4);
+            border-radius: 50%;
+            animation: float-dust 20s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes float-dust {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translate(100vw, -200px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .rock {
+            position: absolute;
+            background: linear-gradient(135deg, #8B4513 0%, #654321 100%);
+            border-radius: 40% 60% 50% 50%;
+            box-shadow: inset -10px -10px 20px rgba(0, 0, 0, 0.5),
+                        5px 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .crater {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #663300, #4A2506);
+            box-shadow: inset 5px 5px 15px rgba(0, 0, 0, 0.7);
+        }
+
+        .sun {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #FFE4B5 0%, #FFD700 50%, #FFA500 100%);
+            border-radius: 50%;
+            top: 15%;
+            right: 15%;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.6),
+                        0 0 80px rgba(255, 140, 0, 0.4);
+            animation: pulse-sun 4s infinite ease-in-out;
+        }
+
+        @keyframes pulse-sun {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .phobos {
+            position: absolute;
+            width: 30px;
+            height: 25px;
+            background: linear-gradient(135deg, #888, #555);
+            border-radius: 50%;
+            top: 25%;
+            left: 20%;
+            box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.5);
+            animation: orbit-phobos 40s infinite linear;
+        }
+
+        @keyframes orbit-phobos {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(100px, -50px); }
+            50% { transform: translate(200px, 0); }
+            75% { transform: translate(100px, 50px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .aurora {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: radial-gradient(ellipse at top, 
+                rgba(255, 140, 0, 0.1) 0%, 
+                rgba(255, 69, 0, 0.05) 40%, 
+                transparent 70%);
+            animation: aurora-shimmer 10s infinite ease-in-out;
+        }
+
+        @keyframes aurora-shimmer {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Olympus Mons Scene */
+        .olympus-scene {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                #D4A574 0%, 
+                #B8895E 30%, 
+                #9C6D48 60%, 
+                #805132 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .olympus-mountain {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 400px solid transparent;
+            border-right: 400px solid transparent;
+            border-bottom: 500px solid #6B4423;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
+        }
+
+        .olympus-peak {
+            position: absolute;
+            bottom: 480px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 80px solid #8B5A3C;
+        }
+
+        /* Valles Marineris Scene */
+        .canyon-scene {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                #CC9966 0%, 
+                #A67C52 40%, 
+                #805030 70%, 
+                #5A3A20 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canyon {
+            position: absolute;
+            bottom: 20%;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(to bottom, 
+                transparent 0%, 
+                rgba(90, 58, 32, 0.8) 30%, 
+                rgba(60, 40, 20, 1) 100%);
+            clip-path: polygon(0 30%, 20% 0%, 40% 25%, 60% 5%, 80% 30%, 100% 20%, 100% 100%, 0 100%);
+        }
+
+        .canyon-layer {
+            position: absolute;
+            width: 100%;
+            height: 10px;
+            background: rgba(139, 69, 19, 0.6);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        /* Controls Panel */
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            border-radius: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #CC9966, #B8895E);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(204, 153, 102, 0.3);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(204, 153, 102, 0.5);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .control-btn.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 200px;
+        }
+
+        .slider-label {
+            color: white;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, #CC9966, #FFD700);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #FFD700;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #FFD700;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            border: none;
+        }
+
+        .info-panel {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            max-width: 300px;
+            z-index: 999;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .info-panel h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #FFD700;
+        }
+
+        .info-panel p {
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .breathing-circle {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            border: 3px solid rgba(255, 215, 0, 0.5);
+            border-radius: 50%;
+            animation: breathe 6s infinite ease-in-out;
+            pointer-events: none;
+            z-index: 500;
+        }
+
+        @keyframes breathe {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.3;
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 0.7;
+            }
+        }
+
+        .toggle-btn {
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid #FFD700;
+            color: #FFD700;
+        }
+
+        .toggle-btn.active {
+            background: #FFD700;
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                bottom: 20px;
+                padding: 15px 20px;
+                flex-wrap: wrap;
+                max-width: 90%;
+            }
+
+            .control-btn {
+                padding: 10px 18px;
+                font-size: 12px;
+            }
+
+            .info-panel {
+                top: 20px;
+                left: 20px;
+                right: 20px;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container" id="sceneContainer">
+        <div class="mars-scene" id="marsScene">
+            <div class="stars" id="stars"></div>
+            <div class="aurora"></div>
+            <div class="sun"></div>
+            <div class="phobos"></div>
+            <div class="mars-surface"></div>
+            <div id="dustContainer"></div>
+            <div id="rocksContainer"></div>
+            <div id="cratersContainer"></div>
+        </div>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+        <h2>Mars Surface</h2>
+        <p>The Red Planet's butterscotch-colored surface, covered in iron oxide dust. Experience the serene beauty of our neighboring world.</p>
+    </div>
+
+    <div class="breathing-circle" id="breathingCircle" style="display: none;"></div>
+
+    <div class="controls">
+        <button class="control-btn active" onclick="changeScene('mars')">Mars Surface</button>
+        <button class="control-btn" onclick="changeScene('olympus')">Olympus Mons</button>
+        <button class="control-btn" onclick="changeScene('canyon')">Valles Marineris</button>
+        
+        <div class="slider-container">
+            <label class="slider-label">Animation Speed</label>
+            <input type="range" min="0.5" max="2" step="0.1" value="1" id="speedSlider">
+        </div>
+        
+        <button class="control-btn toggle-btn" id="breathingToggle" onclick="toggleBreathing()">Breathing Guide</button>
+    </div>
+
+    <script>
+        let currentScene = 'mars';
+        let animationSpeed = 1;
+        let breathingActive = false;
+
+        // Scene information
+        const sceneInfo = {
+            mars: {
+                title: 'Mars Surface',
+                description: 'The Red Planet\'s butterscotch-colored surface, covered in iron oxide dust. Experience the serene beauty of our neighboring world.'
+            },
+            olympus: {
+                title: 'Olympus Mons',
+                description: 'The largest volcano in our solar system, rising 13.6 miles above the Martian surface. A magnificent testament to Mars\' geological past.'
+            },
+            canyon: {
+                title: 'Valles Marineris',
+                description: 'A vast canyon system stretching over 2,500 miles across Mars. One of the most spectacular geological features in the solar system.'
+            }
+        };
+
+        // Initialize stars
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 60 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Create dust particles
+        function createDust() {
+            const dustContainer = document.getElementById('dustContainer');
+            setInterval(() => {
+                if (currentScene === 'mars') {
+                    const dust = document.createElement('div');
+                    dust.className = 'dust-particle';
+                    const size = Math.random() * 4 + 2;
+                    dust.style.width = size + 'px';
+                    dust.style.height = size + 'px';
+                    dust.style.left = -10 + 'px';
+                    dust.style.top = Math.random() * 100 + '%';
+                    dust.style.animationDuration = (15 + Math.random() * 10) / animationSpeed + 's';
+                    dustContainer.appendChild(dust);
+                    
+                    setTimeout(() => dust.remove(), 25000 / animationSpeed);
+                }
+            }, 500);
+        }
+
+        // Create rocks
+        function createRocks() {
+            const rocksContainer = document.getElementById('rocksContainer');
+            for (let i = 0; i < 15; i++) {
+                const rock = document.createElement('div');
+                rock.className = 'rock';
+                const size = Math.random() * 60 + 30;
+                rock.style.width = size + 'px';
+                rock.style.height = size * 0.7 + 'px';
+                rock.style.left = Math.random() * 100 + '%';
+                rock.style.bottom = Math.random() * 30 + 5 + '%';
+                rocksContainer.appendChild(rock);
+            }
+        }
+
+        // Create craters
+        function createCraters() {
+            const cratersContainer = document.getElementById('cratersContainer');
+            for (let i = 0; i < 10; i++) {
+                const crater = document.createElement('div');
+                crater.className = 'crater';
+                const size = Math.random() * 40 + 20;
+                crater.style.width = size + 'px';
+                crater.style.height = size + 'px';
+                crater.style.left = Math.random() * 100 + '%';
+                crater.style.bottom = Math.random() * 35 + '%';
+                cratersContainer.appendChild(crater);
+            }
+        }
+
+        // Change scene
+        function changeScene(scene) {
+            const container = document.getElementById('sceneContainer');
+            const infoPanel = document.getElementById('infoPanel');
+            
+            // Update button states
+            document.querySelectorAll('.controls .control-btn:not(.toggle-btn)').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Fade out
+            container.classList.add('fade-out');
+            
+            setTimeout(() => {
+                // Clear current scene
+                container.innerHTML = '';
+                
+                // Create new scene
+                if (scene === 'mars') {
+                    container.innerHTML = `
+                        <div class="mars-scene">
+                            <div class="stars" id="stars"></div>
+                            <div class="aurora"></div>
+                            <div class="sun"></div>
+                            <div class="phobos"></div>
+                            <div class="mars-surface"></div>
+                            <div id="dustContainer"></div>
+                            <div id="rocksContainer"></div>
+                            <div id="cratersContainer"></div>
+                        </div>
+                    `;
+                    createStars();
+                    createRocks();
+                    createCraters();
+                } else if (scene === 'olympus') {
+                    container.innerHTML = `
+                        <div class="olympus-scene">
+                            <div class="stars" id="stars"></div>
+                            <div class="aurora"></div>
+                            <div class="sun"></div>
+                            <div class="olympus-mountain"></div>
+                            <div class="olympus-peak"></div>
+                            <div id="dustContainer"></div>
+                        </div>
+                    `;
+                    createStars();
+                } else if (scene === 'canyon') {
+                    container.innerHTML = `
+                        <div class="canyon-scene">
+                            <div class="stars" id="stars"></div>
+                            <div class="sun"></div>
+                            <div class="canyon">
+                                <div class="canyon-layer" style="top: 20%;"></div>
+                                <div class="canyon-layer" style="top: 40%;"></div>
+                                <div class="canyon-layer" style="top: 60%;"></div>
+                                <div class="canyon-layer" style="top: 80%;"></div>
+                            </div>
+                            <div id="rocksContainer"></div>
+                        </div>
+                    `;
+                    createStars();
+                    createRocks();
+                }
+                
+                // Update info panel
+                infoPanel.querySelector('h2').textContent = sceneInfo[scene].title;
+                infoPanel.querySelector('p').textContent = sceneInfo[scene].description;
+                
+                currentScene = scene;
+                
+                // Fade in
+                container.classList.remove('fade-out');
+            }, 1000);
+        }
+
+        // Speed control
+        document.getElementById('speedSlider').addEventListener('input', function(e) {
+            animationSpeed = parseFloat(e.target.value);
+            document.documentElement.style.setProperty('--animation-speed', animationSpeed);
+        });
+
+        // Breathing guide toggle
+        function toggleBreathing() {
+            breathingActive = !breathingActive;
+            const circle = document.getElementById('breathingCircle');
+            const btn = document.getElementById('breathingToggle');
+            
+            if (breathingActive) {
+                circle.style.display = 'block';
+                btn.classList.add('active');
+            } else {
+                circle.style.display = 'none';
+                btn.classList.remove('active');
+            }
+        }
+
+        // Initialize
+        createStars();
+        createDust();
+        createRocks();
+        createCraters();
+    </script>
+</body>
+</html>
