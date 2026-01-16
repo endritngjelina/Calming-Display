@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heatwave Highway</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --color-slate-500-rgb: 98, 108, 113;
+
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-primary-active: var(--color-teal-700);
+            --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+            --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-btn-primary-text: var(--color-cream-50);
+            --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
+
+            --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-size-base: 14px;
+            --font-size-sm: 12px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-size-2xl: 20px;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 550;
+
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --space-32: 32px;
+
+            --radius-sm: 6px;
+            --radius-base: 8px;
+            --radius-md: 10px;
+            --radius-lg: 12px;
+            --radius-full: 9999px;
+
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: var(--font-family-base);
+            background: var(--color-background);
+            color: var(--color-text);
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .scene {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #ffb347 0%, #ffa07a 25%, #ff8c69 50%, #ffa07a 75%, #ffb347 100%);
+        }
+
+        .road-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60%;
+            perspective: 800px;
+        }
+
+        .road {
+            position: absolute;
+            width: 40%;
+            left: 30%;
+            height: 100%;
+            bottom: 0;
+            background: linear-gradient(to right, #333 0%, #555 25%, #777 50%, #555 75%, #333 100%);
+            clip-path: polygon(10% 100%, 90% 100%, 100% 0%, 0% 0%);
+            transform-origin: bottom center;
+            animation: roadWarp 4s ease-in-out infinite;
+        }
+
+        @keyframes roadWarp {
+            0% { transform: scaleY(1) scaleX(1); }
+            25% { transform: scaleY(0.98) scaleX(1.02); }
+            50% { transform: scaleY(0.95) scaleX(1.05); }
+            75% { transform: scaleY(0.98) scaleX(1.02); }
+            100% { transform: scaleY(1) scaleX(1); }
+        }
+
+        .road-markings {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent,
+                transparent 8%,
+                rgba(255, 255, 255, 0.3) 8%,
+                rgba(255, 255, 255, 0.3) 15%
+            );
+        }
+
+        .mirage-layer {
+            position: absolute;
+            width: 100%;
+            height: 40%;
+            top: 0;
+            background: linear-gradient(180deg, 
+                rgba(255, 200, 100, 0.2) 0%,
+                rgba(255, 150, 100, 0.1) 20%,
+                transparent 50%,
+                transparent 100%
+            );
+            animation: mirageWave 3.5s ease-in-out infinite;
+        }
+
+        @keyframes mirageWave {
+            0%, 100% { 
+                transform: translateY(0) scaleY(1);
+                opacity: 0.3;
+            }
+            25% { 
+                transform: translateY(20px) scaleY(0.8);
+                opacity: 0.5;
+            }
+            50% { 
+                transform: translateY(0) scaleY(1);
+                opacity: 0.3;
+            }
+            75% { 
+                transform: translateY(-20px) scaleY(1.1);
+                opacity: 0.4;
+            }
+        }
+
+        .shimmer {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            top: 0;
+            left: -50%;
+            background: linear-gradient(90deg, 
+                transparent 0%,
+                rgba(255, 255, 255, 0.08) 20%,
+                rgba(255, 255, 255, 0.15) 50%,
+                rgba(255, 255, 255, 0.08) 80%,
+                transparent 100%
+            );
+            animation: shimmerMove 6s ease-in-out infinite;
+        }
+
+        @keyframes shimmerMove {
+            0% { left: -50%; }
+            100% { left: 100%; }
+        }
+
+        .horizon {
+            position: absolute;
+            bottom: 35%;
+            width: 100%;
+            height: 8%;
+            background: linear-gradient(180deg,
+                rgba(255, 120, 50, 0.4) 0%,
+                rgba(255, 100, 30, 0.2) 50%,
+                transparent 100%
+            );
+            animation: horizonWarp 5s ease-in-out infinite;
+            filter: blur(8px);
+        }
+
+        @keyframes horizonWarp {
+            0%, 100% { 
+                transform: scaleY(1) translateY(0);
+            }
+            50% { 
+                transform: scaleY(1.3) translateY(10px);
+            }
+        }
+
+        .distant-landscape {
+            position: absolute;
+            bottom: 30%;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(180deg,
+                rgba(255, 150, 80, 0.3) 0%,
+                rgba(200, 100, 50, 0.15) 50%,
+                transparent 100%
+            );
+            filter: blur(12px);
+            animation: landscapeWarp 7s ease-in-out infinite;
+        }
+
+        @keyframes landscapeWarp {
+            0%, 100% { 
+                transform: scaleX(1) scaleY(1);
+            }
+            50% { 
+                transform: scaleX(1.08) scaleY(1.15);
+            }
+        }
+
+        .mountains {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120%;
+            height: 25%;
+            background: linear-gradient(135deg, transparent 0%, rgba(160, 80, 40, 0.2) 50%, transparent 100%);
+            clip-path: polygon(0% 100%, 15% 40%, 30% 50%, 50% 20%, 70% 45%, 85% 35%, 100% 50%, 100% 100%);
+            filter: blur(10px);
+            animation: mountainWarp 8s ease-in-out infinite;
+        }
+
+        @keyframes mountainWarp {
+            0%, 100% { 
+                transform: translateX(-50%) scaleY(1);
+            }
+            50% { 
+                transform: translateX(-50%) scaleY(1.1);
+            }
+        }
+
+        .sun {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: radial-gradient(circle at 30% 30%, rgba(255, 220, 100, 0.8), rgba(255, 180, 50, 0.4), transparent);
+            animation: sunGlow 4s ease-in-out infinite;
+            filter: blur(8px);
+        }
+
+        @keyframes sunGlow {
+            0%, 100% { 
+                box-shadow: 0 0 60px 20px rgba(255, 180, 50, 0.3);
+                opacity: 0.7;
+            }
+            50% { 
+                box-shadow: 0 0 80px 30px rgba(255, 150, 30, 0.4);
+                opacity: 0.9;
+            }
+        }
+
+        .heat-wave {
+            position: absolute;
+            width: 100%;
+            height: 30%;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                rgba(255, 200, 100, 0.1) 50px,
+                transparent 100px
+            );
+            animation: heatWave 2s linear infinite;
+        }
+
+        @keyframes heatWave {
+            0% { background-position: 0 0; }
+            100% { background-position: 100px 0; }
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            border-radius: 15px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90%;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .slider {
+            width: 150px;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(50, 184, 198, 0.6);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(50, 184, 198, 0.6);
+        }
+
+        .select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            font-weight: var(--font-weight-medium);
+        }
+
+        .select option {
+            background: rgba(0, 0, 0, 0.8);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            background: var(--color-primary);
+            color: var(--color-btn-primary-text);
+            border: none;
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-standard);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .button:hover {
+            background: var(--color-primary-hover);
+            box-shadow: 0 0 15px rgba(50, 184, 198, 0.6);
+            transform: scale(1.05);
+        }
+
+        .button:active {
+            background: var(--color-primary-active);
+            transform: scale(0.98);
+        }
+
+        .button:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        .info-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: var(--font-size-sm);
+            backdrop-filter: blur(10px);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .intensity-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            margin-left: 8px;
+            animation: intensityPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes intensityPulse {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(50, 184, 198, 0.5);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(50, 184, 198, 0.8);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="scene">
+            <div class="info-badge">
+                Heatwave Highway
+                <span class="intensity-indicator"></span>
+            </div>
+
+            <div class="sun"></div>
+            
+            <div class="mirage-layer">
+                <div class="shimmer"></div>
+            </div>
+
+            <div class="distant-landscape"></div>
+            <div class="mountains"></div>
+            <div class="horizon"></div>
+
+            <div class="road-container">
+                <div class="road">
+                    <div class="road-markings"></div>
+                </div>
+            </div>
+
+            <div class="heat-wave"></div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label class="control-label">Heat Intensity</label>
+                    <input type="range" id="heatIntensity" min="0" max="100" value="50" class="slider">
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Mirage Effect</label>
+                    <input type="range" id="mirageEffect" min="0" max="100" value="50" class="slider">
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Landscape</label>
+                    <select id="landscapeSelect" class="select">
+                        <option value="mountains">Mountains</option>
+                        <option value="cityscape">Cityscape</option>
+                        <option value="plains">Plains</option>
+                        <option value="dunes">Sand Dunes</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Animation Speed</label>
+                    <input type="range" id="animationSpeed" min="0.5" max="2" step="0.1" value="1" class="slider">
+                </div>
+
+                <button class="button" id="resetBtn">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const scene = document.querySelector('.scene');
+        const road = document.querySelector('.road');
+        const mirage = document.querySelector('.mirage-layer');
+        const horizon = document.querySelector('.horizon');
+        const mountains = document.querySelector('.mountains');
+        const landscape = document.querySelector('.distant-landscape');
+        const sun = document.querySelector('.sun');
+        const heatWave = document.querySelector('.heat-wave');
+
+        const heatIntensitySlider = document.getElementById('heatIntensity');
+        const mirageEffectSlider = document.getElementById('mirageEffect');
+        const landscapeSelect = document.getElementById('landscapeSelect');
+        const animationSpeedSlider = document.getElementById('animationSpeed');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Heat Intensity Control
+        heatIntensitySlider.addEventListener('input', (e) => {
+            const value = e.target.value / 100;
+            const hueShift = value * 30;
+            const saturation = 50 + (value * 40);
+            
+            scene.style.filter = `hue-rotate(${hueShift}deg) saturate(${saturation}%)`;
+            sun.style.opacity = 0.6 + (value * 0.4);
+            mirage.style.opacity = 0.2 + (value * 0.6);
+        });
+
+        // Mirage Effect Control
+        mirageEffectSlider.addEventListener('input', (e) => {
+            const value = e.target.value / 100;
+            mirage.style.filter = `blur(${8 + (value * 20)}px)`;
+            mirage.style.opacity = 0.2 + (value * 0.8);
+            horizon.style.filter = `blur(${8 + (value * 15)}px)`;
+        });
+
+        // Landscape Selection
+        landscapeSelect.addEventListener('change', (e) => {
+            const landscape = e.target.value;
+            
+            switch(landscape) {
+                case 'mountains':
+                    mountains.style.clipPath = 'polygon(0% 100%, 15% 40%, 30% 50%, 50% 20%, 70% 45%, 85% 35%, 100% 50%, 100% 100%)';
+                    mountains.style.background = 'linear-gradient(135deg, transparent 0%, rgba(160, 80, 40, 0.2) 50%, transparent 100%)';
+                    break;
+                case 'cityscape':
+                    mountains.style.clipPath = 'polygon(0% 100%, 5% 70%, 15% 60%, 25% 65%, 35% 55%, 45% 65%, 55% 50%, 65% 65%, 75% 55%, 85% 70%, 95% 60%, 100% 75%, 100% 100%)';
+                    mountains.style.background = 'linear-gradient(135deg, transparent 0%, rgba(100, 100, 120, 0.25) 50%, transparent 100%)';
+                    break;
+                case 'plains':
+                    mountains.style.clipPath = 'polygon(0% 100%, 50% 85%, 100% 100%)';
+                    mountains.style.background = 'linear-gradient(135deg, transparent 0%, rgba(180, 140, 100, 0.15) 50%, transparent 100%)';
+                    break;
+                case 'dunes':
+                    mountains.style.clipPath = 'polygon(0% 100%, 20% 60%, 40% 70%, 60% 55%, 80% 65%, 100% 50%, 100% 100%)';
+                    mountains.style.background = 'linear-gradient(135deg, transparent 0%, rgba(200, 160, 100, 0.2) 50%, transparent 100%)';
+                    break;
+            }
+        });
+
+        // Animation Speed Control
+        animationSpeedSlider.addEventListener('input', (e) => {
+            const speed = 1 / e.target.value;
+            const root = document.documentElement;
+            
+            road.style.animationDuration = `${4 * speed}s`;
+            mirage.style.animationDuration = `${3.5 * speed}s`;
+            horizon.style.animationDuration = `${5 * speed}s`;
+            mountains.style.animationDuration = `${8 * speed}s`;
+            landscape.style.animationDuration = `${7 * speed}s`;
+            sun.style.animationDuration = `${4 * speed}s`;
+            heatWave.style.animationDuration = `${2 * speed}s`;
+        });
+
+        // Reset Button
+        resetBtn.addEventListener('click', () => {
+            heatIntensitySlider.value = 50;
+            mirageEffectSlider.value = 50;
+            animationSpeedSlider.value = 1;
+            landscapeSelect.value = 'mountains';
+            
+            scene.style.filter = 'hue-rotate(15deg) saturate(90%)';
+            sun.style.opacity = 0.8;
+            mirage.style.opacity = 0.5;
+            mirage.style.filter = 'blur(18px)';
+            horizon.style.filter = 'blur(8px)';
+            
+            road.style.animationDuration = '4s';
+            mirage.style.animationDuration = '3.5s';
+            horizon.style.animationDuration = '5s';
+            mountains.style.animationDuration = '8s';
+            landscape.style.animationDuration = '7s';
+            sun.style.animationDuration = '4s';
+            heatWave.style.animationDuration = '2s';
+            
+            landscapeSelect.dispatchEvent(new Event('change'));
+        });
+
+        // Initialize
+        resetBtn.click();
+    </script>
+</body>
+</html>
