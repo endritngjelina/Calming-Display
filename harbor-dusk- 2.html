@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harbor at Dusk - Enhanced</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+        }
+
+        #canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            backdrop-filter: blur(20px);
+            max-width: 300px;
+            z-index: 100;
+            border: 1px solid rgba(255, 167, 38, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .controls h3 {
+            margin-bottom: 15px;
+            font-size: 20px;
+            color: #ffa726;
+            text-shadow: 0 0 10px rgba(255, 167, 38, 0.5);
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #ccc;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .control-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .control-group select option {
+            background: #2a2a2a;
+            color: white;
+        }
+
+        .toggle-btn {
+            background: rgba(255, 167, 38, 0.2);
+            border: 2px solid rgba(255, 167, 38, 0.5);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .toggle-btn.active {
+            background: #ffa726;
+            border-color: #ffa726;
+            box-shadow: 0 0 15px rgba(255, 167, 38, 0.6);
+        }
+
+        .toggle-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ffa726;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 167, 38, 0.8);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ffa726;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(255, 167, 38, 0.8);
+        }
+
+        .hide-controls {
+            position: fixed;
+            top: 20px;
+            right: 340px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            z-index: 100;
+        }
+
+        .controls.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <button class="hide-controls" onclick="toggleControls()">👁️</button>
+    
+    <div class="controls" id="controls">
+        <h3>⚓ Harbor Controls</h3>
+        
+        <div class="control-group">
+            <label>🌅 Scenery</label>
+            <select id="scenery">
+                <option value="dusk">Harbor at Dusk</option>
+                <option value="night">Harbor at Night</option>
+                <option value="dawn">Harbor at Dawn</option>
+                <option value="stormy">Stormy Harbor</option>
+                <option value="sunset">Golden Sunset</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>🌊 Wave Speed: <span id="waveSpeedVal">1.0</span>x</label>
+            <input type="range" id="waveSpeed" min="0.1" max="4" step="0.1" value="1">
+        </div>
+
+        <div class="control-group">
+            <label>⛵ Boat Count: <span id="boatCountVal">6</span></label>
+            <input type="range" id="boatCount" min="1" max="12" step="1" value="6">
+        </div>
+
+        <div class="control-group">
+            <label>💨 Wind Strength: <span id="windVal">1.0</span>x</label>
+            <input type="range" id="windStrength" min="0" max="3" step="0.1" value="1">
+        </div>
+
+        <div class="control-group">
+            <label>✨ Toggle Effects</label>
+            <div class="toggle-controls">
+                <button class="toggle-btn active" data-toggle="lighthouse">Lighthouse</button>
+                <button class="toggle-btn active" data-toggle="birds">Seagulls</button>
+                <button class="toggle-btn active" data-toggle="stars">Stars</button>
+                <button class="toggle-btn active" data-toggle="reflections">Reflections</button>
+                <button class="toggle-btn active" data-toggle="clouds">Clouds</button>
+                <button class="toggle-btn active" data-toggle="pier">Pier</button>
+                <button class="toggle-btn active" data-toggle="particles">Sparkles</button>
+                <button class="toggle-btn active" data-toggle="fish">Fish</button>
+                <button class="toggle-btn active" data-toggle="buoys">Buoys</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            initScene();
+        });
+
+        function toggleControls() {
+            document.getElementById('controls').classList.toggle('hidden');
+        }
+
+        // Settings
+        let settings = {
+            scenery: 'dusk',
+            waveSpeed: 1,
+            boatCount: 6,
+            windStrength: 1,
+            lighthouse: true,
+            birds: true,
+            stars: true,
+            reflections: true,
+            clouds: true,
+            pier: true,
+            particles: true,
+            fish: true,
+            buoys: true
+        };
+
+        // Color schemes
+        const colorSchemes = {
+            dusk: {
+                skyTop: '#0d1b3a',
+                skyMiddle: '#4a3f6f',
+                skyBottom: '#ff6e4a',
+                water: '#1a2f4f',
+                waterHighlight: '#3a4f7f',
+                ambient: 'rgba(255, 140, 100, 0.3)'
+            },
+            night: {
+                skyTop: '#000510',
+                skyMiddle: '#0a1428',
+                skyBottom: '#1a2438',
+                water: '#05141f',
+                waterHighlight: '#152535',
+                ambient: 'rgba(100, 120, 180, 0.2)'
+            },
+            dawn: {
+                skyTop: '#3a4f6f',
+                skyMiddle: '#ff8a5f',
+                skyBottom: '#ffc49f',
+                water: '#2a4f6f',
+                waterHighlight: '#4a6f8f',
+                ambient: 'rgba(255, 180, 120, 0.3)'
+            },
+            stormy: {
+                skyTop: '#1a1f2a',
+                skyMiddle: '#2a3f4f',
+                skyBottom: '#3a4f5f',
+                water: '#1a2f3f',
+                waterHighlight: '#2a4f5f',
+                ambient: 'rgba(150, 160, 170, 0.2)'
+            },
+            sunset: {
+                skyTop: '#2a1f4a',
+                skyMiddle: '#ff5f3f',
+                skyBottom: '#ffda5f',
+                water: '#3a2f5f',
+                waterHighlight: '#5a4f7f',
+                ambient: 'rgba(255, 120, 80, 0.4)'
+            }
+        };
+
+        // Enhanced Boats
+        let boats = [];
+        class Boat {
+            constructor() {
+                this.reset();
+                this.x = Math.random() * width;
+            }
+
+            reset() {
+                this.x = -100;
+                this.y = height * 0.52 + Math.random() * height * 0.18;
+                this.size = 25 + Math.random() * 40;
+                this.bobSpeed = 0.015 + Math.random() * 0.025;
+                this.bobOffset = Math.random() * Math.PI * 2;
+                this.driftSpeed = 0.15 + Math.random() * 0.35;
+                this.sway = Math.random() * 0.1 - 0.05;
+                this.hue = Math.random() * 60 + 160;
+                this.type = Math.floor(Math.random() * 3); // Different boat types
+                this.lightFlicker = 0;
+            }
+
+            update(time) {
+                this.bobOffset += this.bobSpeed * settings.waveSpeed;
+                this.x += this.driftSpeed * settings.waveSpeed;
+                this.lightFlicker = Math.random();
+                
+                if (this.x > width + this.size * 2) {
+                    this.reset();
+                }
+            }
+
+            draw(time) {
+                const bobAmount = Math.sin(this.bobOffset) * 4;
+                const swayAmount = Math.sin(this.bobOffset * 0.5) * this.sway * settings.windStrength;
+                const y = this.y + bobAmount;
+                
+                ctx.save();
+                ctx.translate(this.x, y);
+                ctx.rotate(swayAmount);
+                
+                if (this.type === 0) {
+                    // Sailboat
+                    ctx.fillStyle = `hsl(${this.hue}, 45%, 35%)`;
+                    ctx.beginPath();
+                    ctx.moveTo(-this.size * 0.7, 0);
+                    ctx.lineTo(this.size * 0.7, 0);
+                    ctx.lineTo(this.size * 0.5, this.size * 0.3);
+                    ctx.lineTo(-this.size * 0.5, this.size * 0.3);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // Sail
+                    ctx.fillStyle = `hsl(${this.hue + 30}, 60%, 85%)`;
+                    ctx.beginPath();
+                    ctx.moveTo(0, -this.size * 1.3);
+                    ctx.lineTo(-this.size * 0.5, 0);
+                    ctx.lineTo(0, -this.size * 0.1);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = `hsl(${this.hue}, 30%, 25%)`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(0, -this.size * 1.3);
+                    ctx.stroke();
+                    
+                } else if (this.type === 1) {
+                    // Yacht
+                    ctx.fillStyle = `hsl(${this.hue}, 50%, 40%)`;
+                    ctx.beginPath();
+                    ctx.moveTo(-this.size * 0.6, 0);
+                    ctx.lineTo(this.size * 0.6, 0);
+                    ctx.lineTo(this.size * 0.4, this.size * 0.4);
+                    ctx.lineTo(-this.size * 0.4, this.size * 0.4);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    ctx.fillStyle = `hsl(${this.hue}, 40%, 50%)`;
+                    ctx.fillRect(-this.size * 0.4, -this.size * 0.4, this.size * 0.8, this.size * 0.5);
+                    
+                    // Windows
+                    for (let i = 0; i < 3; i++) {
+                        const brightness = 0.7 + this.lightFlicker * 0.3;
+                        ctx.fillStyle = `rgba(255, 230, 150, ${brightness})`;
+                        ctx.fillRect(-this.size * 0.3 + i * this.size * 0.25, -this.size * 0.3, this.size * 0.15, this.size * 0.15);
+                    }
+                    
+                } else {
+                    // Fishing boat
+                    ctx.fillStyle = `hsl(${this.hue}, 55%, 38%)`;
+                    ctx.beginPath();
+                    ctx.moveTo(-this.size * 0.65, 0);
+                    ctx.lineTo(this.size * 0.65, 0);
+                    ctx.lineTo(this.size * 0.45, this.size * 0.35);
+                    ctx.lineTo(-this.size * 0.45, this.size * 0.35);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    ctx.fillStyle = `hsl(${this.hue}, 45%, 48%)`;
+                    ctx.fillRect(-this.size * 0.25, -this.size * 0.35, this.size * 0.5, this.size * 0.4);
+                    
+                    const brightness = 0.75 + this.lightFlicker * 0.25;
+                    ctx.fillStyle = `rgba(255, 220, 140, ${brightness})`;
+                    ctx.fillRect(-this.size * 0.15, -this.size * 0.25, this.size * 0.3, this.size * 0.2);
+                }
+                
+                ctx.restore();
+
+                // Enhanced Reflection
+                if (settings.reflections) {
+                    ctx.save();
+                    ctx.globalAlpha = 0.25 + Math.sin(time * 0.001 + this.x * 0.01) * 0.1;
+                    ctx.translate(this.x, y);
+                    ctx.scale(1, -0.6);
+                    ctx.rotate(-swayAmount * 0.5);
+                    ctx.translate(0, -this.size * 0.7);
+                    
+                    ctx.fillStyle = `hsl(${this.hue}, 45%, 35%)`;
+                    ctx.beginPath();
+                    ctx.moveTo(-this.size * 0.6, 0);
+                    ctx.lineTo(this.size * 0.6, 0);
+                    ctx.lineTo(this.size * 0.4, this.size * 0.3);
+                    ctx.lineTo(-this.size * 0.4, this.size * 0.3);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    ctx.restore();
+                }
+            }
+        }
+
+        // Enhanced Birds/Seagulls
+        let birds = [];
+        class Bird {
+            constructor() {
+                this.reset();
+                this.x = Math.random() * width;
+            }
+
+            reset() {
+                this.x = -50;
+                this.y = Math.random() * height * 0.35;
+                this.speed = 1.5 + Math.random() * 2.5;
+                this.wingPhase = Math.random() * Math.PI * 2;
+                this.size = 1 + Math.random() * 0.5;
+                this.yOffset = Math.sin(Math.random() * 100) * 2;
+            }
+
+            update(time) {
+                this.x += this.speed * settings.windStrength;
+                this.wingPhase += 0.15;
+                this.y += Math.sin(time * 0.001 + this.x * 0.01) * 0.3;
+                
+                if (this.x > width + 50) {
+                    this.reset();
+                }
+            }
+
+            draw(time) {
+                ctx.save();
+                ctx.translate(this.x, this.y + this.yOffset);
+                ctx.scale(this.size, this.size);
+                
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.lineWidth = 2.5;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                
+                const wingOffset = Math.sin(this.wingPhase) * 12;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(-8, wingOffset - 6, -18, wingOffset - 2);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(8, wingOffset - 6, 18, wingOffset - 2);
+                ctx.stroke();
+                
+                ctx.restore();
+            }
+        }
+
+        // Enhanced Stars with shooting stars
+        let stars = [];
+        let shootingStars = [];
+        
+        class Star {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height * 0.5;
+                this.size = Math.random() * 2.5;
+                this.twinkleSpeed = 0.015 + Math.random() * 0.035;
+                this.twinkleOffset = Math.random() * Math.PI * 2;
+                this.brightness = Math.random();
+            }
+
+            update(time) {
+                this.twinkleOffset += this.twinkleSpeed;
+            }
+
+            draw(time) {
+                const brightness = (Math.sin(this.twinkleOffset) + 1) / 2 * 0.9;
+                const alpha = brightness * this.brightness;
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                if (this.size > 1.5) {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.3})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        class ShootingStar {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height * 0.3;
+                this.speedX = 8 + Math.random() * 6;
+                this.speedY = 3 + Math.random() * 3;
+                this.life = 1;
+                this.decay = 0.01 + Math.random() * 0.02;
+            }
+
+            update(time) {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= this.decay;
+            }
+
+            draw(time) {
+                if (this.life <= 0) return;
+                
+                ctx.save();
+                ctx.strokeStyle = `rgba(255, 255, 255, ${this.life})`;
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x - this.speedX * 3, this.y - this.speedY * 3);
+                ctx.stroke();
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.life})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+
+        // Clouds
+        let clouds = [];
+        class Cloud {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height * 0.3;
+                this.speed = 0.1 + Math.random() * 0.3;
+                this.size = 40 + Math.random() * 60;
+                this.opacity = 0.1 + Math.random() * 0.3;
+            }
+
+            update(time) {
+                this.x += this.speed * settings.windStrength;
+                if (this.x > width + this.size * 3) {
+                    this.x = -this.size * 3;
+                    this.y = Math.random() * height * 0.3;
+                }
+            }
+
+            draw(time) {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = '#ffffff';
+                
+                for (let i = 0; i < 5; i++) {
+                    ctx.beginPath();
+                    ctx.arc(
+                        this.x + i * this.size * 0.4,
+                        this.y + Math.sin(i) * this.size * 0.2,
+                        this.size * (0.3 + Math.random() * 0.3),
+                        0,
+                        Math.PI * 2
+                    );
+                    ctx.fill();
+                }
+                
+                ctx.restore();
+            }
+        }
+
+        // Water Particles (sparkles)
+        let particles = [];
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = height * 0.5 + Math.random() * height * 0.4;
+                this.size = Math.random() * 2;
+                this.life = Math.random();
+                this.speed = 0.01 + Math.random() * 0.02;
+            }
+
+            update(time) {
+                this.life += this.speed;
+                if (this.life > 1) {
+                    this.reset();
+                }
+            }
+
+            draw(time) {
+                const alpha = Math.sin(this.life * Math.PI) * 0.5;
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Fish jumping
+        let fish = [];
+        class Fish {
+            constructor() {
+                this.respawn();
+            }
+
+            respawn() {
+                this.x = Math.random() * width;
+                this.y = height * 0.5 + Math.random() * height * 0.3;
+                this.jumpPhase = 0;
+                this.isJumping = false;
+                this.nextJump = Math.random() * 300 + 200;
+            }
+
+            update(time) {
+                this.nextJump--;
+                
+                if (this.nextJump <= 0 && !this.isJumping) {
+                    this.isJumping = true;
+                    this.jumpPhase = 0;
+                }
+
+                if (this.isJumping) {
+                    this.jumpPhase += 0.08;
+                    if (this.jumpPhase > Math.PI) {
+                        this.isJumping = false;
+                        this.respawn();
+                    }
+                }
+            }
+
+            draw(time) {
+                if (!this.isJumping) return;
+
+                const jumpHeight = Math.sin(this.jumpPhase) * 40;
+                const y = this.y - jumpHeight;
+                
+                ctx.save();
+                ctx.translate(this.x, y);
+                ctx.rotate(Math.sin(this.jumpPhase) * 0.5 - 0.5);
+                
+                ctx.fillStyle = 'rgba(150, 150, 200, 0.8)';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 12, 6, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'rgba(100, 100, 150, 0.6)';
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(-8, -3);
+                ctx.lineTo(-8, 3);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.restore();
+
+                // Splash
+                if (this.jumpPhase < 0.3 || this.jumpPhase > Math.PI - 0.3) {
+                    for (let i = 0; i < 5; i++) {
+                        ctx.fillStyle = `rgba(255, 255, 255, ${0.3 - this.jumpPhase * 0.1})`;
+                        ctx.beginPath();
+                        ctx.arc(
+                            this.x + (Math.random() - 0.5) * 15,
+                            this.y + (Math.random() - 0.5) * 5,
+                            Math.random() * 3,
+                            0,
+                            Math.PI * 2
+                        );
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+
+        // Buoys
+        let buoys = [];
+        class Buoy {
+            constructor() {
+                this.x = 200 + Math.random() * (width - 400);
+                this.y = height * 0.55 + Math.random() * height * 0.15;
+                this.bobSpeed = 0.02 + Math.random() * 0.02;
+                this.bobOffset = Math.random() * Math.PI * 2;
+                this.size = 8 + Math.random() * 5;
+            }
+
+            update(time) {
+                this.bobOffset += this.bobSpeed * settings.waveSpeed;
+            }
+
+            draw(time) {
+                const bobAmount = Math.sin(this.bobOffset) * 5;
+                const y = this.y + bobAmount;
+                
+                ctx.fillStyle = '#ff4444';
+                ctx.beginPath();
+                ctx.arc(this.x, y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(this.x, y, this.size * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Reflection
+                if (settings.reflections) {
+                    ctx.globalAlpha = 0.3;
+                    ctx.fillStyle = '#ff4444';
+                    ctx.beginPath();
+                    ctx.ellipse(this.x, y + this.size * 2, this.size * 0.8, this.size * 0.4, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+        }
+
+        // Pier
+        class Pier {
+            draw(colors) {
+                if (!settings.pier) return;
+                
+                const pierX = width * 0.15;
+                const pierY = height * 0.55;
+                const pierWidth = 100;
+                const pierHeight = height - pierY;
+                
+                // Wooden planks
+                ctx.fillStyle = '#4a3426';
+                ctx.fillRect(pierX - pierWidth/2, pierY, pierWidth, pierHeight);
+                
+                // Planks detail
+                ctx.strokeStyle = '#3a2416';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < pierHeight; i += 20) {
+                    ctx.beginPath();
+                    ctx.moveTo(pierX - pierWidth/2, pierY + i);
+                    ctx.lineTo(pierX + pierWidth/2, pierY + i);
+                    ctx.stroke();
+                }
+                
+                // Posts
+                for (let i = 0; i < 3; i++) {
+                    const postX = pierX - pierWidth/3 + i * pierWidth/3;
+                    ctx.fillStyle = '#5a4436';
+                    ctx.fillRect(postX - 8, pierY - 60, 16, 60);
+                    
+                    // Lamp
+                    if (i === 1) {
+                        ctx.fillStyle = '#2a2a2a';
+                        ctx.fillRect(postX - 6, pierY - 80, 12, 20);
+                        
+                        const lampBrightness = 0.8 + Math.sin(Date.now() * 0.005) * 0.2;
+                        const gradient = ctx.createRadialGradient(postX, pierY - 70, 0, postX, pierY - 70, 50);
+                        gradient.addColorStop(0, `rgba(255, 220, 150, ${lampBrightness})`);
+                        gradient.addColorStop(1, 'rgba(255, 220, 150, 0)');
+                        ctx.fillStyle = gradient;
+                        ctx.beginPath();
+                        ctx.arc(postX, pierY - 70, 50, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // Reflection
+                if (settings.reflections) {
+                    ctx.save();
+                    ctx.globalAlpha = 0.2;
+                    ctx.fillStyle = '#4a3426';
+                    ctx.fillRect(pierX - pierWidth/2, pierY + 5, pierWidth, 60);
+                    ctx.restore();
+                }
+            }
+        }
+
+        const pier = new Pier();
+
+        // Enhanced Lighthouse
+        const lighthouse = {
+            x: width * 0.88,
+            y: height * 0.58,
+            angle: 0,
+            beamIntensity: 1,
+            
+            update(time) {
+                this.angle += 0.004 * settings.waveSpeed;
+                this.beamIntensity = 0.7 + Math.sin(time * 0.003) * 0.3;
+            },
+            
+            draw(time, colors) {
+                // Tower shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(this.x - 12, this.y - 75, 30, 80);
+                
+                // Tower
+                const towerGrad = ctx.createLinearGradient(this.x - 18, 0, this.x + 18, 0);
+                towerGrad.addColorStop(0, '#6a7a88');
+                towerGrad.addColorStop(0.5, '#9aaaB8');
+                towerGrad.addColorStop(1, '#6a7a88');
+                ctx.fillStyle = towerGrad;
+                ctx.fillRect(this.x - 18, this.y - 90, 36, 90);
+                
+                // Stripes
+                ctx.fillStyle = '#c44536';
+                ctx.fillRect(this.x - 18, this.y - 70, 36, 18);
+                ctx.fillRect(this.x - 18, this.y - 35, 36, 18);
+                
+                // Top house
+                ctx.fillStyle = '#5a6a78';
+                ctx.beginPath();
+                ctx.moveTo(this.x - 24, this.y - 90);
+                ctx.lineTo(this.x + 24, this.y - 90);
+                ctx.lineTo(this.x + 20, this.y - 110);
+                ctx.lineTo(this.x - 20, this.y - 110);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Roof
+                ctx.fillStyle = '#c44536';
+                ctx.beginPath();
+                ctx.moveTo(this.x - 20, this.y - 110);
+                ctx.lineTo(this.x + 20, this.y - 110);
+                ctx.lineTo(this.x, this.y - 125);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Enhanced rotating beam
+                ctx.save();
+                ctx.translate(this.x, this.y - 100);
+                ctx.rotate(this.angle);
+                
+                // Main beam
+                const beamGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, 400);
+                beamGrad.addColorStop(0, `rgba(255, 255, 200, ${0.7 * this.beamIntensity})`);
+                beamGrad.addColorStop(0.2, `rgba(255, 255, 150, ${0.4 * this.beamIntensity})`);
+                beamGrad.addColorStop(0.5, `rgba(255, 255, 150, ${0.15 * this.beamIntensity})`);
+                beamGrad.addColorStop(1, 'rgba(255, 255, 150, 0)');
+                
+                ctx.fillStyle = beamGrad;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, 400, -0.25, 0.25);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Additional rays
+                for (let i = 0; i < 3; i++) {
+                    ctx.save();
+                    ctx.rotate((i - 1) * 0.15);
+                    ctx.fillStyle = `rgba(255, 255, 200, ${0.2 * this.beamIntensity})`;
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.arc(0, 0, 350, -0.08, 0.08);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                }
+                
+                ctx.restore();
+            }
+        };
+
+        // Rain effect for stormy weather
+        let raindrops = [];
+        class Raindrop {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.speed = 10 + Math.random() * 10;
+                this.length = 10 + Math.random() * 20;
+            }
+
+            update(time) {
+                this.y += this.speed;
+                this.x += settings.windStrength * 2;
+                
+                if (this.y > height) {
+                    this.y = -this.length;
+                    this.x = Math.random() * width;
+                }
+            }
+
+            draw(time) {
+                ctx.strokeStyle = 'rgba(174, 194, 224, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x + 2, this.y + this.length);
+                ctx.stroke();
+            }
+        }
+
+        // Enhanced Waves
+        let waveOffset = 0;
+        function drawWaves(time, colors) {
+            waveOffset += 0.008 * settings.waveSpeed;
+            
+            // Water base
+            const waterGrad = ctx.createLinearGradient(0, height * 0.5, 0, height);
+            waterGrad.addColorStop(0, colors.water);
+            waterGrad.addColorStop(0.5, colors.waterHighlight);
+            waterGrad.addColorStop(1, colors.water);
+            ctx.fillStyle = waterGrad;
+            ctx.fillRect(0, height * 0.5, width, height * 0.5);
+            
+            // Ambient light reflection
+            ctx.fillStyle = colors.ambient;
+            ctx.fillRect(0, height * 0.5, width, height * 0.2);
+            
+            // Multiple wave layers
+            for (let layer = 0; layer < 8; layer++) {
+                ctx.strokeStyle = `rgba(255, 255, 255, ${0.03 + layer * 0.01})`;
+                ctx.lineWidth = 2 + layer * 0.5;
+                ctx.beginPath();
+                
+                for (let x = 0; x < width; x += 3) {
+                    const y = height * 0.5 + layer * 60 + 
+                             Math.sin(x * 0.008 + waveOffset + layer * 0.5) * (15 - layer * 1.5) +
+                             Math.sin(x * 0.015 + waveOffset * 1.5) * (8 - layer * 0.8);
+                    
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+
+            // Foam on waves
+            if (settings.particles) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                for (let i = 0; i < 30; i++) {
+                    const x = (i * width / 30 + waveOffset * 50) % width;
+                    const y = height * 0.5 + Math.sin(x * 0.01 + waveOffset) * 10;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 1 + Math.random() * 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        // Initialize
+        function initScene() {
+            boats = [];
+            for (let i = 0; i < settings.boatCount; i++) {
+                boats.push(new Boat());
+            }
+            
+            birds = [];
+            for (let i = 0; i < 12; i++) {
+                birds.push(new Bird());
+            }
+            
+            stars = [];
+            for (let i = 0; i < 200; i++) {
+                stars.push(new Star());
+            }
+            
+            clouds = [];
+            for (let i = 0; i < 8; i++) {
+                clouds.push(new Cloud());
+            }
+
+            particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push(new Particle());
+            }
+
+            fish = [];
+            for (let i = 0; i < 5; i++) {
+                fish.push(new Fish());
+            }
+
+            buoys = [];
+            for (let i = 0; i < 4; i++) {
+                buoys.push(new Buoy());
+            }
+
+            raindrops = [];
+            for (let i = 0; i < 200; i++) {
+                raindrops.push(new Raindrop());
+            }
+        }
+
+        // Animation loop
+        let lastShootingStar = 0;
+        function animate(time) {
+            const colors = colorSchemes[settings.scenery];
+            
+            // Sky gradient
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, height * 0.6);
+            skyGrad.addColorStop(0, colors.skyTop);
+            skyGrad.addColorStop(0.4, colors.skyMiddle);
+            skyGrad.addColorStop(1, colors.skyBottom);
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, width, height);
+            
+            // Stars
+            if (settings.stars && (settings.scenery === 'night' || settings.scenery === 'dusk')) {
+                stars.forEach(star => {
+                    star.update(time);
+                    star.draw(time);
+                });
+
+                // Shooting stars
+                if (time - lastShootingStar > 3000 && Math.random() < 0.01) {
+                    shootingStars.push(new ShootingStar());
+                    lastShootingStar = time;
+                }
+
+                shootingStars = shootingStars.filter(star => {
+                    star.update(time);
+                    star.draw(time);
+                    return star.life > 0;
+                });
+            }
+            
+            // Clouds
+            if (settings.clouds) {
+                clouds.forEach(cloud => {
+                    cloud.update(time);
+                    cloud.draw(time);
+                });
+            }
+
+            // Sun/Moon with glow
+            if (settings.scenery !== 'stormy') {
+                const celestialY = height * 0.28;
+                const celestialX = width * 0.22;
+                
+                // Glow
+                const glowGrad = ctx.createRadialGradient(celestialX, celestialY, 0, celestialX, celestialY, 120);
+                if (settings.scenery === 'night') {
+                    glowGrad.addColorStop(0, 'rgba(255, 255, 238, 0.3)');
+                    glowGrad.addColorStop(1, 'rgba(255, 255, 238, 0)');
+                } else {
+                    glowGrad.addColorStop(0, 'rgba(255, 200, 100, 0.4)');
+                    glowGrad.addColorStop(1, 'rgba(255, 150, 80, 0)');
+                }
+                ctx.fillStyle = glowGrad;
+                ctx.beginPath();
+                ctx.arc(celestialX, celestialY, 120, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Body
+                const bodyGrad = ctx.createRadialGradient(celestialX, celestialY, 0, celestialX, celestialY, 50);
+                if (settings.scenery === 'night') {
+                    bodyGrad.addColorStop(0, '#fffef0');
+                    bodyGrad.addColorStop(1, '#f0f0d0');
+                } else {
+                    bodyGrad.addColorStop(0, '#fff4d0');
+                    bodyGrad.addColorStop(1, '#ffb060');
+                }
+                ctx.fillStyle = bodyGrad;
+                ctx.beginPath();
+                ctx.arc(celestialX, celestialY, 50, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Mountains/hills in background
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.moveTo(0, height * 0.5);
+            for (let x = 0; x < width; x += 50) {
+                ctx.lineTo(x, height * 0.5 - Math.sin(x * 0.003) * 40 - 30);
+            }
+            ctx.lineTo(width, height * 0.5);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Draw water and waves
+            drawWaves(time, colors);
+            
+            // Pier
+            pier.draw(colors);
+            
+            // Buoys
+            if (settings.buoys) {
+                buoys.forEach(buoy => {
+                    buoy.update(time);
+                    buoy.draw(time);
+                });
+            }
+            
+            // Lighthouse
+            if (settings.lighthouse) {
+                lighthouse.update(time);
+                lighthouse.draw(time, colors);
+            }
+            
+            // Boats
+            boats.forEach(boat => {
+                boat.update(time);
+                boat.draw(time);
+            });
+            
+            // Fish
+            if (settings.fish) {
+                fish.forEach(f => {
+                    f.update(time);
+                    f.draw(time);
+                });
+            }
+            
+            // Birds
+            if (settings.birds) {
+                birds.forEach(bird => {
+                    bird.update(time);
+                    bird.draw(time);
+                });
+            }
+
+            // Particles
+            if (settings.particles) {
+                particles.forEach(particle => {
+                    particle.update(time);
+                    particle.draw(time);
+                });
+            }
+
+            // Rain for stormy weather
+            if (settings.scenery === 'stormy') {
+                raindrops.forEach(drop => {
+                    drop.update(time);
+                    drop.draw(time);
+                });
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        // Controls
+        document.getElementById('scenery').addEventListener('change', (e) => {
+            settings.scenery = e.target.value;
+        });
+
+        document.getElementById('waveSpeed').addEventListener('input', (e) => {
+            settings.waveSpeed = parseFloat(e.target.value);
+            document.getElementById('waveSpeedVal').textContent = settings.waveSpeed.toFixed(1);
+        });
+
+        document.getElementById('boatCount').addEventListener('input', (e) => {
+            settings.boatCount = parseInt(e.target.value);
+            document.getElementById('boatCountVal').textContent = settings.boatCount;
+            initScene();
+        });
+
+        document.getElementById('windStrength').addEventListener('input', (e) => {
+            settings.windStrength = parseFloat(e.target.value);
+            document.getElementById('windVal').textContent = settings.windStrength.toFixed(1);
+        });
+
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const toggle = btn.dataset.toggle;
+                settings[toggle] = !settings[toggle];
+                btn.classList.toggle('active');
+            });
+        });
+
+        // Start
+        initScene();
+        animate(0);
+    </script>
+</body>
+</html>
