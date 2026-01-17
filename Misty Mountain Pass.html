@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misty Mountain Pass</title>
+    <style>
+        :root {
+            --color-sky-dark: #1a2a3a;
+            --color-sky-light: #3d5a7a;
+            --color-mountain-back: #2d3e4f;
+            --color-mountain-mid: #1f2d3d;
+            --color-mountain-front: #0f1620;
+            --color-fog: rgba(150, 170, 190, 0.4);
+            --color-road: #2a2a2a;
+            --color-accent: #ffd700;
+            --color-text: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--color-sky-dark) 0%, var(--color-sky-light) 50%, var(--color-sky-dark) 100%);
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--color-text);
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            max-width: 300px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .controls h2 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-accent);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-accent);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .control-group select {
+            width: 100%;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: var(--color-text);
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .control-group select option {
+            background: #1a1a1a;
+            color: var(--color-text);
+        }
+
+        .control-value {
+            display: inline-block;
+            float: right;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            color: var(--color-accent);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: var(--color-accent);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 12px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            max-width: 250px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info p {
+            margin: 5px 0;
+            opacity: 0.8;
+        }
+
+        .info span {
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="mountainCanvas"></canvas>
+    </div>
+
+    <div class="controls">
+        <h2>⛰️ Mountain Pass</h2>
+        
+        <div class="control-group">
+            <label>Fog Density <span class="control-value" id="fogValue">0.5</span></label>
+            <input type="range" id="fogDensity" min="0" max="1" step="0.05" value="0.5">
+        </div>
+
+        <div class="control-group">
+            <label>Fog Color</label>
+            <select id="fogColor">
+                <option value="cool">Cool Blue</option>
+                <option value="warm">Warm Gray</option>
+                <option value="purple">Purple Mist</option>
+                <option value="golden">Golden Hour</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Car Speed <span class="control-value" id="speedValue">1</span></label>
+            <input type="range" id="carSpeed" min="0.2" max="3" step="0.1" value="1">
+        </div>
+
+        <div class="control-group">
+            <label>Headlight Intensity <span class="control-value" id="lightValue">0.8</span></label>
+            <input type="range" id="headlightIntensity" min="0.3" max="1" step="0.05" value="0.8">
+        </div>
+
+        <div class="control-group">
+            <label>Wind Effect <span class="control-value" id="windValue">0.3</span></label>
+            <input type="range" id="windEffect" min="0" max="1" step="0.05" value="0.3">
+        </div>
+
+        <div class="control-group">
+            <label>Scene Preset</label>
+            <select id="scenePreset">
+                <option value="misty">Misty Dawn</option>
+                <option value="twilight">Twilight</option>
+                <option value="night">Night Drive</option>
+                <option value="foggy">Deep Fog</option>
+                <option value="clear">Clear Mountain</option>
+            </select>
+        </div>
+
+        <div class="button-group">
+            <button id="resetBtn">Reset</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </div>
+
+    <div class="info">
+        <p><span>Misty Mountain Pass</span></p>
+        <p>Watch the headlights pierce through the mist</p>
+        <p>Adjust settings for your perfect moment</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('mountainCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // State
+        const state = {
+            fogDensity: 0.5,
+            fogColor: 'cool',
+            carSpeed: 1,
+            headlightIntensity: 0.8,
+            windEffect: 0.3,
+            isPaused: false,
+            carPosition: 0,
+            time: 0,
+        };
+
+        const presets = {
+            misty: {
+                fogDensity: 0.6,
+                fogColor: 'cool',
+                carSpeed: 0.8,
+                headlightIntensity: 0.9,
+                windEffect: 0.4,
+            },
+            twilight: {
+                fogDensity: 0.4,
+                fogColor: 'purple',
+                carSpeed: 1.2,
+                headlightIntensity: 0.7,
+                windEffect: 0.2,
+            },
+            night: {
+                fogDensity: 0.7,
+                fogColor: 'cool',
+                carSpeed: 1.5,
+                headlightIntensity: 1,
+                windEffect: 0.1,
+            },
+            foggy: {
+                fogDensity: 0.85,
+                fogColor: 'warm',
+                carSpeed: 0.5,
+                headlightIntensity: 0.95,
+                windEffect: 0.6,
+            },
+            clear: {
+                fogDensity: 0.15,
+                fogColor: 'cool',
+                carSpeed: 1.3,
+                headlightIntensity: 0.6,
+                windEffect: 0.05,
+            },
+        };
+
+        const getFogColorValue = (colorType) => {
+            const colors = {
+                cool: { r: 150, g: 170, b: 190 },
+                warm: { r: 180, g: 160, b: 140 },
+                purple: { r: 160, g: 140, b: 180 },
+                golden: { r: 200, g: 180, b: 120 },
+            };
+            return colors[colorType] || colors.cool;
+        };
+
+        // Draw mountain layer
+        function drawMountain(y, scale, depth, color, noiseOffset) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+
+            let x = 0;
+            const step = 30;
+            const amplitude = 40 * scale;
+
+            while (x < canvas.width + step) {
+                const noise = Math.sin(x * 0.005 + noiseOffset) * amplitude +
+                              Math.sin(x * 0.001 + state.time * 0.0002) * amplitude * 0.3;
+                const mountainY = y - noise + Math.sin(x * 0.002) * amplitude * 0.5;
+                ctx.lineTo(x + state.carPosition * depth * 0.1, mountainY);
+                x += step;
+            }
+
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Draw animated fog layers
+        function drawFog() {
+            const fogColor = getFogColorValue(state.fogColor);
+            const baseAlpha = state.fogDensity * 0.3;
+
+            // Multiple fog layers
+            for (let i = 0; i < 5; i++) {
+                const alpha = baseAlpha * (1 - i * 0.15);
+                ctx.fillStyle = `rgba(${fogColor.r}, ${fogColor.g}, ${fogColor.b}, ${alpha})`;
+                
+                ctx.beginPath();
+                let x = 0;
+                const frequency = 0.003 + i * 0.001;
+                const amplitude = 20 + i * 10;
+                const offset = state.time * (0.0001 * (i + 1)) + state.windEffect * 0.5;
+
+                while (x < canvas.width) {
+                    const y = canvas.height * 0.5 + 
+                              Math.sin(x * frequency + offset) * amplitude +
+                              Math.cos(x * frequency * 0.5 + offset * 0.5) * amplitude * 0.5;
+                    ctx.lineTo(x, y);
+                    x += 5;
+                }
+
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.lineTo(0, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        // Draw road
+        function drawRoad() {
+            const roadY = canvas.height * 0.65;
+            const roadWidth = canvas.width * 0.3;
+            const roadCenter = canvas.width / 2;
+
+            // Road surface
+            ctx.fillStyle = 'rgba(30, 30, 30, 0.8)';
+            ctx.beginPath();
+            ctx.moveTo(roadCenter - roadWidth * 0.5, roadY);
+            ctx.lineTo(roadCenter + roadWidth * 0.5, roadY);
+            ctx.lineTo(roadCenter + roadWidth * 0.3, canvas.height);
+            ctx.lineTo(roadCenter - roadWidth * 0.3, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            // Road center line
+            ctx.strokeStyle = 'rgba(255, 255, 100, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([15, 10]);
+            ctx.beginPath();
+            ctx.moveTo(roadCenter - 5, roadY);
+            ctx.lineTo(roadCenter - 5, canvas.height);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Draw car
+        function drawCar() {
+            const roadY = canvas.height * 0.65;
+            const carX = canvas.width / 2;
+            const carY = roadY + 50;
+            const carWidth = 40;
+            const carHeight = 20;
+
+            // Car body
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(carX - carWidth / 2, carY - carHeight / 2, carWidth, carHeight);
+
+            // Car windows
+            ctx.fillStyle = 'rgba(100, 150, 200, 0.4)';
+            ctx.fillRect(carX - carWidth / 2 + 8, carY - carHeight / 2 + 3, 12, 8);
+
+            // Headlights
+            const lightColor = `rgba(255, 220, 100, ${state.headlightIntensity})`;
+            ctx.fillStyle = lightColor;
+            ctx.fillRect(carX + carWidth / 2 - 8, carY - 5, 4, 4);
+            ctx.fillRect(carX + carWidth / 2 - 8, carY + 1, 4, 4);
+        }
+
+        // Draw headlight glow
+        function drawHeadlightGlow() {
+            const roadY = canvas.height * 0.65;
+            const carX = canvas.width / 2;
+            const carY = roadY + 50;
+
+            // Main glow cone
+            const gradient = ctx.createLinearGradient(carX + 15, carY, carX - 100, carY - 150);
+            gradient.addColorStop(0, `rgba(255, 220, 100, ${state.headlightIntensity * 0.6})`);
+            gradient.addColorStop(0.5, `rgba(255, 200, 80, ${state.headlightIntensity * 0.3})`);
+            gradient.addColorStop(1, `rgba(255, 180, 60, 0)`);
+
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.moveTo(carX + 15, carY - 2);
+            ctx.lineTo(carX - 80, carY - 120);
+            ctx.lineTo(carX - 100, carY - 160);
+            ctx.lineTo(carX - 80, carY + 120);
+            ctx.lineTo(carX + 15, carY + 2);
+            ctx.closePath();
+            ctx.fill();
+
+            // Secondary glow (more intense)
+            const gradient2 = ctx.createRadialGradient(carX + 15, carY, 0, carX + 15, carY, 100);
+            gradient2.addColorStop(0, `rgba(255, 240, 150, ${state.headlightIntensity * 0.3})`);
+            gradient2.addColorStop(1, `rgba(255, 200, 100, 0)`);
+
+            ctx.fillStyle = gradient2;
+            ctx.beginPath();
+            ctx.arc(carX + 15, carY, 100, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw stars in background
+        function drawStars() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            for (let i = 0; i < 50; i++) {
+                const x = (i * 237) % canvas.width;
+                const y = (i * 397) % (canvas.height * 0.4);
+                const size = (i % 3) * 0.5 + 0.5;
+                ctx.fillRect(x, y, size, size);
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            // Sky gradient
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, '#1a2a3a');
+            skyGradient.addColorStop(0.5, '#3d5a7a');
+            skyGradient.addColorStop(1, '#1a2a3a');
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw background mountains
+            drawMountain(canvas.height * 0.25, 0.8, 0.05, '#1a2530', 100);
+            drawMountain(canvas.height * 0.35, 0.6, 0.1, '#242d38', 50);
+            drawMountain(canvas.height * 0.45, 0.4, 0.15, '#2d3a47', 25);
+
+            // Draw stars
+            drawStars();
+
+            // Draw fog layers
+            drawFog();
+
+            // Draw additional mountains through fog
+            ctx.globalAlpha = 0.4;
+            drawMountain(canvas.height * 0.55, 0.2, 0.2, '#404d5a', 0);
+            ctx.globalAlpha = 1;
+
+            // Draw road
+            drawRoad();
+
+            // Draw headlight glow
+            drawHeadlightGlow();
+
+            // Draw car
+            drawCar();
+
+            // Update state
+            if (!state.isPaused) {
+                state.carPosition += state.carSpeed;
+                state.time += 1;
+
+                if (state.carPosition > canvas.width) {
+                    state.carPosition = -100;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Control listeners
+        document.getElementById('fogDensity').addEventListener('input', (e) => {
+            state.fogDensity = parseFloat(e.target.value);
+            document.getElementById('fogValue').textContent = state.fogDensity.toFixed(2);
+        });
+
+        document.getElementById('fogColor').addEventListener('change', (e) => {
+            state.fogColor = e.target.value;
+        });
+
+        document.getElementById('carSpeed').addEventListener('input', (e) => {
+            state.carSpeed = parseFloat(e.target.value);
+            document.getElementById('speedValue').textContent = state.carSpeed.toFixed(1);
+        });
+
+        document.getElementById('headlightIntensity').addEventListener('input', (e) => {
+            state.headlightIntensity = parseFloat(e.target.value);
+            document.getElementById('lightValue').textContent = state.headlightIntensity.toFixed(1);
+        });
+
+        document.getElementById('windEffect').addEventListener('input', (e) => {
+            state.windEffect = parseFloat(e.target.value);
+            document.getElementById('windValue').textContent = state.windEffect.toFixed(1);
+        });
+
+        document.getElementById('scenePreset').addEventListener('change', (e) => {
+            const preset = presets[e.target.value];
+            state.fogDensity = preset.fogDensity;
+            state.fogColor = preset.fogColor;
+            state.carSpeed = preset.carSpeed;
+            state.headlightIntensity = preset.headlightIntensity;
+            state.windEffect = preset.windEffect;
+
+            // Update UI
+            document.getElementById('fogDensity').value = preset.fogDensity;
+            document.getElementById('fogColor').value = preset.fogColor;
+            document.getElementById('carSpeed').value = preset.carSpeed;
+            document.getElementById('headlightIntensity').value = preset.headlightIntensity;
+            document.getElementById('windEffect').value = preset.windEffect;
+
+            document.getElementById('fogValue').textContent = preset.fogDensity.toFixed(2);
+            document.getElementById('speedValue').textContent = preset.carSpeed.toFixed(1);
+            document.getElementById('lightValue').textContent = preset.headlightIntensity.toFixed(1);
+            document.getElementById('windValue').textContent = preset.windEffect.toFixed(1);
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            state.carPosition = 0;
+            state.time = 0;
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', (e) => {
+            state.isPaused = !state.isPaused;
+            e.target.textContent = state.isPaused ? 'Resume' : 'Pause';
+            e.target.style.background = state.isPaused ? 'rgba(255, 100, 100, 0.2)' : 'rgba(255, 215, 0, 0.1)';
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
