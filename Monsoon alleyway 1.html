@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra-Realistic Monsoon Alleyway</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-bg-primary: #1a1f2e;
+            --color-text-primary: #e8e8e8;
+            --color-primary: #4a9fb8;
+            --color-accent: #ff6b35;
+            --neon-pink: #ff006e;
+            --neon-cyan: #00f5ff;
+            --neon-orange: #ffaa00;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        .scene-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(180deg, #2a3a4a 0%, #1a2a3a 50%, #0f1922 100%);
+        }
+
+        /* Sky with clouds */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(180deg, #3d4d5c 0%, #2d3d4c 50%, #1d2d3c 100%);
+            z-index: 1;
+        }
+
+        /* Fog layers */
+        .fog-layer {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            opacity: 0.15;
+            z-index: 6;
+            pointer-events: none;
+        }
+
+        .fog-1 {
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(150, 180, 200, 0.3) 25%, 
+                rgba(150, 180, 200, 0.5) 50%, 
+                rgba(150, 180, 200, 0.3) 75%, 
+                transparent 100%);
+            animation: fog-drift-1 30s linear infinite;
+        }
+
+        .fog-2 {
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(120, 150, 180, 0.2) 30%, 
+                rgba(120, 150, 180, 0.4) 60%, 
+                transparent 100%);
+            animation: fog-drift-2 45s linear infinite;
+            top: 20%;
+        }
+
+        @keyframes fog-drift-1 {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+
+        @keyframes fog-drift-2 {
+            0% { transform: translateX(-30%); }
+            100% { transform: translateX(20%); }
+        }
+
+        /* Buildings */
+        .building-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .building {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, #0f1519 0%, #151b22 50%, #0f1519 100%);
+            border-right: 2px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .building-left {
+            left: 0;
+            width: 25%;
+            background: linear-gradient(90deg, #050810 0%, #0f1519 100%);
+        }
+
+        .building-right {
+            right: 0;
+            width: 25%;
+            background: linear-gradient(90deg, #0f1519 0%, #050810 100%);
+        }
+
+        /* Windows with varied effects */
+        .window {
+            position: absolute;
+            background: linear-gradient(135deg, #ffb347 0%, #ff8c00 100%);
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            box-shadow: inset 0 0 8px rgba(255, 140, 0, 0.4), 0 0 20px rgba(255, 140, 0, 0.3);
+        }
+
+        .window-lit {
+            animation: window-flicker 4s ease-in-out infinite;
+        }
+
+        .window-dim {
+            opacity: 0.3;
+            background: linear-gradient(135deg, #4a5a6a 0%, #3a4a5a 100%);
+        }
+
+        .window-bright {
+            animation: window-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes window-flicker {
+            0%, 100% { opacity: 0.9; }
+            25% { opacity: 0.7; }
+            50% { opacity: 0.8; }
+            75% { opacity: 0.6; }
+        }
+
+        @keyframes window-pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 30px rgba(255, 140, 0, 0.6); }
+            50% { opacity: 0.9; box-shadow: 0 0 20px rgba(255, 140, 0, 0.4); }
+        }
+
+        /* Silhouettes in windows */
+        .window-silhouette {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0.7;
+        }
+
+        /* AC units */
+        .ac-unit {
+            position: absolute;
+            width: 25px;
+            height: 15px;
+            background: linear-gradient(180deg, #2a3a4a 0%, #1a2a3a 100%);
+            border: 1px solid rgba(0, 0, 0, 0.5);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Fire escape */
+        .fire-escape {
+            position: absolute;
+            border: 2px solid rgba(80, 80, 80, 0.6);
+            background: transparent;
+        }
+
+        /* Neon signs */
+        .neon-sign {
+            position: absolute;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 28px;
+            letter-spacing: 2px;
+            z-index: 4;
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+            animation: neon-flicker 5s ease-in-out infinite;
+        }
+
+        @keyframes neon-flicker {
+            0%, 100% { opacity: 1; }
+            2% { opacity: 0.8; }
+            4% { opacity: 1; }
+            8% { opacity: 0.9; }
+            10% { opacity: 1; }
+            50% { opacity: 0.95; }
+        }
+
+        .neon-pink {
+            color: var(--neon-pink);
+        }
+
+        .neon-cyan {
+            color: var(--neon-cyan);
+        }
+
+        .neon-orange {
+            color: var(--neon-orange);
+        }
+
+        /* Street lamp */
+        .street-lamp {
+            position: absolute;
+            bottom: 25%;
+            z-index: 4;
+        }
+
+        .lamp-post {
+            width: 8px;
+            height: 200px;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .lamp-light {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(180deg, #ffcc66 0%, #ff9933 100%);
+            border-radius: 50% 50% 0 0;
+            box-shadow: 0 0 50px rgba(255, 200, 100, 0.8), 0 0 100px rgba(255, 200, 100, 0.4);
+            animation: lamp-sway 4s ease-in-out infinite;
+        }
+
+        @keyframes lamp-sway {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            50% { transform: translateX(-50%) rotate(2deg); }
+        }
+
+        .lamp-glow {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(255, 200, 100, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Power lines */
+        .power-line {
+            position: absolute;
+            height: 2px;
+            background: rgba(40, 40, 40, 0.8);
+            z-index: 3;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Alley objects */
+        .alley-object {
+            position: absolute;
+            bottom: 15%;
+            z-index: 4;
+        }
+
+        .trash-can {
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(180deg, #2a3a4a 0%, #1a2a3a 100%);
+            border: 2px solid #0a0a0a;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .trash-lid {
+            position: absolute;
+            top: -5px;
+            left: -2px;
+            width: 44px;
+            height: 10px;
+            background: #3a4a5a;
+            border-radius: 50%;
+            border: 2px solid #0a0a0a;
+        }
+
+        .cardboard-box {
+            width: 50px;
+            height: 45px;
+            background: linear-gradient(135deg, #8b7355 0%, #6b5345 100%);
+            border: 1px solid #4a3a2a;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+            transform: rotate(-5deg);
+        }
+
+        /* Steam vents */
+        .steam-vent {
+            position: absolute;
+            bottom: 15%;
+            z-index: 5;
+        }
+
+        .steam-particle {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, rgba(200, 200, 200, 0.5) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: steam-rise 4s ease-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes steam-rise {
+            0% { 
+                transform: translateY(0) scale(0.5);
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 0.4;
+            }
+            100% { 
+                transform: translateY(-150px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Alley Floor */
+        .alley-floor {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(180deg, rgba(30, 50, 70, 0.6) 0%, #1a2a3a 50%, #0f1a25 100%);
+            z-index: 3;
+        }
+
+        /* Enhanced puddles */
+        .puddles-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 25%;
+            z-index: 4;
+            opacity: 0.7;
+        }
+
+        .puddle {
+            position: absolute;
+            background: radial-gradient(ellipse at 30% 30%, rgba(150, 180, 220, 0.5), rgba(80, 120, 160, 0.3));
+            border-radius: 50%;
+            border: 1px solid rgba(100, 150, 200, 0.3);
+            box-shadow: inset -2px -2px 8px rgba(0, 0, 0, 0.3), 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .puddle-reflection {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.4;
+            transform: scaleY(-0.8);
+            filter: blur(3px);
+        }
+
+        /* Water drops from roof */
+        .water-drip {
+            position: absolute;
+            width: 2px;
+            height: 15px;
+            background: linear-gradient(180deg, rgba(200, 220, 240, 0.8) 0%, transparent 100%);
+            animation: drip-fall 2s ease-in infinite;
+            z-index: 5;
+        }
+
+        @keyframes drip-fall {
+            0% { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(200px);
+                opacity: 0;
+            }
+        }
+
+        /* Rain Canvas */
+        #rainCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+        }
+
+        /* Debris canvas */
+        #debrisCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* Lightning Effect */
+        .lightning-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .lightning-flash {
+            animation: lightning-flash 0.2s ease-out;
+        }
+
+        @keyframes lightning-flash {
+            0% { opacity: 0.8; }
+            30% { opacity: 0.5; }
+            60% { opacity: 0.7; }
+            100% { opacity: 0; }
+        }
+
+        /* Control Panel */
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(15, 25, 35, 0.95);
+            border: 2px solid var(--color-primary);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 100;
+            width: 300px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .control-panel h2 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: var(--color-primary);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .control-group {
+            margin-bottom: 18px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            margin-bottom: 8px;
+            color: var(--color-text-primary);
+            font-weight: 500;
+        }
+
+        .control-value {
+            font-weight: bold;
+            color: var(--color-primary);
+            font-size: 12px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(74, 159, 184, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(74, 159, 184, 0.6);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 12px rgba(74, 159, 184, 0.9);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 8px rgba(74, 159, 184, 0.6);
+            transition: all 0.2s ease;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--color-primary);
+            border-radius: 6px;
+            background: rgba(74, 159, 184, 0.1);
+            color: var(--color-text-primary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--color-primary);
+            background: rgba(74, 159, 184, 0.15);
+            color: var(--color-primary);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background: rgba(74, 159, 184, 0.3);
+            box-shadow: 0 0 12px rgba(74, 159, 184, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .collapse-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            border: none;
+            color: #000;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 99;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(74, 159, 184, 0.5);
+        }
+
+        .control-panel.collapsed {
+            display: none;
+        }
+
+        .collapse-toggle.show {
+            display: flex;
+        }
+
+        .control-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .control-panel::-webkit-scrollbar-track {
+            background: rgba(74, 159, 184, 0.1);
+            border-radius: 3px;
+        }
+
+        .control-panel::-webkit-scrollbar-thumb {
+            background: var(--color-primary);
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                width: 250px;
+                bottom: 10px;
+                right: 10px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <div class="sky"></div>
+        
+        <!-- Fog layers -->
+        <div class="fog-layer fog-1"></div>
+        <div class="fog-layer fog-2"></div>
+        
+        <div class="building-container" id="buildingContainer"></div>
+        
+        <!-- Power lines -->
+        <div id="powerLinesContainer"></div>
+        
+        <!-- Neon signs -->
+        <div id="neonSignsContainer"></div>
+        
+        <!-- Street lamp -->
+        <div id="streetLampContainer"></div>
+        
+        <canvas id="rainCanvas"></canvas>
+        <canvas id="debrisCanvas"></canvas>
+        
+        <div class="alley-floor"></div>
+        
+        <!-- Water drips -->
+        <div id="waterDripsContainer"></div>
+        
+        <!-- Steam vents -->
+        <div id="steamVentsContainer"></div>
+        
+        <!-- Alley objects -->
+        <div id="alleyObjectsContainer"></div>
+        
+        <div class="puddles-container" id="puddlesContainer"></div>
+        
+        <div class="lightning-overlay" id="lightningOverlay"></div>
+
+        <div class="control-panel" id="controlPanel">
+            <h2>⚙️ ULTRA CONTROLS</h2>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>SCENERY PRESET</span>
+                </label>
+                <select id="scenerySelect">
+                    <option value="monsoon">Monsoon Alley</option>
+                    <option value="night-rain">Night Rain</option>
+                    <option value="stormy">Stormy</option>
+                    <option value="gentle-rain">Gentle Rain</option>
+                    <option value="cyberpunk">Cyberpunk Rain</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>RAIN INTENSITY</span>
+                    <span class="control-value" id="rainValue">50%</span>
+                </label>
+                <input type="range" id="rainIntensity" min="0" max="100" value="50">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>WIND SPEED</span>
+                    <span class="control-value" id="windValue">30%</span>
+                </label>
+                <input type="range" id="windSpeed" min="0" max="100" value="30">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>LIGHTNING FREQUENCY</span>
+                    <span class="control-value" id="lightningValue">30%</span>
+                </label>
+                <input type="range" id="lightningFrequency" min="0" max="100" value="30">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>FOG DENSITY</span>
+                    <span class="control-value" id="fogValue">30%</span>
+                </label>
+                <input type="range" id="fogDensity" min="0" max="100" value="30">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>BRIGHTNESS</span>
+                    <span class="control-value" id="brightnessValue">100%</span>
+                </label>
+                <input type="range" id="brightness" min="40" max="150" value="100">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>SATURATION</span>
+                    <span class="control-value" id="saturationValue">100%</span>
+                </label>
+                <input type="range" id="saturation" min="40" max="160" value="100">
+            </div>
+
+            <div class="control-group">
+                <button id="collapseBtn">COLLAPSE PANEL</button>
+            </div>
+        </div>
+
+        <button class="collapse-toggle" id="expandBtn">⚙️</button>
+    </div>
+
+    <script>
+        // Configuration
+        const config = {
+            rainIntensity: 50,
+            windSpeed: 30,
+            lightningFrequency: 30,
+            fogDensity: 30,
+            scenery: 'monsoon',
+            brightness: 100,
+            saturation: 100
+        };
+
+        // Canvas setup
+        const rainCanvas = document.getElementById('rainCanvas');
+        const rainCtx = rainCanvas.getContext('2d');
+        const debrisCanvas = document.getElementById('debrisCanvas');
+        const debrisCtx = debrisCanvas.getContext('2d');
+        
+        function resizeCanvases() {
+            rainCanvas.width = debrisCanvas.width = window.innerWidth;
+            rainCanvas.height = debrisCanvas.height = window.innerHeight;
+        }
+        resizeCanvases();
+        window.addEventListener('resize', resizeCanvases);
+
+        // Wind system
+        let windForce = { x: 0, y: 0 };
+        let windGustTimer = 0;
+
+        function updateWind() {
+            windGustTimer++;
+            if (windGustTimer % 300 === 0) {
+                // Random wind gust
+                windForce.x = (Math.random() - 0.5) * (config.windSpeed / 100) * 8;
+            }
+            // Gradually return to base wind
+            windForce.x *= 0.99;
+            windForce.x += (Math.random() - 0.5) * 0.1 * (config.windSpeed / 100);
+        }
+
+        // Rain particles with splashes
+        let raindrops = [];
+        let splashes = [];
+
+        class Raindrop {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * rainCanvas.width;
+                this.y = Math.random() * rainCanvas.height - rainCanvas.height;
+                this.vx = windForce.x;
+                this.vy = Math.random() * 5 + 8;
+                this.length = Math.random() * 20 + 15;
+                this.opacity = Math.random() * 0.5 + 0.4;
+                this.width = Math.random() * 1.5 + 0.5;
+            }
+
+            update() {
+                this.vx += (windForce.x - this.vx) * 0.1;
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.y > rainCanvas.height * 0.7) {
+                    // Create splash
+                    if (Math.random() > 0.7) {
+                        splashes.push(new Splash(this.x, rainCanvas.height * 0.75));
+                    }
+                    this.reset();
+                }
+
+                if (this.x > rainCanvas.width + 50 || this.x < -50) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                rainCtx.strokeStyle = `rgba(200, 220, 240, ${this.opacity})`;
+                rainCtx.lineWidth = this.width;
+                rainCtx.lineCap = 'round';
+                rainCtx.beginPath();
+                rainCtx.moveTo(this.x, this.y);
+                rainCtx.lineTo(this.x + this.vx * 3, this.y + this.length);
+                rainCtx.stroke();
+            }
+        }
+
+        class Splash {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.particles = [];
+                for (let i = 0; i < 5; i++) {
+                    this.particles.push({
+                        x: 0,
+                        y: 0,
+                        vx: (Math.random() - 0.5) * 3,
+                        vy: -Math.random() * 3 - 1,
+                        life: 1
+                    });
+                }
+            }
+
+            update() {
+                this.particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.2;
+                    p.life -= 0.05;
+                });
+            }
+
+            draw() {
+                this.particles.forEach(p => {
+                    if (p.life > 0) {
+                        rainCtx.fillStyle = `rgba(150, 180, 220, ${p.life * 0.5})`;
+                        rainCtx.fillRect(this.x + p.x, this.y + p.y, 2, 2);
+                    }
+                });
+            }
+
+            isDead() {
+                return this.particles.every(p => p.life <= 0);
+            }
+        }
+
+        // Debris system
+        let debris = [];
+
+        class Debris {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * debrisCanvas.width;
+                this.y = -20;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = Math.random() * 2 + 1;
+                this.size = Math.random() * 8 + 3;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.1;
+                this.opacity = Math.random() * 0.3 + 0.2;
+                this.type = Math.random() > 0.5 ? 'leaf' : 'paper';
+                this.color = this.type === 'leaf' ? 
+                    `rgba(${100 + Math.random() * 50}, ${120 + Math.random() * 40}, ${80 + Math.random() * 30}, ${this.opacity})` :
+                    `rgba(${200 + Math.random() * 55}, ${200 + Math.random() * 55}, ${200 + Math.random() * 55}, ${this.opacity})`;
+            }
+
+            update() {
+                this.vx += (windForce.x - this.vx) * 0.05;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.rotation += this.rotationSpeed;
+
+                if (this.y > debrisCanvas.height || this.x > debrisCanvas.width + 50 || this.x < -50) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                debrisCtx.save();
+                debrisCtx.translate(this.x, this.y);
+                debrisCtx.rotate(this.rotation);
+                debrisCtx.fillStyle = this.color;
+                
+                if (this.type === 'leaf') {
+                    debrisCtx.beginPath();
+                    debrisCtx.ellipse(0, 0, this.size, this.size * 0.6, 0, 0, Math.PI * 2);
+                    debrisCtx.fill();
+                } else {
+                    debrisCtx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size * 1.3);
+                }
+                
+                debrisCtx.restore();
+            }
+        }
+
+        function initRain() {
+            raindrops = [];
+            const count = Math.floor((config.rainIntensity / 100) * 400);
+            for (let i = 0; i < count; i++) {
+                raindrops.push(new Raindrop());
+            }
+        }
+
+        function initDebris() {
+            debris = [];
+            const count = Math.floor((config.windSpeed / 100) * 30);
+            for (let i = 0; i < count; i++) {
+                debris.push(new Debris());
+            }
+        }
+
+        function drawRain() {
+            rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+            
+            raindrops.forEach(drop => {
+                drop.update();
+                drop.draw();
+            });
+
+            splashes = splashes.filter(splash => !splash.isDead());
+            splashes.forEach(splash => {
+                splash.update();
+                splash.draw();
+            });
+        }
+
+        function drawDebris() {
+            debrisCtx.clearRect(0, 0, debrisCanvas.width, debrisCanvas.height);
+            debris.forEach(d => {
+                d.update();
+                d.draw();
+            });
+        }
+
+        // Lightning with realistic illumination
+        let lastLightning = 0;
+        function triggerLightning() {
+            const now = Date.now();
+            const lightningChance = (config.lightningFrequency / 100) * 0.005;
+            
+            if (Math.random() < lightningChance && now - lastLightning > 2000) {
+                const overlay = document.getElementById('lightningOverlay');
+                const intensity = Math.random() * 0.5 + 0.4;
+                overlay.style.opacity = intensity;
+                overlay.classList.add('lightning-flash');
+                
+                // Brighten windows during lightning
+                document.querySelectorAll('.window').forEach(w => {
+                    w.style.filter = 'brightness(2)';
+                });
+                
+                setTimeout(() => {
+                    overlay.classList.remove('lightning-flash');
+                    document.querySelectorAll('.window').forEach(w => {
+                        w.style.filter = 'brightness(1)';
+                    });
+                }, 200);
+                
+                lastLightning = now;
+            }
+        }
+
+        // Create enhanced buildings with details
+        function createBuildings() {
+            const container = document.getElementById('buildingContainer');
+            container.innerHTML = '';
+
+            // Left building
+            const buildingLeft = document.createElement('div');
+            buildingLeft.className = 'building building-left';
+            
+            // Windows
+            for (let i = 0; i < 10; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const window = document.createElement('div');
+                    window.className = 'window';
+                    
+                    const rand = Math.random();
+                    if (rand < 0.6) {
+                        window.classList.add('window-lit');
+                    } else if (rand < 0.8) {
+                        window.classList.add('window-dim');
+                    } else {
+                        window.classList.add('window-bright');
+                    }
+                    
+                    window.style.width = '28px';
+                    window.style.height = '35px';
+                    window.style.top = (20 + i * 70) + 'px';
+                    window.style.left = (30 + j * 50) + 'px';
+                    window.style.animationDelay = (i * 0.15 + j * 0.25) + 's';
+                    
+                    // Add silhouette occasionally
+                    if (Math.random() > 0.7 && window.classList.contains('window-lit')) {
+                        const silhouette = document.createElement('div');
+                        silhouette.className = 'window-silhouette';
+                        silhouette.style.width = '12px';
+                        silhouette.style.height = '18px';
+                        silhouette.style.top = '10px';
+                        silhouette.style.left = '8px';
+                        silhouette.style.borderRadius = '50% 50% 0 0';
+                        window.appendChild(silhouette);
+                    }
+                    
+                    buildingLeft.appendChild(window);
+                    
+                    // AC units
+                    if (Math.random() > 0.6) {
+                        const ac = document.createElement('div');
+                        ac.className = 'ac-unit';
+                        ac.style.top = (50 + i * 70) + 'px';
+                        ac.style.left = (25 + j * 50) + 'px';
+                        buildingLeft.appendChild(ac);
+                    }
+                }
+            }
+
+            // Fire escape
+            for (let i = 2; i < 8; i++) {
+                const fireEscape = document.createElement('div');
+                fireEscape.className = 'fire-escape';
+                fireEscape.style.width = '60px';
+                fireEscape.style.height = '50px';
+                fireEscape.style.top = (30 + i * 70) + 'px';
+                fireEscape.style.right = '10px';
+                buildingLeft.appendChild(fireEscape);
+            }
+
+            container.appendChild(buildingLeft);
+
+            // Right building (mirror)
+            const buildingRight = buildingLeft.cloneNode(true);
+            buildingRight.className = 'building building-right';
+            buildingRight.style.right = '0';
+            buildingRight.style.left = 'auto';
+            container.appendChild(buildingRight);
+        }
+
+        // Power lines
+        function createPowerLines() {
+            const container = document.getElementById('powerLinesContainer');
+            container.innerHTML = '';
+            
+            const positions = [
+                { top: '25%', left: '10%', width: '80%' },
+                { top: '30%', left: '15%', width: '70%' },
+                { top: '35%', left: '5%', width: '85%' }
+            ];
+
+            positions.forEach(pos => {
+                const line = document.createElement('div');
+                line.className = 'power-line';
+                Object.assign(line.style, pos);
+                container.appendChild(line);
+            });
+        }
+
+        // Neon signs
+        function createNeonSigns() {
+            const container = document.getElementById('neonSignsContainer');
+            container.innerHTML = '';
+            
+            const signs = [
+                { text: 'RAMEN', color: 'neon-pink', top: '40%', left: '8%', size: '24px' },
+                { text: 'BAR', color: 'neon-cyan', top: '55%', right: '12%', size: '28px' },
+                { text: '24/7', color: 'neon-orange', top: '35%', left: '15%', size: '20px' }
+            ];
+
+            signs.forEach(sign => {
+                const div = document.createElement('div');
+                div.className = `neon-sign ${sign.color}`;
+                div.textContent = sign.text;
+                div.style.top = sign.top;
+                div.style.fontSize = sign.size;
+                if (sign.left) div.style.left = sign.left;
+                if (sign.right) div.style.right = sign.right;
+                container.appendChild(div);
+            });
+        }
+
+        // Street lamp
+        function createStreetLamp() {
+            const container = document.getElementById('streetLampContainer');
+            container.innerHTML = '';
+            
+            const lamp = document.createElement('div');
+            lamp.className = 'street-lamp';
+            lamp.style.left = '45%';
+            
+            lamp.innerHTML = `
+                <div class="lamp-light">
+                    <div class="lamp-glow"></div>
+                </div>
+                <div class="lamp-post"></div>
+            `;
+            
+            container.appendChild(lamp);
+        }
+
+        // Water drips from roof
+        function createWaterDrips() {
+            const container = document.getElementById('waterDripsContainer');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 15; i++) {
+                const drip = document.createElement('div');
+                drip.className = 'water-drip';
+                drip.style.left = (Math.random() * 100) + '%';
+                drip.style.top = '0';
+                drip.style.animationDelay = (Math.random() * 2) + 's';
+                drip.style.animationDuration = (1.5 + Math.random()) + 's';
+                container.appendChild(drip);
+            }
+        }
+
+        // Steam vents
+        function createSteamVents() {
+            const container = document.getElementById('steamVentsContainer');
+            container.innerHTML = '';
+            
+            const positions = ['25%', '70%'];
+            
+            positions.forEach(left => {
+                const vent = document.createElement('div');
+                vent.className = 'steam-vent';
+                vent.style.left = left;
+                
+                for (let i = 0; i < 5; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'steam-particle';
+                    particle.style.animationDelay = (i * 0.8) + 's';
+                    particle.style.left = (Math.random() * 20 - 10) + 'px';
+                    vent.appendChild(particle);
+                }
+                
+                container.appendChild(vent);
+            });
+        }
+
+        // Alley objects
+        function createAlleyObjects() {
+            const container = document.getElementById('alleyObjectsContainer');
+            container.innerHTML = '';
+            
+            // Trash cans
+            const trashPositions = ['15%', '82%'];
+            trashPositions.forEach(left => {
+                const trash = document.createElement('div');
+                trash.className = 'alley-object';
+                trash.style.left = left;
+                trash.innerHTML = '<div class="trash-can"><div class="trash-lid"></div></div>';
+                container.appendChild(trash);
+            });
+
+            // Cardboard boxes
+            const boxPositions = ['35%', '65%'];
+            boxPositions.forEach(left => {
+                const box = document.createElement('div');
+                box.className = 'alley-object';
+                box.style.left = left;
+                box.innerHTML = '<div class="cardboard-box"></div>';
+                container.appendChild(box);
+            });
+        }
+
+        // Enhanced puddles
+        function createPuddles() {
+            const container = document.getElementById('puddlesContainer');
+            container.innerHTML = '';
+            
+            const puddles = [
+                { left: '12%', width: '220px', height: '130px' },
+                { left: '48%', width: '200px', height: '110px' },
+                { left: '75%', width: '180px', height: '100px' }
+            ];
+
+            puddles.forEach((puddle, i) => {
+                const div = document.createElement('div');
+                div.className = 'puddle';
+                div.style.left = puddle.left;
+                div.style.width = puddle.width;
+                div.style.height = puddle.height;
+                div.style.bottom = (Math.random() * 50) + 'px';
+                
+                const reflection = document.createElement('div');
+                reflection.className = 'puddle-reflection';
+                reflection.style.background = 'linear-gradient(180deg, rgba(255, 180, 100, 0.3), transparent)';
+                div.appendChild(reflection);
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Apply scenery preset
+        function applyScenery(type) {
+            const sceneContainer = document.querySelector('.scene-container');
+            
+            switch(type) {
+                case 'monsoon':
+                    sceneContainer.style.background = 'linear-gradient(180deg, #2a3a4a 0%, #1a2a3a 50%, #0f1922 100%)';
+                    config.rainIntensity = 70;
+                    config.windSpeed = 35;
+                    config.lightningFrequency = 40;
+                    config.fogDensity = 25;
+                    break;
+                case 'night-rain':
+                    sceneContainer.style.background = 'linear-gradient(180deg, #1a1a2e 0%, #0f1419 50%, #050810 100%)';
+                    config.rainIntensity = 40;
+                    config.windSpeed = 20;
+                    config.lightningFrequency = 15;
+                    config.fogDensity = 35;
+                    break;
+                case 'stormy':
+                    sceneContainer.style.background = 'linear-gradient(180deg, #3a4a5a 0%, #2a3a4a 50%, #1a2a3a 100%)';
+                    config.rainIntensity = 95;
+                    config.windSpeed = 70;
+                    config.lightningFrequency = 75;
+                    config.fogDensity = 15;
+                    break;
+                case 'gentle-rain':
+                    sceneContainer.style.background = 'linear-gradient(180deg, #3a4a5a 0%, #2a4a5a 50%, #1a3a4a 100%)';
+                    config.rainIntensity = 25;
+                    config.windSpeed = 15;
+                    config.lightningFrequency = 5;
+                    config.fogDensity = 40;
+                    break;
+                case 'cyberpunk':
+                    sceneContainer.style.background = 'linear-gradient(180deg, #2d1b4e 0%, #1a0f2e 50%, #0f051a 100%)';
+                    config.rainIntensity = 60;
+                    config.windSpeed = 25;
+                    config.lightningFrequency = 50;
+                    config.fogDensity = 45;
+                    config.saturation = 140;
+                    break;
+            }
+
+            updateControls();
+            initRain();
+            initDebris();
+            applyFilters();
+        }
+
+        // Update controls display
+        function updateControls() {
+            document.getElementById('rainIntensity').value = config.rainIntensity;
+            document.getElementById('windSpeed').value = config.windSpeed;
+            document.getElementById('lightningFrequency').value = config.lightningFrequency;
+            document.getElementById('fogDensity').value = config.fogDensity;
+            document.getElementById('brightness').value = config.brightness;
+            document.getElementById('saturation').value = config.saturation;
+            
+            document.getElementById('rainValue').textContent = config.rainIntensity + '%';
+            document.getElementById('windValue').textContent = config.windSpeed + '%';
+            document.getElementById('lightningValue').textContent = config.lightningFrequency + '%';
+            document.getElementById('fogValue').textContent = config.fogDensity + '%';
+            document.getElementById('brightnessValue').textContent = config.brightness + '%';
+            document.getElementById('saturationValue').textContent = config.saturation + '%';
+        }
+
+        // Apply visual filters
+        function applyFilters() {
+            const sceneContainer = document.querySelector('.scene-container');
+            const brightness = config.brightness / 100;
+            const saturation = config.saturation / 100;
+            sceneContainer.style.filter = `brightness(${brightness}) saturate(${saturation})`;
+
+            // Update fog opacity
+            const fogLayers = document.querySelectorAll('.fog-layer');
+            fogLayers.forEach(fog => {
+                fog.style.opacity = (config.fogDensity / 100) * 0.25;
+            });
+        }
+
+        // Event listeners
+        document.getElementById('scenerySelect').addEventListener('change', (e) => {
+            applyScenery(e.target.value);
+        });
+
+        document.getElementById('rainIntensity').addEventListener('input', (e) => {
+            config.rainIntensity = parseInt(e.target.value);
+            document.getElementById('rainValue').textContent = config.rainIntensity + '%';
+            initRain();
+        });
+
+        document.getElementById('windSpeed').addEventListener('input', (e) => {
+            config.windSpeed = parseInt(e.target.value);
+            document.getElementById('windValue').textContent = config.windSpeed + '%';
+            initDebris();
+        });
+
+        document.getElementById('lightningFrequency').addEventListener('input', (e) => {
+            config.lightningFrequency = parseInt(e.target.value);
+            document.getElementById('lightningValue').textContent = config.lightningFrequency + '%';
+        });
+
+        document.getElementById('fogDensity').addEventListener('input', (e) => {
+            config.fogDensity = parseInt(e.target.value);
+            document.getElementById('fogValue').textContent = config.fogDensity + '%';
+            applyFilters();
+        });
+
+        document.getElementById('brightness').addEventListener('input', (e) => {
+            config.brightness = parseInt(e.target.value);
+            document.getElementById('brightnessValue').textContent = config.brightness + '%';
+            applyFilters();
+        });
+
+        document.getElementById('saturation').addEventListener('input', (e) => {
+            config.saturation = parseInt(e.target.value);
+            document.getElementById('saturationValue').textContent = config.saturation + '%';
+            applyFilters();
+        });
+
+        // Control panel collapse/expand
+        const controlPanel = document.getElementById('controlPanel');
+        const collapseBtn = document.getElementById('collapseBtn');
+        const expandBtn = document.getElementById('expandBtn');
+
+        collapseBtn.addEventListener('click', () => {
+            controlPanel.classList.add('collapsed');
+            expandBtn.classList.add('show');
+        });
+
+        expandBtn.addEventListener('click', () => {
+            controlPanel.classList.remove('collapsed');
+            expandBtn.classList.remove('show');
+        });
+
+        // Initialize scene
+        function initScene() {
+            createBuildings();
+            createPowerLines();
+            createNeonSigns();
+            createStreetLamp();
+            createWaterDrips();
+            createSteamVents();
+            createAlleyObjects();
+            createPuddles();
+            applyScenery('monsoon');
+            initRain();
+            initDebris();
+        }
+
+        // Animation loop
+        function animate() {
+            updateWind();
+            drawRain();
+            drawDebris();
+            triggerLightning();
+            requestAnimationFrame(animate);
+        }
+
+        // Start everything
+        initScene();
+        animate();
+    </script>
+</body>
+</html>
