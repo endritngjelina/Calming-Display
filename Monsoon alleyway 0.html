@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monsoon Alleyway - Calming Visual Experience</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-bg-primary: #1a1f2e;
+            --color-text-primary: #e8e8e8;
+            --color-primary: #4a9fb8;
+            --color-accent: #ff6b35;
+            --rain-color: rgba(200, 220, 240, 0.3);
+            --puddle-color: rgba(100, 140, 180, 0.4);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        .scene-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(180deg, #2a3a4a 0%, #1a2a3a 50%, #0f1922 100%);
+        }
+
+        /* Sky/Atmosphere */
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(180deg, #3d4d5c 0%, #2d3d4c 50%, #1d2d3c 100%);
+            z-index: 1;
+        }
+
+        /* Buildings */
+        .building-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .building {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, #0f1519 0%, #151b22 50%, #0f1519 100%);
+            border-right: 2px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .building-left {
+            left: 0;
+            width: 25%;
+            background: linear-gradient(90deg, #050810 0%, #0f1519 100%);
+        }
+
+        .building-right {
+            right: 0;
+            width: 25%;
+            background: linear-gradient(90deg, #0f1519 0%, #050810 100%);
+        }
+
+        .window {
+            position: absolute;
+            background: linear-gradient(135deg, #ffb347 0%, #ff8c00 100%);
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            box-shadow: inset 0 0 8px rgba(255, 140, 0, 0.4);
+            animation: window-flicker 4s ease-in-out infinite;
+        }
+
+        @keyframes window-flicker {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Alley Floor */
+        .alley-floor {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(180deg, rgba(30, 50, 70, 0.6) 0%, #1a2a3a 50%, #0f1a25 100%);
+            z-index: 3;
+        }
+
+        /* Puddles */
+        .puddles-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 25%;
+            z-index: 4;
+            opacity: 0.7;
+        }
+
+        .puddle {
+            position: absolute;
+            background: radial-gradient(ellipse at 30% 30%, rgba(150, 180, 220, 0.4), rgba(80, 120, 160, 0.2));
+            border-radius: 50%;
+            border: 1px solid rgba(100, 150, 200, 0.2);
+            box-shadow: inset -2px -2px 8px rgba(0, 0, 0, 0.3), 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .puddle-reflection {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+            transform: scaleY(-0.8);
+            filter: blur(2px);
+        }
+
+        /* Rain Canvas */
+        #rainCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+        }
+
+        /* Lightning Effect */
+        .lightning-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .lightning-flash {
+            animation: lightning-flash 0.2s ease-out;
+        }
+
+        @keyframes lightning-flash {
+            0% { opacity: 0.7; }
+            50% { opacity: 0.4; }
+            100% { opacity: 0; }
+        }
+
+        /* Control Panel */
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(15, 25, 35, 0.95);
+            border: 2px solid var(--color-primary);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 100;
+            width: 280px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .control-panel h2 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: var(--color-primary);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .control-group {
+            margin-bottom: 18px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: var(--color-text-primary);
+            font-weight: 500;
+        }
+
+        .control-value {
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(74, 159, 184, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(74, 159, 184, 0.6);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 12px rgba(74, 159, 184, 0.9);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 8px rgba(74, 159, 184, 0.6);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 12px rgba(74, 159, 184, 0.9);
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--color-primary);
+            border-radius: 6px;
+            background: rgba(74, 159, 184, 0.1);
+            color: var(--color-text-primary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        select:hover {
+            background: rgba(74, 159, 184, 0.2);
+            border-color: rgba(74, 159, 184, 0.8);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 8px rgba(74, 159, 184, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 60px;
+            padding: 8px 12px;
+            border: 1px solid var(--color-primary);
+            background: rgba(74, 159, 184, 0.15);
+            color: var(--color-primary);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background: rgba(74, 159, 184, 0.3);
+            box-shadow: 0 0 12px rgba(74, 159, 184, 0.4);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.active {
+            background: var(--color-primary);
+            color: #000;
+            box-shadow: 0 0 16px rgba(74, 159, 184, 0.6);
+        }
+
+        .collapse-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            border: none;
+            color: #000;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 99;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(74, 159, 184, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .collapse-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 24px rgba(74, 159, 184, 0.7);
+        }
+
+        .control-panel.collapsed {
+            display: none;
+        }
+
+        .collapse-toggle.show {
+            display: flex;
+        }
+
+        /* Sign/Text in alley */
+        .alley-sign {
+            position: absolute;
+            bottom: 60%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            letter-spacing: 2px;
+            z-index: 3;
+            white-space: nowrap;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .control-panel {
+                width: 250px;
+                bottom: 10px;
+                right: 10px;
+                padding: 15px;
+            }
+        }
+
+        /* Scrollbar styling */
+        .control-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .control-panel::-webkit-scrollbar-track {
+            background: rgba(74, 159, 184, 0.1);
+            border-radius: 3px;
+        }
+
+        .control-panel::-webkit-scrollbar-thumb {
+            background: var(--color-primary);
+            border-radius: 3px;
+        }
+
+        .control-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(74, 159, 184, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <div class="sky"></div>
+        
+        <div class="building-container" id="buildingContainer"></div>
+        
+        <canvas id="rainCanvas"></canvas>
+        
+        <div class="alley-floor"></div>
+        
+        <div class="puddles-container" id="puddlesContainer"></div>
+        
+        <div class="alley-sign" id="alleySign">MONSOON</div>
+        
+        <div class="lightning-overlay" id="lightningOverlay"></div>
+
+        <div class="control-panel" id="controlPanel">
+            <h2>⚙️ SETTINGS</h2>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>SCENERY</span>
+                </label>
+                <select id="scenerySelect">
+                    <option value="monsoon">Monsoon Alley</option>
+                    <option value="night-rain">Night Rain</option>
+                    <option value="stormy">Stormy</option>
+                    <option value="gentle-rain">Gentle Rain</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>RAIN INTENSITY</span>
+                    <span class="control-value" id="rainValue">50%</span>
+                </label>
+                <input type="range" id="rainIntensity" min="0" max="100" value="50">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>LIGHTNING FREQ</span>
+                    <span class="control-value" id="lightningValue">30%</span>
+                </label>
+                <input type="range" id="lightningFrequency" min="0" max="100" value="30">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>PUDDLE REFLECTIONS</span>
+                    <span class="control-value" id="reflectionValue">ON</span>
+                </label>
+                <div class="button-group">
+                    <button id="reflectionToggle" class="active">ON</button>
+                    <button id="reflectionOff">OFF</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>BRIGHTNESS</span>
+                    <span class="control-value" id="brightnessValue">100%</span>
+                </label>
+                <input type="range" id="brightness" min="40" max="150" value="100">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>SATURATION</span>
+                    <span class="control-value" id="saturationValue">100%</span>
+                </label>
+                <input type="range" id="saturation" min="40" max="160" value="100">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>ALLEY WIDTH</span>
+                    <span class="control-value" id="widthValue">Normal</span>
+                </label>
+                <select id="alleyWidth">
+                    <option value="narrow">Narrow</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="wide">Wide</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <button id="collapseBtn">COLLAPSE</button>
+            </div>
+        </div>
+
+        <button class="collapse-toggle" id="expandBtn">⚙️</button>
+    </div>
+
+    <script>
+        // Configuration
+        const config = {
+            rainIntensity: 50,
+            lightningFrequency: 30,
+            scenery: 'monsoon',
+            showReflections: true,
+            brightness: 100,
+            saturation: 100,
+            alleyWidth: 'normal'
+        };
+
+        // Canvas setup
+        const canvas = document.getElementById('rainCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Rain particles
+        let raindrops = [];
+
+        class Raindrop {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height - canvas.height;
+                this.vx = (Math.random() - 0.5) * 4;
+                this.vy = Math.random() * 4 + 6;
+                this.length = Math.random() * 15 + 10;
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.width = Math.random() * 1.5 + 0.5;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.y > canvas.height || this.x > canvas.width || this.x < 0) {
+                    this.reset();
+                }
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = -10;
+                this.vx = (Math.random() - 0.5) * 4;
+            }
+
+            draw() {
+                ctx.strokeStyle = `rgba(200, 220, 240, ${this.opacity})`;
+                ctx.lineWidth = this.width;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x + this.vx * 2, this.y + this.length);
+                ctx.stroke();
+            }
+        }
+
+        function initRain() {
+            raindrops = [];
+            const count = Math.floor((config.rainIntensity / 100) * 300);
+            for (let i = 0; i < count; i++) {
+                raindrops.push(new Raindrop());
+            }
+        }
+
+        function drawRain() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            raindrops.forEach(drop => {
+                drop.update();
+                drop.draw();
+            });
+        }
+
+        // Lightning
+        let lastLightning = 0;
+        function triggerLightning() {
+            const now = Date.now();
+            const lightningChance = (config.lightningFrequency / 100) * 0.5;
+            
+            if (Math.random() < lightningChance && now - lastLightning > 1000) {
+                const overlay = document.getElementById('lightningOverlay');
+                overlay.style.opacity = Math.random() * 0.7 + 0.3;
+                overlay.classList.add('lightning-flash');
+                
+                setTimeout(() => {
+                    overlay.classList.remove('lightning-flash');
+                }, 200);
+                
+                lastLightning = now;
+            }
+        }
+
+        // Puddles
+        function createPuddles() {
+            const container = document.getElementById('puddlesContainer');
+            container.innerHTML = '';
+            
+            const puddles = [
+                { left: '15%', width: '200px', height: '120px', delay: 0 },
+                { left: '50%', width: '180px', height: '100px', delay: 0.3 },
+                { left: '75%', width: '160px', height: '90px', delay: 0.6 }
+            ];
+
+            puddles.forEach(puddle => {
+                const div = document.createElement('div');
+                div.className = 'puddle';
+                div.style.left = puddle.left;
+                div.style.width = puddle.width;
+                div.style.height = puddle.height;
+                div.style.bottom = Math.random() * 100 + 'px';
+                div.style.animation = `ripple 3s ease-in-out ${puddle.delay}s infinite`;
+                
+                if (config.showReflections) {
+                    const reflection = document.createElement('div');
+                    reflection.className = 'puddle-reflection';
+                    div.appendChild(reflection);
+                }
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                0%, 100% { transform: scale(1); opacity: 0.7; }
+                50% { transform: scale(1.05); opacity: 0.5; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Buildings with windows
+        function createBuildings() {
+            const container = document.getElementById('buildingContainer');
+            container.innerHTML = '';
+
+            const building = document.createElement('div');
+            building.className = 'building building-left';
+            
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const window = document.createElement('div');
+                    window.className = 'window';
+                    window.style.width = '30px';
+                    window.style.height = '35px';
+                    window.style.top = (15 + i * 80) + 'px';
+                    window.style.left = (40 + j * 50) + 'px';
+                    window.style.animationDelay = (i * 0.1 + j * 0.2) + 's';
+                    building.appendChild(window);
+                }
+            }
+
+            container.appendChild(building);
+
+            const buildingRight = building.cloneNode(true);
+            buildingRight.className = 'building building-right';
+            container.appendChild(buildingRight);
+        }
+
+        // Scenery settings
+        function applySceenery(type) {
+            const sceneContainer = document.querySelector('.scene-container');
+            const alleySign = document.getElementById('alleySign');
+            
+            switch(type) {
+                case 'monsoon':
+                    sceneContainer.style.background = 'linear-gradient(180deg, #2a3a4a 0%, #1a2a3a 50%, #0f1922 100%)';
+                    alleySign.textContent = 'MONSOON';
+                    config.rainIntensity = 70;
+                    config.lightningFrequency = 40;
+                    break;
+                case 'night-rain':
+                    sceneContainer.style.background = 'linear-gradient(180deg, #1a1a2e 0%, #0f1419 50%, #050810 100%)';
+                    alleySign.textContent = 'NIGHT RAIN';
+                    config.rainIntensity = 40;
+                    config.lightningFrequency = 15;
+                    break;
+                case 'stormy':
+                    sceneContainer.style.background = 'linear-gradient(180deg, #3a4a5a 0%, #2a3a4a 50%, #1a2a3a 100%)';
+                    alleySign.textContent = 'STORMY';
+                    config.rainIntensity = 90;
+                    config.lightningFrequency = 70;
+                    break;
+                case 'gentle-rain':
+                    sceneContainer.style.background = 'linear-gradient(180deg, #3a4a5a 0%, #2a4a5a 50%, #1a3a4a 100%)';
+                    alleySign.textContent = 'GENTLE RAIN';
+                    config.rainIntensity = 25;
+                    config.lightningFrequency = 5;
+                    break;
+            }
+
+            updateControls();
+            initRain();
+            createPuddles();
+        }
+
+        // Update controls display
+        function updateControls() {
+            document.getElementById('rainIntensity').value = config.rainIntensity;
+            document.getElementById('lightningFrequency').value = config.lightningFrequency;
+            document.getElementById('brightness').value = config.brightness;
+            document.getElementById('saturation').value = config.saturation;
+            document.getElementById('rainValue').textContent = config.rainIntensity + '%';
+            document.getElementById('lightningValue').textContent = config.lightningFrequency + '%';
+            document.getElementById('brightnessValue').textContent = config.brightness + '%';
+            document.getElementById('saturationValue').textContent = config.saturation + '%';
+        }
+
+        // Apply visual filters
+        function applyFilters() {
+            const sceneContainer = document.querySelector('.scene-container');
+            const brightness = config.brightness / 100;
+            const saturation = config.saturation / 100;
+            sceneContainer.style.filter = `brightness(${brightness}) saturate(${saturation})`;
+        }
+
+        // Event listeners
+        document.getElementById('scenerySelect').addEventListener('change', (e) => {
+            config.scenery = e.target.value;
+            applySceenery(e.target.value);
+        });
+
+        document.getElementById('rainIntensity').addEventListener('input', (e) => {
+            config.rainIntensity = parseInt(e.target.value);
+            document.getElementById('rainValue').textContent = config.rainIntensity + '%';
+            initRain();
+        });
+
+        document.getElementById('lightningFrequency').addEventListener('input', (e) => {
+            config.lightningFrequency = parseInt(e.target.value);
+            document.getElementById('lightningValue').textContent = config.lightningFrequency + '%';
+        });
+
+        document.getElementById('brightness').addEventListener('input', (e) => {
+            config.brightness = parseInt(e.target.value);
+            document.getElementById('brightnessValue').textContent = config.brightness + '%';
+            applyFilters();
+        });
+
+        document.getElementById('saturation').addEventListener('input', (e) => {
+            config.saturation = parseInt(e.target.value);
+            document.getElementById('saturationValue').textContent = config.saturation + '%';
+            applyFilters();
+        });
+
+        document.getElementById('reflectionToggle').addEventListener('click', () => {
+            config.showReflections = true;
+            document.getElementById('reflectionValue').textContent = 'ON';
+            document.getElementById('reflectionToggle').classList.add('active');
+            document.getElementById('reflectionOff').classList.remove('active');
+            createPuddles();
+        });
+
+        document.getElementById('reflectionOff').addEventListener('click', () => {
+            config.showReflections = false;
+            document.getElementById('reflectionValue').textContent = 'OFF';
+            document.getElementById('reflectionOff').classList.add('active');
+            document.getElementById('reflectionToggle').classList.remove('active');
+            createPuddles();
+        });
+
+        document.getElementById('alleyWidth').addEventListener('change', (e) => {
+            const container = document.getElementById('buildingContainer');
+            const buildings = container.querySelectorAll('.building');
+            
+            switch(e.target.value) {
+                case 'narrow':
+                    buildings[0].style.width = '35%';
+                    buildings[1].style.width = '35%';
+                    buildings[0].style.right = 'auto';
+                    buildings[1].style.left = 'auto';
+                    document.getElementById('widthValue').textContent = 'Narrow';
+                    break;
+                case 'normal':
+                    buildings[0].style.width = '25%';
+                    buildings[1].style.width = '25%';
+                    document.getElementById('widthValue').textContent = 'Normal';
+                    break;
+                case 'wide':
+                    buildings[0].style.width = '15%';
+                    buildings[1].style.width = '15%';
+                    document.getElementById('widthValue').textContent = 'Wide';
+                    break;
+            }
+        });
+
+        document.getElementById('collapseBtn').addEventListener('click', () => {
+            document.getElementById('controlPanel').classList.add('collapsed');
+            document.getElementById('expandBtn').classList.add('show');
+        });
+
+        document.getElementById('expandBtn').addEventListener('click', () => {
+            document.getElementById('controlPanel').classList.remove('collapsed');
+            document.getElementById('expandBtn').classList.remove('show');
+        });
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Animation loop
+        function animate() {
+            drawRain();
+            triggerLightning();
+            requestAnimationFrame(animate);
+        }
+
+        // Initialize
+        createBuildings();
+        createPuddles();
+        initRain();
+        applySceenery('monsoon');
+        animate();
+    </script>
+</body>
+</html>
