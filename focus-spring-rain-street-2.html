@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Rain Street - Enhanced</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            background: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            color: #e8f0f8;
+        }
+
+        #canvas {
+            flex: 1;
+            display: block;
+        }
+
+        .controls {
+            background: rgba(20, 30, 40, 0.95);
+            padding: 18px 24px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            border-top: 2px solid rgba(100, 150, 180, 0.4);
+            box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .control-group label {
+            color: #a0c0e0;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 100px;
+        }
+
+        .control-group select,
+        .control-group input[type="range"],
+        .control-group button {
+            padding: 10px 16px;
+            border: 1px solid rgba(100, 150, 180, 0.4);
+            border-radius: 8px;
+            background: rgba(40, 60, 80, 0.8);
+            color: #e8f0f8;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .control-group select:hover,
+        .control-group button:hover {
+            background: rgba(60, 90, 120, 0.9);
+            border-color: rgba(100, 150, 180, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-group select:focus,
+        .control-group input[type="range"]:focus,
+        .control-group button:focus {
+            outline: 2px solid #6ba3d0;
+            outline-offset: 2px;
+        }
+
+        .control-group input[type="range"] {
+            padding: 0;
+            width: 140px;
+            cursor: pointer;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(50, 70, 90, 0.8);
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #6ba3d0;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(107, 163, 208, 0.5);
+        }
+
+        .range-value {
+            color: #6ba3d0;
+            font-size: 13px;
+            min-width: 35px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        button {
+            background: linear-gradient(135deg, rgba(100, 150, 180, 0.8), rgba(80, 130, 160, 0.9));
+            font-weight: 600;
+            min-width: 140px;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, rgba(120, 170, 200, 0.8), rgba(100, 150, 180, 0.9));
+        }
+
+        .title {
+            color: #a0c0e0;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .title::before {
+            content: "🌧️";
+            font-size: 24px;
+        }
+
+        .stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #a0c0e0;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(100, 150, 180, 0.2);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: #e8f0f8;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid rgba(100, 150, 180, 0.3);
+            z-index: 1000;
+        }
+
+        @media (max-width: 1024px) {
+            .controls {
+                padding: 14px 18px;
+                gap: 12px;
+            }
+            
+            .control-group {
+                flex: 1;
+                min-width: 180px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                padding: 12px;
+                gap: 8px;
+            }
+
+            .control-group {
+                gap: 6px;
+            }
+
+            .control-group label {
+                font-size: 12px;
+                min-width: 80px;
+            }
+
+            .control-group select,
+            .control-group button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .title {
+                font-size: 14px;
+                margin-right: 15px;
+            }
+            
+            .stats {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="stats" id="stats">
+        Particles: <span id="particleCount">0</span><br>
+        FPS: <span id="fps">0</span>
+    </div>
+    
+    <div class="controls">
+        <span class="title">Spring Rain Street</span>
+
+        <div class="control-group">
+            <label for="scenery">SCENERY:</label>
+            <select id="scenery">
+                <option value="day">Rainy Day</option>
+                <option value="dusk">Dusk Rain</option>
+                <option value="dawn">Dawn Mist</option>
+                <option value="storm">Thunderstorm</option>
+                <option value="night">Night Rain</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="rainIntensity">RAIN INTENSITY:</label>
+            <input type="range" id="rainIntensity" min="0.2" max="3" step="0.1" value="1">
+            <span class="range-value" id="rainValue">1.0x</span>
+        </div>
+
+        <div class="control-group">
+            <label for="windStrength">WIND STRENGTH:</label>
+            <input type="range" id="windStrength" min="-1.5" max="1.5" step="0.1" value="0">
+            <span class="range-value" id="windValue">0.0</span>
+        </div>
+
+        <div class="control-group">
+            <label for="carFrequency">TRAFFIC DENSITY:</label>
+            <input type="range" id="carFrequency" min="0.1" max="2" step="0.1" value="0.8">
+            <span class="range-value" id="carValue">0.8x</span>
+        </div>
+
+        <div class="control-group">
+            <label for="bloomIntensity">BLOOM EFFECT:</label>
+            <input type="range" id="bloomIntensity" min="0" max="2" step="0.1" value="1">
+            <span class="range-value" id="bloomValue">1.0x</span>
+        </div>
+
+        <div class="control-group">
+            <label for="fogDensity">FOG DENSITY:</label>
+            <input type="range" id="fogDensity" min="0" max="2" step="0.1" value="0.5">
+            <span class="range-value" id="fogValue">0.5x</span>
+        </div>
+
+        <button id="toggleSound">🔊 AMBIENT ON</button>
+        <button id="toggleLightning">⚡ LIGHTNING OFF</button>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const stats = document.getElementById('stats');
+        const particleCountElem = document.getElementById('particleCount');
+        const fpsElem = document.getElementById('fps');
+        const tooltip = document.getElementById('tooltip');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight - 90;
+
+        // Performance monitoring
+        let frameCount = 0;
+        let lastTime = performance.now();
+        let fps = 0;
+
+        // Enhanced settings
+        let settings = {
+            scenery: 'day',
+            rainIntensity: 1,
+            windStrength: 0,
+            carFrequency: 0.8,
+            bloomIntensity: 1,
+            fogDensity: 0.5,
+            soundEnabled: true,
+            lightningEnabled: false,
+            particles: []
+        };
+
+        // Interactive state
+        let mouse = { x: 0, y: 0, down: false };
+        let ripplePoints = [];
+        let windDirection = 0;
+        let windChangeTimer = 0;
+        let lightningTimer = 0;
+        let lightningFlash = 0;
+
+        // Control handlers with enhanced UI
+        document.getElementById('scenery').addEventListener('change', (e) => {
+            settings.scenery = e.target.value;
+            updateSceneColors();
+        });
+
+        document.getElementById('rainIntensity').addEventListener('input', (e) => {
+            settings.rainIntensity = parseFloat(e.target.value);
+            document.getElementById('rainValue').textContent = e.target.value + 'x';
+            updateRainCount();
+        });
+
+        document.getElementById('windStrength').addEventListener('input', (e) => {
+            settings.windStrength = parseFloat(e.target.value);
+            windDirection = settings.windStrength;
+            document.getElementById('windValue').textContent = e.target.value;
+        });
+
+        document.getElementById('carFrequency').addEventListener('input', (e) => {
+            settings.carFrequency = parseFloat(e.target.value);
+            document.getElementById('carValue').textContent = e.target.value + 'x';
+        });
+
+        document.getElementById('bloomIntensity').addEventListener('input', (e) => {
+            settings.bloomIntensity = parseFloat(e.target.value);
+            document.getElementById('bloomValue').textContent = e.target.value + 'x';
+        });
+
+        document.getElementById('fogDensity').addEventListener('input', (e) => {
+            settings.fogDensity = parseFloat(e.target.value);
+            document.getElementById('fogValue').textContent = e.target.value + 'x';
+        });
+
+        document.getElementById('toggleSound').addEventListener('click', (e) => {
+            settings.soundEnabled = !settings.soundEnabled;
+            e.target.textContent = settings.soundEnabled ? '🔊 AMBIENT ON' : '🔇 AMBIENT OFF';
+            if (settings.soundEnabled) playAmbientSound();
+        });
+
+        document.getElementById('toggleLightning').addEventListener('click', (e) => {
+            settings.lightningEnabled = !settings.lightningEnabled;
+            e.target.textContent = settings.lightningEnabled ? '⚡ LIGHTNING ON' : '⚡ LIGHTNING OFF';
+        });
+
+        // Mouse interaction
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
+            
+            // Show tooltip with scene info
+            tooltip.style.left = (e.clientX + 10) + 'px';
+            tooltip.style.top = (e.clientY + 10) + 'px';
+            tooltip.style.opacity = '0.9';
+            tooltip.textContent = `Rain: ${settings.rainIntensity.toFixed(1)}x | Wind: ${settings.windStrength.toFixed(1)}`;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            tooltip.style.opacity = '0';
+        });
+
+        canvas.addEventListener('mousedown', () => {
+            mouse.down = true;
+            // Create ripple effect
+            ripplePoints.push({
+                x: mouse.x,
+                y: mouse.y,
+                radius: 0,
+                maxRadius: 100,
+                alpha: 0.8
+            });
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            mouse.down = false;
+        });
+
+        canvas.addEventListener('click', (e) => {
+            // Add splash effect
+            for (let i = 0; i < 5; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * 30;
+                ripplePoints.push({
+                    x: mouse.x + Math.cos(angle) * dist,
+                    y: mouse.y + Math.sin(angle) * dist,
+                    radius: 0,
+                    maxRadius: 40 + Math.random() * 40,
+                    alpha: 0.6
+                });
+            }
+        });
+
+        // Window resize handler
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - 90;
+            initScene();
+        });
+
+        // Enhanced color themes with more variations
+        const themes = {
+            day: {
+                skyTop: '#5a6f8f',
+                skyMid: '#7a8faf',
+                skyBottom: '#9aafcf',
+                horizonColor: '#aabfdf',
+                roadColor: '#4a5a6a',
+                roadDark: '#3a4a5a',
+                sidewalkColor: '#6a7a8a',
+                buildingBase: 180,
+                ambientLight: 0.3,
+                fogColor: 'rgba(200, 210, 220, 0.1)'
+            },
+            dusk: {
+                skyTop: '#3a4a6a',
+                skyMid: '#5a5a7a',
+                skyBottom: '#7a6a8a',
+                horizonColor: '#8a7a9a',
+                roadColor: '#3a3a4a',
+                roadDark: '#2a2a3a',
+                sidewalkColor: '#4a4a5a',
+                buildingBase: 140,
+                ambientLight: 0.6,
+                fogColor: 'rgba(120, 100, 140, 0.15)'
+            },
+            dawn: {
+                skyTop: '#4a5a7a',
+                skyMid: '#6a7a9a',
+                skyBottom: '#8a9aba',
+                horizonColor: '#9aafca',
+                roadColor: '#4a5a7a',
+                roadDark: '#3a4a6a',
+                sidewalkColor: '#5a6a8a',
+                buildingBase: 160,
+                ambientLight: 0.45,
+                fogColor: 'rgba(180, 195, 210, 0.12)'
+            },
+            storm: {
+                skyTop: '#2a3a5a',
+                skyMid: '#3a4a6a',
+                skyBottom: '#4a5a7a',
+                horizonColor: '#5a6a8a',
+                roadColor: '#3a4a5a',
+                roadDark: '#2a3a4a',
+                sidewalkColor: '#4a5a6a',
+                buildingBase: 120,
+                ambientLight: 0.8,
+                fogColor: 'rgba(100, 110, 130, 0.25)'
+            },
+            night: {
+                skyTop: '#1a2a4a',
+                skyMid: '#2a3a5a',
+                skyBottom: '#3a4a6a',
+                horizonColor: '#4a5a7a',
+                roadColor: '#2a3a4a',
+                roadDark: '#1a2a3a',
+                sidewalkColor: '#3a4a5a',
+                buildingBase: 100,
+                ambientLight: 0.9,
+                fogColor: 'rgba(80, 90, 120, 0.2)'
+            }
+        };
+
+        // Particle system for enhanced effects
+        class Particle {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type; // 'rain', 'mist', 'splash', 'leaf', 'light'
+                this.vx = 0;
+                this.vy = 0;
+                this.life = 1;
+                this.decay = 0.01 + Math.random() * 0.02;
+                this.size = 1;
+                this.color = '';
+                this.alpha = 1;
+                this.wave = Math.random() * Math.PI * 2;
+                this.waveSpeed = 0.05 + Math.random() * 0.05;
+                
+                this.init();
+            }
+            
+            init() {
+                switch(this.type) {
+                    case 'rain':
+                        this.vx = windDirection * (1 + Math.random() * 0.5);
+                        this.vy = 8 + Math.random() * 12;
+                        this.size = 1 + Math.random() * 2;
+                        this.color = 'rgba(220, 235, 250, 0.8)';
+                        this.life = 1;
+                        break;
+                    case 'mist':
+                        this.vx = (Math.random() - 0.5) * 0.2;
+                        this.vy = -0.1 - Math.random() * 0.1;
+                        this.size = 30 + Math.random() * 50;
+                        this.color = 'rgba(200, 210, 220, 0.15)';
+                        this.life = 0.5 + Math.random() * 0.5;
+                        break;
+                    case 'splash':
+                        this.vx = (Math.random() - 0.5) * 3;
+                        this.vy = -2 - Math.random() * 3;
+                        this.size = 2 + Math.random() * 4;
+                        this.color = 'rgba(220, 235, 250, 0.9)';
+                        this.life = 0.3 + Math.random() * 0.3;
+                        break;
+                    case 'leaf':
+                        this.vx = (Math.random() - 0.5) * 0.5;
+                        this.vy = 0.1 + Math.random() * 0.3;
+                        this.size = 4 + Math.random() * 6;
+                        this.color = `rgba(${100 + Math.random() * 100}, ${120 + Math.random() * 80}, ${80 + Math.random() * 60}, 0.8)`;
+                        this.life = 2 + Math.random() * 3;
+                        break;
+                    case 'light':
+                        this.vx = 0;
+                        this.vy = 0;
+                        this.size = 3 + Math.random() * 5;
+                        this.color = 'rgba(255, 245, 200, 0.9)';
+                        this.life = 0.1 + Math.random() * 0.2;
+                        break;
+                }
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life -= this.decay;
+                this.wave += this.waveSpeed;
+                
+                // Add wave motion to some particles
+                if (this.type === 'leaf' || this.type === 'mist') {
+                    this.x += Math.sin(this.wave) * 0.5;
+                }
+                
+                // Gravity for splash particles
+                if (this.type === 'splash') {
+                    this.vy += 0.2;
+                }
+                
+                return this.life > 0;
+            }
+            
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = this.alpha * this.life;
+                ctx.fillStyle = this.color;
+                
+                switch(this.type) {
+                    case 'rain':
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y - this.size * 5);
+                        ctx.lineTo(this.x, this.y);
+                        ctx.lineWidth = this.size * 0.5;
+                        ctx.strokeStyle = this.color;
+                        ctx.stroke();
+                        break;
+                        
+                    case 'mist':
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                        ctx.fill();
+                        break;
+                        
+                    case 'splash':
+                    case 'leaf':
+                    case 'light':
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                        ctx.fill();
+                        break;
+                }
+                
+                ctx.restore();
+            }
+        }
+
+        // Enhanced Raindrop class
+        class Raindrop {
+            constructor() {
+                this.reset();
+                this.splashParticles = [];
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = -Math.random() * canvas.height * 2;
+                this.speed = 8 + Math.random() * 12;
+                this.length = 15 + Math.random() * 30;
+                this.thickness = 0.5 + Math.random() * 1.5;
+                this.opacity = 0.3 + Math.random() * 0.7;
+                this.wobble = Math.random() * 1.5;
+                this.waveOffset = Math.random() * Math.PI * 2;
+                this.hasSplash = false;
+                this.splashFrame = 0;
+                this.splashSize = 0;
+            }
+
+            update() {
+                // Apply wind
+                this.x += windDirection * 2;
+                this.y += this.speed * settings.rainIntensity;
+                this.waveOffset += 0.08;
+                this.x += Math.sin(this.waveOffset) * this.wobble * 0.5;
+
+                const roadY = canvas.height * 0.7;
+                
+                // Create splash when hitting road
+                if (this.y > roadY && !this.hasSplash) {
+                    this.hasSplash = true;
+                    this.splashFrame = 0;
+                    this.splashSize = 6 + Math.random() * 8;
+                    
+                    // Create splash particles
+                    for (let i = 0; i < 8; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = 1 + Math.random() * 2;
+                        settings.particles.push(new Particle(
+                            this.x,
+                            roadY,
+                            'splash'
+                        ));
+                    }
+                }
+
+                if (this.hasSplash) {
+                    this.splashFrame++;
+                }
+
+                // Reset if offscreen or splash finished
+                if (this.y > canvas.height + 50 || this.splashFrame > 20) {
+                    this.reset();
+                }
+            }
+
+            draw(ctx) {
+                if (!this.hasSplash) {
+                    // Draw raindrop with gradient
+                    const gradient = ctx.createLinearGradient(
+                        this.x, this.y - this.length,
+                        this.x, this.y
+                    );
+                    gradient.addColorStop(0, `rgba(220, 235, 250, 0)`);
+                    gradient.addColorStop(0.2, `rgba(220, 235, 250, ${this.opacity * 0.4})`);
+                    gradient.addColorStop(0.6, `rgba(220, 235, 250, ${this.opacity * 0.8})`);
+                    gradient.addColorStop(1, `rgba(220, 235, 250, ${this.opacity})`);
+
+                    ctx.strokeStyle = gradient;
+                    ctx.lineWidth = this.thickness;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y - this.length);
+                    ctx.lineTo(this.x, this.y);
+                    ctx.stroke();
+                } else {
+                    // Draw splash effect
+                    const progress = this.splashFrame / 20;
+                    const splashSize = this.splashSize * (1 - progress);
+                    const splashOpacity = (1 - progress) * 0.8;
+
+                    // Main splash circle
+                    ctx.fillStyle = `rgba(220, 235, 250, ${splashOpacity})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, splashSize, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Splash rings
+                    for (let i = 0; i < 2; i++) {
+                        const ringProgress = progress + i * 0.3;
+                        if (ringProgress < 1) {
+                            const ringSize = splashSize * (1 + ringProgress * 2);
+                            const ringOpacity = (1 - ringProgress) * 0.3;
+                            
+                            ctx.strokeStyle = `rgba(200, 220, 240, ${ringOpacity})`;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.arc(this.x, this.y, ringSize, 0, Math.PI * 2);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+        }
+
+        // Enhanced Car class with more variety
+        class Car {
+            constructor() {
+                this.reset();
+                this.lightParticles = [];
+            }
+
+            reset() {
+                this.x = -150;
+                this.y = canvas.height * 0.72 + Math.random() * 10;
+                this.speed = 2 + Math.random() * 4;
+                this.width = 60 + Math.random() * 40;
+                this.height = 28 + Math.random() * 8;
+                this.color = this.getRandomCarColor();
+                this.lightPulse = Math.random() * Math.PI * 2;
+                this.type = Math.random() > 0.7 ? 'truck' : Math.random() > 0.8 ? 'bus' : 'car';
+                this.windowLight = Math.random() > 0.5;
+                this.wiperAngle = 0;
+                this.wiperSpeed = 0.05 + Math.random() * 0.05;
+            }
+
+            getRandomCarColor() {
+                const colors = [
+                    { r: 180, g: 40, b: 40 },   // Red
+                    { r: 40, g: 60, b: 140 },   // Blue
+                    { r: 200, g: 200, b: 210 }, // Silver
+                    { r: 30, g: 30, b: 35 },    // Black
+                    { r: 180, g: 180, b: 180 }, // Gray
+                    { r: 120, g: 30, b: 30 },   // Dark Red
+                    { r: 60, g: 100, b: 60 },   // Green
+                    { r: 180, g: 120, b: 60 },  // Brown
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.x += this.speed * settings.carFrequency;
+                this.lightPulse += 0.03;
+                this.wiperAngle += this.wiperSpeed;
+                
+                // Create light particles
+                if (Math.random() < 0.1) {
+                    settings.particles.push(new Particle(
+                        this.x + this.width - 5,
+                        this.y + this.height / 2,
+                        'light'
+                    ));
+                }
+                
+                // Create exhaust particles
+                if (Math.random() < 0.05) {
+                    settings.particles.push(new Particle(
+                        this.x + 5,
+                        this.y + this.height,
+                        'mist'
+                    ));
+                }
+            }
+
+            draw(ctx) {
+                ctx.save();
+                
+                // Adjust for truck/bus
+                const isTruck = this.type === 'truck';
+                const isBus = this.type === 'bus';
+                const adjustedHeight = isTruck ? this.height * 1.3 : isBus ? this.height * 1.4 : this.height;
+                const adjustedY = isTruck ? this.y - 10 : isBus ? this.y - 15 : this.y;
+
+                // Shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                ctx.fillRect(this.x + 8, this.y + adjustedHeight + 3, this.width - 16, 8);
+
+                // Car body with enhanced gradient
+                const bodyGradient = ctx.createLinearGradient(
+                    this.x, adjustedY - 5,
+                    this.x, adjustedY + adjustedHeight
+                );
+                bodyGradient.addColorStop(0, `rgba(${this.color.r + 40}, ${this.color.g + 40}, ${this.color.b + 40}, 0.95)`);
+                bodyGradient.addColorStop(0.3, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0.95)`);
+                bodyGradient.addColorStop(0.8, `rgba(${this.color.r - 30}, ${this.color.g - 30}, ${this.color.b - 30}, 0.95)`);
+                bodyGradient.addColorStop(1, `rgba(${this.color.r - 50}, ${this.color.g - 50}, ${this.color.b - 50}, 0.95)`);
+                
+                ctx.fillStyle = bodyGradient;
+                ctx.fillRect(this.x, adjustedY, this.width, adjustedHeight);
+
+                // Additional details for truck/bus
+                if (isTruck) {
+                    // Truck cabin
+                    ctx.fillStyle = `rgba(${this.color.r - 40}, ${this.color.g - 40}, ${this.color.b - 40}, 0.9)`;
+                    ctx.fillRect(this.x + this.width * 0.6, adjustedY - 15, this.width * 0.4, 15);
+                    
+                    // Truck container
+                    ctx.fillStyle = `rgba(${this.color.r - 20}, ${this.color.g - 20}, ${this.color.b - 20}, 0.9)`;
+                    ctx.fillRect(this.x, adjustedY, this.width * 0.6, adjustedHeight);
+                } else if (isBus) {
+                    // Bus windows
+                    const windowCount = 5;
+                    const windowWidth = (this.width * 0.8) / windowCount;
+                    for (let i = 0; i < windowCount; i++) {
+                        ctx.fillStyle = this.windowLight ? 
+                            `rgba(255, 245, 200, ${0.6 + Math.sin(this.lightPulse + i) * 0.2})` : 
+                            'rgba(140, 180, 220, 0.4)';
+                        ctx.fillRect(
+                            this.x + 10 + i * (windowWidth + 5),
+                            adjustedY + 5,
+                            windowWidth - 5,
+                            10
+                        );
+                    }
+                } else {
+                    // Car roof/cabin for regular cars
+                    ctx.fillStyle = `rgba(${this.color.r - 30}, ${this.color.g - 30}, ${this.color.b - 30}, 0.9)`;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + 15, adjustedY);
+                    ctx.lineTo(this.x + 20, adjustedY - 12);
+                    ctx.lineTo(this.x + this.width - 20, adjustedY - 12);
+                    ctx.lineTo(this.x + this.width - 15, adjustedY);
+                    ctx.fill();
+
+                    // Windows
+                    ctx.fillStyle = this.windowLight ? 
+                        `rgba(255, 245, 200, ${0.7 + Math.sin(this.lightPulse) * 0.15})` : 
+                        'rgba(140, 180, 220, 0.4)';
+                    ctx.fillRect(this.x + 22, adjustedY - 10, 12, 9);
+                    ctx.fillRect(this.x + this.width - 34, adjustedY - 10, 12, 9);
+                }
+
+                // Windshield wiper
+                ctx.save();
+                ctx.translate(this.x + this.width * 0.7, adjustedY);
+                ctx.rotate(Math.sin(this.wiperAngle) * 0.5);
+                ctx.fillStyle = 'rgba(80, 80, 90, 0.9)';
+                ctx.fillRect(0, 0, 25, 2);
+                ctx.restore();
+
+                // Headlights
+                const lightIntensity = 0.7 + Math.sin(this.lightPulse) * 0.2;
+                const headlightX = this.x + this.width - 5;
+                const headlightY = adjustedY + adjustedHeight * 0.4;
+                
+                // Headlight glow
+                const glowGradient = ctx.createRadialGradient(
+                    headlightX, headlightY, 0,
+                    headlightX, headlightY, 80 * settings.bloomIntensity
+                );
+                glowGradient.addColorStop(0, `rgba(255, 245, 200, ${lightIntensity * settings.bloomIntensity})`);
+                glowGradient.addColorStop(0.3, `rgba(255, 240, 180, ${lightIntensity * settings.bloomIntensity * 0.6})`);
+                glowGradient.addColorStop(1, 'rgba(255, 240, 180, 0)');
+                ctx.fillStyle = glowGradient;
+                ctx.fillRect(headlightX - 80, headlightY - 40, 160, 80);
+
+                // Headlight bulbs
+                ctx.fillStyle = `rgba(255, 250, 220, ${0.9 * lightIntensity})`;
+                ctx.fillRect(headlightX - 2, headlightY - 4, 4, 8);
+
+                // Taillights
+                ctx.fillStyle = `rgba(200, 50, 50, ${0.8 + Math.sin(this.lightPulse * 1.5) * 0.1})`;
+                ctx.fillRect(this.x + 3, adjustedY + adjustedHeight * 0.4 - 3, 4, 6);
+
+                // Wheels
+                ctx.fillStyle = 'rgba(40, 40, 45, 0.9)';
+                ctx.beginPath();
+                ctx.arc(this.x + 20, adjustedY + adjustedHeight, 9, 0, Math.PI * 2);
+                ctx.arc(this.x + this.width - 20, adjustedY + adjustedHeight, 9, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Wheel rims
+                ctx.fillStyle = 'rgba(160, 160, 170, 0.8)';
+                ctx.beginPath();
+                ctx.arc(this.x + 20, adjustedY + adjustedHeight, 5, 0, Math.PI * 2);
+                ctx.arc(this.x + this.width - 20, adjustedY + adjustedHeight, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Road reflection
+                ctx.globalAlpha = 0.3;
+                const reflGradient = ctx.createLinearGradient(
+                    this.x, adjustedY + adjustedHeight + 5,
+                    this.x, adjustedY + adjustedHeight + 40
+                );
+                reflGradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0.5)`);
+                reflGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = reflGradient;
+                ctx.fillRect(this.x, adjustedY + adjustedHeight + 5, this.width, 40);
+
+                // Headlight road reflection
+                ctx.globalAlpha = 0.4 * settings.bloomIntensity;
+                const roadReflGradient = ctx.createRadialGradient(
+                    headlightX, adjustedY + adjustedHeight + 20, 0,
+                    headlightX, adjustedY + adjustedHeight + 20, 60
+                );
+                roadReflGradient.addColorStop(0, `rgba(255, 240, 180, ${0.5 * lightIntensity})`);
+                roadReflGradient.addColorStop(1, 'rgba(255, 240, 180, 0)');
+                ctx.fillStyle = roadReflGradient;
+                ctx.fillRect(headlightX - 60, adjustedY + adjustedHeight, 120, 70);
+
+                ctx.restore();
+            }
+
+            isOffscreen() {
+                return this.x > canvas.width + 200;
+            }
+        }
+
+        // Initialize scene
+        const raindrops = [];
+        let rainCount = 300;
+        const cars = [];
+        let carSpawnTimer = 0;
+        let mistParticles = [];
+        let leafParticles = [];
+
+        function initScene() {
+            // Initialize raindrops
+            raindrops.length = 0;
+            for (let i = 0; i < rainCount; i++) {
+                raindrops.push(new Raindrop());
+            }
+            
+            // Initialize mist
+            mistParticles.length = 0;
+            for (let i = 0; i < 20; i++) {
+                mistParticles.push(new Particle(
+                    Math.random() * canvas.width,
+                    canvas.height * 0.7 + Math.random() * 100,
+                    'mist'
+                ));
+            }
+            
+            // Initialize leaves
+            leafParticles.length = 0;
+            for (let i = 0; i < 15; i++) {
+                leafParticles.push(new Particle(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height * 0.6,
+                    'leaf'
+                ));
+            }
+            
+            // Clear cars
+            cars.length = 0;
+        }
+
+        function updateRainCount() {
+            const targetCount = 300 * settings.rainIntensity;
+            while (raindrops.length < targetCount) {
+                raindrops.push(new Raindrop());
+            }
+            while (raindrops.length > targetCount && raindrops.length > 50) {
+                raindrops.pop();
+            }
+        }
+
+        function updateSceneColors() {
+            // This function can be expanded to dynamically update scene colors
+        }
+
+        // Lightning effect
+        function drawLightning() {
+            if (!settings.lightningEnabled || Math.random() > 0.001) return;
+            
+            lightningFlash = 1;
+            lightningTimer = 0;
+            
+            // Create lightning branch
+            const startX = Math.random() * canvas.width;
+            const startY = 0;
+            const endY = canvas.height * 0.6;
+            
+            drawLightningBranch(startX, startY, startX, endY, 5);
+        }
+
+        function drawLightningBranch(x1, y1, x2, y2, depth) {
+            if (depth <= 0) return;
+            
+            ctx.save();
+            ctx.strokeStyle = `rgba(255, 255, 255, ${lightningFlash * 0.8})`;
+            ctx.lineWidth = depth * 0.8;
+            ctx.lineCap = 'round';
+            
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            
+            // Create jagged lightning path
+            const segments = 8;
+            const dx = (x2 - x1) / segments;
+            const dy = (y2 - y1) / segments;
+            
+            for (let i = 1; i <= segments; i++) {
+                const x = x1 + dx * i + (Math.random() - 0.5) * 40;
+                const y = y1 + dy * i + (Math.random() - 0.5) * 20;
+                ctx.lineTo(x, y);
+            }
+            
+            ctx.stroke();
+            ctx.restore();
+            
+            // Recursive branches
+            if (depth > 1 && Math.random() > 0.5) {
+                const branchX = x1 + (x2 - x1) * Math.random();
+                const branchY = y1 + (y2 - y1) * Math.random();
+                drawLightningBranch(branchX, branchY, branchX + (Math.random() - 0.5) * 100, branchY + 100, depth - 1);
+            }
+        }
+
+        // Draw functions
+        function drawScene() {
+            const theme = themes[settings.scenery];
+            const horizonY = canvas.height * 0.5;
+            const roadY = canvas.height * 0.7;
+
+            // Apply lightning flash
+            if (lightningFlash > 0) {
+                ctx.fillStyle = `rgba(255, 255, 255, ${lightningFlash * 0.3})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                lightningFlash *= 0.9;
+            }
+
+            // Enhanced sky gradient
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, theme.skyTop);
+            skyGradient.addColorStop(0.2, theme.skyMid);
+            skyGradient.addColorStop(0.5, theme.skyBottom);
+            skyGradient.addColorStop(1, theme.horizonColor);
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Dynamic clouds
+            drawClouds();
+
+            // Atmospheric fog
+            for (let i = 0; i < 3; i++) {
+                ctx.fillStyle = `rgba(200, 210, 220, ${0.1 * settings.fogDensity})`;
+                ctx.fillRect(0, horizonY * (0.4 + i * 0.2), canvas.width, horizonY * 0.3);
+            }
+
+            // Distant hills with parallax
+            drawDistantHills();
+
+            // Draw houses with enhanced details
+            drawHouses();
+
+            // Draw trees with animation
+            drawTrees();
+
+            // Draw streetlights with dynamic lighting
+            drawStreetlights();
+
+            // Sidewalk
+            ctx.fillStyle = theme.sidewalkColor;
+            ctx.fillRect(0, roadY - 20, canvas.width, 20);
+
+            // Road with enhanced wet look
+            const roadGradient = ctx.createLinearGradient(0, roadY, 0, canvas.height);
+            roadGradient.addColorStop(0, theme.roadColor);
+            roadGradient.addColorStop(0.3, theme.roadDark);
+            roadGradient.addColorStop(0.7, theme.roadDark);
+            roadGradient.addColorStop(1, theme.roadColor);
+            ctx.fillStyle = roadGradient;
+            ctx.fillRect(0, roadY, canvas.width, canvas.height - roadY);
+
+            // Wet road reflection
+            const wetGradient = ctx.createLinearGradient(0, roadY, 0, canvas.height);
+            wetGradient.addColorStop(0, 'rgba(150, 180, 210, 0.4)');
+            wetGradient.addColorStop(0.5, 'rgba(180, 210, 240, 0.5)');
+            wetGradient.addColorStop(1, 'rgba(130, 160, 190, 0.3)');
+            ctx.globalAlpha = 0.6;
+            ctx.fillStyle = wetGradient;
+            ctx.fillRect(0, roadY, canvas.width, canvas.height - roadY);
+            ctx.globalAlpha = 1;
+
+            // Road markings with perspective
+            drawRoadMarkings();
+
+            // Parked cars
+            drawParkedCars();
+
+            // Update and draw particles
+            updateAndDrawParticles();
+
+            // Draw mist
+            mistParticles.forEach(p => {
+                if (!p.update()) {
+                    p.x = Math.random() * canvas.width;
+                    p.y = canvas.height * 0.7 + Math.random() * 100;
+                    p.life = 0.5 + Math.random() * 0.5;
+                }
+                p.draw(ctx);
+            });
+
+            // Draw leaves
+            leafParticles.forEach(p => {
+                if (!p.update()) {
+                    p.x = Math.random() * canvas.width;
+                    p.y = -10;
+                    p.life = 2 + Math.random() * 3;
+                }
+                p.draw(ctx);
+            });
+
+            // Raindrops
+            raindrops.forEach(drop => {
+                drop.update();
+                drop.draw(ctx);
+            });
+
+            // Ripple effects
+            drawRipples();
+
+            // Manage cars
+            carSpawnTimer += settings.carFrequency * 0.01;
+            if (carSpawnTimer > 1 && Math.random() > 0.7) {
+                cars.push(new Car());
+                carSpawnTimer = 0;
+            }
+
+            // Update and draw cars
+            for (let i = cars.length - 1; i >= 0; i--) {
+                cars[i].update();
+                cars[i].draw(ctx);
+                if (cars[i].isOffscreen()) {
+                    cars.splice(i, 1);
+                }
+            }
+
+            // Draw puddles with reflections
+            drawPuddles();
+
+            // Rain droplets on screen (lens effect)
+            drawScreenDroplets();
+
+            // Lightning
+            drawLightning();
+
+            // Dynamic wind effect
+            windChangeTimer += 0.01;
+            windDirection = settings.windStrength + Math.sin(windChangeTimer) * 0.3;
+
+            // Vignette effect
+            const vignetteGradient = ctx.createRadialGradient(
+                canvas.width * 0.5, canvas.height * 0.5, canvas.height * 0.3,
+                canvas.width * 0.5, canvas.height * 0.5, canvas.height * 0.8
+            );
+            vignetteGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+            vignetteGradient.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+            ctx.fillStyle = vignetteGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Update statistics
+            updateStats();
+        }
+
+        function drawClouds() {
+            const time = Date.now() * 0.0001;
+            
+            for (let i = 0; i < 5; i++) {
+                const x = (canvas.width * i / 5 + time * 50 * i) % (canvas.width + 200) - 100;
+                const y = canvas.height * 0.2 + Math.sin(time + i) * 20;
+                const size = 80 + i * 30;
+                
+                const gradient = ctx.createRadialGradient(x, y, 0, x, y, size);
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawDistantHills() {
+            ctx.fillStyle = 'rgba(80, 100, 120, 0.4)';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height * 0.55);
+            for (let x = 0; x <= canvas.width; x += 50) {
+                const y = canvas.height * 0.55 - Math.sin(x * 0.01 + Date.now() * 0.0001) * 25;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(canvas.width, canvas.height * 0.7);
+            ctx.lineTo(0, canvas.height * 0.7);
+            ctx.fill();
+        }
+
+        function drawHouses() {
+            const theme = themes[settings.scenery];
+            const roadY = canvas.height * 0.7;
+            const groundY = roadY - 20;
+            
+            const houses = [
+                { x: 100, width: 120, height: 110, windows: 3 },
+                { x: 300, width: 140, height: 125, windows: 4 },
+                { x: 520, width: 130, height: 115, windows: 3 },
+                { x: 750, width: 135, height: 120, windows: 4 },
+                { x: canvas.width - 250, width: 150, height: 130, windows: 5 }
+            ];
+
+            houses.forEach((house, idx) => {
+                const baseColor = theme.buildingBase - idx * 8;
+                const houseY = groundY - house.height;
+                const time = Date.now() * 0.001;
+
+                // House shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fillRect(house.x + 8, groundY, house.width - 8, 5);
+
+                // House body with texture
+                const houseGradient = ctx.createLinearGradient(
+                    house.x, houseY,
+                    house.x + house.width, houseY + house.height
+                );
+                houseGradient.addColorStop(0, `rgba(${baseColor + 25}, ${baseColor - 5}, ${baseColor - 25}, 0.95)`);
+                houseGradient.addColorStop(1, `rgba(${baseColor - 15}, ${baseColor - 25}, ${baseColor - 45}, 0.95)`);
+                ctx.fillStyle = houseGradient;
+                ctx.fillRect(house.x, houseY, house.width, house.height);
+
+                // Brick pattern
+                ctx.strokeStyle = `rgba(${baseColor - 40}, ${baseColor - 50}, ${baseColor - 60}, 0.1)`;
+                ctx.lineWidth = 1;
+                for (let y = 0; y < house.height; y += 15) {
+                    for (let x = 0; x < house.width; x += 30) {
+                        ctx.strokeRect(house.x + x + (y % 30 === 0 ? 15 : 0), houseY + y, 30, 15);
+                    }
+                }
+
+                // Roof
+                const roofHeight = 50;
+                const roofGradient = ctx.createLinearGradient(
+                    house.x, houseY - roofHeight,
+                    house.x + house.width, houseY
+                );
+                roofGradient.addColorStop(0, 'rgba(60, 40, 25, 0.9)');
+                roofGradient.addColorStop(1, 'rgba(40, 25, 15, 0.9)');
+                
+                ctx.fillStyle = roofGradient;
+                ctx.beginPath();
+                ctx.moveTo(house.x - 8, houseY);
+                ctx.lineTo(house.x + house.width * 0.5, houseY - roofHeight);
+                ctx.lineTo(house.x + house.width + 8, houseY);
+                ctx.fill();
+
+                // Roof tiles
+                ctx.strokeStyle = 'rgba(80, 55, 35, 0.8)';
+                ctx.lineWidth = 2;
+                for (let i = 0; i <= 10; i++) {
+                    const x = house.x + (house.width / 10) * i;
+                    const y1 = houseY - roofHeight * (1 - i / 10);
+                    const y2 = houseY - roofHeight * (1 - (i + 1) / 10);
+                    ctx.beginPath();
+                    ctx.moveTo(x, y1);
+                    ctx.lineTo(x + house.width / 20, y2);
+                    ctx.stroke();
+                }
+
+                // Windows
+                const windowRows = 2;
+                const windowCols = house.windows;
+                const windowSize = 20;
+                const windowSpacing = 35;
+                
+                for (let row = 0; row < windowRows; row++) {
+                    for (let col = 0; col < windowCols; col++) {
+                        const wx = house.x + 20 + col * windowSpacing;
+                        const wy = houseY + 25 + row * 40;
+                        
+                        // Window lighting variation
+                        const isLit = settings.scenery === 'night' || 
+                                     (settings.scenery === 'dusk' && Math.random() > 0.3) ||
+                                     (settings.scenery === 'storm' && Math.random() > 0.7);
+                        
+                        const lightFlicker = isLit ? 0.7 + Math.sin(time + wx * 0.01) * 0.2 : 0;
+                        
+                        // Window glow
+                        if (isLit) {
+                            const glowGradient = ctx.createRadialGradient(
+                                wx + windowSize / 2, wy + windowSize / 2, 0,
+                                wx + windowSize / 2, wy + windowSize / 2, 35
+                            );
+                            glowGradient.addColorStop(0, `rgba(255, 245, 200, ${0.4 * lightFlicker})`);
+                            glowGradient.addColorStop(1, 'rgba(255, 245, 200, 0)');
+                            ctx.fillStyle = glowGradient;
+                            ctx.fillRect(wx - 15, wy - 15, windowSize + 30, windowSize + 30);
+                        }
+                        
+                        // Window
+                        ctx.fillStyle = isLit ? 
+                            `rgba(255, 245, 180, ${0.8 * lightFlicker})` : 
+                            'rgba(160, 180, 200, 0.3)';
+                        ctx.fillRect(wx, wy, windowSize, windowSize);
+                        
+                        // Window frame
+                        ctx.strokeStyle = 'rgba(50, 40, 30, 0.8)';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(wx, wy, windowSize, windowSize);
+                        
+                        // Window cross
+                        ctx.beginPath();
+                        ctx.moveTo(wx + windowSize / 2, wy);
+                        ctx.lineTo(wx + windowSize / 2, wy + windowSize);
+                        ctx.moveTo(wx, wy + windowSize / 2);
+                        ctx.lineTo(wx + windowSize, wy + windowSize / 2);
+                        ctx.stroke();
+                    }
+                }
+
+                // Door
+                const doorWidth = 32;
+                const doorHeight = 45;
+                const doorX = house.x + house.width * 0.5 - doorWidth / 2;
+                const doorY = groundY - doorHeight;
+
+                ctx.fillStyle = 'rgba(50, 35, 20, 0.95)';
+                ctx.fillRect(doorX, doorY, doorWidth, doorHeight);
+
+                // Door details
+                ctx.strokeStyle = 'rgba(70, 50, 30, 0.9)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(doorX, doorY, doorWidth, doorHeight);
+
+                // Door panels
+                ctx.strokeStyle = 'rgba(40, 30, 20, 0.7)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(doorX + 5, doorY + 8, doorWidth - 10, 12);
+                ctx.strokeRect(doorX + 5, doorY + 25, doorWidth - 10, 15);
+
+                // Door handle
+                ctx.fillStyle = 'rgba(180, 150, 80, 0.9)';
+                ctx.beginPath();
+                ctx.arc(doorX + doorWidth - 8, doorY + doorHeight * 0.5, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawTrees() {
+            const theme = themes[settings.scenery];
+            const roadY = canvas.height * 0.7;
+            const groundY = roadY - 20;
+            const time = Date.now() * 0.001;
+            
+            const trees = [
+                { x: 220, size: 1.2, sway: 0.3 },
+                { x: 450, size: 1.4, sway: 0.5 },
+                { x: 680, size: 1.1, sway: 0.4 },
+                { x: canvas.width - 200, size: 1.3, sway: 0.6 }
+            ];
+
+            trees.forEach((tree, idx) => {
+                const sway = Math.sin(time + idx) * tree.sway;
+                const trunkHeight = 75 * tree.size;
+                const trunkWidth = 14 * tree.size;
+                const trunkY = groundY - trunkHeight;
+
+                // Tree shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fillRect(tree.x - 10 + sway * 2, groundY, 20, 4);
+
+                // Trunk
+                const trunkGradient = ctx.createLinearGradient(
+                    tree.x - trunkWidth / 2 + sway, trunkY,
+                    tree.x + trunkWidth / 2 + sway, trunkY + trunkHeight
+                );
+                trunkGradient.addColorStop(0, 'rgba(70, 50, 35, 0.9)');
+                trunkGradient.addColorStop(0.5, 'rgba(85, 60, 45, 0.9)');
+                trunkGradient.addColorStop(1, 'rgba(60, 40, 25, 0.9)');
+                ctx.fillStyle = trunkGradient;
+                ctx.fillRect(tree.x - trunkWidth / 2 + sway, trunkY, trunkWidth, trunkHeight);
+
+                // Trunk texture
+                ctx.strokeStyle = 'rgba(50, 35, 20, 0.4)';
+                ctx.lineWidth = 1;
+                for (let y = 0; y < trunkHeight; y += 10) {
+                    ctx.beginPath();
+                    ctx.moveTo(tree.x - trunkWidth / 3 + sway, trunkY + y);
+                    ctx.lineTo(tree.x + trunkWidth / 3 + sway, trunkY + y + 5);
+                    ctx.stroke();
+                }
+
+                // Foliage
+                const foliageY = trunkY - 25;
+                const foliageRadius = 60 * tree.size;
+                const swayX = sway * 5;
+                
+                // Foliage layers for depth
+                for (let i = 0; i < 3; i++) {
+                    const layerRadius = foliageRadius * (0.7 + i * 0.15);
+                    const layerY = foliageY - i * 10;
+                    const layerX = tree.x + swayX * (1 - i * 0.3);
+                    
+                    const foliageGradient = ctx.createRadialGradient(
+                        layerX - layerRadius * 0.3, layerY - layerRadius * 0.3, 0,
+                        layerX, layerY, layerRadius
+                    );
+                    foliageGradient.addColorStop(0, `rgba(${100 - i * 20}, ${140 - i * 20}, ${80 - i * 10}, 0.8)`);
+                    foliageGradient.addColorStop(1, `rgba(${60 - i * 10}, ${100 - i * 20}, ${50 - i * 10}, 0.7)`);
+                    
+                    ctx.fillStyle = foliageGradient;
+                    ctx.beginPath();
+                    ctx.arc(layerX, layerY, layerRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Spring blossoms
+                const bloomIntensity = settings.bloomIntensity;
+                if (bloomIntensity > 0) {
+                    const petalCount = Math.floor(20 * tree.size * bloomIntensity);
+                    for (let i = 0; i < petalCount; i++) {
+                        const angle = (i / petalCount) * Math.PI * 2 + time;
+                        const dist = foliageRadius * (0.5 + Math.random() * 0.5);
+                        const px = tree.x + Math.cos(angle) * dist + swayX;
+                        const py = foliageY + Math.sin(angle) * dist * 0.8;
+                        
+                        // Petal glow
+                        if (bloomIntensity > 1) {
+                            const glowGradient = ctx.createRadialGradient(px, py, 0, px, py, 15);
+                            glowGradient.addColorStop(0, `rgba(255, 220, 230, ${0.4 * bloomIntensity})`);
+                            glowGradient.addColorStop(1, 'rgba(255, 220, 230, 0)');
+                            ctx.fillStyle = glowGradient;
+                            ctx.beginPath();
+                            ctx.arc(px, py, 15, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                        
+                        // Petal
+                        ctx.fillStyle = `rgba(255, ${200 - bloomIntensity * 20}, ${220 - bloomIntensity * 20}, ${0.7})`;
+                        ctx.beginPath();
+                        ctx.ellipse(px, py, 6, 4, angle, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Petal highlight
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                        ctx.beginPath();
+                        ctx.ellipse(px - 2, py - 1, 2, 1, angle, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            });
+        }
+
+        function drawStreetlights() {
+            const theme = themes[settings.scenery];
+            const roadY = canvas.height * 0.7;
+            const groundY = roadY - 20;
+            const time = Date.now() * 0.001;
+            
+            const lights = [
+                { x: 260, height: 140 },
+                { x: 580, height: 135 },
+                { x: canvas.width - 260, height: 145 }
+            ];
+
+            lights.forEach((light, idx) => {
+                const poleY = groundY - light.height;
+
+                // Pole
+                const poleGradient = ctx.createLinearGradient(light.x - 4, poleY, light.x + 4, poleY + light.height);
+                poleGradient.addColorStop(0, 'rgba(80, 80, 85, 0.8)');
+                poleGradient.addColorStop(0.5, 'rgba(100, 100, 105, 0.8)');
+                poleGradient.addColorStop(1, 'rgba(70, 70, 75, 0.8)');
+                ctx.fillStyle = poleGradient;
+                ctx.fillRect(light.x - 4, poleY, 8, light.height);
+
+                // Pole segments
+                ctx.strokeStyle = 'rgba(60, 60, 65, 0.6)';
+                ctx.lineWidth = 1;
+                for (let y = poleY; y < groundY; y += 30) {
+                    ctx.beginPath();
+                    ctx.moveTo(light.x - 4, y);
+                    ctx.lineTo(light.x + 4, y);
+                    ctx.stroke();
+                }
+
+                // Light fixture
+                ctx.fillStyle = 'rgba(60, 60, 65, 0.9)';
+                ctx.fillRect(light.x - 12, poleY - 15, 24, 20);
+
+                // Light glow
+                const glowIntensity = theme.ambientLight * settings.bloomIntensity;
+                const flicker = 0.9 + Math.sin(time * 3 + idx) * 0.1;
+                const glowSize = 100 * settings.bloomIntensity * flicker;
+                
+                const glowGradient = ctx.createRadialGradient(
+                    light.x, poleY, 0,
+                    light.x, poleY, glowSize
+                );
+                glowGradient.addColorStop(0, `rgba(255, 245, 210, ${0.6 * glowIntensity * flicker})`);
+                glowGradient.addColorStop(0.4, `rgba(255, 240, 190, ${0.4 * glowIntensity * flicker})`);
+                glowGradient.addColorStop(1, 'rgba(255, 240, 180, 0)');
+                ctx.fillStyle = glowGradient;
+                ctx.fillRect(light.x - glowSize, poleY - glowSize, glowSize * 2, glowSize * 2);
+
+                // Light bulb
+                ctx.fillStyle = `rgba(255, 250, 220, ${0.95 * glowIntensity * flicker})`;
+                ctx.beginPath();
+                ctx.arc(light.x, poleY - 5, 7, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Light rays (only visible in fog)
+                if (settings.fogDensity > 0.5) {
+                    ctx.save();
+                    ctx.globalAlpha = 0.2 * settings.fogDensity;
+                    for (let i = 0; i < 5; i++) {
+                        const angle = -Math.PI / 2 + (i - 2) * 0.2;
+                        const length = 200;
+                        
+                        const rayGradient = ctx.createLinearGradient(
+                            light.x, poleY,
+                            light.x + Math.cos(angle) * length,
+                            poleY + Math.sin(angle) * length
+                        );
+                        rayGradient.addColorStop(0, 'rgba(255, 245, 200, 0.5)');
+                        rayGradient.addColorStop(1, 'rgba(255, 245, 200, 0)');
+                        
+                        ctx.strokeStyle = rayGradient;
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(light.x, poleY);
+                        ctx.lineTo(
+                            light.x + Math.cos(angle) * length,
+                            poleY + Math.sin(angle) * length
+                        );
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                }
+
+                // Ground illumination
+                ctx.globalAlpha = 0.25 * glowIntensity;
+                const groundGlow = ctx.createRadialGradient(
+                    light.x, groundY + 15, 0,
+                    light.x, groundY + 15, 70
+                );
+                groundGlow.addColorStop(0, 'rgba(255, 245, 200, 0.5)');
+                groundGlow.addColorStop(1, 'rgba(255, 245, 200, 0)');
+                ctx.fillStyle = groundGlow;
+                ctx.fillRect(light.x - 70, groundY, 140, 80);
+                ctx.globalAlpha = 1;
+            });
+        }
+
+        function drawRoadMarkings() {
+            const roadY = canvas.height * 0.7;
+            
+            // Center line
+            ctx.setLineDash([40, 30]);
+            ctx.strokeStyle = 'rgba(240, 240, 250, 0.8)';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, roadY + (canvas.height - roadY) * 0.5);
+            ctx.lineTo(canvas.width, roadY + (canvas.height - roadY) * 0.5);
+            ctx.stroke();
+            
+            // Side lines
+            ctx.setLineDash([]);
+            ctx.strokeStyle = 'rgba(220, 220, 230, 0.6)';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(50, roadY + (canvas.height - roadY) * 0.5);
+            ctx.lineTo(canvas.width - 50, roadY + (canvas.height - roadY) * 0.5);
+            ctx.stroke();
+            
+            ctx.setLineDash([]);
+        }
+
+        function drawParkedCars() {
+            const roadY = canvas.height * 0.7;
+            const groundY = roadY - 20;
+            
+            const parkedCars = [
+                { x: 160, color: { r: 110, g: 130, b: 190 }, type: 'sedan' },
+                { x: 350, color: { r: 170, g: 100, b: 100 }, type: 'hatchback' },
+                { x: 610, color: { r: 100, g: 150, b: 110 }, type: 'suv' },
+                { x: 860, color: { r: 190, g: 160, b: 90 }, type: 'sedan' }
+            ];
+
+            parkedCars.forEach(car => {
+                const carY = groundY - 32;
+                const width = car.type === 'suv' ? 55 : car.type === 'hatchback' ? 42 : 48;
+                const height = car.type === 'suv' ? 32 : car.type === 'hatchback' ? 26 : 30;
+
+                // Shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(car.x + 4, groundY, width - 8, 4);
+
+                // Car body
+                const bodyGradient = ctx.createLinearGradient(car.x, carY, car.x, carY + height);
+                bodyGradient.addColorStop(0, `rgba(${car.color.r + 30}, ${car.color.g + 30}, ${car.color.b + 30}, 0.9)`);
+                bodyGradient.addColorStop(1, `rgba(${car.color.r}, ${car.color.g}, ${car.color.b}, 0.9)`);
+                ctx.fillStyle = bodyGradient;
+                ctx.fillRect(car.x, carY, width, height);
+
+                // Car top
+                if (car.type === 'suv') {
+                    ctx.fillStyle = `rgba(${car.color.r - 20}, ${car.color.g - 20}, ${car.color.b - 20}, 0.85)`;
+                    ctx.fillRect(car.x + 10, carY - 15, width - 20, 15);
+                } else {
+                    ctx.fillStyle = `rgba(${car.color.r - 30}, ${car.color.g - 30}, ${car.color.b - 30}, 0.85)`;
+                    ctx.fillRect(car.x + 8, carY - 12, width - 16, 12);
+                }
+
+                // Windows
+                ctx.fillStyle = 'rgba(130, 160, 190, 0.4)';
+                if (car.type === 'suv') {
+                    ctx.fillRect(car.x + 12, carY - 12, 10, 10);
+                    ctx.fillRect(car.x + width - 22, carY - 12, 10, 10);
+                } else {
+                    ctx.fillRect(car.x + 12, carY - 10, 9, 8);
+                    ctx.fillRect(car.x + width - 21, carY - 10, 9, 8);
+                }
+
+                // Wheels
+                ctx.fillStyle = 'rgba(35, 35, 40, 0.9)';
+                ctx.beginPath();
+                ctx.arc(car.x + 14, carY + height, 6, 0, Math.PI * 2);
+                ctx.arc(car.x + width - 14, carY + height, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Wheel rims
+                ctx.fillStyle = 'rgba(170, 170, 180, 0.8)';
+                ctx.beginPath();
+                ctx.arc(car.x + 14, carY + height, 3, 0, Math.PI * 2);
+                ctx.arc(car.x + width - 14, carY + height, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function updateAndDrawParticles() {
+            // Update existing particles
+            for (let i = settings.particles.length - 1; i >= 0; i--) {
+                if (!settings.particles[i].update()) {
+                    settings.particles.splice(i, 1);
+                } else {
+                    settings.particles[i].draw(ctx);
+                }
+            }
+            
+            // Add new rain particles
+            if (Math.random() < settings.rainIntensity * 0.1) {
+                settings.particles.push(new Particle(
+                    Math.random() * canvas.width,
+                    -10,
+                    'rain'
+                ));
+            }
+            
+            // Add mist particles
+            if (Math.random() < settings.fogDensity * 0.05) {
+                settings.particles.push(new Particle(
+                    Math.random() * canvas.width,
+                    canvas.height * 0.7 + Math.random() * 100,
+                    'mist'
+                ));
+            }
+        }
+
+        function drawRipples() {
+            for (let i = ripplePoints.length - 1; i >= 0; i--) {
+                const ripple = ripplePoints[i];
+                ripple.radius += 2;
+                ripple.alpha -= 0.02;
+                
+                if (ripple.alpha <= 0 || ripple.radius > ripple.maxRadius) {
+                    ripplePoints.splice(i, 1);
+                    continue;
+                }
+                
+                ctx.strokeStyle = `rgba(180, 200, 220, ${ripple.alpha})`;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Second ring
+                if (ripple.radius > 10) {
+                    ctx.strokeStyle = `rgba(200, 220, 240, ${ripple.alpha * 0.5})`;
+                    ctx.beginPath();
+                    ctx.arc(ripple.x, ripple.y, ripple.radius - 10, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function drawPuddles() {
+            const roadY = canvas.height * 0.7;
+            const puddles = [
+                { x: 170, y: roadY + 45, w: 90, h: 30, ripple: 0 },
+                { x: 430, y: roadY + 60, w: 110, h: 35, ripple: 1 },
+                { x: 720, y: roadY + 40, w: 80, h: 25, ripple: 2 },
+                { x: canvas.width - 220, y: roadY + 55, w: 100, h: 32, ripple: 3 }
+            ];
+
+            puddles.forEach((puddle, idx) => {
+                const time = Date.now() * 0.001;
+                const rippleOffset = Math.sin(time + idx) * 5;
+                
+                ctx.save();
+                ctx.globalAlpha = 0.4;
+                
+                // Puddle reflection
+                const puddleGradient = ctx.createRadialGradient(
+                    puddle.x + puddle.w / 2 + rippleOffset,
+                    puddle.y + puddle.h / 2,
+                    0,
+                    puddle.x + puddle.w / 2,
+                    puddle.y + puddle.h / 2,
+                    puddle.w / 2
+                );
+                puddleGradient.addColorStop(0, 'rgba(190, 210, 230, 0.6)');
+                puddleGradient.addColorStop(0.7, 'rgba(160, 190, 220, 0.4)');
+                puddleGradient.addColorStop(1, 'rgba(140, 170, 200, 0.2)');
+                ctx.fillStyle = puddleGradient;
+                
+                ctx.beginPath();
+                ctx.ellipse(
+                    puddle.x + puddle.w / 2 + rippleOffset,
+                    puddle.y + puddle.h / 2,
+                    puddle.w / 2,
+                    puddle.h / 2,
+                    0, 0, Math.PI * 2
+                );
+                ctx.fill();
+
+                // Puddle edge highlight
+                ctx.strokeStyle = 'rgba(210, 230, 250, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.ellipse(
+                    puddle.x + puddle.w / 2 + rippleOffset,
+                    puddle.y + puddle.h / 2,
+                    puddle.w / 2,
+                    puddle.h / 2,
+                    0, 0, Math.PI * 2
+                );
+                ctx.stroke();
+
+                // Raindrop ripples in puddles
+                if (Math.random() < 0.1) {
+                    const rx = puddle.x + Math.random() * puddle.w;
+                    const ry = puddle.y + Math.random() * puddle.h;
+                    
+                    for (let i = 0; i < 3; i++) {
+                        const delay = i * 0.2;
+                        const rippleTime = time + delay;
+                        const rippleSize = 5 + Math.sin(rippleTime * 10) * 3;
+                        
+                        ctx.strokeStyle = `rgba(200, 220, 240, ${0.3 - i * 0.1})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.arc(rx, ry, rippleSize, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                }
+
+                ctx.restore();
+            });
+        }
+
+        function drawScreenDroplets() {
+            // Simulate water droplets on screen
+            for (let i = 0; i < 15; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = 2 + Math.random() * 4;
+                
+                // Droplet
+                ctx.fillStyle = 'rgba(220, 235, 250, 0.15)';
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Droplet highlight
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath();
+                ctx.arc(x - size * 0.3, y - size * 0.3, size * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Droplet trail
+                if (Math.random() > 0.7) {
+                    ctx.strokeStyle = 'rgba(220, 235, 250, 0.1)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + 20, y + 40);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function updateStats() {
+            frameCount++;
+            const currentTime = performance.now();
+            if (currentTime - lastTime >= 1000) {
+                fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                fpsElem.textContent = fps;
+                particleCountElem.textContent = settings.particles.length + raindrops.length;
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+        }
+
+        function playAmbientSound() {
+            // Sound would be implemented here
+            console.log('Ambient sound playing');
+        }
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawScene();
+            requestAnimationFrame(animate);
+        }
+
+        // Initialize and start
+        initScene();
+        animate();
+    </script>
+</body>
+</html>
