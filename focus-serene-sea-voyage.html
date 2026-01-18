@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serene Sea Voyage</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+            --focus-ring: 0 0 0 3px rgba(33, 128, 141, 0.4);
+            --space-8: 8px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --radius-base: 8px;
+            --duration-normal: 250ms;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .scene-canvas {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to bottom, 
+                #87CEEB 0%,
+                #87CEEB 30%,
+                #4a90e2 70%,
+                #1a5a7a 100%);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 35%;
+            background: linear-gradient(to bottom, #87CEEB 0%, #b0d4e8 100%);
+            overflow: hidden;
+        }
+
+        .sun {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at 35% 35%, #ffeb3b, #ffc107);
+            border-radius: 50%;
+            top: 20px;
+            right: 60px;
+            box-shadow: 0 0 40px rgba(255, 193, 7, 0.6), 0 0 80px rgba(255, 193, 7, 0.3);
+            animation: sunGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes sunGlow {
+            0%, 100% { box-shadow: 0 0 40px rgba(255, 193, 7, 0.6), 0 0 80px rgba(255, 193, 7, 0.3); }
+            50% { box-shadow: 0 0 50px rgba(255, 193, 7, 0.8), 0 0 100px rgba(255, 193, 7, 0.4); }
+        }
+
+        .water {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 65%;
+            background: linear-gradient(to bottom, #2c8daf 0%, #1a4d5e 100%);
+            overflow: hidden;
+        }
+
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60'%3E%3Cpath d='M0,30 Q150,0 300,30 T600,30 T900,30 T1200,30 L1200,60 L0,60 Z' fill='rgba(255,255,255,0.15)'/%3E%3C/svg%3E");
+            background-size: 400px 60px;
+            background-repeat: repeat-x;
+            opacity: 0.8;
+            animation: wave 8s linear infinite;
+        }
+
+        .wave:nth-child(2) {
+            bottom: 10px;
+            opacity: 0.5;
+            animation: wave 12s linear infinite reverse;
+        }
+
+        .wave:nth-child(3) {
+            bottom: 20px;
+            opacity: 0.3;
+            animation: wave 16s linear infinite;
+        }
+
+        @keyframes wave {
+            0% { background-position: 0 0; }
+            100% { background-position: 400px 0; }
+        }
+
+        .ship-container {
+            position: absolute;
+            width: 200px;
+            height: 100px;
+            animation: sail 20s linear infinite;
+        }
+
+        @keyframes sail {
+            0% { left: -250px; opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { right: -250px; opacity: 0; }
+        }
+
+        .ship {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .hull {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(to right, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+            clip-path: polygon(0 100%, 10% 60%, 90% 60%, 100% 100%);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .cabin {
+            position: absolute;
+            bottom: 38px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 50px;
+            background: linear-gradient(135deg, #D2691E 0%, #CD853F 100%);
+            border-radius: 0 0 8px 8px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .window {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle at 30% 30%, #ffff00, #ffd700);
+            border-radius: 50%;
+            box-shadow: 0 0 4px rgba(255, 255, 0, 0.6), inset 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .window:nth-child(1) { top: 10px; left: 12px; }
+        .window:nth-child(2) { top: 10px; right: 12px; }
+        .window:nth-child(3) { bottom: 8px; left: 50%; transform: translateX(-50%); }
+
+        .mast {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 38px;
+            width: 3px;
+            height: 90px;
+            background: linear-gradient(to right, #654321 0%, #8B4513 50%, #654321 100%);
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .sail {
+            position: absolute;
+            left: 45%;
+            top: 15px;
+            width: 70px;
+            height: 55px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 240, 240, 0.8) 100%);
+            clip-path: polygon(0 0, 100% 20%, 100% 100%, 0 95%);
+            transform: skewY(-5deg);
+            box-shadow: inset -2px 2px 8px rgba(0, 0, 0, 0.1);
+            animation: sailFlap 3s ease-in-out infinite;
+            opacity: 0.95;
+        }
+
+        @keyframes sailFlap {
+            0%, 100% { transform: skewY(-5deg); }
+            50% { transform: skewY(-8deg); }
+        }
+
+        .flag {
+            position: absolute;
+            right: -5px;
+            top: 5px;
+            width: 20px;
+            height: 15px;
+            background: linear-gradient(to right, #ff6b6b, #ff5252);
+            clip-path: polygon(0 0, 100% 25%, 100% 75%, 0 100%);
+            animation: flagWave 2s ease-in-out infinite;
+        }
+
+        @keyframes flagWave {
+            0%, 100% { transform: skewX(0deg); }
+            50% { transform: skewX(8deg); }
+        }
+
+        .control-panel {
+            background: linear-gradient(135deg, rgba(38, 40, 40, 0.95), rgba(31, 33, 33, 0.95));
+            padding: var(--space-20);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--color-gray-200);
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .control-section {
+            margin-bottom: var(--space-20);
+        }
+
+        .control-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-bottom: var(--space-8);
+            color: var(--color-teal-300);
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--space-8);
+        }
+
+        .btn {
+            padding: var(--space-8) var(--space-16);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(33, 128, 141, 0.2);
+            color: var(--color-teal-300);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all var(--duration-normal);
+            text-transform: capitalize;
+        }
+
+        .btn:hover {
+            background: rgba(33, 128, 141, 0.4);
+            border-color: var(--color-teal-300);
+            box-shadow: 0 0 8px rgba(33, 128, 141, 0.3);
+        }
+
+        .btn.active {
+            background: var(--color-teal-500);
+            color: var(--color-charcoal-800);
+            border-color: var(--color-teal-400);
+            box-shadow: 0 0 12px rgba(33, 128, 141, 0.5);
+        }
+
+        .slider-group {
+            margin-bottom: var(--space-16);
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--space-8);
+            font-size: 12px;
+        }
+
+        .slider-label-value {
+            color: var(--color-teal-300);
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: linear-gradient(to right, rgba(33, 128, 141, 0.2), rgba(33, 128, 141, 0.4));
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-teal-300);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(33, 128, 141, 0.5);
+            transition: all var(--duration-normal);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--color-teal-400);
+            box-shadow: 0 0 12px rgba(33, 128, 141, 0.7);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-teal-300);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 8px rgba(33, 128, 141, 0.5);
+            transition: all var(--duration-normal);
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: var(--color-teal-400);
+            box-shadow: 0 0 12px rgba(33, 128, 141, 0.7);
+        }
+
+        .info-text {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: var(--space-8);
+        }
+
+        .scene-label {
+            position: absolute;
+            top: var(--space-16);
+            left: var(--space-16);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: var(--space-8) var(--space-16);
+            border-radius: var(--radius-base);
+            font-size: 14px;
+            font-weight: 600;
+            pointer-events: none;
+            text-transform: capitalize;
+        }
+
+        /* Sunrise/Sunset scene adjustments */
+        .scene-canvas.sunrise {
+            background: linear-gradient(to bottom, 
+                #ff9a56 0%,
+                #ffc766 30%,
+                #ffe6a8 50%,
+                #b8d4e8 70%,
+                #4a90e2 100%);
+        }
+
+        .scene-canvas.sunset {
+            background: linear-gradient(to bottom, 
+                #ff6b35 0%,
+                #ff8c42 30%,
+                #ffa85c 50%,
+                #87CEEB 70%,
+                #1a3a4a 100%);
+        }
+
+        .scene-canvas.night {
+            background: linear-gradient(to bottom, 
+                #0a0e27 0%,
+                #1a1f3a 30%,
+                #2c3e50 70%,
+                #1a2f3f 100%);
+        }
+
+        .scene-canvas.storm {
+            background: linear-gradient(to bottom, 
+                #34495e 0%,
+                #3d5a70 30%,
+                #2c5282 70%,
+                #1a3a4a 100%);
+        }
+
+        .sun.hidden {
+            display: none;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .storm-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+            animation: stormFlash 4s ease-in-out infinite;
+            pointer-events: none;
+            display: none;
+        }
+
+        .scene-canvas.storm .storm-effect {
+            display: block;
+        }
+
+        @keyframes stormFlash {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.4; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="scene-canvas" id="sceneCanvas">
+            <div class="sky" id="sky">
+                <div class="sun" id="sun"></div>
+                <div class="stars" id="stars"></div>
+            </div>
+            <div class="water" id="water">
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+            </div>
+            <div class="storm-effect"></div>
+            <div class="scene-label" id="sceneLabel">Day</div>
+        </div>
+
+        <div class="control-panel">
+            <div class="control-section">
+                <div class="section-title">Scene Mood</div>
+                <div class="control-grid">
+                    <button class="btn active" data-scene="day" onclick="changeScene('day')">🌅 Day</button>
+                    <button class="btn" data-scene="sunrise" onclick="changeScene('sunrise')">🌄 Sunrise</button>
+                    <button class="btn" data-scene="sunset" onclick="changeScene('sunset')">🌇 Sunset</button>
+                    <button class="btn" data-scene="night" onclick="changeScene('night')">🌙 Night</button>
+                    <button class="btn" data-scene="storm" onclick="changeScene('storm')">⛈️ Storm</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">Ship Activity</div>
+                <div class="control-grid">
+                    <button class="btn" onclick="toggleShips()">🚢 Toggle Ships</button>
+                    <button class="btn" onclick="addShip()">➕ Add Ship</button>
+                    <button class="btn" onclick="clearShips()">🗑️ Clear</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Ship Speed</span>
+                        <span class="slider-label-value" id="speedValue">1x</span>
+                    </div>
+                    <input type="range" id="speedSlider" min="0.3" max="3" step="0.1" value="1" oninput="updateSpeed(this.value)">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Wave Height</span>
+                        <span class="slider-label-value" id="waveValue">1x</span>
+                    </div>
+                    <input type="range" id="waveSlider" min="0.5" max="2" step="0.1" value="1" oninput="updateWaves(this.value)">
+                </div>
+            </div>
+
+            <div class="info-text">
+                ✨ Watch ships sail across the calm waters. Adjust the mood and speed for your perfect moment of peace.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sceneCanvas = document.getElementById('sceneCanvas');
+        const water = document.getElementById('water');
+        const speedSlider = document.getElementById('speedSlider');
+        const waveSlider = document.getElementById('waveSlider');
+        const sceneLabel = document.getElementById('sceneLabel');
+        let shipCount = 3;
+        let shipsVisible = true;
+        let currentScene = 'day';
+
+        function changeScene(scene) {
+            currentScene = scene;
+            
+            // Update button states
+            document.querySelectorAll('[data-scene]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-scene="${scene}"]`).classList.add('active');
+
+            // Remove old classes
+            sceneCanvas.className = 'scene-canvas';
+            sceneCanvas.classList.add(scene);
+
+            // Update label
+            const labels = {
+                day: '🌅 Day',
+                sunrise: '🌄 Sunrise',
+                sunset: '🌇 Sunset',
+                night: '🌙 Night',
+                storm: '⛈️ Storm'
+            };
+            sceneLabel.textContent = labels[scene];
+
+            // Generate stars for night scene
+            if (scene === 'night') {
+                generateStars();
+                document.getElementById('sun').classList.add('hidden');
+            } else {
+                document.getElementById('sun').classList.remove('hidden');
+                document.getElementById('stars').innerHTML = '';
+            }
+        }
+
+        function generateStars() {
+            const starsContainer = document.getElementById('stars');
+            starsContainer.innerHTML = '';
+            
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 40 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function createShip(delay = 0) {
+            const shipContainer = document.createElement('div');
+            shipContainer.className = 'ship-container';
+            shipContainer.style.top = (40 + Math.random() * 20) + '%';
+            shipContainer.style.animationDuration = (20 / (parseFloat(speedSlider.value))) + 's';
+            shipContainer.style.animationDelay = delay + 's';
+
+            const ship = document.createElement('div');
+            ship.className = 'ship';
+            ship.innerHTML = `
+                <div class="hull"></div>
+                <div class="cabin">
+                    <div class="window"></div>
+                    <div class="window"></div>
+                    <div class="window"></div>
+                </div>
+                <div class="mast">
+                    <div class="sail"></div>
+                    <div class="flag"></div>
+                </div>
+            `;
+
+            shipContainer.appendChild(ship);
+            water.appendChild(shipContainer);
+
+            // Remove ship when animation completes
+            shipContainer.addEventListener('animationend', () => {
+                shipContainer.remove();
+                if (shipsVisible) {
+                    setTimeout(() => createShip(0), 1000);
+                }
+            });
+        }
+
+        function initializeShips() {
+            for (let i = 0; i < shipCount; i++) {
+                createShip(i * 6);
+            }
+        }
+
+        function toggleShips() {
+            shipsVisible = !shipsVisible;
+            if (!shipsVisible) {
+                document.querySelectorAll('.ship-container').forEach(ship => ship.remove());
+            } else {
+                initializeShips();
+            }
+        }
+
+        function addShip() {
+            if (shipsVisible) {
+                shipCount++;
+                createShip(0);
+            }
+        }
+
+        function clearShips() {
+            document.querySelectorAll('.ship-container').forEach(ship => ship.remove());
+            shipCount = 0;
+            shipsVisible = true;
+        }
+
+        function updateSpeed(value) {
+            const speedMultiplier = parseFloat(value);
+            document.getElementById('speedValue').textContent = speedMultiplier.toFixed(1) + 'x';
+            
+            document.querySelectorAll('.ship-container').forEach(ship => {
+                const baseDuration = 20;
+                ship.style.animationDuration = (baseDuration / speedMultiplier) + 's';
+            });
+        }
+
+        function updateWaves(value) {
+            const waveMultiplier = parseFloat(value);
+            document.getElementById('waveValue').textContent = waveMultiplier.toFixed(1) + 'x';
+            
+            const waves = document.querySelectorAll('.wave');
+            waves.forEach((wave, index) => {
+                const baseDuration = [8, 12, 16][index];
+                wave.style.animationDuration = (baseDuration / waveMultiplier) + 's';
+            });
+        }
+
+        // Initialize
+        initializeShips();
+    </script>
+</body>
+</html>
