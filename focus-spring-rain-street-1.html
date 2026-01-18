@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Rain Street</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(to bottom, #4a5f7f 0%, #6b8ca8 50%, #8a9db8 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #canvas {
+            flex: 1;
+            display: block;
+        }
+
+        .controls {
+            background: rgba(30, 40, 50, 0.95);
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+            border-top: 2px solid rgba(100, 150, 180, 0.3);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .control-group label {
+            color: #a0c0e0;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-group select,
+        .control-group input[type="range"],
+        .control-group button {
+            padding: 8px 12px;
+            border: 1px solid rgba(100, 150, 180, 0.4);
+            border-radius: 6px;
+            background: rgba(50, 70, 90, 0.8);
+            color: #e8f0f8;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 250ms ease;
+        }
+
+        .control-group select:hover,
+        .control-group button:hover {
+            background: rgba(70, 100, 130, 0.9);
+            border-color: rgba(100, 150, 180, 0.6);
+        }
+
+        .control-group select:focus,
+        .control-group input[type="range"]:focus,
+        .control-group button:focus {
+            outline: 2px solid #6ba3d0;
+            outline-offset: 2px;
+        }
+
+        .control-group input[type="range"] {
+            padding: 0;
+            width: 120px;
+            cursor: pointer;
+        }
+
+        .range-value {
+            color: #6ba3d0;
+            font-size: 12px;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        button {
+            background: rgba(100, 150, 180, 0.6);
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: rgba(100, 150, 180, 0.8);
+        }
+
+        .title {
+            color: #a0c0e0;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-right: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                padding: 12px;
+                gap: 8px;
+            }
+
+            .control-group {
+                gap: 6px;
+            }
+
+            .control-group label {
+                font-size: 12px;
+            }
+
+            .control-group select,
+            .control-group button {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="controls">
+        <span class="title">🌧️ Spring Rain</span>
+
+        <div class="control-group">
+            <label for="scenery">Scenery:</label>
+            <select id="scenery">
+                <option value="day">Rainy Day</option>
+                <option value="dusk">Dusk Rain</option>
+                <option value="dawn">Dawn Mist</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="rainIntensity">Rain Intensity:</label>
+            <input type="range" id="rainIntensity" min="0.3" max="2" step="0.1" value="1">
+            <span class="range-value" id="rainValue">1.0x</span>
+        </div>
+
+        <div class="control-group">
+            <label for="carFrequency">Car Traffic:</label>
+            <input type="range" id="carFrequency" min="0.1" max="1.5" step="0.1" value="0.8">
+            <span class="range-value" id="carValue">0.8x</span>
+        </div>
+
+        <div class="control-group">
+            <label for="bloomIntensity">Bloom Intensity:</label>
+            <input type="range" id="bloomIntensity" min="0.5" max="1.5" step="0.1" value="1">
+            <span class="range-value" id="bloomValue">1.0x</span>
+        </div>
+
+        <button id="toggleSound">🔊 Ambient On</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight - 70;
+
+        let settings = {
+            scenery: 'day',
+            rainIntensity: 1,
+            carFrequency: 0.8,
+            bloomIntensity: 1,
+            soundEnabled: true
+        };
+
+        // Control handlers
+        document.getElementById('scenery').addEventListener('change', (e) => {
+            settings.scenery = e.target.value;
+        });
+
+        document.getElementById('rainIntensity').addEventListener('input', (e) => {
+            settings.rainIntensity = parseFloat(e.target.value);
+            document.getElementById('rainValue').textContent = e.target.value + 'x';
+        });
+
+        document.getElementById('carFrequency').addEventListener('input', (e) => {
+            settings.carFrequency = parseFloat(e.target.value);
+            document.getElementById('carValue').textContent = e.target.value + 'x';
+        });
+
+        document.getElementById('bloomIntensity').addEventListener('input', (e) => {
+            settings.bloomIntensity = parseFloat(e.target.value);
+            document.getElementById('bloomValue').textContent = e.target.value + 'x';
+        });
+
+        document.getElementById('toggleSound').addEventListener('click', (e) => {
+            settings.soundEnabled = !settings.soundEnabled;
+            e.target.textContent = settings.soundEnabled ? '🔊 Ambient On' : '🔇 Ambient Off';
+        });
+
+        // Window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - 70;
+        });
+
+        // Raindrop class with splashes
+        class Raindrop {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = -Math.random() * canvas.height;
+                this.speed = 8 + Math.random() * 10;
+                this.length = 20 + Math.random() * 25;
+                this.opacity = 0.4 + Math.random() * 0.5;
+                this.wobble = Math.random() * 0.8;
+                this.waveOffset = Math.random() * Math.PI * 2;
+                this.hasSplash = false;
+                this.splashFrame = 0;
+            }
+
+            update() {
+                this.y += this.speed;
+                this.waveOffset += 0.08;
+                this.x += Math.sin(this.waveOffset) * this.wobble * 0.5;
+
+                const roadY = canvas.height * 0.7;
+                if (this.y > roadY && !this.hasSplash) {
+                    this.hasSplash = true;
+                    this.splashFrame = 0;
+                }
+
+                if (this.hasSplash) {
+                    this.splashFrame++;
+                }
+
+                if (this.y > canvas.height + 20 || this.splashFrame > 15) {
+                    this.reset();
+                }
+            }
+
+            draw(ctx, intensity) {
+                if (!this.hasSplash) {
+                    const gradient = ctx.createLinearGradient(
+                        this.x, this.y - this.length,
+                        this.x, this.y
+                    );
+                    gradient.addColorStop(0, `rgba(220, 235, 250, 0)`);
+                    gradient.addColorStop(0.3, `rgba(220, 235, 250, ${this.opacity * intensity * 0.3})`);
+                    gradient.addColorStop(1, `rgba(220, 235, 250, ${this.opacity * intensity})`);
+
+                    ctx.strokeStyle = gradient;
+                    ctx.lineWidth = 2;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y - this.length);
+                    ctx.lineTo(this.x, this.y);
+                    ctx.stroke();
+                } else {
+                    // Splash effect
+                    const progress = this.splashFrame / 15;
+                    const splashSize = 8 * (1 - progress);
+                    const splashOpacity = (1 - progress) * 0.6;
+
+                    ctx.fillStyle = `rgba(220, 235, 250, ${splashOpacity})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, splashSize, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Splash particles
+                    for (let i = 0; i < 4; i++) {
+                        const angle = (i / 4) * Math.PI * 2;
+                        const dist = splashSize * 1.5;
+                        const px = this.x + Math.cos(angle) * dist;
+                        const py = this.y + Math.sin(angle) * dist * 0.5;
+                        ctx.fillStyle = `rgba(220, 235, 250, ${splashOpacity * 0.5})`;
+                        ctx.beginPath();
+                        ctx.arc(px, py, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+
+        // Enhanced Car class
+        class Car {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = -120;
+                this.y = canvas.height * 0.72 + Math.random() * 8;
+                this.speed = 2.5 + Math.random() * 3.5;
+                this.width = 70;
+                this.height = 32;
+                this.color = this.getRandomCarColor();
+                this.lightPulse = Math.random() * Math.PI * 2;
+            }
+
+            getRandomCarColor() {
+                const colors = [
+                    { r: 180, g: 40, b: 40 },   // Red
+                    { r: 40, g: 60, b: 140 },   // Blue
+                    { r: 200, g: 200, b: 210 }, // Silver
+                    { r: 30, g: 30, b: 35 },    // Black
+                    { r: 180, g: 180, b: 180 }, // Gray
+                    { r: 120, g: 30, b: 30 },   // Dark Red
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.x += this.speed;
+                this.lightPulse += 0.05;
+            }
+
+            draw(ctx, bloomIntensity) {
+                ctx.save();
+
+                // Shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(this.x + 5, this.y + this.height + 2, this.width - 10, 6);
+
+                // Car body with gradient
+                const bodyGradient = ctx.createLinearGradient(
+                    this.x, this.y - 5,
+                    this.x, this.y + this.height
+                );
+                bodyGradient.addColorStop(0, `rgba(${this.color.r + 30}, ${this.color.g + 30}, ${this.color.b + 30}, 0.95)`);
+                bodyGradient.addColorStop(0.5, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0.95)`);
+                bodyGradient.addColorStop(1, `rgba(${this.color.r - 20}, ${this.color.g - 20}, ${this.color.b - 20}, 0.95)`);
+                
+                ctx.fillStyle = bodyGradient;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+
+                // Car roof/cabin
+                ctx.fillStyle = `rgba(${this.color.r - 30}, ${this.color.g - 30}, ${this.color.b - 30}, 0.9)`;
+                ctx.beginPath();
+                ctx.moveTo(this.x + 15, this.y);
+                ctx.lineTo(this.x + 20, this.y - 12);
+                ctx.lineTo(this.x + 50, this.y - 12);
+                ctx.lineTo(this.x + 55, this.y);
+                ctx.fill();
+
+                // Windows with reflection
+                ctx.fillStyle = 'rgba(140, 180, 220, 0.4)';
+                ctx.fillRect(this.x + 22, this.y - 10, 12, 9);
+                ctx.fillRect(this.x + 36, this.y - 10, 12, 9);
+
+                // Headlights (brighter, more realistic)
+                const lightIntensity = 0.6 + Math.sin(this.lightPulse) * 0.15;
+                
+                // Main headlight glow
+                const glowGradient = ctx.createRadialGradient(
+                    this.x + this.width - 5, this.y + 12, 0,
+                    this.x + this.width - 5, this.y + 12, 60 * bloomIntensity
+                );
+                glowGradient.addColorStop(0, `rgba(255, 245, 200, ${lightIntensity * bloomIntensity})`);
+                glowGradient.addColorStop(0.3, `rgba(255, 240, 180, ${lightIntensity * bloomIntensity * 0.6})`);
+                glowGradient.addColorStop(1, 'rgba(255, 240, 180, 0)');
+                ctx.fillStyle = glowGradient;
+                ctx.fillRect(this.x + this.width - 60, this.y - 10, 90, 50);
+
+                // Headlight bulbs
+                ctx.fillStyle = `rgba(255, 250, 220, ${0.9 * lightIntensity})`;
+                ctx.fillRect(this.x + this.width - 3, this.y + 8, 4, 8);
+
+                // Taillights
+                ctx.fillStyle = 'rgba(200, 50, 50, 0.8)';
+                ctx.fillRect(this.x + 2, this.y + 10, 3, 6);
+
+                // Wheels with more detail
+                ctx.fillStyle = 'rgba(40, 40, 45, 0.9)';
+                ctx.beginPath();
+                ctx.arc(this.x + 18, this.y + this.height, 8, 0, Math.PI);
+                ctx.arc(this.x + this.width - 18, this.y + this.height, 8, 0, Math.PI);
+                ctx.fill();
+
+                // Wheel rims
+                ctx.fillStyle = 'rgba(160, 160, 170, 0.7)';
+                ctx.beginPath();
+                ctx.arc(this.x + 18, this.y + this.height, 4, 0, Math.PI * 2);
+                ctx.arc(this.x + this.width - 18, this.y + this.height, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Road reflection
+                ctx.globalAlpha = 0.25;
+                const reflGradient = ctx.createLinearGradient(
+                    this.x, this.y + this.height + 5,
+                    this.x, this.y + this.height + 35
+                );
+                reflGradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0.4)`);
+                reflGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = reflGradient;
+                ctx.fillRect(this.x, this.y + this.height + 5, this.width, 30);
+
+                // Headlight reflection on road
+                ctx.globalAlpha = 0.3 * bloomIntensity;
+                const roadReflGradient = ctx.createRadialGradient(
+                    this.x + this.width - 5, this.y + this.height + 20, 0,
+                    this.x + this.width - 5, this.y + this.height + 20, 50
+                );
+                roadReflGradient.addColorStop(0, `rgba(255, 240, 180, ${0.4 * lightIntensity})`);
+                roadReflGradient.addColorStop(1, 'rgba(255, 240, 180, 0)');
+                ctx.fillStyle = roadReflGradient;
+                ctx.fillRect(this.x + this.width - 55, this.y + this.height, 80, 60);
+
+                ctx.restore();
+            }
+
+            isOffscreen() {
+                return this.x > canvas.width + 150;
+            }
+        }
+
+        // Initialize raindrops
+        const raindrops = [];
+        const rainCount = 250;
+        for (let i = 0; i < rainCount; i++) {
+            raindrops.push(new Raindrop());
+        }
+
+        // Car management
+        const cars = [];
+        let carSpawnTimer = 0;
+
+        // Enhanced color themes
+        const themes = {
+            day: {
+                skyTop: '#5a6f8f',
+                skyMid: '#7a8faf',
+                skyBottom: '#9aafcf',
+                horizonColor: '#aabfdf',
+                roadColor: '#4a5a6a',
+                roadDark: '#3a4a5a',
+                sidewalkColor: '#6a7a8a',
+                buildingBase: 180,
+                ambientLight: 0.3
+            },
+            dusk: {
+                skyTop: '#3a4a6a',
+                skyMid: '#5a5a7a',
+                skyBottom: '#7a6a8a',
+                horizonColor: '#8a7a9a',
+                roadColor: '#3a3a4a',
+                roadDark: '#2a2a3a',
+                sidewalkColor: '#4a4a5a',
+                buildingBase: 140,
+                ambientLight: 0.6
+            },
+            dawn: {
+                skyTop: '#4a5a7a',
+                skyMid: '#6a7a9a',
+                skyBottom: '#8a9aba',
+                horizonColor: '#9aafca',
+                roadColor: '#4a5a7a',
+                roadDark: '#3a4a6a',
+                sidewalkColor: '#5a6a8a',
+                buildingBase: 160,
+                ambientLight: 0.45
+            }
+        };
+
+        function drawScene() {
+            const theme = themes[settings.scenery];
+            const horizonY = canvas.height * 0.5;
+            const roadY = canvas.height * 0.7;
+
+            // Enhanced sky gradient with more layers
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, theme.skyTop);
+            skyGradient.addColorStop(0.3, theme.skyMid);
+            skyGradient.addColorStop(0.6, theme.skyBottom);
+            skyGradient.addColorStop(1, theme.horizonColor);
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Atmospheric fog layers
+            ctx.fillStyle = 'rgba(200, 210, 220, 0.12)';
+            ctx.fillRect(0, horizonY * 0.6, canvas.width, horizonY * 0.8);
+            ctx.fillStyle = 'rgba(180, 195, 210, 0.08)';
+            ctx.fillRect(0, horizonY * 0.3, canvas.width, horizonY * 0.5);
+
+            // Draw distant background with better depth
+            drawDistantBackground();
+
+            // Sidewalk/ground plane
+            ctx.fillStyle = theme.sidewalkColor;
+            ctx.fillRect(0, roadY - 20, canvas.width, 20);
+
+            // Draw houses properly grounded
+            drawHouses();
+
+            // Draw trees properly grounded
+            drawTrees();
+
+            // Draw streetlights properly grounded
+            drawStreetlights();
+
+            // Road with perspective
+            const roadGradient = ctx.createLinearGradient(0, roadY, 0, canvas.height);
+            roadGradient.addColorStop(0, theme.roadColor);
+            roadGradient.addColorStop(0.5, theme.roadDark);
+            roadGradient.addColorStop(1, theme.roadColor);
+            ctx.fillStyle = roadGradient;
+            ctx.fillRect(0, roadY, canvas.width, canvas.height - roadY);
+
+            // Wet road with enhanced reflections
+            const wetGradient = ctx.createLinearGradient(0, roadY, 0, canvas.height);
+            wetGradient.addColorStop(0, 'rgba(120, 150, 180, 0.35)');
+            wetGradient.addColorStop(0.3, 'rgba(150, 180, 210, 0.45)');
+            wetGradient.addColorStop(0.7, 'rgba(130, 160, 190, 0.4)');
+            wetGradient.addColorStop(1, 'rgba(100, 130, 160, 0.25)');
+            ctx.fillStyle = wetGradient;
+            ctx.fillRect(0, roadY, canvas.width, canvas.height - roadY);
+
+            // Road markings with proper perspective
+            ctx.strokeStyle = 'rgba(220, 220, 230, 0.2)';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([30, 20]);
+            ctx.beginPath();
+            ctx.moveTo(0, roadY + (canvas.height - roadY) * 0.5);
+            ctx.lineTo(canvas.width, roadY + (canvas.height - roadY) * 0.5);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Parked cars
+            drawParkedCars();
+
+            // Rain
+            raindrops.forEach(drop => {
+                drop.update();
+                drop.draw(ctx, settings.rainIntensity);
+            });
+
+            // Puddles on road
+            drawPuddles();
+
+            // Manage moving cars
+            carSpawnTimer += settings.carFrequency * 0.012;
+            if (carSpawnTimer > 1 && Math.random() > 0.65) {
+                cars.push(new Car());
+                carSpawnTimer = 0;
+            }
+
+            // Update and draw moving cars
+            for (let i = cars.length - 1; i >= 0; i--) {
+                cars[i].update();
+                cars[i].draw(ctx, settings.bloomIntensity);
+                if (cars[i].isOffscreen()) {
+                    cars.splice(i, 1);
+                }
+            }
+
+            // Rain droplets on screen
+            drawRainDropletsMask();
+
+            // Vignette
+            const vignetteGradient = ctx.createRadialGradient(
+                canvas.width * 0.5, canvas.height * 0.5, canvas.height * 0.2,
+                canvas.width * 0.5, canvas.height * 0.5, canvas.height * 0.8
+            );
+            vignetteGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+            vignetteGradient.addColorStop(1, 'rgba(0, 0, 0, 0.25)');
+            ctx.fillStyle = vignetteGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawDistantBackground() {
+            // Distant hills
+            ctx.fillStyle = 'rgba(100, 120, 140, 0.3)';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height * 0.52);
+            for (let x = 0; x < canvas.width; x += 50) {
+                ctx.lineTo(x, canvas.height * 0.52 - Math.sin(x * 0.01) * 20);
+            }
+            ctx.lineTo(canvas.width, canvas.height * 0.52);
+            ctx.lineTo(canvas.width, canvas.height * 0.65);
+            ctx.lineTo(0, canvas.height * 0.65);
+            ctx.fill();
+        }
+
+        function drawHouses() {
+            const theme = themes[settings.scenery];
+            const roadY = canvas.height * 0.7;
+            const groundY = roadY - 20; // Houses sit on the sidewalk
+            
+            const houses = [
+                { x: 80, width: 110, height: 95 },
+                { x: 260, width: 130, height: 105 },
+                { x: 480, width: 120, height: 100 },
+                { x: 700, width: 125, height: 98 },
+                { x: canvas.width - 220, width: 130, height: 102 }
+            ];
+
+            houses.forEach((house, idx) => {
+                const baseColor = theme.buildingBase - idx * 10;
+                const houseY = groundY - house.height;
+
+                // Shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+                ctx.fillRect(house.x + 5, groundY, house.width - 5, 3);
+
+                // House body with texture
+                const houseGradient = ctx.createLinearGradient(
+                    house.x, houseY,
+                    house.x + house.width, houseY + house.height
+                );
+                houseGradient.addColorStop(0, `rgba(${baseColor + 20}, ${baseColor - 10}, ${baseColor - 30}, 0.9)`);
+                houseGradient.addColorStop(1, `rgba(${baseColor - 10}, ${baseColor - 20}, ${baseColor - 40}, 0.9)`);
+                ctx.fillStyle = houseGradient;
+                ctx.fillRect(house.x, houseY, house.width, house.height);
+
+                // House edge highlight
+                ctx.fillStyle = `rgba(${baseColor + 40}, ${baseColor + 20}, ${baseColor}, 0.3)`;
+                ctx.fillRect(house.x, houseY, 3, house.height);
+
+                // Roof with better shading
+                const roofHeight = 45;
+                const roofGradient = ctx.createLinearGradient(
+                    house.x, houseY - roofHeight,
+                    house.x + house.width, houseY
+                );
+                roofGradient.addColorStop(0, 'rgba(70, 50, 35, 0.85)');
+                roofGradient.addColorStop(1, 'rgba(50, 35, 25, 0.85)');
+                
+                ctx.fillStyle = roofGradient;
+                ctx.beginPath();
+                ctx.moveTo(house.x - 5, houseY);
+                ctx.lineTo(house.x + house.width * 0.5, houseY - roofHeight);
+                ctx.lineTo(house.x + house.width + 5, houseY);
+                ctx.fill();
+
+                // Roof ridge
+                ctx.strokeStyle = 'rgba(90, 70, 50, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(house.x, houseY);
+                ctx.lineTo(house.x + house.width * 0.5, houseY - roofHeight);
+                ctx.lineTo(house.x + house.width, houseY);
+                ctx.stroke();
+
+                // Windows with realistic lighting
+                const isLit = settings.scenery !== 'day';
+                const windowColor = isLit ? 
+                    `rgba(255, 245, 180, ${0.85 + Math.sin(Date.now() * 0.001 + idx) * 0.1})` : 
+                    'rgba(180, 200, 220, 0.5)';
+                
+                const windowSize = 18;
+                const windowSpacing = 32;
+                const windowRows = 2;
+                const windowCols = 3;
+
+                for (let row = 0; row < windowRows; row++) {
+                    for (let col = 0; col < windowCols; col++) {
+                        const wx = house.x + 15 + col * windowSpacing;
+                        const wy = houseY + 20 + row * 35;
+
+                        // Window glow
+                        if (isLit) {
+                            const glowGradient = ctx.createRadialGradient(
+                                wx + windowSize / 2, wy + windowSize / 2, 0,
+                                wx + windowSize / 2, wy + windowSize / 2, 25
+                            );
+                            glowGradient.addColorStop(0, 'rgba(255, 245, 180, 0.3)');
+                            glowGradient.addColorStop(1, 'rgba(255, 245, 180, 0)');
+                            ctx.fillStyle = glowGradient;
+                            ctx.fillRect(wx - 10, wy - 10, windowSize + 20, windowSize + 20);
+                        }
+
+                        // Window
+                        ctx.fillStyle = windowColor;
+                        ctx.fillRect(wx, wy, windowSize, windowSize);
+
+                        // Window frame
+                        ctx.strokeStyle = 'rgba(60, 50, 40, 0.7)';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(wx, wy, windowSize, windowSize);
+
+                        // Window cross
+                        ctx.beginPath();
+                        ctx.moveTo(wx + windowSize / 2, wy);
+                        ctx.lineTo(wx + windowSize / 2, wy + windowSize);
+                        ctx.moveTo(wx, wy + windowSize / 2);
+                        ctx.lineTo(wx + windowSize, wy + windowSize / 2);
+                        ctx.stroke();
+
+                        // Window reflection
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                        ctx.fillRect(wx + 2, wy + 2, windowSize * 0.4, windowSize * 0.3);
+                    }
+                }
+
+                // Door with better detail
+                const doorWidth = 28;
+                const doorHeight = 40;
+                const doorX = house.x + house.width * 0.5 - doorWidth / 2;
+                const doorY = groundY - doorHeight;
+
+                ctx.fillStyle = 'rgba(70, 50, 35, 0.9)';
+                ctx.fillRect(doorX, doorY, doorWidth, doorHeight);
+
+                // Door frame
+                ctx.strokeStyle = 'rgba(90, 70, 50, 0.9)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(doorX, doorY, doorWidth, doorHeight);
+
+                // Door knob
+                ctx.fillStyle = 'rgba(200, 180, 100, 0.8)';
+                ctx.beginPath();
+                ctx.arc(doorX + doorWidth - 6, doorY + doorHeight * 0.5, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Door panels
+                ctx.strokeStyle = 'rgba(60, 45, 30, 0.6)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(doorX + 4, doorY + 6, doorWidth - 8, doorHeight * 0.4);
+                ctx.strokeRect(doorX + 4, doorY + doorHeight * 0.55, doorWidth - 8, doorHeight * 0.35);
+            });
+        }
+
+        function drawTrees() {
+            const theme = themes[settings.scenery];
+            const roadY = canvas.height * 0.7;
+            const groundY = roadY - 20;
+            
+            const trees = [
+                { x: 200, size: 1.1 },
+                { x: 420, size: 1.3 },
+                { x: 650, size: 1.0 },
+                { x: canvas.width - 180, size: 1.25 }
+            ];
+
+            trees.forEach((tree, idx) => {
+                const trunkHeight = 70 * tree.size;
+                const trunkWidth = 12 * tree.size;
+                const trunkY = groundY - trunkHeight;
+
+                // Tree shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+                ctx.fillRect(tree.x - 8, groundY, 16, 3);
+
+                // Trunk with texture
+                const trunkGradient = ctx.createLinearGradient(
+                    tree.x - trunkWidth / 2, trunkY,
+                    tree.x + trunkWidth / 2, trunkY
+                );
+                trunkGradient.addColorStop(0, 'rgba(60, 45, 30, 0.85)');
+                trunkGradient.addColorStop(0.5, 'rgba(75, 55, 40, 0.85)');
+                trunkGradient.addColorStop(1, 'rgba(55, 40, 25, 0.85)');
+                ctx.fillStyle = trunkGradient;
+                ctx.fillRect(tree.x - trunkWidth / 2, trunkY, trunkWidth, trunkHeight);
+
+                // Trunk highlight
+                ctx.fillStyle = 'rgba(90, 70, 50, 0.4)';
+                ctx.fillRect(tree.x - trunkWidth / 2, trunkY, 2, trunkHeight);
+
+                const foliageY = trunkY - 20;
+                const foliageRadius = 55 * tree.size;
+
+                // Foliage shadow
+                ctx.fillStyle = 'rgba(40, 60, 35, 0.3)';
+                ctx.beginPath();
+                ctx.arc(tree.x + 5, foliageY + 5, foliageRadius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Main foliage with gradient
+                const foliageGradient = ctx.createRadialGradient(
+                    tree.x - foliageRadius * 0.3, foliageY - foliageRadius * 0.3, 0,
+                    tree.x, foliageY, foliageRadius
+                );
+                foliageGradient.addColorStop(0, 'rgba(95, 140, 75, 0.75)');
+                foliageGradient.addColorStop(0.6, 'rgba(70, 110, 55, 0.7)');
+                foliageGradient.addColorStop(1, 'rgba(50, 85, 40, 0.65)');
+                ctx.fillStyle = foliageGradient;
+                ctx.beginPath();
+                ctx.arc(tree.x, foliageY, foliageRadius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Additional foliage clusters for depth
+                ctx.fillStyle = 'rgba(85, 130, 65, 0.6)';
+                ctx.beginPath();
+                ctx.arc(tree.x - foliageRadius * 0.4, foliageY - foliageRadius * 0.2, foliageRadius * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'rgba(80, 125, 60, 0.55)';
+                ctx.beginPath();
+                ctx.arc(tree.x + foliageRadius * 0.4, foliageY + foliageRadius * 0.1, foliageRadius * 0.65, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Spring blossoms with better colors
+                const bloomBase = settings.bloomIntensity;
+                const petalColor = bloomBase > 1 ? 
+                    `rgba(255, ${Math.max(160, 200 - bloomBase * 25)}, ${Math.max(180, 215 - bloomBase * 15)}, ${0.7 + bloomBase * 0.2})` :
+                    `rgba(255, 195, 210, ${0.5 + bloomBase * 0.15})`;
+
+                const petalCount = Math.floor(15 * tree.size);
+                for (let i = 0; i < petalCount; i++) {
+                    const angle = (i / petalCount) * Math.PI * 2 + Date.now() * 0.0001;
+                    const dist = foliageRadius * 0.85;
+                    const px = tree.x + Math.cos(angle) * dist;
+                    const py = foliageY + Math.sin(angle) * dist;
+                    
+                    // Petal glow
+                    if (bloomBase > 1) {
+                        const glowGradient = ctx.createRadialGradient(px, py, 0, px, py, 10 * tree.size);
+                        glowGradient.addColorStop(0, `rgba(255, 200, 220, ${0.3 * bloomBase})`);
+                        glowGradient.addColorStop(1, 'rgba(255, 200, 220, 0)');
+                        ctx.fillStyle = glowGradient;
+                        ctx.beginPath();
+                        ctx.arc(px, py, 10 * tree.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    // Petal
+                    ctx.fillStyle = petalColor;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 5 * tree.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Petal highlight
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                    ctx.beginPath();
+                    ctx.arc(px - 1, py - 1, 2 * tree.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Center cluster
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2;
+                    const dist = 8 * tree.size;
+                    const px = tree.x + Math.cos(angle) * dist;
+                    const py = foliageY + Math.sin(angle) * dist;
+                    
+                    ctx.fillStyle = petalColor;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 4 * tree.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+        }
+
+        function drawParkedCars() {
+            const roadY = canvas.height * 0.7;
+            const groundY = roadY - 20;
+            
+            const parkedCars = [
+                { x: 140, color: { r: 100, g: 120, b: 180 } },
+                { x: 320, color: { r: 160, g: 90, b: 90 } },
+                { x: 580, color: { r: 90, g: 140, b: 100 } },
+                { x: 820, color: { r: 180, g: 150, b: 80 } }
+            ];
+
+            parkedCars.forEach(car => {
+                const carY = groundY - 28;
+                const width = 45;
+                const height = 28;
+
+                // Shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                ctx.fillRect(car.x + 3, groundY, width - 6, 3);
+
+                // Car body
+                const bodyGradient = ctx.createLinearGradient(car.x, carY, car.x, carY + height);
+                bodyGradient.addColorStop(0, `rgba(${car.color.r + 20}, ${car.color.g + 20}, ${car.color.b + 20}, 0.85)`);
+                bodyGradient.addColorStop(1, `rgba(${car.color.r}, ${car.color.g}, ${car.color.b}, 0.85)`);
+                ctx.fillStyle = bodyGradient;
+                ctx.fillRect(car.x, carY, width, height);
+
+                // Car top/cabin
+                ctx.fillStyle = `rgba(${car.color.r - 30}, ${car.color.g - 30}, ${car.color.b - 30}, 0.8)`;
+                ctx.fillRect(car.x + 8, carY - 10, width - 16, 12);
+
+                // Windows
+                ctx.fillStyle = 'rgba(120, 150, 180, 0.5)';
+                ctx.fillRect(car.x + 10, carY - 8, 10, 8);
+                ctx.fillRect(car.x + width - 20, carY - 8, 10, 8);
+
+                // Wheels
+                ctx.fillStyle = 'rgba(30, 30, 35, 0.9)';
+                ctx.beginPath();
+                ctx.arc(car.x + 12, carY + height, 5, 0, Math.PI);
+                ctx.arc(car.x + width - 12, carY + height, 5, 0, Math.PI);
+                ctx.fill();
+            });
+        }
+
+        function drawStreetlights() {
+            const theme = themes[settings.scenery];
+            const roadY = canvas.height * 0.7;
+            const groundY = roadY - 20;
+            
+            const lights = [
+                { x: 240, height: 130 },
+                { x: 550, height: 125 },
+                { x: canvas.width - 240, height: 135 }
+            ];
+
+            lights.forEach(light => {
+                const poleY = groundY - light.height;
+
+                // Pole shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fillRect(light.x + 2, groundY, 4, 3);
+
+                // Pole with gradient
+                const poleGradient = ctx.createLinearGradient(light.x - 3, poleY, light.x + 3, poleY);
+                poleGradient.addColorStop(0, 'rgba(70, 70, 75, 0.7)');
+                poleGradient.addColorStop(0.5, 'rgba(90, 90, 95, 0.7)');
+                poleGradient.addColorStop(1, 'rgba(60, 60, 65, 0.7)');
+                ctx.fillStyle = poleGradient;
+                ctx.fillRect(light.x - 3, poleY, 6, light.height);
+
+                // Pole highlight
+                ctx.fillStyle = 'rgba(120, 120, 130, 0.4)';
+                ctx.fillRect(light.x - 3, poleY, 1, light.height);
+
+                // Light fixture
+                ctx.fillStyle = 'rgba(50, 50, 55, 0.8)';
+                ctx.fillRect(light.x - 8, poleY - 8, 16, 12);
+
+                // Light glow
+                const glowIntensity = theme.ambientLight * settings.bloomIntensity;
+                const glowSize = 90 * settings.bloomIntensity;
+                
+                const glowGradient = ctx.createRadialGradient(
+                    light.x, poleY, 0,
+                    light.x, poleY, glowSize
+                );
+                glowGradient.addColorStop(0, `rgba(255, 245, 210, ${0.5 * glowIntensity})`);
+                glowGradient.addColorStop(0.4, `rgba(255, 240, 190, ${0.3 * glowIntensity})`);
+                glowGradient.addColorStop(1, 'rgba(255, 240, 180, 0)');
+                ctx.fillStyle = glowGradient;
+                ctx.fillRect(light.x - glowSize, poleY - glowSize, glowSize * 2, glowSize * 2);
+
+                // Light bulb
+                ctx.fillStyle = `rgba(255, 250, 220, ${0.9 * glowIntensity})`;
+                ctx.beginPath();
+                ctx.arc(light.x, poleY - 2, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Light reflection on ground
+                ctx.globalAlpha = 0.2 * glowIntensity;
+                const groundGlow = ctx.createRadialGradient(
+                    light.x, groundY + 10, 0,
+                    light.x, groundY + 10, 50
+                );
+                groundGlow.addColorStop(0, 'rgba(255, 245, 200, 0.4)');
+                groundGlow.addColorStop(1, 'rgba(255, 245, 200, 0)');
+                ctx.fillStyle = groundGlow;
+                ctx.fillRect(light.x - 50, groundY, 100, 60);
+                ctx.globalAlpha = 1;
+            });
+        }
+
+        function drawPuddles() {
+            const roadY = canvas.height * 0.7;
+            const puddles = [
+                { x: 150, y: roadY + 40, w: 80, h: 25 },
+                { x: 400, y: roadY + 55, w: 100, h: 30 },
+                { x: 700, y: roadY + 35, w: 70, h: 20 },
+                { x: canvas.width - 200, y: roadY + 50, w: 90, h: 28 }
+            ];
+
+            puddles.forEach(puddle => {
+                ctx.save();
+                ctx.globalAlpha = 0.3;
+                
+                // Puddle reflection
+                const puddleGradient = ctx.createRadialGradient(
+                    puddle.x + puddle.w / 2, puddle.y + puddle.h / 2, 0,
+                    puddle.x + puddle.w / 2, puddle.y + puddle.h / 2, puddle.w / 2
+                );
+                puddleGradient.addColorStop(0, 'rgba(180, 200, 220, 0.5)');
+                puddleGradient.addColorStop(1, 'rgba(140, 170, 200, 0.2)');
+                ctx.fillStyle = puddleGradient;
+                
+                ctx.beginPath();
+                ctx.ellipse(puddle.x + puddle.w / 2, puddle.y + puddle.h / 2, puddle.w / 2, puddle.h / 2, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Puddle edge highlight
+                ctx.strokeStyle = 'rgba(200, 220, 240,0.3)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.ellipse(puddle.x + puddle.w / 2, puddle.y + puddle.h / 2, puddle.w / 2, puddle.h / 2, 0, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            });
+        }
+
+        function drawRainDropletsMask() {
+            ctx.fillStyle = 'rgba(220, 235, 250, 0.04)';
+            const dropletCount = Math.floor(settings.rainIntensity * 15);
+            
+            for (let i = 0; i < dropletCount; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = 2 + Math.random() * 3;
+                const opacity = 0.2 + Math.random() * 0.2;
+                
+                ctx.globalAlpha = opacity;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Add subtle blur effect
+                ctx.filter = 'blur(1px)';
+                ctx.globalAlpha = opacity * 0.5;
+                ctx.beginPath();
+                ctx.arc(x, y, size * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.filter = 'none';
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            // Clear canvas with a subtle fade effect for motion blur
+            ctx.fillStyle = 'rgba(30, 40, 60, 0.08)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            drawScene();
+            requestAnimationFrame(animate);
+        }
+
+        // Initialize animation
+        animate();
+
+        // Ambient sound placeholder (would require Web Audio API implementation)
+        console.log('Ambient sound system ready. In a full implementation, this would play rain and distant traffic sounds.');
+    </script>
+</body>
+</html>
