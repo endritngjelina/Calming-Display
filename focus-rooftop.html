@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rooftop Garden Zen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            max-width: 280px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+        }
+
+        select option {
+            background: #222;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .value-display {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 3px;
+        }
+
+        h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="controls">
+        <h3>🌿 ROOFTOP ZEN</h3>
+        
+        <div class="control-group">
+            <label>Time of Day</label>
+            <select id="timeOfDay">
+                <option value="dusk">Dusk</option>
+                <option value="night">Night</option>
+                <option value="dawn">Dawn</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Wind Intensity</label>
+            <input type="range" id="windSpeed" min="0" max="3" step="0.1" value="1">
+            <div class="value-display" id="windValue">Medium</div>
+        </div>
+
+        <div class="control-group">
+            <label>Fireflies</label>
+            <input type="range" id="fireflies" min="0" max="50" value="15">
+            <div class="value-display" id="fireflyValue">15</div>
+        </div>
+
+        <div class="control-group">
+            <label>String Lights Glow</label>
+            <input type="range" id="lightGlow" min="0" max="100" value="70">
+            <div class="value-display" id="glowValue">70%</div>
+        </div>
+
+        <div class="control-group">
+            <label>Plant Density</label>
+            <input type="range" id="plantDensity" min="5" max="25" value="15">
+            <div class="value-display" id="plantValue">15</div>
+        </div>
+
+        <button id="resetBtn">Reset to Default</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let W, H;
+        
+        function resizeCanvas() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Settings
+        let settings = {
+            timeOfDay: 'dusk',
+            windSpeed: 1,
+            fireflyCount: 15,
+            lightGlow: 70,
+            plantDensity: 15
+        };
+
+        // Color schemes
+        const colorSchemes = {
+            dusk: {
+                sky: ['#ff6b9d', '#c06c84', '#6c5b7b', '#355c7d'],
+                buildings: '#1a1a2e',
+                lights: '#ffd700',
+                plants: '#2d5016'
+            },
+            night: {
+                sky: ['#0f2027', '#203a43', '#2c5364', '#1a1a2e'],
+                buildings: '#0a0a0f',
+                lights: '#fff8dc',
+                plants: '#1a3a0f'
+            },
+            dawn: {
+                sky: ['#ffd89b', '#19547b', '#667db6', '#a8c0ff'],
+                buildings: '#2c3e50',
+                lights: '#ffe4b5',
+                plants: '#3a5a20'
+            }
+        };
+
+        // Fireflies
+        let fireflies = [];
+        
+        class Firefly {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.x = Math.random() * W;
+                this.y = H * 0.2 + Math.random() * H * 0.5;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.brightness = Math.random();
+                this.brightSpeed = 0.02 + Math.random() * 0.03;
+                this.size = 2 + Math.random() * 2;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.brightness += this.brightSpeed;
+                
+                if (this.brightness > 1 || this.brightness < 0) {
+                    this.brightSpeed *= -1;
+                }
+                
+                if (this.x < 0 || this.x > W || this.y < H * 0.2 || this.y > H * 0.8) {
+                    this.reset();
+                }
+            }
+            
+            draw() {
+                const alpha = Math.abs(Math.sin(this.brightness * Math.PI));
+                ctx.beginPath();
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 3);
+                gradient.addColorStop(0, `rgba(255, 255, 150, ${alpha * 0.8})`);
+                gradient.addColorStop(1, 'rgba(255, 255, 150, 0)');
+                ctx.fillStyle = gradient;
+                ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Plants
+        let plants = [];
+        
+        class Plant {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.swayOffset = Math.random() * Math.PI * 2;
+                this.swaySpeed = 0.02 + Math.random() * 0.02;
+                this.height = 30 + Math.random() * 60;
+            }
+            
+            draw(time) {
+                const sway = Math.sin(time * this.swaySpeed + this.swayOffset) * settings.windSpeed * 3;
+                const colors = colorSchemes[settings.timeOfDay];
+                
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                if (this.type === 'tall') {
+                    ctx.strokeStyle = colors.plants;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.quadraticCurveTo(sway, -this.height / 2, sway * 1.5, -this.height);
+                    ctx.stroke();
+                    
+                    // Leaves
+                    for (let i = 0; i < 3; i++) {
+                        const leafY = -this.height * (0.3 + i * 0.25);
+                        ctx.fillStyle = colors.plants;
+                        ctx.beginPath();
+                        ctx.ellipse(sway * (0.5 + i * 0.25) - 10, leafY, 8, 15, -0.3, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.ellipse(sway * (0.5 + i * 0.25) + 10, leafY, 8, 15, 0.3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                } else {
+                    // Bushy plant
+                    ctx.fillStyle = colors.plants;
+                    for (let i = 0; i < 5; i++) {
+                        const angle = (i / 5) * Math.PI * 2;
+                        const leafX = Math.cos(angle) * 15 + sway;
+                        const leafY = Math.sin(angle) * 10 - 20;
+                        ctx.beginPath();
+                        ctx.ellipse(leafX, leafY, 10, 15, angle, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+                
+                ctx.restore();
+            }
+        }
+
+        // String lights
+        let stringLights = [];
+        
+        class StringLight {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.flicker = Math.random();
+                this.flickerSpeed = 0.05 + Math.random() * 0.05;
+            }
+            
+            update() {
+                this.flicker += this.flickerSpeed;
+            }
+            
+            draw() {
+                const alpha = (0.6 + Math.sin(this.flicker) * 0.2) * (settings.lightGlow / 100);
+                const colors = colorSchemes[settings.timeOfDay];
+                
+                ctx.beginPath();
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, 15);
+                gradient.addColorStop(0, `${colors.lights}${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`);
+                gradient.addColorStop(1, 'rgba(255, 220, 100, 0)');
+                ctx.fillStyle = gradient;
+                ctx.arc(this.x, this.y, 15, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Bulb
+                ctx.fillStyle = colors.lights;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Initialize
+        function initScene() {
+            fireflies = [];
+            for (let i = 0; i < settings.fireflyCount; i++) {
+                fireflies.push(new Firefly());
+            }
+            
+            plants = [];
+            for (let i = 0; i < settings.plantDensity; i++) {
+                const x = (i / settings.plantDensity) * W + Math.random() * 50;
+                const y = H * 0.7 + Math.random() * H * 0.2;
+                const type = Math.random() > 0.5 ? 'tall' : 'bushy';
+                plants.push(new Plant(x, y, type));
+            }
+            
+            stringLights = [];
+            for (let i = 0; i < 15; i++) {
+                const x = (i / 15) * W + 20;
+                const y = H * 0.25 + Math.sin(i * 0.5) * 20;
+                stringLights.push(new StringLight(x, y));
+            }
+        }
+
+        initScene();
+
+        // Draw functions
+        function drawSky() {
+            const colors = colorSchemes[settings.timeOfDay].sky;
+            const gradient = ctx.createLinearGradient(0, 0, 0, H);
+            
+            colors.forEach((color, i) => {
+                gradient.addColorStop(i / (colors.length - 1), color);
+            });
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, W, H);
+        }
+
+        function drawBuildings() {
+            const colors = colorSchemes[settings.timeOfDay];
+            
+            // Distant buildings
+            ctx.fillStyle = colors.buildings;
+            for (let i = 0; i < 8; i++) {
+                const bw = 60 + Math.random() * 100;
+                const bh = 100 + Math.random() * 200;
+                const bx = i * 150 + Math.random() * 30;
+                ctx.fillRect(bx, H - bh - 100, bw, bh);
+                
+                // Windows
+                ctx.fillStyle = 'rgba(255, 220, 150, 0.3)';
+                for (let wx = 0; wx < bw; wx += 15) {
+                    for (let wy = 0; wy < bh; wy += 20) {
+                        if (Math.random() > 0.5) {
+                            ctx.fillRect(bx + wx + 5, H - bh - 100 + wy + 5, 8, 12);
+                        }
+                    }
+                }
+                ctx.fillStyle = colors.buildings;
+            }
+        }
+
+        function drawRoofGarden() {
+            const colors = colorSchemes[settings.timeOfDay];
+            
+            // Roof surface
+            ctx.fillStyle = '#3a3a3a';
+            ctx.fillRect(0, H * 0.7, W, H * 0.3);
+            
+            // Planters
+            ctx.fillStyle = '#5a4a3a';
+            for (let i = 0; i < 6; i++) {
+                const px = i * W / 6 + 50;
+                ctx.fillRect(px, H * 0.68, 80, 40);
+            }
+        }
+
+        let time = 0;
+        
+        function animate() {
+            time++;
+            
+            drawSky();
+            drawBuildings();
+            drawRoofGarden();
+            
+            // Draw string lights wire
+            ctx.strokeStyle = 'rgba(100, 100, 100, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, H * 0.25);
+            for (let i = 0; i <= 15; i++) {
+                const x = (i / 15) * W;
+                const y = H * 0.25 + Math.sin(i * 0.5 + time * 0.01) * 20;
+                ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Draw string lights
+            stringLights.forEach(light => {
+                light.update();
+                light.draw();
+            });
+            
+            // Draw plants
+            plants.forEach(plant => plant.draw(time));
+            
+            // Draw fireflies
+            fireflies.forEach(firefly => {
+                firefly.update();
+                firefly.draw();
+            });
+            
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Controls
+        document.getElementById('timeOfDay').addEventListener('change', (e) => {
+            settings.timeOfDay = e.target.value;
+        });
+
+        document.getElementById('windSpeed').addEventListener('input', (e) => {
+            settings.windSpeed = parseFloat(e.target.value);
+            const val = settings.windSpeed < 1 ? 'Calm' : settings.windSpeed < 2 ? 'Medium' : 'Strong';
+            document.getElementById('windValue').textContent = val;
+        });
+
+        document.getElementById('fireflies').addEventListener('input', (e) => {
+            settings.fireflyCount = parseInt(e.target.value);
+            document.getElementById('fireflyValue').textContent = settings.fireflyCount;
+            initScene();
+        });
+
+        document.getElementById('lightGlow').addEventListener('input', (e) => {
+            settings.lightGlow = parseInt(e.target.value);
+            document.getElementById('glowValue').textContent = settings.lightGlow + '%';
+        });
+
+        document.getElementById('plantDensity').addEventListener('input', (e) => {
+            settings.plantDensity = parseInt(e.target.value);
+            document.getElementById('plantValue').textContent = settings.plantDensity;
+            initScene();
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            settings = {
+                timeOfDay: 'dusk',
+                windSpeed: 1,
+                fireflyCount: 15,
+                lightGlow: 70,
+                plantDensity: 15
+            };
+            
+            document.getElementById('timeOfDay').value = 'dusk';
+            document.getElementById('windSpeed').value = 1;
+            document.getElementById('windValue').textContent = 'Medium';
+            document.getElementById('fireflies').value = 15;
+            document.getElementById('fireflyValue').textContent = '15';
+            document.getElementById('lightGlow').value = 70;
+            document.getElementById('glowValue').textContent = '70%';
+            document.getElementById('plantDensity').value = 15;
+            document.getElementById('plantValue').textContent = '15';
+            
+            initScene();
+        });
+    </script>
+</body>
+</html>
