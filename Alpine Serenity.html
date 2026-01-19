@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpine Serenity - Calming Mountain Scenery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toggle-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(100, 200, 255, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        .toggle-button:hover {
+            background: rgba(100, 220, 255, 1);
+            transform: scale(1.1);
+        }
+
+        .controls-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: rgba(20, 40, 70, 0.95);
+            border: 2px solid rgba(100, 200, 255, 0.6);
+            border-radius: 12px;
+            padding: 20px;
+            width: 280px;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .controls-container.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            color: rgba(200, 220, 255, 1);
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-value {
+            color: rgba(100, 200, 255, 1);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(50, 100, 150, 0.8);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: rgba(100, 200, 255, 1);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: rgba(100, 200, 255, 1);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            background: rgba(30, 60, 100, 0.8);
+            border: 1px solid rgba(100, 150, 200, 0.5);
+            color: rgba(200, 220, 255, 1);
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        select:hover {
+            border-color: rgba(100, 200, 255, 0.8);
+            background: rgba(40, 80, 130, 0.8);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: rgba(100, 200, 255, 1);
+            box-shadow: 0 0 8px rgba(100, 200, 255, 0.3);
+        }
+
+        .reset-button {
+            width: 100%;
+            padding: 10px;
+            background: rgba(100, 150, 200, 0.6);
+            border: 1px solid rgba(100, 200, 255, 0.8);
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reset-button:hover {
+            background: rgba(100, 180, 220, 0.8);
+        }
+
+        /* Scrollbar styling */
+        .controls-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .controls-container::-webkit-scrollbar-track {
+            background: rgba(30, 60, 100, 0.3);
+            border-radius: 3px;
+        }
+
+        .controls-container::-webkit-scrollbar-thumb {
+            background: rgba(100, 200, 255, 0.5);
+            border-radius: 3px;
+        }
+
+        .controls-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 200, 255, 0.8);
+        }
+
+        .info-text {
+            text-align: center;
+            color: rgba(100, 150, 200, 0.7);
+            font-size: 11px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(100, 150, 200, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <button class="toggle-button" id="toggleBtn">⚙️</button>
+
+        <div class="controls-container" id="controlsContainer">
+            <!-- Time of Day -->
+            <div class="control-group">
+                <label class="control-label">
+                    Time of Day
+                    <span class="control-value" id="timeValue">12:00</span>
+                </label>
+                <input type="range" id="timeSlider" min="0" max="24" step="0.1" value="12">
+            </div>
+
+            <!-- Weather -->
+            <div class="control-group">
+                <label class="control-label">Weather</label>
+                <select id="weatherSelect">
+                    <option value="clear">Clear Sky</option>
+                    <option value="cloudy">Cloudy</option>
+                    <option value="storm">Storm Brewing</option>
+                    <option value="rain">Light Rain</option>
+                </select>
+            </div>
+
+            <!-- Cloud Density -->
+            <div class="control-group">
+                <label class="control-label">
+                    Cloud Density
+                    <span class="control-value" id="cloudValue">30%</span>
+                </label>
+                <input type="range" id="cloudSlider" min="0" max="100" step="5" value="30">
+            </div>
+
+            <!-- Cloud Speed -->
+            <div class="control-group">
+                <label class="control-label">
+                    Cloud Speed
+                    <span class="control-value" id="speedValue">1x</span>
+                </label>
+                <input type="range" id="speedSlider" min="0.1" max="5" step="0.1" value="1">
+            </div>
+
+            <!-- Wind Direction & Strength -->
+            <div class="control-group">
+                <label class="control-label">
+                    Wind Strength
+                    <span class="control-value" id="windValue">5 m/s</span>
+                </label>
+                <input type="range" id="windSlider" min="0" max="20" step="1" value="5">
+            </div>
+
+            <!-- Wind Direction -->
+            <div class="control-group">
+                <label class="control-label">
+                    Wind Direction
+                    <span class="control-value" id="directionValue">East</span>
+                </label>
+                <select id="windDirectionSelect">
+                    <option value="0">North (↑)</option>
+                    <option value="1">NorthEast (↗)</option>
+                    <option value="2">East (→)</option>
+                    <option value="3">SouthEast (↘)</option>
+                    <option value="4">South (↓)</option>
+                    <option value="5">SouthWest (↙)</option>
+                    <option value="6">West (←)</option>
+                    <option value="7">NorthWest (↖)</option>
+                </select>
+            </div>
+
+            <!-- Snow Coverage -->
+            <div class="control-group">
+                <label class="control-label">
+                    Snow Coverage
+                    <span class="control-value" id="snowValue">60%</span>
+                </label>
+                <input type="range" id="snowSlider" min="0" max="100" step="10" value="60">
+            </div>
+
+            <!-- Fog Density -->
+            <div class="control-group">
+                <label class="control-label">
+                    Fog Density
+                    <span class="control-label" id="fogValue">20%</span>
+                </label>
+                <input type="range" id="fogSlider" min="0" max="100" step="5" value="20">
+            </div>
+
+            <!-- Mountain Steepness -->
+            <div class="control-group">
+                <label class="control-label">
+                    Terrain Complexity
+                    <span class="control-value" id="terrainValue">5</span>
+                </label>
+                <input type="range" id="terrainSlider" min="1" max="10" step="1" value="5">
+            </div>
+
+            <!-- Ambient Light -->
+            <div class="control-group">
+                <label class="control-label">
+                    Ambient Light
+                    <span class="control-value" id="lightValue">80%</span>
+                </label>
+                <input type="range" id="lightSlider" min="20" max="100" step="5" value="80">
+            </div>
+
+            <!-- Reset Button -->
+            <div class="control-group">
+                <button class="reset-button" id="resetBtn">Reset to Default</button>
+            </div>
+
+            <div class="info-text">Alpine Serenity v1.0</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Control variables
+        let controls = {
+            time: 12,
+            weather: 'clear',
+            cloudDensity: 30,
+            cloudSpeed: 1,
+            windStrength: 5,
+            windDirection: 2, // East
+            snowCoverage: 60,
+            fogDensity: 20,
+            terrain: 5,
+            ambientLight: 80,
+            cloudOffset: 0,
+            particleOffset: 0
+        };
+
+        // Particle system for wind effect
+        let particles = [];
+
+        function createParticles(count) {
+            particles = [];
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.5 + 0.5,
+                    speed: (controls.windStrength / 5) * (Math.random() * 2 + 1)
+                });
+            }
+        }
+
+        function updateParticles() {
+            const windDirs = [
+                { x: 0, y: -1 },    // North
+                { x: 0.7, y: -0.7 }, // NorthEast
+                { x: 1, y: 0 },     // East
+                { x: 0.7, y: 0.7 }, // SouthEast
+                { x: 0, y: 1 },     // South
+                { x: -0.7, y: 0.7 }, // SouthWest
+                { x: -1, y: 0 },    // West
+                { x: -0.7, y: -0.7 } // NorthWest
+            ];
+
+            const dir = windDirs[controls.windDirection];
+
+            particles.forEach(p => {
+                p.x += dir.x * p.speed;
+                p.y += dir.y * p.speed;
+
+                if (p.x > canvas.width) p.x = -10;
+                if (p.x < -10) p.x = canvas.width;
+                if (p.y > canvas.height) p.y = -10;
+                if (p.y < -10) p.y = canvas.height;
+            });
+        }
+
+        function getTimeBasedColor(time) {
+            // Normalize time to 0-24
+            const hour = time % 24;
+
+            if (hour >= 5 && hour < 7) {
+                // Dawn
+                const progress = (hour - 5) / 2;
+                return {
+                    sky: `rgb(${80 + progress * 40}, ${40 + progress * 60}, ${100 + progress * 50})`,
+                    horizon: `rgb(${200 + progress * 30}, ${100 + progress * 80}, ${50 + progress * 100})`,
+                    mountain: `rgb(${50 + progress * 20}, ${40 + progress * 20}, ${30 + progress * 20})`
+                };
+            } else if (hour >= 7 && hour < 12) {
+                // Morning to noon
+                return {
+                    sky: `rgb(100, 150, 220)`,
+                    horizon: `rgb(220, 160, 80)`,
+                    mountain: `rgb(80, 70, 60)`
+                };
+            } else if (hour >= 12 && hour < 17) {
+                // Afternoon
+                return {
+                    sky: `rgb(120, 160, 230)`,
+                    horizon: `rgb(200, 140, 60)`,
+                    mountain: `rgb(70, 60, 50)`
+                };
+            } else if (hour >= 17 && hour < 19) {
+                // Sunset
+                const progress = (hour - 17) / 2;
+                return {
+                    sky: `rgb(${120 - progress * 60}, ${160 - progress * 80}, ${230 - progress * 150})`,
+                    horizon: `rgb(${200 - progress * 100}, ${140 - progress * 60}, ${60 + progress * 140})`,
+                    mountain: `rgb(${70 - progress * 30}, ${60 - progress * 30}, ${50 - progress * 20})`
+                };
+            } else if (hour >= 19 && hour < 21) {
+                // Dusk
+                const progress = (hour - 19) / 2;
+                return {
+                    sky: `rgb(${60 - progress * 40}, ${80 - progress * 60}, ${80 - progress * 60})`,
+                    horizon: `rgb(${100 - progress * 70}, ${80 - progress * 60}, ${200 + progress * 30})`,
+                    mountain: `rgb(${40 - progress * 20}, ${30 - progress * 20}, ${30 - progress * 10})`
+                };
+            } else {
+                // Night
+                return {
+                    sky: `rgb(20, 20, 40)`,
+                    horizon: `rgb(40, 20, 80)`,
+                    mountain: `rgb(20, 18, 20)`
+                };
+            }
+        }
+
+        function drawMountains() {
+            const colors = getTimeBasedColor(controls.time);
+            const lightness = controls.ambientLight / 100;
+
+            // Background mountains (far)
+            ctx.fillStyle = `rgba(50, 60, 80, ${0.3 * lightness})`;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height * 0.6);
+
+            for (let i = 0; i <= canvas.width; i += 50) {
+                const height = Math.sin(i / 100 + controls.terrain * 0.1) * 80 + 100;
+                ctx.lineTo(i, canvas.height * 0.6 - height);
+            }
+
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            ctx.fill();
+
+            // Mid-range mountains
+            ctx.fillStyle = `rgba(70, 80, 100, ${0.5 * lightness})`;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height * 0.5);
+
+            for (let i = 0; i <= canvas.width; i += 30) {
+                const height = Math.sin(i / 80 + controls.terrain * 0.15) * 120 + 150;
+                ctx.lineTo(i, canvas.height * 0.5 - height);
+            }
+
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            ctx.fill();
+
+            // Foreground mountains (close)
+            ctx.fillStyle = `rgba(100, 110, 130, ${0.8 * lightness})`;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height * 0.4);
+
+            for (let i = 0; i <= canvas.width; i += 20) {
+                const height = Math.sin(i / 60 + controls.terrain * 0.2) * 150 + 200;
+                ctx.lineTo(i, canvas.height * 0.4 - height);
+            }
+
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            ctx.fill();
+
+            // Snow on mountains based on coverage
+            if (controls.snowCoverage > 0) {
+                ctx.fillStyle = `rgba(220, 230, 240, ${(controls.snowCoverage / 100) * lightness})`;
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height * 0.35);
+
+                for (let i = 0; i <= canvas.width; i += 20) {
+                    const height = Math.sin(i / 60 + controls.terrain * 0.2) * 150 + 200;
+                    ctx.lineTo(i, Math.max(canvas.height * 0.35 - height + 50, canvas.height * 0.4 - height));
+                }
+
+                ctx.lineTo(canvas.width, canvas.height * 0.35);
+                ctx.lineTo(0, canvas.height * 0.35);
+                ctx.fill();
+            }
+        }
+
+        function drawClouds() {
+            const opacity = Math.min(controls.cloudDensity / 100 * 0.8, 0.8);
+
+            for (let layer = 0; layer < 3; layer++) {
+                ctx.fillStyle = `rgba(200, 210, 220, ${opacity * (0.8 - layer * 0.2)})`;
+
+                for (let i = 0; i < 5; i++) {
+                    const x = ((i * 300 + controls.cloudOffset * controls.cloudSpeed * (layer + 1)) % (canvas.width + 400)) - 200;
+                    const y = 50 + layer * 60;
+
+                    drawCloud(x, y, 60 + layer * 20);
+                }
+            }
+        }
+
+        function drawCloud(x, y, size) {
+            ctx.beginPath();
+            ctx.arc(x, y, size * 0.6, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.4, y, size * 0.5, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.8, y, size * 0.6, 0, Math.PI * 2);
+            ctx.arc(x + size * 1.2, y, size * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawStorm() {
+            // Dark storm clouds
+            ctx.fillStyle = `rgba(60, 70, 100, ${Math.min(controls.cloudDensity / 100 * 0.9, 0.9)})`;
+
+            for (let i = 0; i < 8; i++) {
+                const x = ((i * 200 + controls.cloudOffset * controls.cloudSpeed * 2) % (canvas.width + 400)) - 200;
+                const y = Math.sin(controls.cloudOffset * 0.005 + i) * 30 + 80;
+
+                drawCloud(x, y, 80);
+            }
+
+            // Lightning flashes
+            if (controls.weather === 'storm' && Math.random() < 0.01) {
+                ctx.fillStyle = `rgba(255, 255, 100, ${Math.random() * 0.4})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function drawFog() {
+            if (controls.fogDensity > 0) {
+                const fogOpacity = controls.fogDensity / 100 * 0.6;
+                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, `rgba(200, 210, 220, 0)`);
+                gradient.addColorStop(0.5, `rgba(180, 190, 200, ${fogOpacity * 0.3})`);
+                gradient.addColorStop(1, `rgba(160, 170, 180, ${fogOpacity})`);
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function drawWindParticles() {
+            if (controls.windStrength === 0) return;
+
+            ctx.fillStyle = `rgba(200, 210, 220, ${(controls.windStrength / 20) * 0.3})`;
+
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawSky() {
+            const colors = getTimeBasedColor(controls.time);
+            const lightness = controls.ambientLight / 100;
+
+            // Sky gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.4);
+            gradient.addColorStop(0, colors.sky);
+            gradient.addColorStop(1, colors.horizon);
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.4);
+
+            // Sun/Moon based on time
+            const hour = controls.time % 24;
+            const sunX = (hour / 24) * canvas.width;
+            const sunY = Math.sin((hour / 24) * Math.PI) * (canvas.height * 0.2) + canvas.height * 0.15;
+
+            if (hour >= 5 && hour < 19) {
+                // Sun
+                const gradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 50);
+                gradient.addColorStop(0, `rgba(255, 200, 100, ${0.8 * lightness})`);
+                gradient.addColorStop(1, `rgba(255, 150, 50, ${0.3 * lightness})`);
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(sunX, sunY, 40, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Moon
+                const moonX = canvas.width * 0.15;
+                const moonY = canvas.height * 0.1;
+                ctx.fillStyle = `rgba(220, 220, 200, ${lightness * 0.6})`;
+                ctx.beginPath();
+                ctx.arc(moonX, moonY, 35, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function animate() {
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw elements
+            drawSky();
+
+            if (controls.weather === 'storm') {
+                drawStorm();
+            } else {
+                drawClouds();
+            }
+
+            drawMountains();
+            updateParticles();
+            drawWindParticles();
+            drawFog();
+
+            controls.cloudOffset++;
+            controls.particleOffset++;
+
+            requestAnimationFrame(animate);
+        }
+
+        // UI Controls
+        const toggleBtn = document.getElementById('toggleBtn');
+        const controlsContainer = document.getElementById('controlsContainer');
+
+        toggleBtn.addEventListener('click', () => {
+            controlsContainer.classList.toggle('active');
+        });
+
+        // Time slider
+        document.getElementById('timeSlider').addEventListener('input', (e) => {
+            controls.time = parseFloat(e.target.value);
+            const hour = Math.floor(controls.time);
+            const minute = Math.round((controls.time % 1) * 60);
+            document.getElementById('timeValue').textContent = 
+                `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        });
+
+        // Weather select
+        document.getElementById('weatherSelect').addEventListener('change', (e) => {
+            controls.weather = e.target.value;
+        });
+
+        // Cloud density
+        document.getElementById('cloudSlider').addEventListener('input', (e) => {
+            controls.cloudDensity = parseInt(e.target.value);
+            document.getElementById('cloudValue').textContent = e.target.value + '%';
+        });
+
+        // Cloud speed
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            controls.cloudSpeed = parseFloat(e.target.value);
+            document.getElementById('speedValue').textContent = e.target.value + 'x';
+        });
+
+        // Wind strength
+        document.getElementById('windSlider').addEventListener('input', (e) => {
+            controls.windStrength = parseFloat(e.target.value);
+            document.getElementById('windValue').textContent = e.target.value + ' m/s';
+            createParticles(Math.max(10, Math.floor(controls.windStrength * 3)));
+        });
+
+        // Wind direction
+        document.getElementById('windDirectionSelect').addEventListener('change', (e) => {
+            controls.windDirection = parseInt(e.target.value);
+            const dirs = ['North', 'NorthEast', 'East', 'SouthEast', 'South', 'SouthWest', 'West', 'NorthWest'];
+            document.getElementById('directionValue').textContent = dirs[controls.windDirection];
+        });
+
+        // Snow coverage
+        document.getElementById('snowSlider').addEventListener('input', (e) => {
+            controls.snowCoverage = parseInt(e.target.value);
+            document.getElementById('snowValue').textContent = e.target.value + '%';
+        });
+
+        // Fog density
+        document.getElementById('fogSlider').addEventListener('input', (e) => {
+            controls.fogDensity = parseInt(e.target.value);
+            document.getElementById('fogValue').textContent = e.target.value + '%';
+        });
+
+        // Terrain complexity
+        document.getElementById('terrainSlider').addEventListener('input', (e) => {
+            controls.terrain = parseInt(e.target.value);
+            document.getElementById('terrainValue').textContent = e.target.value;
+        });
+
+        // Ambient light
+        document.getElementById('lightSlider').addEventListener('input', (e) => {
+            controls.ambientLight = parseInt(e.target.value);
+            document.getElementById('lightValue').textContent = e.target.value + '%';
+        });
+
+        // Reset button
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            controls = {
+                time: 12,
+                weather: 'clear',
+                cloudDensity: 30,
+                cloudSpeed: 1,
+                windStrength: 5,
+                windDirection: 2,
+                snowCoverage: 60,
+                fogDensity: 20,
+                terrain: 5,
+                ambientLight: 80,
+                cloudOffset: 0,
+                particleOffset: 0
+            };
+
+            document.getElementById('timeSlider').value = 12;
+            document.getElementById('cloudSlider').value = 30;
+            document.getElementById('speedSlider').value = 1;
+            document.getElementById('windSlider').value = 5;
+            document.getElementById('windDirectionSelect').value = 2;
+            document.getElementById('snowSlider').value = 60;
+            document.getElementById('fogSlider').value = 20;
+            document.getElementById('terrainSlider').value = 5;
+            document.getElementById('lightSlider').value = 80;
+            document.getElementById('weatherSelect').value = 'clear';
+
+            document.getElementById('timeValue').textContent = '12:00';
+            document.getElementById('cloudValue').textContent = '30%';
+            document.getElementById('speedValue').textContent = '1x';
+            document.getElementById('windValue').textContent = '5 m/s';
+            document.getElementById('directionValue').textContent = 'East';
+            document.getElementById('snowValue').textContent = '60%';
+            document.getElementById('fogValue').textContent = '20%';
+            document.getElementById('terrainValue').textContent = '5';
+            document.getElementById('lightValue').textContent = '80%';
+
+            createParticles(15);
+        });
+
+        // Initialize
+        createParticles(15);
+        animate();
+    </script>
+</body>
+</html>
