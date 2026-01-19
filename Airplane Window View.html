@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airplane Window View</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-background: var(--color-charcoal-700);
+            --color-surface: var(--color-charcoal-700);
+            --color-text: var(--color-cream-50);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --focus-ring: 0 0 0 3px rgba(50, 184, 198, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-background);
+        }
+
+        /* Window Frame */
+        .window-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85vw;
+            height: 85vh;
+            max-width: 1200px;
+            max-height: 800px;
+            background: #1a1a1a;
+            border-radius: 30px;
+            border: 25px solid #2d2d2d;
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.8), 0 20px 60px rgba(0, 0, 0, 0.9);
+            overflow: hidden;
+        }
+
+        .window-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Sky and Scene */
+        .sky {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .horizon {
+            position: absolute;
+            width: 100%;
+            height: 50%;
+            top: 0;
+            background: linear-gradient(180deg, #87ceeb 0%, #e0f6ff 50%, rgba(135, 206, 235, 0.3) 100%);
+            transition: background 0.8s ease;
+        }
+
+        .clouds-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            overflow: hidden;
+        }
+
+        .cloud {
+            position: absolute;
+            background: radial-gradient(ellipse at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.3));
+            border-radius: 100px;
+            opacity: 0.8;
+            filter: blur(8px);
+            animation: drift linear infinite;
+        }
+
+        .cloud.cloud-1 { width: 200px; height: 80px; top: 15%; left: 0%; animation-duration: 40s; animation-delay: 0s; }
+        .cloud.cloud-2 { width: 280px; height: 100px; top: 8%; left: 10%; animation-duration: 50s; animation-delay: 5s; }
+        .cloud.cloud-3 { width: 250px; height: 90px; top: 25%; left: 20%; animation-duration: 45s; animation-delay: 10s; }
+        .cloud.cloud-4 { width: 220px; height: 85px; top: 12%; left: 40%; animation-duration: 55s; animation-delay: 2s; }
+        .cloud.cloud-5 { width: 290px; height: 110px; top: 20%; left: 60%; animation-duration: 48s; animation-delay: 8s; }
+        .cloud.cloud-6 { width: 260px; height: 95px; top: 10%; left: 75%; animation-duration: 52s; animation-delay: 15s; }
+        .cloud.cloud-7 { width: 240px; height: 88px; top: 30%; left: 85%; animation-duration: 46s; animation-delay: 3s; }
+
+        @keyframes drift {
+            0% { transform: translateX(0px); }
+            100% { transform: translateX(100vw); }
+        }
+
+        /* Ground/Terrain */
+        .terrain {
+            position: absolute;
+            width: 100%;
+            height: 50%;
+            bottom: 0;
+            background: linear-gradient(180deg, #90ee90 0%, #228b22 50%, #1a4d1a 100%);
+            transition: background 0.8s ease;
+            perspective: 1200px;
+        }
+
+        .terrain-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(165deg, #7cb342 0%, #558b2f 50%, #33691e 100%);
+            opacity: 0.6;
+            animation: terrain-scroll linear infinite;
+        }
+
+        @keyframes terrain-scroll {
+            0% { transform: translateX(0px); }
+            100% { transform: translateX(100px); }
+        }
+
+        /* Sunlight Effect */
+        .sun {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, #ffff99 0%, #ffff00 30%, rgba(255, 255, 0, 0.3) 100%);
+            border-radius: 50%;
+            filter: blur(15px);
+            top: 10%;
+            right: 15%;
+            opacity: 0.9;
+            transition: all 0.8s ease;
+        }
+
+        .sun.sunset {
+            background: radial-gradient(circle, #ff9966 0%, #ff6633 30%, rgba(255, 102, 51, 0.2) 100%);
+            top: 60%;
+        }
+
+        .sun.night {
+            background: radial-gradient(circle, #ffffdd 0%, #ccccff 30%, rgba(204, 204, 255, 0.1) 100%);
+            opacity: 0.4;
+            top: 20%;
+        }
+
+        /* Weather Effects */
+        .rain-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            display: none;
+        }
+
+        .rain-particle {
+            position: absolute;
+            width: 2px;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.6);
+            animation: rain linear infinite;
+        }
+
+        @keyframes rain {
+            0% { transform: translateY(-100px); }
+            100% { transform: translateY(100px); }
+        }
+
+        /* Window Condensation */
+        .condensation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.15), transparent 50%);
+            pointer-events: none;
+            display: none;
+        }
+
+        /* Control Panel */
+        .control-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--color-primary);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .control-toggle:hover {
+            background: var(--color-primary-hover);
+            transform: scale(1.1);
+        }
+
+        .control-toggle:focus-visible {
+            outline: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), var(--focus-ring);
+        }
+
+        .control-panel {
+            position: fixed;
+            bottom: 110px;
+            right: 30px;
+            background: rgba(31, 33, 33, 0.95);
+            border: 1px solid rgba(167, 169, 169, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            width: 320px;
+            max-height: 500px;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            transform: translateX(400px);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-panel.open {
+            transform: translateX(0);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--color-gray-300);
+            letter-spacing: 0.5px;
+        }
+
+        .control-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .control-btn {
+            padding: 8px 14px;
+            background: rgba(167, 169, 169, 0.15);
+            border: 1px solid rgba(167, 169, 169, 0.3);
+            border-radius: 6px;
+            color: var(--color-text);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(167, 169, 169, 0.25);
+            border-color: rgba(167, 169, 169, 0.5);
+        }
+
+        .control-btn.active {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: white;
+        }
+
+        .control-btn:focus-visible {
+            outline: none;
+            box-shadow: var(--focus-ring);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(167, 169, 169, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        input[type="range"]:focus-visible {
+            outline: none;
+        }
+
+        .slider-value {
+            font-size: 12px;
+            color: var(--color-gray-300);
+            min-width: 30px;
+        }
+
+        /* Scrollbar Styling */
+        .control-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .control-panel::-webkit-scrollbar-track {
+            background: rgba(167, 169, 169, 0.1);
+        }
+
+        .control-panel::-webkit-scrollbar-thumb {
+            background: rgba(167, 169, 169, 0.3);
+            border-radius: 3px;
+        }
+
+        .control-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(167, 169, 169, 0.5);
+        }
+
+        /* Window Glow */
+        .window-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            border-radius: 4px;
+            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="window-container">
+        <div class="window-inner">
+            <!-- Sky and Scene -->
+            <div class="sky">
+                <div class="horizon"></div>
+                <div class="sun"></div>
+                <div class="clouds-layer" id="cloudsLayer">
+                    <div class="cloud cloud-1"></div>
+                    <div class="cloud cloud-2"></div>
+                    <div class="cloud cloud-3"></div>
+                    <div class="cloud cloud-4"></div>
+                    <div class="cloud cloud-5"></div>
+                    <div class="cloud cloud-6"></div>
+                    <div class="cloud cloud-7"></div>
+                </div>
+            </div>
+
+            <!-- Terrain -->
+            <div class="terrain" id="terrain">
+                <div class="terrain-layer"></div>
+            </div>
+
+            <!-- Rain Effect -->
+            <div class="rain-particles" id="rainParticles"></div>
+
+            <!-- Window Condensation -->
+            <div class="condensation" id="condensation"></div>
+
+            <!-- Window Glow -->
+            <div class="window-glow"></div>
+        </div>
+    </div>
+
+    <!-- Control Panel Toggle Button -->
+    <button class="control-toggle" id="controlToggle" aria-label="Toggle controls">⚙️</button>
+
+    <!-- Control Panel -->
+    <div class="control-panel" id="controlPanel">
+        <!-- Time of Day -->
+        <div class="control-group">
+            <label class="control-label">Time of Day</label>
+            <div class="control-options">
+                <button class="control-btn active" data-time="morning">Morning</button>
+                <button class="control-btn" data-time="noon">Noon</button>
+                <button class="control-btn" data-time="sunset">Sunset</button>
+                <button class="control-btn" data-time="night">Night</button>
+            </div>
+        </div>
+
+        <!-- Cloud Density -->
+        <div class="control-group">
+            <label class="control-label">Cloud Density</label>
+            <div class="slider-container">
+                <input type="range" id="cloudDensity" min="0" max="100" value="70" aria-label="Cloud density">
+                <span class="slider-value" id="cloudDensityValue">70%</span>
+            </div>
+        </div>
+
+        <!-- Airplane Speed -->
+        <div class="control-group">
+            <label class="control-label">Airplane Speed</label>
+            <div class="control-options">
+                <button class="control-btn" data-speed="slow">Slow</button>
+                <button class="control-btn active" data-speed="normal">Normal</button>
+                <button class="control-btn" data-speed="fast">Fast</button>
+            </div>
+        </div>
+
+        <!-- Wind Direction -->
+        <div class="control-group">
+            <label class="control-label">Wind Strength</label>
+            <div class="slider-container">
+                <input type="range" id="windStrength" min="0" max="100" value="30" aria-label="Wind strength">
+                <span class="slider-value" id="windValue">30%</span>
+            </div>
+        </div>
+
+        <!-- Weather Conditions -->
+        <div class="control-group">
+            <label class="control-label">Weather</label>
+            <div class="control-options">
+                <button class="control-btn active" data-weather="clear">Clear</button>
+                <button class="control-btn" data-weather="cloudy">Cloudy</button>
+                <button class="control-btn" data-weather="rain">Rain</button>
+            </div>
+        </div>
+
+        <!-- Terrain Type -->
+        <div class="control-group">
+            <label class="control-label">Terrain</label>
+            <div class="control-options">
+                <button class="control-btn active" data-terrain="landscape">Landscape</button>
+                <button class="control-btn" data-terrain="ocean">Ocean</button>
+                <button class="control-btn" data-terrain="desert">Desert</button>
+                <button class="control-btn" data-terrain="snow">Snow</button>
+            </div>
+        </div>
+
+        <!-- Visibility -->
+        <div class="control-group">
+            <label class="control-label">Visibility</label>
+            <div class="slider-container">
+                <input type="range" id="visibility" min="0" max="100" value="85" aria-label="Visibility">
+                <span class="slider-value" id="visibilityValue">85%</span>
+            </div>
+        </div>
+
+        <!-- Altitude -->
+        <div class="control-group">
+            <label class="control-label">Altitude</label>
+            <div class="slider-container">
+                <input type="range" id="altitude" min="0" max="100" value="60" aria-label="Altitude">
+                <span class="slider-value" id="altitudeValue">35,000 ft</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        const state = {
+            time: 'morning',
+            cloudDensity: 70,
+            speed: 'normal',
+            windStrength: 30,
+            weather: 'clear',
+            terrain: 'landscape',
+            visibility: 85,
+            altitude: 35000
+        };
+
+        // DOM Elements
+        const controlToggle = document.getElementById('controlToggle');
+        const controlPanel = document.getElementById('controlPanel');
+        const horizon = document.querySelector('.horizon');
+        const sun = document.querySelector('.sun');
+        const terrain = document.getElementById('terrain');
+        const cloudsLayer = document.getElementById('cloudsLayer');
+        const rainParticles = document.getElementById('rainParticles');
+        const condensation = document.getElementById('condensation');
+        const terrainLayer = document.querySelector('.terrain-layer');
+
+        // Color Palettes
+        const timeOfDayColors = {
+            morning: {
+                horizon: 'linear-gradient(180deg, #87ceeb 0%, #e0f6ff 50%, rgba(135, 206, 235, 0.3) 100%)',
+                sun: 'radial-gradient(circle, #ffff99 0%, #ffff00 30%, rgba(255, 255, 0, 0.3) 100%)',
+                sunTop: '10%'
+            },
+            noon: {
+                horizon: 'linear-gradient(180deg, #1e90ff 0%, #87ceeb 50%, rgba(135, 206, 235, 0.2) 100%)',
+                sun: 'radial-gradient(circle, #ffff99 0%, #ffff00 30%, rgba(255, 255, 0, 0.4) 100%)',
+                sunTop: '8%'
+            },
+            sunset: {
+                horizon: 'linear-gradient(180deg, #ff7e5f 0%, #ffb347 50%, rgba(255, 179, 71, 0.3) 100%)',
+                sun: 'radial-gradient(circle, #ff9966 0%, #ff6633 30%, rgba(255, 102, 51, 0.3) 100%)',
+                sunTop: '60%'
+            },
+            night: {
+                horizon: 'linear-gradient(180deg, #001a4d 0%, #003d99 50%, rgba(0, 61, 153, 0.2) 100%)',
+                sun: 'radial-gradient(circle, #ffffdd 0%, #ccccff 30%, rgba(204, 204, 255, 0.1) 100%)',
+                sunTop: '20%'
+            }
+        };
+
+        const terrainColors = {
+            landscape: 'linear-gradient(180deg, #90ee90 0%, #228b22 50%, #1a4d1a 100%)',
+            ocean: 'linear-gradient(180deg, #4a90e2 0%, #2e5c8a 50%, #1a3a52 100%)',
+            desert: 'linear-gradient(180deg, #f4a460 0%, #daa520 50%, #8b6914 100%)',
+            snow: 'linear-gradient(180deg, #f0f8ff 0%, #e6f2ff 50%, #cce5ff 100%)'
+        };
+
+        // Control Panel Toggle
+        controlToggle.addEventListener('click', () => {
+            controlPanel.classList.toggle('open');
+            controlToggle.style.opacity = controlPanel.classList.contains('open') ? '0.7' : '1';
+        });
+
+        // Close panel on click outside
+        document.addEventListener('click', (e) => {
+            if (!controlPanel.contains(e.target) && !controlToggle.contains(e.target)) {
+                controlPanel.classList.remove('open');
+                controlToggle.style.opacity = '1';
+            }
+        });
+
+        // Time of Day Controls
+        document.querySelectorAll('[data-time]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                state.time = e.target.dataset.time;
+                updateScene();
+            });
+        });
+
+        // Speed Controls
+        document.querySelectorAll('[data-speed]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-speed]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                state.speed = e.target.dataset.speed;
+                updateAnimationSpeed();
+            });
+        });
+
+        // Weather Controls
+        document.querySelectorAll('[data-weather]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-weather]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                state.weather = e.target.dataset.weather;
+                updateWeather();
+            });
+        });
+
+        // Terrain Controls
+        document.querySelectorAll('[data-terrain]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-terrain]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                state.terrain = e.target.dataset.terrain;
+                updateTerrain();
+            });
+        });
+
+        // Cloud Density Slider
+        document.getElementById('cloudDensity').addEventListener('input', (e) => {
+            state.cloudDensity = parseInt(e.target.value);
+            document.getElementById('cloudDensityValue').textContent = state.cloudDensity + '%';
+            updateCloudDensity();
+        });
+
+        // Wind Strength Slider
+        document.getElementById('windStrength').addEventListener('input', (e) => {
+            state.windStrength = parseInt(e.target.value);
+            document.getElementById('windValue').textContent = state.windStrength + '%';
+            updateWind();
+        });
+
+        // Visibility Slider
+        document.getElementById('visibility').addEventListener('input', (e) => {
+            state.visibility = parseInt(e.target.value);
+            document.getElementById('visibilityValue').textContent = state.visibility + '%';
+            updateVisibility();
+        });
+
+        // Altitude Slider
+        document.getElementById('altitude').addEventListener('input', (e) => {
+            const altValue = parseInt(e.target.value);
+            state.altitude = Math.round((altValue / 100) * 45000);
+            document.getElementById('altitudeValue').textContent = state.altitude.toLocaleString() + ' ft';
+            updateAltitude();
+        });
+
+        // Update Scene Colors
+        function updateScene() {
+            const colors = timeOfDayColors[state.time];
+            horizon.style.background = colors.horizon;
+            sun.style.background = colors.sun;
+            sun.style.top = colors.sunTop;
+            sun.classList.remove('sunset', 'night');
+            if (state.time === 'sunset') sun.classList.add('sunset');
+            if (state.time === 'night') sun.classList.add('night');
+        }
+
+        // Update Animation Speed
+        function updateAnimationSpeed() {
+            const speeds = { slow: '80s', normal: '40s', fast: '20s' };
+            document.querySelectorAll('.cloud').forEach(cloud => {
+                const baseSpeed = speeds[state.speed];
+                cloud.style.animationDuration = baseSpeed;
+            });
+        }
+
+        // Update Cloud Density
+        function updateCloudDensity() {
+            cloudsLayer.style.opacity = (state.cloudDensity / 100) * 0.9;
+        }
+
+        // Update Weather
+        function updateWeather() {
+            rainParticles.style.display = state.weather === 'rain' ? 'block' : 'none';
+            condensation.style.display = state.weather === 'rain' ? 'block' : 'none';
+
+            if (state.weather === 'rain') {
+                generateRainParticles();
+            }
+
+            if (state.weather === 'cloudy') {
+                cloudsLayer.style.opacity = 1;
+            } else if (state.weather === 'clear') {
+                updateCloudDensity();
+            }
+        }
+
+        // Generate Rain Particles
+        function generateRainParticles() {
+            rainParticles.innerHTML = '';
+            for (let i = 0; i < 60; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'rain-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = -20 + 'px';
+                particle.style.animationDuration = (0.5 + Math.random() * 0.5) + 's';
+                particle.style.animationDelay = Math.random() * 1 + 's';
+                rainParticles.appendChild(particle);
+            }
+        }
+
+        // Update Terrain
+        function updateTerrain() {
+            terrain.style.background = terrainColors[state.terrain];
+        }
+
+        // Update Wind
+        function updateWind() {
+            const duration = 100 - (state.windStrength * 0.5);
+            terrainLayer.style.animationDuration = duration + 'ms';
+        }
+
+        // Update Visibility
+        function updateVisibility() {
+            const haze = (100 - state.visibility) * 0.5;
+            horizon.style.filter = `blur(${haze}px)`;
+        }
+
+        // Update Altitude (affects cloud distribution)
+        function updateAltitude() {
+            const normalized = state.altitude / 45000;
+            document.querySelectorAll('.cloud').forEach((cloud, index) => {
+                const baseTop = [15, 8, 25, 12, 20, 10, 30][index];
+                cloud.style.top = (baseTop + normalized * 20) + '%';
+            });
+        }
+
+        // Initialize Scene
+        updateScene();
+        updateCloudDensity();
+        updateAnimationSpeed();
+    </script>
+</body>
+</html>
