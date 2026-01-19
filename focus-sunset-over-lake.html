@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tranquil Lake - Calming Sunset Experience</title>
+    <style>
+        :root {
+            --animation-speed: 1;
+            --color-intensity: 1;
+            --ripple-intensity: 1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+        }
+
+        #scene-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to bottom, #1a1a2e, #FF6B35, #F7931E, #FDB833);
+            transition: background 1.5s ease;
+        }
+
+        #mountains {
+            position: absolute;
+            bottom: 50%;
+            left: 0;
+            width: 100%;
+            height: 25%;
+            z-index: 2;
+        }
+
+        .mountain {
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .mountain-1 {
+            left: 5%;
+            border-width: 0 150px 200px 150px;
+            border-color: transparent transparent rgba(40, 20, 40, 0.7) transparent;
+        }
+
+        .mountain-2 {
+            left: 25%;
+            border-width: 0 200px 280px 200px;
+            border-color: transparent transparent rgba(40, 20, 40, 0.7) transparent;
+        }
+
+        .mountain-3 {
+            right: 20%;
+            border-width: 0 180px 240px 180px;
+            border-color: transparent transparent rgba(40, 20, 40, 0.7) transparent;
+        }
+
+        .mountain-4 {
+            right: 5%;
+            border-width: 0 120px 160px 120px;
+            border-color: transparent transparent rgba(40, 20, 40, 0.7) transparent;
+        }
+
+        #water {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to bottom, #16213e, #0f3460, #1a1a2e);
+            transition: background 1.5s ease;
+            overflow: hidden;
+        }
+
+        #water-reflection {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.6;
+            transform: scaleY(-1);
+            transition: opacity 1.5s ease;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            animation: ripple-animation 4s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 0.4;
+            }
+            100% {
+                width: 300px;
+                height: 100px;
+                opacity: 0;
+            }
+        }
+
+        .bird {
+            position: absolute;
+            width: 20px;
+            height: 10px;
+            animation: fly-across 25s linear infinite;
+            z-index: 3;
+        }
+
+        .bird::before,
+        .bird::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 2px;
+        }
+
+        .bird::before {
+            left: 0;
+            transform: rotate(-25deg);
+            animation: flap 0.5s ease-in-out infinite;
+        }
+
+        .bird::after {
+            right: 0;
+            transform: rotate(25deg);
+            animation: flap 0.5s ease-in-out infinite 0.25s;
+        }
+
+        @keyframes fly-across {
+            0% {
+                left: -5%;
+                top: 15%;
+            }
+            50% {
+                top: 20%;
+            }
+            100% {
+                left: 105%;
+                top: 15%;
+            }
+        }
+
+        @keyframes flap {
+            0%, 100% {
+                transform: rotate(-25deg);
+            }
+            50% {
+                transform: rotate(-5deg);
+            }
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 100px;
+            animation: drift 40s linear infinite;
+            z-index: 1;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 100px;
+        }
+
+        @keyframes drift {
+            0% {
+                left: -10%;
+            }
+            100% {
+                left: 110%;
+            }
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .moon {
+            position: absolute;
+            top: 20%;
+            right: 15%;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
+            z-index: 1;
+        }
+
+        .palm {
+            position: absolute;
+            bottom: 50%;
+            width: 40px;
+            height: 150px;
+            z-index: 2;
+        }
+
+        .palm-trunk {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 100px;
+            background: rgba(50, 30, 20, 0.8);
+            border-radius: 5px;
+        }
+
+        .palm-leaf {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform-origin: bottom center;
+            width: 60px;
+            height: 4px;
+            background: rgba(30, 50, 20, 0.7);
+            border-radius: 2px;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: rgba(139, 69, 19, 0.5);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            animation: fall 12s linear infinite;
+            z-index: 3;
+        }
+
+        @keyframes fall {
+            0% {
+                top: -5%;
+                transform: rotate(0deg) translateX(0);
+            }
+            50% {
+                transform: rotate(180deg) translateX(30px);
+            }
+            100% {
+                top: 105%;
+                transform: rotate(360deg) translateX(0);
+            }
+        }
+
+        #controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            font-size: 14px;
+            z-index: 1000;
+            max-width: 280px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #controls h2 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
+        }
+
+        select option {
+            background: #1a1a2e;
+            color: white;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            padding: 0;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: white;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: white;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            min-width: 60px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .toggle-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .value-display {
+            display: inline-block;
+            margin-left: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            #controls {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+                padding: 15px;
+            }
+        }
+
+        #controls::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #controls::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        #controls::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        #controls::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="scene-container">
+        <div id="sky"></div>
+        <div id="mountains"></div>
+        <div id="water">
+            <div id="water-reflection"></div>
+        </div>
+    </div>
+
+    <div id="controls">
+        <h2>Scene Controls</h2>
+        
+        <div class="control-group">
+            <label for="scenery-select">Scenery</label>
+            <select id="scenery-select">
+                <option value="0">Sunset Over Lake</option>
+                <option value="1">Sunrise Over Lake</option>
+                <option value="2">Dusk/Twilight</option>
+                <option value="3">Night Sky Over Lake</option>
+                <option value="4">Tropical Sunset</option>
+                <option value="5">Golden Hour</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="speed-slider">Animation Speed <span class="value-display" id="speed-value">Normal</span></label>
+            <input type="range" id="speed-slider" min="0" max="2" value="1" step="1">
+        </div>
+
+        <div class="control-group">
+            <label>Color Intensity</label>
+            <div class="toggle-group">
+                <button class="toggle-btn" data-intensity="muted">Muted</button>
+                <button class="toggle-btn active" data-intensity="vibrant">Vibrant</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="ripple-slider">Ripple Intensity <span class="value-display" id="ripple-value">50%</span></label>
+            <input type="range" id="ripple-slider" min="0" max="100" value="50">
+        </div>
+
+        <div class="control-group">
+            <label>Floating Elements</label>
+            <div class="toggle-group">
+                <button class="toggle-btn active" data-toggle="floating">On</button>
+                <button class="toggle-btn" data-toggle="floating">Off</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Water Reflection</label>
+            <div class="toggle-group">
+                <button class="toggle-btn active" data-toggle="reflection">On</button>
+                <button class="toggle-btn" data-toggle="reflection">Off</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Scene data
+        const sceneries = [
+            {
+                name: "Sunset Over Lake",
+                skyColors: ["#1a1a2e", "#FF6B35", "#F7931E", "#FDB833"],
+                waterColors: ["#1a1a2e", "#16213e", "#0f3460"],
+                mountainColor: "rgba(40, 20, 40, 0.7)",
+                floatingElements: "birds"
+            },
+            {
+                name: "Sunrise Over Lake",
+                skyColors: ["#2A1A5E", "#C44569", "#FF6B9D", "#FFE66D"],
+                waterColors: ["#1a1a2e", "#16213e", "#0f3460"],
+                mountainColor: "rgba(60, 40, 80, 0.6)",
+                floatingElements: "birds"
+            },
+            {
+                name: "Dusk/Twilight",
+                skyColors: ["#1a1a2e", "#16213e", "#664E88", "#C06C84"],
+                waterColors: ["#0f0f1e", "#1a1a2e", "#2d3436"],
+                mountainColor: "rgba(30, 15, 35, 0.8)",
+                floatingElements: "clouds"
+            },
+            {
+                name: "Night Sky Over Lake",
+                skyColors: ["#0a0e27", "#16213e", "#0f3460", "#1a1a2e"],
+                waterColors: ["#0a0a15", "#0f0f1e", "#1a1a2e"],
+                mountainColor: "rgba(20, 10, 25, 0.9)",
+                floatingElements: "stars",
+                hasMoon: true
+            },
+            {
+                name: "Tropical Sunset",
+                skyColors: ["#FF1493", "#FF4500", "#FFB347", "#FFE5B4"],
+                waterColors: ["#006994", "#004D73", "#003d5c"],
+                mountainColor: "rgba(50, 30, 20, 0.7)",
+                floatingElements: "birds",
+                hasPalms: true
+            },
+            {
+                name: "Golden Hour",
+                skyColors: ["#FF8C00", "#DAA520", "#FFD700", "#FFA500"],
+                waterColors: ["#2d5016", "#3d6621", "#4d7c2b"],
+                mountainColor: "rgba(70, 50, 30, 0.6)",
+                floatingElements: "leaves"
+            }
+        ];
+
+        const speedOptions = [
+            { label: "Slow", value: 1.5 },
+            { label: "Normal", value: 1 },
+            { label: "Fast", value: 0.6 }
+        ];
+
+        // State
+        let currentScenery = 0;
+        let animationSpeed = 1;
+        let colorIntensity = 1;
+        let rippleIntensity = 0.5;
+        let floatingElementsEnabled = true;
+        let reflectionEnabled = true;
+
+        // DOM elements
+        const sky = document.getElementById('sky');
+        const water = document.getElementById('water');
+        const waterReflection = document.getElementById('water-reflection');
+        const mountains = document.getElementById('mountains');
+        const sceneContainer = document.getElementById('scene-container');
+        const scenerySelect = document.getElementById('scenery-select');
+        const speedSlider = document.getElementById('speed-slider');
+        const speedValue = document.getElementById('speed-value');
+        const rippleSlider = document.getElementById('ripple-slider');
+        const rippleValue = document.getElementById('ripple-value');
+
+        // Initialize mountains
+        function createMountains() {
+            mountains.innerHTML = '';
+            for (let i = 1; i <= 4; i++) {
+                const mountain = document.createElement('div');
+                mountain.className = `mountain mountain-${i}`;
+                mountains.appendChild(mountain);
+            }
+        }
+
+        // Update scene
+        function updateScene() {
+            const scene = sceneries[currentScenery];
+            const intensity = colorIntensity;
+            
+            // Update sky gradient
+            const skyGradient = `linear-gradient(to bottom, ${scene.skyColors.join(', ')})`;
+            sky.style.background = skyGradient;
+            sky.style.filter = `saturate(${intensity}) brightness(${intensity > 1 ? 1.05 : 0.95})`;
+            
+            // Update water gradient
+            const waterGradient = `linear-gradient(to bottom, ${scene.waterColors.join(', ')})`;
+            water.style.background = waterGradient;
+            water.style.filter = `saturate(${intensity}) brightness(${intensity > 1 ? 1.05 : 0.95})`;
+            
+            // Update mountains
+            const mountainElements = mountains.querySelectorAll('.mountain');
+            mountainElements.forEach(m => {
+                m.style.borderBottomColor = scene.mountainColor;
+            });
+            
+            // Update reflection
+            waterReflection.style.background = skyGradient;
+            waterReflection.style.opacity = reflectionEnabled ? 0.6 : 0;
+        }
+
+        // Create ripples
+        function createRipple() {
+            if (rippleIntensity === 0) return;
+            
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.left = Math.random() * 100 + '%';
+            ripple.style.top = Math.random() * 100 + '%';
+            ripple.style.animationDuration = (3 + Math.random() * 2) / animationSpeed + 's';
+            ripple.style.opacity = rippleIntensity;
+            water.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 4000 / animationSpeed);
+        }
+
+        // Create floating elements
+        function clearFloatingElements() {
+            document.querySelectorAll('.bird, .cloud, .star, .moon, .palm, .leaf').forEach(el => el.remove());
+        }
+
+        function createFloatingElements() {
+            clearFloatingElements();
+            
+            if (!floatingElementsEnabled) return;
+            
+            const scene = sceneries[currentScenery];
+            
+            if (scene.floatingElements === 'birds') {
+                for (let i = 0; i < 3; i++) {
+                    const bird = document.createElement('div');
+                    bird.className = 'bird';
+                    bird.style.animationDelay = (i * 8) + 's';
+                    bird.style.animationDuration = (25 / animationSpeed) + 's';
+                    bird.style.top = (10 + Math.random() * 20) + '%';
+                    sceneContainer.appendChild(bird);
+                }
+            } else if (scene.floatingElements === 'clouds') {
+                for (let i = 0; i < 4; i++) {
+                    const cloud = document.createElement('div');
+                    cloud.className = 'cloud';
+                    cloud.style.width = (60 + Math.random() * 40) + 'px';
+                    cloud.style.height = (30 + Math.random() * 20) + 'px';
+                    cloud.style.top = (10 + Math.random() * 30) + '%';
+                    cloud.style.animationDelay = (i * 10) + 's';
+                    cloud.style.animationDuration = (40 / animationSpeed) + 's';
+                    
+                    const before = document.createElement('div');
+                    const after = document.createElement('div');
+                    cloud.appendChild(before);
+                    cloud.appendChild(after);
+                    
+                    sceneContainer.appendChild(cloud);
+                }
+            } else if (scene.floatingElements === 'stars') {
+                for (let i = 0; i < 50; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 40 + '%';
+                    star.style.animationDelay = Math.random() * 3 + 's';
+                    star.style.animationDuration = (2 + Math.random() * 2) / animationSpeed + 's';
+                    sceneContainer.appendChild(star);
+                }
+            } else if (scene.floatingElements === 'leaves') {
+                for (let i = 0; i < 5; i++) {
+                    const leaf = document.createElement('div');
+                    leaf.className = 'leaf';
+                    leaf.style.left = Math.random() * 100 + '%';
+                    leaf.style.animationDelay = (i * 2.5) + 's';
+                    leaf.style.animationDuration = (12 / animationSpeed) + 's';
+                    sceneContainer.appendChild(leaf);
+                }
+            }
+            
+            if (scene.hasMoon) {
+                const moon = document.createElement('div');
+                moon.className = 'moon';
+                sceneContainer.appendChild(moon);
+            }
+            
+            if (scene.hasPalms) {
+                [15, 85].forEach((pos, idx) => {
+                    const palm = document.createElement('div');
+                    palm.className = 'palm';
+                    palm.style.left = pos + '%';
+                    
+                    const trunk = document.createElement('div');
+                    trunk.className = 'palm-trunk';
+                    palm.appendChild(trunk);
+                    
+                    for (let i = 0; i < 8; i++) {
+                        const leaf = document.createElement('div');
+                        leaf.className = 'palm-leaf';
+                        leaf.style.transform = `translateX(-50%) rotate(${i * 45}deg)`;
+                        palm.appendChild(leaf);
+                    }
+                    
+                    sceneContainer.appendChild(palm);
+                });
+            }
+        }
+
+        // Event listeners
+        scenerySelect.addEventListener('change', (e) => {
+            currentScenery = parseInt(e.target.value);
+            updateScene();
+            createFloatingElements();
+        });
+
+        speedSlider.addEventListener('input', (e) => {
+            const speedIndex = parseInt(e.target.value);
+            animationSpeed = speedOptions[speedIndex].value;
+            speedValue.textContent = speedOptions[speedIndex].label;
+            document.documentElement.style.setProperty('--animation-speed', animationSpeed);
+            createFloatingElements();
+        });
+
+        rippleSlider.addEventListener('input', (e) => {
+            rippleIntensity = e.target.value / 100;
+            rippleValue.textContent = e.target.value + '%';
+        });
+
+        // Toggle buttons
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const group = e.target.closest('.toggle-group');
+                const buttons = group.querySelectorAll('.toggle-btn');
+                buttons.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                if (e.target.dataset.intensity) {
+                    colorIntensity = e.target.dataset.intensity === 'vibrant' ? 1.2 : 0.8;
+                    updateScene();
+                } else if (e.target.dataset.toggle === 'floating') {
+                    floatingElementsEnabled = e.target.textContent === 'On';
+                    createFloatingElements();
+                } else if (e.target.dataset.toggle === 'reflection') {
+                    reflectionEnabled = e.target.textContent === 'On';
+                    updateScene();
+                }
+            });
+        });
+
+        // Initialize
+        createMountains();
+        updateScene();
+        createFloatingElements();
+
+        // Create ripples periodically
+        setInterval(() => {
+            if (rippleIntensity > 0) {
+                createRipple();
+            }
+        }, 800);
+
+        // Create additional ripples for variety
+        setInterval(() => {
+            if (rippleIntensity > 0.3) {
+                createRipple();
+            }
+        }, 1500);
+    </script>
+</body>
+</html>
