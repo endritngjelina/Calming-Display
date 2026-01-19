@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airplane Window View</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #0a0a15 0%, #1a1a2e 100%);
+        }
+
+        #sky-canvas, #clouds-canvas, #window-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Airplane Window Frame */
+        .window-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 380px;
+            height: 480px;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .window-outer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #d4d4d8 0%, #a8a8b0 100%);
+            border-radius: 45% 45% 45% 45% / 40% 40% 60% 60%;
+            padding: 18px;
+            box-shadow: 
+                inset -8px -8px 20px rgba(0,0,0,0.4),
+                inset 8px 8px 20px rgba(255,255,255,0.1),
+                0 30px 60px rgba(0,0,0,0.5);
+        }
+
+        .window-middle {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #b8b8c0 0%, #90909a 100%);
+            border-radius: 45% 45% 45% 45% / 40% 40% 60% 60%;
+            padding: 12px;
+            box-shadow: 
+                inset -4px -4px 12px rgba(0,0,0,0.3),
+                inset 4px 4px 12px rgba(255,255,255,0.1);
+        }
+
+        .window-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 45% 45% 45% 45% / 40% 40% 60% 60%;
+            overflow: hidden;
+            box-shadow: 
+                inset 0 0 30px rgba(0,0,0,0.3),
+                0 8px 20px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .window-glare {
+            position: absolute;
+            top: 10%;
+            left: 15%;
+            width: 40%;
+            height: 35%;
+            background: radial-gradient(ellipse at top left, rgba(255,255,255,0.15) 0%, transparent 60%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Wing Element */
+        .wing {
+            position: absolute;
+            bottom: 35%;
+            right: -5%;
+            width: 45%;
+            height: 18%;
+            background: linear-gradient(to right, #c0c0c8 0%, #d8d8e0 50%, #c0c0c8 100%);
+            transform: perspective(600px) rotateY(-25deg) rotateX(2deg);
+            box-shadow: 
+                0 15px 40px rgba(0,0,0,0.4),
+                inset 0 -3px 10px rgba(0,0,0,0.2),
+                inset 0 3px 10px rgba(255,255,255,0.3);
+            z-index: 50;
+            clip-path: polygon(0% 45%, 100% 35%, 100% 65%, 0% 55%);
+        }
+
+        .wing::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 30%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 70%, transparent 100%);
+        }
+
+        .wing::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 70%;
+            width: 8px;
+            height: 8px;
+            background: #ff4444;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #ff4444, 0 0 30px rgba(255,68,68,0.5);
+            animation: wingLight 2s ease-in-out infinite;
+        }
+
+        @keyframes wingLight {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Controls */
+        .controls-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .controls-button:hover {
+            background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.15) 100%);
+            transform: scale(1.1);
+        }
+
+        .controls-panel {
+            position: fixed;
+            bottom: 110px;
+            right: 30px;
+            width: 320px;
+            max-height: 70vh;
+            background: linear-gradient(135deg, rgba(30,30,50,0.95) 0%, rgba(20,20,35,0.95) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            transform-origin: bottom right;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 999;
+            overflow-y: auto;
+        }
+
+        .controls-panel.hidden {
+            opacity: 0;
+            transform: scale(0.3) translateY(20px);
+            pointer-events: none;
+        }
+
+        .controls-panel h2 {
+            color: white;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group label {
+            display: block;
+            color: rgba(255,255,255,0.8);
+            font-size: 13px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(102,126,234,0.5);
+            transition: all 0.2s ease;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 15px rgba(102,126,234,0.7);
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 10px rgba(102,126,234,0.5);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .button-group button {
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .button-group button:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .button-group button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .value-display {
+            display: inline-block;
+            float: right;
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+        }
+
+        /* Scrollbar styling */
+        .controls-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .controls-panel::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+
+        .controls-panel::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+
+        .controls-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Subtle animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="sky-canvas"></canvas>
+        <canvas id="clouds-canvas"></canvas>
+        <canvas id="window-canvas"></canvas>
+        
+        <div class="window-frame">
+            <div class="window-outer">
+                <div class="window-middle">
+                    <div class="window-inner">
+                        <div class="window-glare"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="wing"></div>
+        </div>
+    </div>
+
+    <div class="controls-button" onclick="toggleControls()">
+        ⚙️
+    </div>
+
+    <div class="controls-panel hidden" id="controls-panel">
+        <h2>✈️ Flight Settings</h2>
+        
+        <div class="control-group">
+            <label>Time of Day</label>
+            <div class="button-group">
+                <button onclick="setTimeOfDay('dawn')" id="btn-dawn">Dawn</button>
+                <button onclick="setTimeOfDay('day')" id="btn-day" class="active">Day</button>
+                <button onclick="setTimeOfDay('dusk')" id="btn-dusk">Dusk</button>
+                <button onclick="setTimeOfDay('night')" id="btn-night">Night</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Weather</label>
+            <div class="button-group">
+                <button onclick="setWeather('clear')" id="btn-clear" class="active">Clear</button>
+                <button onclick="setWeather('partly-cloudy')" id="btn-partly-cloudy">Partly Cloudy</button>
+                <button onclick="setWeather('overcast')" id="btn-overcast">Overcast</button>
+                <button onclick="setWeather('stormy')" id="btn-stormy">Stormy</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>
+                Cloud Speed
+                <span class="value-display" id="cloud-speed-value">50%</span>
+            </label>
+            <input type="range" min="0" max="100" value="50" id="cloud-speed" oninput="updateCloudSpeed(this.value)">
+        </div>
+
+        <div class="control-group">
+            <label>
+                Cloud Density
+                <span class="value-display" id="cloud-density-value">60%</span>
+            </label>
+            <input type="range" min="0" max="100" value="60" id="cloud-density" oninput="updateCloudDensity(this.value)">
+        </div>
+
+        <div class="control-group">
+            <label>
+                Wind Intensity
+                <span class="value-display" id="wind-value">30%</span>
+            </label>
+            <input type="range" min="0" max="100" value="30" id="wind" oninput="updateWind(this.value)">
+        </div>
+
+        <div class="control-group">
+            <label>
+                Turbulence
+                <span class="value-display" id="turbulence-value">20%</span>
+            </label>
+            <input type="range" min="0" max="100" value="20" id="turbulence" oninput="updateTurbulence(this.value)">
+        </div>
+
+        <div class="control-group">
+            <label>
+                Altitude Effect
+                <span class="value-display" id="altitude-value">70%</span>
+            </label>
+            <input type="range" min="0" max="100" value="70" id="altitude" oninput="updateAltitude(this.value)">
+        </div>
+    </div>
+
+    <script>
+        // Canvas setup
+        const skyCanvas = document.getElementById('sky-canvas');
+        const cloudsCanvas = document.getElementById('clouds-canvas');
+        const windowCanvas = document.getElementById('window-canvas');
+        
+        const skyCtx = skyCanvas.getContext('2d');
+        const cloudsCtx = cloudsCanvas.getContext('2d');
+        const windowCtx = windowCanvas.getContext('2d');
+
+        let width, height;
+        
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            
+            skyCanvas.width = cloudsCanvas.width = windowCanvas.width = width;
+            skyCanvas.height = cloudsCanvas.height = windowCanvas.height = height;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Settings
+        let settings = {
+            timeOfDay: 'day',
+            weather: 'clear',
+            cloudSpeed: 0.5,
+            cloudDensity: 0.6,
+            windIntensity: 0.3,
+            turbulence: 0.2,
+            altitude: 0.7
+        };
+
+        // Time of day color schemes
+        const timeColors = {
+            dawn: {
+                sky: ['#1a1a3e', '#ff6b6b', '#ffd93d', '#6bcfff'],
+                horizon: ['#ff6b6b', '#ffd93d', '#ffaa00'],
+                stars: 0.3
+            },
+            day: {
+                sky: ['#1e3a8a', '#3b82f6', '#60a5fa', '#bfdbfe'],
+                horizon: ['#60a5fa', '#93c5fd', '#dbeafe'],
+                stars: 0
+            },
+            dusk: {
+                sky: ['#1e1b4b', '#7c3aed', '#f59e0b', '#fb923c'],
+                horizon: ['#f59e0b', '#fb923c', '#fbbf24'],
+                stars: 0.2
+            },
+            night: {
+                sky: ['#0a0a1a', '#1a1a3e', '#2d2d5f', '#3d3d7f'],
+                horizon: ['#1a1a3e', '#2d2d5f', '#3d3d7f'],
+                stars: 1
+            }
+        };
+
+        // Cloud particles
+        let clouds = [];
+        let stars = [];
+        
+        function initClouds() {
+            clouds = [];
+            const numClouds = 80 + (settings.cloudDensity * 120);
+            
+            for (let i = 0; i < numClouds; i++) {
+                clouds.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    size: Math.random() * 120 + 40,
+                    speed: (Math.random() * 0.5 + 0.3) * settings.cloudSpeed,
+                    opacity: Math.random() * 0.6 + 0.2,
+                    layer: Math.random(),
+                    wobble: Math.random() * Math.PI * 2,
+                    wobbleSpeed: Math.random() * 0.02 + 0.01
+                });
+            }
+        }
+
+        function initStars() {
+            stars = [];
+            const numStars = 200;
+            
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height * 0.6,
+                    size: Math.random() * 2 + 0.5,
+                    twinkle: Math.random() * Math.PI * 2,
+                    twinkleSpeed: Math.random() * 0.05 + 0.02
+                });
+            }
+        }
+
+        initClouds();
+        initStars();
+
+        // Animation variables
+        let time = 0;
+        let cameraShake = { x: 0, y: 0 };
+
+        // Draw sky gradient
+        function drawSky() {
+            const colors = timeColors[settings.timeOfDay];
+            const gradient = skyCtx.createLinearGradient(0, 0, 0, height);
+            
+            gradient.addColorStop(0, colors.sky[0]);
+            gradient.addColorStop(0.3, colors.sky[1]);
+            gradient.addColorStop(0.6, colors.sky[2]);
+            gradient.addColorStop(1, colors.sky[3]);
+            
+            skyCtx.fillStyle = gradient;
+            skyCtx.fillRect(0, 0, width, height);
+
+            // Add stars for night/dawn/dusk
+            if (colors.stars > 0) {
+                stars.forEach(star => {
+                    const twinkle = Math.sin(star.twinkle) * 0.5 + 0.5;
+                    const alpha = twinkle * colors.stars;
+                    
+                    skyCtx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                    skyCtx.beginPath();
+                    skyCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    skyCtx.fill();
+                    
+                    star.twinkle += star.twinkleSpeed;
+                });
+            }
+
+            // Horizon glow
+            const horizonGradient = skyCtx.createLinearGradient(0, height * 0.6, 0, height);
+            horizonGradient.addColorStop(0, 'transparent');
+            horizonGradient.addColorStop(0.5, colors.horizon[0] + '40');
+            horizonGradient.addColorStop(0.8, colors.horizon[1] + '60');
+            horizonGradient.addColorStop(1, colors.horizon[2] + '80');
+            
+            skyCtx.fillStyle = horizonGradient;
+            skyCtx.fillRect(0, height * 0.6, width, height * 0.4);
+        }
+
+        // Draw clouds
+        function drawClouds() {
+            cloudsCtx.clearRect(0, 0, width, height);
+            
+            // Weather effects on cloud appearance
+            let weatherMultiplier = 1;
+            let baseOpacity = 0.6;
+            
+            switch(settings.weather) {
+                case 'partly-cloudy':
+                    weatherMultiplier = 1.2;
+                    baseOpacity = 0.5;
+                    break;
+                case 'overcast':
+                    weatherMultiplier = 1.5;
+                    baseOpacity = 0.8;
+                    break;
+                case 'stormy':
+                    weatherMultiplier = 1.8;
+                    baseOpacity = 0.9;
+                    break;
+            }
+            
+            clouds.forEach(cloud => {
+                // Update position
+                cloud.x += cloud.speed * cloud.layer * weatherMultiplier;
+                cloud.wobble += cloud.wobbleSpeed;
+                
+                const wobbleY = Math.sin(cloud.wobble) * settings.windIntensity * 20;
+                
+                // Wrap around
+                if (cloud.x > width + cloud.size) {
+                    cloud.x = -cloud.size;
+                    cloud.y = Math.random() * height;
+                }
+                
+                // Draw cloud with multiple overlapping circles
+                const adjustedOpacity = cloud.opacity * baseOpacity * (settings.weather === 'clear' ? 0.4 : 1);
+                const layerScale = 0.5 + (cloud.layer * 0.5);
+                
+                cloudsCtx.save();
+                cloudsCtx.translate(cloud.x + cameraShake.x, cloud.y + wobbleY + cameraShake.y);
+                
+                // Add blur for depth
+                const blurAmount = (1 - cloud.layer) * 20;
+                cloudsCtx.filter = `blur(${blurAmount}px)`;
+                
+                // Stormy weather - darker clouds
+                if (settings.weather === 'stormy') {
+                    const gradient = cloudsCtx.createRadialGradient(0, 0, 0, 0, 0, cloud.size * layerScale);
+                    gradient.addColorStop(0, `rgba(180, 180, 190, ${adjustedOpacity})`);
+                    gradient.addColorStop(0.5, `rgba(140, 140, 150, ${adjustedOpacity * 0.8})`);
+                    gradient.addColorStop(1, `rgba(100, 100, 110, 0)`);
+                    cloudsCtx.fillStyle = gradient;
+                } else {
+                    const gradient = cloudsCtx.createRadialGradient(0, 0, 0, 0, 0, cloud.size * layerScale);
+                    gradient.addColorStop(0, `rgba(255, 255, 255, ${adjustedOpacity})`);
+                    gradient.addColorStop(0.5, `rgba(240, 240, 250, ${adjustedOpacity * 0.7})`);
+                    gradient.addColorStop(1, `rgba(220, 220, 240, 0)`);
+                    cloudsCtx.fillStyle = gradient;
+                }
+                
+                // Draw multiple overlapping circles for fluffy effect
+                for (let i = 0; i < 5; i++) {
+                    const offsetX = (Math.random() - 0.5) * cloud.size * 0.5;
+                    const offsetY = (Math.random() - 0.5) * cloud.size * 0.3;
+                    const size = cloud.size * layerScale * (0.6 + Math.random() * 0.4);
+                    
+                    cloudsCtx.beginPath();
+                    cloudsCtx.arc(offsetX, offsetY, size, 0, Math.PI * 2);
+                    cloudsCtx.fill();
+                }
+                
+                cloudsCtx.restore();
+            });
+        }
+
+        // Lightning effect for stormy weather
+        let lightningTimer = 0;
+        let lightningActive = false;
+        
+        function drawLightning() {
+            if (settings.weather === 'stormy') {
+                lightningTimer++;
+                
+                if (lightningTimer > 120 && Math.random() < 0.01) {
+                    lightningActive = true;
+                    setTimeout(() => lightningActive = false, 100);
+                    lightningTimer = 0;
+                }
+                
+                if (lightningActive) {
+                    cloudsCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    cloudsCtx.fillRect(0, 0, width, height);
+                }
+            }
+        }
+
+        // Camera shake for turbulence
+        function updateCameraShake() {
+            const intensity = settings.turbulence * 5;
+            cameraShake.x = (Math.random() - 0.5) * intensity;
+            cameraShake.y = (Math.random() - 0.5) * intensity;
+        }
+
+        // Main animation loop
+        function animate() {
+            time++;
+            
+            drawSky();
+            drawClouds();
+            drawLightning();
+            
+            if (settings.turbulence > 0.1 && time % 2 === 0) {
+                updateCameraShake();
+            } else if (settings.turbulence <= 0.1) {
+                cameraShake = { x: 0, y: 0 };
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Control functions
+        function toggleControls() {
+            const panel = document.getElementById('controls-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        function setTimeOfDay(time) {
+            settings.timeOfDay = time;
+            
+            // Update button states
+            ['dawn', 'day', 'dusk', 'night'].forEach(t => {
+                document.getElementById(`btn-${t}`).classList.remove('active');
+            });
+            document.getElementById(`btn-${time}`).classList.add('active');
+        }
+
+        function setWeather(weather) {
+            settings.weather = weather;
+            
+            // Update button states
+            ['clear', 'partly-cloudy', 'overcast', 'stormy'].forEach(w => {
+                document.getElementById(`btn-${w}`).classList.remove('active');
+            });
+            document.getElementById(`btn-${weather}`).classList.add('active');
+        }
+
+        function updateCloudSpeed(value) {
+            settings.cloudSpeed = value / 100;
+            document.getElementById('cloud-speed-value').textContent = value + '%';
+        }
+
+        function updateCloudDensity(value) {
+            settings.cloudDensity = value / 100;
+            document.getElementById('cloud-density-value').textContent = value + '%';
+            initClouds(); // Reinitialize with new density
+        }
+
+        function updateWind(value) {
+            settings.windIntensity = value / 100;
+            document.getElementById('wind-value').textContent = value + '%';
+        }
+
+        function updateTurbulence(value) {
+            settings.turbulence = value / 100;
+            document.getElementById('turbulence-value').textContent = value + '%';
+        }
+
+        function updateAltitude(value) {
+            settings.altitude = value / 100;
+            document.getElementById('altitude-value').textContent = value + '%';
+            
+            // Altitude affects cloud size and distribution
+            clouds.forEach(cloud => {
+                cloud.size = (Math.random() * 120 + 40) * (0.5 + settings.altitude);
+            });
+        }
+
+        // Add ambient audio note
+        console.log('%c✈️ Airplane Window View', 'font-size: 20px; color: #667eea;');
+        console.log('Tip: For the most immersive experience, play ambient airplane cabin sounds in the background!');
+    </script>
+</body>
+</html>
