@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpine Serenity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .controls-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .controls-toggle:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        .controls-toggle svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+            transition: transform 0.3s ease;
+        }
+
+        .controls-toggle.active svg {
+            transform: rotate(180deg);
+        }
+
+        .controls-panel {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 320px;
+            max-height: 70vh;
+            overflow-y: auto;
+            transform: translateX(400px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 999;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .controls-panel.active {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .controls-panel h3 {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .button-group button {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .button-group button:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .button-group button.active {
+            background: rgba(100, 180, 255, 0.6);
+            border-color: rgba(100, 180, 255, 0.8);
+        }
+
+        .controls-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .controls-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .controls-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .value-display {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 11px;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="controls-toggle" id="toggleBtn">
+        <svg viewBox="0 0 24 24">
+            <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" />
+        </svg>
+    </div>
+
+    <div class="controls-panel" id="controlsPanel">
+        <h3>⛰️ ALPINE CONTROLS</h3>
+        
+        <div class="control-group">
+            <label>Time of Day</label>
+            <div class="button-group">
+                <button class="time-btn active" data-time="dawn">Dawn</button>
+                <button class="time-btn" data-time="day">Day</button>
+                <button class="time-btn" data-time="dusk">Dusk</button>
+                <button class="time-btn" data-time="night">Night</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Weather</label>
+            <div class="button-group">
+                <button class="weather-btn active" data-weather="clear">Clear</button>
+                <button class="weather-btn" data-weather="cloudy">Cloudy</button>
+                <button class="weather-btn" data-weather="snow">Snow</button>
+                <button class="weather-btn" data-weather="storm">Storm</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Cloud Density: <span id="cloudValue">50%</span></label>
+            <input type="range" id="cloudDensity" min="0" max="100" value="50">
+        </div>
+
+        <div class="control-group">
+            <label>Wind Speed: <span id="windValue">50%</span></label>
+            <input type="range" id="windSpeed" min="0" max="100" value="50">
+        </div>
+
+        <div class="control-group">
+            <label>Animation Speed: <span id="speedValue">50%</span></label>
+            <input type="range" id="animSpeed" min="10" max="100" value="50">
+        </div>
+
+        <div class="control-group">
+            <label>Fog Intensity: <span id="fogValue">30%</span></label>
+            <input type="range" id="fogIntensity" min="0" max="100" value="30">
+        </div>
+
+        <div class="control-group">
+            <label>Star Visibility: <span id="starValue">70%</span></label>
+            <input type="range" id="starVisibility" min="0" max="100" value="70">
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // State
+        const state = {
+            timeOfDay: 'dawn',
+            weather: 'clear',
+            cloudDensity: 50,
+            windSpeed: 50,
+            animSpeed: 50,
+            fogIntensity: 30,
+            starVisibility: 70,
+            time: 0
+        };
+
+        // Color schemes for different times
+        const timeColors = {
+            dawn: {
+                skyTop: [135, 85, 150],
+                skyBottom: [255, 180, 120],
+                sunColor: [255, 200, 100],
+                mountainDark: [60, 50, 80],
+                mountainLight: [180, 160, 180],
+                snowLight: [255, 240, 245],
+                snowDark: [230, 210, 220]
+            },
+            day: {
+                skyTop: [100, 150, 255],
+                skyBottom: [180, 220, 255],
+                sunColor: [255, 255, 200],
+                mountainDark: [80, 70, 90],
+                mountainLight: [160, 150, 170],
+                snowLight: [255, 255, 255],
+                snowDark: [240, 240, 250]
+            },
+            dusk: {
+                skyTop: [140, 60, 100],
+                skyBottom: [255, 140, 80],
+                sunColor: [255, 120, 60],
+                mountainDark: [50, 40, 60],
+                mountainLight: [140, 100, 120],
+                snowLight: [255, 200, 210],
+                snowDark: [220, 170, 180]
+            },
+            night: {
+                skyTop: [10, 15, 40],
+                skyBottom: [30, 40, 80],
+                sunColor: [200, 200, 220],
+                mountainDark: [20, 20, 35],
+                mountainLight: [60, 60, 80],
+                snowLight: [180, 180, 200],
+                snowDark: [120, 120, 140]
+            }
+        };
+
+        // Particles
+        let clouds = [];
+        let snowflakes = [];
+        let stars = [];
+
+        // Initialize particles
+        function initClouds() {
+            clouds = [];
+            for (let i = 0; i < 15; i++) {
+                clouds.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.5,
+                    size: Math.random() * 150 + 100,
+                    speed: Math.random() * 0.3 + 0.1,
+                    opacity: Math.random() * 0.3 + 0.2
+                });
+            }
+        }
+
+        function initSnow() {
+            snowflakes = [];
+            for (let i = 0; i < 200; i++) {
+                snowflakes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 3 + 1,
+                    speed: Math.random() * 1 + 0.5,
+                    drift: Math.random() * 0.5 - 0.25
+                });
+            }
+        }
+
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < 150; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.6,
+                    size: Math.random() * 2,
+                    twinkle: Math.random() * Math.PI * 2,
+                    twinkleSpeed: Math.random() * 0.02 + 0.01
+                });
+            }
+        }
+
+        initClouds();
+        initSnow();
+        initStars();
+
+        // Draw functions
+        function drawSky() {
+            const colors = timeColors[state.timeOfDay];
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            
+            gradient.addColorStop(0, `rgb(${colors.skyTop.join(',')})`);
+            gradient.addColorStop(1, `rgb(${colors.skyBottom.join(',')})`);
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawStars() {
+            if (state.timeOfDay === 'night' || state.timeOfDay === 'dusk') {
+                const visibility = state.starVisibility / 100;
+                stars.forEach(star => {
+                    const twinkle = Math.sin(star.twinkle) * 0.5 + 0.5;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${twinkle * visibility * 0.8})`;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    star.twinkle += star.twinkleSpeed;
+                });
+            }
+        }
+
+        function drawSun() {
+            const colors = timeColors[state.timeOfDay];
+            let sunY, sunX;
+            
+            if (state.timeOfDay === 'dawn') {
+                sunX = canvas.width * 0.85;
+                sunY = canvas.height * 0.35;
+            } else if (state.timeOfDay === 'day') {
+                sunX = canvas.width * 0.75;
+                sunY = canvas.height * 0.2;
+            } else if (state.timeOfDay === 'dusk') {
+                sunX = canvas.width * 0.15;
+                sunY = canvas.height * 0.4;
+            } else {
+                sunX = canvas.width * 0.2;
+                sunY = canvas.height * 0.15;
+            }
+
+            const gradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 80);
+            gradient.addColorStop(0, `rgba(${colors.sunColor.join(',')}, 0.9)`);
+            gradient.addColorStop(0.5, `rgba(${colors.sunColor.join(',')}, 0.3)`);
+            gradient.addColorStop(1, `rgba(${colors.sunColor.join(',')}, 0)`);
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 80, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawMountains() {
+            const colors = timeColors[state.timeOfDay];
+            const layers = [
+                { peaks: 5, maxHeight: 0.7, color: colors.mountainDark, offset: 0 },
+                { peaks: 4, maxHeight: 0.6, color: colors.mountainLight, offset: 50 },
+                { peaks: 3, maxHeight: 0.5, color: colors.mountainDark, offset: 100 }
+            ];
+
+            layers.forEach((layer, idx) => {
+                ctx.fillStyle = `rgba(${layer.color.join(',')}, ${0.8 - idx * 0.1})`;
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height);
+
+                const segmentWidth = canvas.width / layer.peaks;
+                for (let i = 0; i <= layer.peaks; i++) {
+                    const x = i * segmentWidth;
+                    const peakHeight = canvas.height * (1 - layer.maxHeight + Math.random() * 0.1);
+                    const controlX1 = x - segmentWidth / 3;
+                    const controlY1 = peakHeight + Math.random() * 50;
+                    const controlX2 = x + segmentWidth / 3;
+                    const controlY2 = peakHeight + Math.random() * 50;
+                    
+                    if (i === 0) {
+                        ctx.lineTo(x, peakHeight);
+                    } else {
+                        ctx.bezierCurveTo(controlX1, controlY1, controlX2, controlY2, x, peakHeight);
+                    }
+                }
+
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+
+                // Snow caps
+                if (idx === 0) {
+                    ctx.fillStyle = `rgba(${colors.snowLight.join(',')}, 0.9)`;
+                    ctx.beginPath();
+                    ctx.moveTo(0, canvas.height * 0.45);
+                    for (let i = 0; i <= layer.peaks; i++) {
+                        const x = i * segmentWidth;
+                        const peakHeight = canvas.height * (1 - layer.maxHeight);
+                        const snowLine = peakHeight + 30;
+                        ctx.lineTo(x, snowLine);
+                    }
+                    ctx.lineTo(canvas.width, canvas.height * 0.45);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            });
+        }
+
+        function drawClouds() {
+            const density = state.cloudDensity / 100;
+            const windEffect = (state.windSpeed / 100) * 2;
+            
+            clouds.forEach(cloud => {
+                const weatherMultiplier = state.weather === 'cloudy' ? 1.5 : state.weather === 'storm' ? 2 : 0.7;
+                ctx.fillStyle = `rgba(255, 255, 255, ${cloud.opacity * density * weatherMultiplier})`;
+                
+                for (let i = 0; i < 3; i++) {
+                    ctx.beginPath();
+                    ctx.arc(
+                        cloud.x + i * cloud.size * 0.4,
+                        cloud.y,
+                        cloud.size * (0.5 + i * 0.2),
+                        0,
+                        Math.PI * 2
+                    );
+                    ctx.fill();
+                }
+
+                cloud.x += cloud.speed * windEffect * (state.animSpeed / 50);
+                if (cloud.x > canvas.width + cloud.size) {
+                    cloud.x = -cloud.size;
+                    cloud.y = Math.random() * canvas.height * 0.5;
+                }
+            });
+        }
+
+        function drawSnow() {
+            if (state.weather === 'snow' || state.weather === 'storm') {
+                const intensity = state.weather === 'storm' ? 1.5 : 1;
+                snowflakes.forEach(flake => {
+                    ctx.fillStyle = `rgba(255, 255, 255, 0.8)`;
+                    ctx.beginPath();
+                    ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    flake.y += flake.speed * intensity * (state.animSpeed / 50);
+                    flake.x += flake.drift * (state.windSpeed / 50) + Math.sin(state.time * 0.01) * 0.5;
+
+                    if (flake.y > canvas.height) {
+                        flake.y = -10;
+                        flake.x = Math.random() * canvas.width;
+                    }
+                    if (flake.x > canvas.width) flake.x = 0;
+                    if (flake.x < 0) flake.x = canvas.width;
+                });
+            }
+        }
+
+        function drawFog() {
+            const intensity = state.fogIntensity / 100;
+            if (intensity > 0) {
+                const gradient = ctx.createLinearGradient(0, canvas.height * 0.6, 0, canvas.height);
+                gradient.addColorStop(0, `rgba(200, 200, 220, 0)`);
+                gradient.addColorStop(1, `rgba(200, 200, 220, ${intensity * 0.6})`);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, canvas.height * 0.6, canvas.width, canvas.height * 0.4);
+            }
+        }
+
+        function animate() {
+            state.time++;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawSky();
+            drawStars();
+            drawSun();
+            drawMountains();
+            drawClouds();
+            drawFog();
+            drawSnow();
+            
+            requestAnimationFrame(animate);
+        }
+
+        // Controls
+        const toggleBtn = document.getElementById('toggleBtn');
+        const controlsPanel = document.getElementById('controlsPanel');
+
+        toggleBtn.addEventListener('click', () => {
+            toggleBtn.classList.toggle('active');
+            controlsPanel.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.timeOfDay = btn.dataset.time;
+            });
+        });
+
+        document.querySelectorAll('.weather-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.weather-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.weather = btn.dataset.weather;
+            });
+        });
+
+        document.getElementById('cloudDensity').addEventListener('input', (e) => {
+            state.cloudDensity = e.target.value;
+            document.getElementById('cloudValue').textContent = e.target.value + '%';
+        });
+
+        document.getElementById('windSpeed').addEventListener('input', (e) => {
+            state.windSpeed = e.target.value;
+            document.getElementById('windValue').textContent = e.target.value + '%';
+        });
+
+        document.getElementById('animSpeed').addEventListener('input', (e) => {
+            state.animSpeed = e.target.value;
+            document.getElementById('speedValue').textContent = e.target.value + '%';
+        });
+
+        document.getElementById('fogIntensity').addEventListener('input', (e) => {
+            state.fogIntensity = e.target.value;
+            document.getElementById('fogValue').textContent = e.target.value + '%';
+        });
+
+        document.getElementById('starVisibility').addEventListener('input', (e) => {
+            state.starVisibility = e.target.value;
+            document.getElementById('starValue').textContent = e.target.value + '%';
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initClouds();
+            initSnow();
+            initStars();
+        });
+
+        animate();
+    </script>
+</body>
+</html>
