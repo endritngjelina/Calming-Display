@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thunderstorm Field</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .scene-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(to bottom, #0a0e27 0%, #1a1a2e 50%, #16213e 100%);
+            transition: background 2s ease;
+        }
+
+        /* Sky layers with animated clouds */
+        .sky {
+            position: absolute;
+            width: 100%;
+            height: 70%;
+            top: 0;
+            overflow: hidden;
+        }
+
+        .cloud-layer {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background-image: 
+                radial-gradient(ellipse 800px 300px at 20% 40%, rgba(40, 44, 60, 0.9) 0%, transparent 60%),
+                radial-gradient(ellipse 600px 250px at 60% 30%, rgba(30, 34, 50, 0.8) 0%, transparent 60%),
+                radial-gradient(ellipse 700px 280px at 85% 50%, rgba(35, 39, 55, 0.85) 0%, transparent 60%),
+                radial-gradient(ellipse 900px 320px at 40% 60%, rgba(25, 29, 45, 0.9) 0%, transparent 60%);
+            animation: driftClouds 120s linear infinite;
+        }
+
+        .cloud-layer-2 {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background-image: 
+                radial-gradient(ellipse 700px 280px at 30% 50%, rgba(45, 49, 65, 0.7) 0%, transparent 60%),
+                radial-gradient(ellipse 800px 300px at 70% 40%, rgba(35, 39, 55, 0.75) 0%, transparent 60%),
+                radial-gradient(ellipse 600px 250px at 50% 55%, rgba(40, 44, 60, 0.8) 0%, transparent 60%);
+            animation: driftClouds 90s linear infinite reverse;
+        }
+
+        @keyframes driftClouds {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Lightning effect */
+        .lightning {
+            position: absolute;
+            width: 100%;
+            height: 70%;
+            top: 0;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .lightning-bolt {
+            position: absolute;
+            width: 3px;
+            height: 0;
+            background: linear-gradient(to bottom, 
+                rgba(255, 255, 255, 1) 0%,
+                rgba(200, 220, 255, 0.9) 50%,
+                rgba(150, 180, 255, 0) 100%);
+            box-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(200, 220, 255, 0.6),
+                0 0 30px rgba(150, 180, 255, 0.4);
+            transform-origin: top center;
+        }
+
+        /* Ground/Field */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(to bottom, #0d1b2a 0%, #0a0f1a 100%);
+            overflow: hidden;
+        }
+
+        .field-grass {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(90deg, 
+                    transparent 0px, 
+                    transparent 2px, 
+                    rgba(20, 40, 30, 0.3) 2px, 
+                    rgba(20, 40, 30, 0.3) 4px);
+        }
+
+        .grass-blade {
+            position: absolute;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to top, #1a3a2a 0%, transparent 100%);
+            transform-origin: bottom center;
+            animation: grassSway 3s ease-in-out infinite;
+        }
+
+        @keyframes grassSway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        /* Rain */
+        .rain {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            pointer-events: none;
+        }
+
+        .raindrop {
+            position: absolute;
+            width: 1px;
+            height: 20px;
+            background: linear-gradient(to bottom, 
+                rgba(174, 194, 224, 0.3) 0%, 
+                rgba(174, 194, 224, 0.8) 100%);
+            animation: rainfall linear infinite;
+        }
+
+        @keyframes rainfall {
+            0% {
+                transform: translateY(-100vh);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh);
+                opacity: 0.5;
+            }
+        }
+
+        /* Wind effect on grass */
+        .wind-gust {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(100, 120, 140, 0.1) 50%, 
+                transparent 100%);
+            animation: windSweep 8s ease-in-out infinite;
+        }
+
+        @keyframes windSweep {
+            0%, 100% { transform: translateX(-100%); opacity: 0; }
+            50% { transform: translateX(100%); opacity: 0.3; }
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(20, 20, 40, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .controls.hidden {
+            transform: translateX(calc(100% + 20px));
+        }
+
+        .toggle-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(20, 20, 40, 0.8);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-controls:hover {
+            background: rgba(40, 40, 60, 0.9);
+            transform: scale(1.1);
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            color: #aec2e0;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .control-group input[type="range"] {
+            width: 200px;
+            cursor: pointer;
+        }
+
+        .control-group button {
+            background: rgba(60, 80, 120, 0.8);
+            border: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .control-group button:hover {
+            background: rgba(80, 100, 140, 1);
+            transform: translateY(-2px);
+        }
+
+        .control-group button.active {
+            background: rgba(100, 150, 200, 0.9);
+        }
+
+        /* Horizon glow effect */
+        .horizon-glow {
+            position: absolute;
+            bottom: 30%;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: radial-gradient(ellipse at center, 
+                rgba(100, 120, 180, 0.2) 0%, 
+                transparent 70%);
+            animation: horizonPulse 5s ease-in-out infinite;
+        }
+
+        @keyframes horizonPulse {
+            0%, 100% { opacity: 0.5; transform: scaleY(1); }
+            50% { opacity: 0.8; transform: scaleY(1.2); }
+        }
+
+        /* Ambient particles */
+        .particle {
+            position: absolute;
+            background: rgba(174, 194, 224, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFloat linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        /* Thunder audio indicator */
+        .audio-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(20, 20, 40, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: #aec2e0;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .audio-indicator.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <button class="toggle-controls" onclick="toggleControls()">⚙️</button>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label>Lightning Frequency</label>
+            <input type="range" id="lightningFreq" min="1000" max="8000" value="4000" step="100">
+        </div>
+        <div class="control-group">
+            <label>Rain Intensity</label>
+            <input type="range" id="rainIntensity" min="0" max="300" value="150" step="10">
+        </div>
+        <div class="control-group">
+            <label>Wind Speed</label>
+            <input type="range" id="windSpeed" min="0" max="10" value="5" step="1">
+        </div>
+        <div class="control-group">
+            <label>Cloud Speed</label>
+            <input type="range" id="cloudSpeed" min="30" max="180" value="90" step="10">
+        </div>
+        <div class="control-group">
+            <label>Presets</label><br>
+            <button onclick="setPreset('gentle')">Gentle Storm</button>
+            <button onclick="setPreset('intense')">Intense Storm</button>
+            <button onclick="setPreset('calm')">Calm Night</button>
+        </div>
+    </div>
+
+    <div class="scene-container">
+        <div class="sky">
+            <div class="cloud-layer"></div>
+            <div class="cloud-layer-2"></div>
+            <div class="horizon-glow"></div>
+        </div>
+        
+        <div class="lightning"></div>
+        <div class="rain"></div>
+        
+        <div class="ground">
+            <div class="wind-gust"></div>
+            <div class="field-grass"></div>
+        </div>
+    </div>
+
+    <div class="audio-indicator">🌩️ Thunder rumbling...</div>
+
+    <script>
+        const scene = document.querySelector('.scene-container');
+        const lightning = document.querySelector('.lightning');
+        const rain = document.querySelector('.rain');
+        const ground = document.querySelector('.ground');
+        const sky = document.querySelector('.sky');
+        const audioIndicator = document.querySelector('.audio-indicator');
+        
+        let lightningInterval;
+        let currentRaindrops = [];
+        
+        // Initialize grass blades
+        function createGrass() {
+            const grassContainer = document.querySelector('.field-grass');
+            for (let i = 0; i < 150; i++) {
+                const blade = document.createElement('div');
+                blade.className = 'grass-blade';
+                blade.style.left = `${Math.random() * 100}%`;
+                blade.style.height = `${Math.random() * 40 + 20}px`;
+                blade.style.animationDelay = `${Math.random() * 3}s`;
+                blade.style.animationDuration = `${Math.random() * 2 + 2}s`;
+                grassContainer.appendChild(blade);
+            }
+        }
+
+        // Create ambient particles
+        function createParticles() {
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.width = `${Math.random() * 3 + 1}px`;
+                particle.style.height = particle.style.width;
+                particle.style.animationDuration = `${Math.random() * 10 + 15}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                sky.appendChild(particle);
+            }
+        }
+
+        // Lightning flash effect
+        function createLightning() {
+            const numBolts = Math.floor(Math.random() * 3) + 1;
+            
+            // Flash the entire scene
+            scene.style.background = 'linear-gradient(to bottom, #e0e8ff 0%, #b0c4de 50%, #8a9eb5 100%)';
+            lightning.style.opacity = '1';
+            
+            // Show audio indicator
+            audioIndicator.classList.add('show');
+            
+            for (let i = 0; i < numBolts; i++) {
+                const bolt = document.createElement('div');
+                bolt.className = 'lightning-bolt';
+                bolt.style.left = `${Math.random() * 100}%`;
+                bolt.style.height = `${Math.random() * 300 + 200}px`;
+                bolt.style.transform = `rotate(${Math.random() * 20 - 10}deg)`;
+                lightning.appendChild(bolt);
+                
+                // Animate bolt appearance
+                setTimeout(() => {
+                    bolt.style.transition = 'height 0.05s ease-out';
+                }, 10);
+            }
+            
+            // Quick flash
+            setTimeout(() => {
+                scene.style.background = 'linear-gradient(to bottom, #0a0e27 0%, #1a1a2e 50%, #16213e 100%)';
+                lightning.style.opacity = '0';
+            }, 100);
+            
+            // Second flash (optional)
+            if (Math.random() > 0.5) {
+                setTimeout(() => {
+                    scene.style.background = 'linear-gradient(to bottom, #d0d8ef 0%, #a0b4ce 50%, #7a8ea5 100%)';
+                    lightning.style.opacity = '0.6';
+                }, 150);
+                
+                setTimeout(() => {
+                    scene.style.background = 'linear-gradient(to bottom, #0a0e27 0%, #1a1a2e 50%, #16213e 100%)';
+                    lightning.style.opacity = '0';
+                }, 200);
+            }
+            
+            // Clear bolts
+            setTimeout(() => {
+                lightning.innerHTML = '';
+                audioIndicator.classList.remove('show');
+            }, 300);
+        }
+
+        // Start lightning
+        function startLightning(frequency = 4000) {
+            if (lightningInterval) clearInterval(lightningInterval);
+            
+            const strike = () => {
+                createLightning();
+                const nextStrike = Math.random() * frequency + frequency / 2;
+                lightningInterval = setTimeout(strike, nextStrike);
+            };
+            
+            strike();
+        }
+
+        // Create rain
+        function updateRain(intensity = 150) {
+            // Remove existing raindrops
+            currentRaindrops.forEach(drop => drop.remove());
+            currentRaindrops = [];
+            
+            for (let i = 0; i < intensity; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'raindrop';
+                drop.style.left = `${Math.random() * 100}%`;
+                drop.style.animationDuration = `${Math.random() * 0.5 + 0.5}s`;
+                drop.style.animationDelay = `${Math.random() * 2}s`;
+                drop.style.opacity = Math.random() * 0.5 + 0.3;
+                rain.appendChild(drop);
+                currentRaindrops.push(drop);
+            }
+        }
+
+        // Update wind speed
+        function updateWind(speed) {
+            const windGust = document.querySelector('.wind-gust');
+            windGust.style.animationDuration = `${16 - speed}s`;
+        }
+
+        // Update cloud speed
+        function updateCloudSpeed(speed) {
+            const cloudLayers = document.querySelectorAll('.cloud-layer, .cloud-layer-2');
+            cloudLayers[0].style.animationDuration = `${180 - speed}s`;
+            cloudLayers[1].style.animationDuration = `${140 - speed}s`;
+        }
+
+        // Presets
+        function setPreset(type) {
+            const buttons = document.querySelectorAll('.control-group button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (type === 'gentle') {
+                document.getElementById('lightningFreq').value = 6000;
+                document.getElementById('rainIntensity').value = 80;
+                document.getElementById('windSpeed').value = 3;
+                document.getElementById('cloudSpeed').value = 60;
+            } else if (type === 'intense') {
+                document.getElementById('lightningFreq').value = 2000;
+                document.getElementById('rainIntensity').value = 250;
+                document.getElementById('windSpeed').value = 8;
+                document.getElementById('cloudSpeed').value = 150;
+            } else if (type === 'calm') {
+                document.getElementById('lightningFreq').value = 8000;
+                document.getElementById('rainIntensity').value = 30;
+                document.getElementById('windSpeed').value = 2;
+                document.getElementById('cloudSpeed').value = 40;
+            }
+            
+            applySettings();
+        }
+
+        // Apply settings
+        function applySettings() {
+            const lightningFreq = document.getElementById('lightningFreq').value;
+            const rainIntensity = document.getElementById('rainIntensity').value;
+            const windSpeed = document.getElementById('windSpeed').value;
+            const cloudSpeed = document.getElementById('cloudSpeed').value;
+            
+            startLightning(parseInt(lightningFreq));
+            updateRain(parseInt(rainIntensity));
+            updateWind(parseInt(windSpeed));
+            updateCloudSpeed(parseInt(cloudSpeed));
+        }
+
+        // Toggle controls
+        function toggleControls() {
+            const controls = document.querySelector('.controls');
+            controls.classList.toggle('hidden');
+        }
+
+        // Event listeners
+        document.getElementById('lightningFreq').addEventListener('input', applySettings);
+        document.getElementById('rainIntensity').addEventListener('input', applySettings);
+        document.getElementById('windSpeed').addEventListener('input', applySettings);
+        document.getElementById('cloudSpeed').addEventListener('input', applySettings);
+
+        // Initialize
+        createGrass();
+        createParticles();
+        updateRain(150);
+        startLightning(4000);
+    </script>
+</body>
+</html>
