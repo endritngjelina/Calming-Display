@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Waterfall Canyon Zen</title>
+    <style>
+        :root {
+            --color-primary: #208594;
+            --color-text: #f5f5f5;
+            --color-bg: #1a2f3f;
+            --color-accent: #4db8cc;
+            --color-secondary: #2dcc71;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--color-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--color-text);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20, 35, 50, 0.85);
+            border: 2px solid var(--color-primary);
+            border-radius: 12px;
+            padding: 20px 30px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .control-group label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            color: var(--color-accent);
+        }
+
+        .toggle-btn, select, .slider-container {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn:hover, select:hover {
+            background: var(--color-accent);
+            transform: translateY(-2px);
+        }
+
+        .toggle-btn.active {
+            background: var(--color-secondary);
+        }
+
+        select {
+            padding: 8px 12px;
+        }
+
+        .toggle-btn {
+            min-width: 90px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 150px;
+        }
+
+        .slider-container input {
+            flex: 1;
+        }
+
+        .info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(20, 35, 50, 0.7);
+            border-left: 3px solid var(--color-accent);
+            padding: 15px 20px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--color-accent);
+            backdrop-filter: blur(10px);
+            max-width: 280px;
+            z-index: 100;
+        }
+
+        .info h3 {
+            color: var(--color-text);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(20, 35, 50, 0.7);
+            border: 2px solid var(--color-primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .sound-toggle:hover {
+            background: var(--color-primary);
+            transform: scale(1.1);
+        }
+
+        .sound-toggle svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--color-text);
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                bottom: 15px;
+                left: 15px;
+                right: 15px;
+                transform: none;
+                padding: 15px;
+                gap: 10px;
+            }
+
+            .control-group {
+                gap: 8px;
+            }
+
+            .info {
+                font-size: 11px;
+                max-width: 200px;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="scene"></canvas>
+    <canvas id="overlay" class="overlay"></canvas>
+
+    <div class="info">
+        <h3>✨ Enhanced Waterfall Canyon Zen</h3>
+        <p>Find your calm in the flowing waters. Customize the view below.</p>
+    </div>
+
+    <div class="sound-toggle" id="soundToggle">
+        <svg viewBox="0 0 24 24">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path>
+        </svg>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>Waterfall</label>
+            <button class="toggle-btn active" data-toggle="waterfall">On</button>
+        </div>
+        <div class="control-group">
+            <label>Mist</label>
+            <button class="toggle-btn active" data-toggle="mist">On</button>
+        </div>
+        <div class="control-group">
+            <label>Flying</label>
+            <select id="flyingSelect">
+                <option value="leaves">Leaves</option>
+                <option value="birds">Birds</option>
+                <option value="butterflies">Butterflies</option>
+                <option value="fireflies">Fireflies</option>
+                <option value="none">None</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>Light</label>
+            <select id="lightSelect">
+                <option value="daylight">Daylight</option>
+                <option value="sunset">Sunset</option>
+                <option value="moonlight">Moonlight</option>
+                <option value="aurora">Aurora</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>Rain</label>
+            <button class="toggle-btn" data-toggle="rain">Off</button>
+        </div>
+        <div class="control-group">
+            <label>Stars</label>
+            <button class="toggle-btn" data-toggle="stars">Off</button>
+        </div>
+        <div class="slider-container">
+            <label>Time Speed</label>
+            <input type="range" id="timeSpeed" min="0.5" max="2" step="0.1" value="1">
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('scene');
+        const overlay = document.getElementById('overlay');
+        const ctx = canvas.getContext('2d');
+        const overlayCtx = overlay.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        overlay.width = window.innerWidth;
+        overlay.height = window.innerHeight;
+
+        // State
+        const state = {
+            waterfall: true,
+            mist: true,
+            flying: 'leaves',
+            light: 'daylight',
+            rain: false,
+            stars: false,
+            time: 0,
+            timeSpeed: 1,
+            soundEnabled: false
+        };
+
+        // Particle system
+        class Particle {
+            constructor(x, y, vx, vy, size, type = 'water', color = null) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.size = size;
+                this.type = type;
+                this.life = 1;
+                this.maxLife = type === 'firefly' ? 0.5 + Math.random() * 0.5 : 1;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.1;
+                this.color = color;
+                this.flicker = type === 'firefly' ? Math.random() * 0.5 : 0;
+                this.flickerSpeed = 0.05 + Math.random() * 0.1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                if (this.type === 'water') {
+                    this.vy += 0.15; // gravity
+                } else if (this.type === 'rain') {
+                    this.vy += 0.3; // faster gravity for rain
+                } else if (this.type === 'firefly') {
+                    this.vx += (Math.random() - 0.5) * 0.1;
+                    this.vy += (Math.random() - 0.5) * 0.1;
+                    // Keep fireflies in bounds
+                    if (this.x < 0) this.vx = Math.abs(this.vx) * 0.5;
+                    if (this.x > canvas.width) this.vx = -Math.abs(this.vx) * 0.5;
+                    if (this.y < 0) this.vy = Math.abs(this.vy) * 0.5;
+                    if (this.y > canvas.height * 0.7) this.vy = -Math.abs(this.vy) * 0.5;
+                    
+                    this.flicker += this.flickerSpeed;
+                    this.life = 0.5 + Math.sin(this.flicker) * 0.5;
+                }
+                
+                this.life -= 0.01;
+                this.rotation += this.rotationSpeed;
+            }
+
+            isAlive() {
+                return this.life > 0;
+            }
+        }
+
+        const particles = [];
+        const stars = [];
+        const rainParticles = [];
+
+        // Color schemes
+        const lightSchemes = {
+            daylight: {
+                sky: ['#87ceeb', '#a8d8ea', '#9bd4ea'],
+                cliff: ['#4a5859', '#5a6869', '#6a7879'],
+                water: ['#0a8fa0', '#0a9fb0', '#0aafb0'],
+                mist: 'rgba(200, 220, 240, 0.15)',
+                ambient: 'rgba(255, 255, 200, 0.08)',
+                sun: '#ffdb58'
+            },
+            sunset: {
+                sky: ['#ff6b6b', '#ff8c42', '#ffa500', '#87ceeb'],
+                cliff: ['#3d2817', '#4a3728', '#574239'],
+                water: ['#c1440e', '#d85c2c', '#e67e22'],
+                mist: 'rgba(255, 180, 120, 0.12)',
+                ambient: 'rgba(255, 200, 100, 0.15)',
+                sun: '#ff4500'
+            },
+            moonlight: {
+                sky: ['#0a1428', '#1a2f4a', '#2a3f5a', '#1a2f4a'],
+                cliff: ['#1a2027', '#2a3037', '#3a4047'],
+                water: ['#0f4a66', '#1a5a7a', '#0f3a56'],
+                mist: 'rgba(180, 200, 255, 0.08)',
+                ambient: 'rgba(150, 180, 255, 0.04)',
+                moon: '#f0f0f0'
+            },
+            aurora: {
+                sky: ['#0a1428', '#0f1e38', '#142848'],
+                cliff: ['#1a2027', '#2a3037', '#3a4047'],
+                water: ['#0f4a66', '#1a5a7a', '#0f3a56'],
+                mist: 'rgba(100, 220, 255, 0.1)',
+                ambient: 'rgba(100, 220, 255, 0.05)',
+                aurora: ['#00ffaa', '#00aaff', '#aa00ff']
+            }
+        };
+
+        // Initialize stars
+        function initStars() {
+            stars.length = 0;
+            for (let i = 0; i < 150; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.5,
+                    size: Math.random() * 1.5 + 0.5,
+                    brightness: Math.random() * 0.8 + 0.2,
+                    twinkleSpeed: Math.random() * 0.05
+                });
+            }
+        }
+
+        function drawGradientSky() {
+            const scheme = lightSchemes[state.light];
+            let gradient;
+            
+            if (state.light === 'aurora') {
+                // Special aurora sky
+                gradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.5);
+                scheme.sky.forEach((color, i) => {
+                    gradient.addColorStop(i / (scheme.sky.length - 1), color);
+                });
+            } else {
+                gradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.5);
+                const colors = scheme.sky;
+                colors.forEach((color, i) => {
+                    gradient.addColorStop(i / (colors.length - 1), color);
+                });
+            }
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.5);
+        }
+
+        function drawCelestialBody() {
+            const scheme = lightSchemes[state.light];
+            
+            if (state.light === 'daylight' || state.light === 'sunset') {
+                // Draw sun
+                ctx.fillStyle = scheme.sun;
+                ctx.beginPath();
+                ctx.arc(canvas.width * 0.85, canvas.height * 0.15, 30, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Sun glow
+                const glow = ctx.createRadialGradient(
+                    canvas.width * 0.85, canvas.height * 0.15, 30,
+                    canvas.width * 0.85, canvas.height * 0.15, 80
+                );
+                glow.addColorStop(0, scheme.sun + '80');
+                glow.addColorStop(1, 'transparent');
+                
+                ctx.fillStyle = glow;
+                ctx.fillRect(canvas.width * 0.85 - 80, canvas.height * 0.15 - 80, 160, 160);
+            } else if (state.light === 'moonlight') {
+                // Draw moon
+                ctx.fillStyle = scheme.moon;
+                ctx.beginPath();
+                ctx.arc(canvas.width * 0.15, canvas.height * 0.15, 25, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Moon craters
+                ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
+                ctx.beginPath();
+                ctx.arc(canvas.width * 0.15 - 8, canvas.height * 0.15 - 5, 5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(canvas.width * 0.15 + 10, canvas.height * 0.15 + 8, 7, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(canvas.width * 0.15 + 5, canvas.height * 0.15 - 10, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawAurora() {
+            if (state.light !== 'aurora') return;
+            
+            const time = state.time * 0.005;
+            const scheme = lightSchemes[state.light];
+            
+            for (let i = 0; i < 3; i++) {
+                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.3);
+                gradient.addColorStop(0, 'transparent');
+                gradient.addColorStop(0.3, scheme.aurora[i] + '40');
+                gradient.addColorStop(0.7, scheme.aurora[(i+1)%3] + '60');
+                gradient.addColorStop(1, 'transparent');
+                
+                ctx.fillStyle = gradient;
+                ctx.globalAlpha = 0.6 + Math.sin(time + i * 2) * 0.3;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height * 0.1);
+                
+                for (let x = 0; x < canvas.width; x += 10) {
+                    const y = canvas.height * 0.1 + 
+                              Math.sin(x * 0.01 + time + i) * 20 +
+                              Math.cos(x * 0.005 + time * 0.5 + i) * 15;
+                    ctx.lineTo(x, y);
+                }
+                
+                ctx.lineTo(canvas.width, canvas.height * 0.1);
+                ctx.fill();
+            }
+            
+            ctx.globalAlpha = 1;
+        }
+
+        function drawStars() {
+            if (!state.stars || (state.light !== 'moonlight' && state.light !== 'aurora')) return;
+            
+            const time = state.time * 0.01;
+            
+            stars.forEach(star => {
+                const brightness = star.brightness + Math.sin(time * star.twinkleSpeed) * 0.3;
+                ctx.fillStyle = `rgba(255, 255, 255, ${brightness})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawCliffSilhouettes() {
+            const scheme = lightSchemes[state.light];
+            
+            // Left cliff - more detailed
+            ctx.fillStyle = scheme.cliff[0];
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height * 0.3);
+            ctx.quadraticCurveTo(canvas.width * 0.15, canvas.height * 0.1, canvas.width * 0.25, canvas.height * 0.4);
+            ctx.lineTo(canvas.width * 0.2, canvas.height * 0.5);
+            ctx.quadraticCurveTo(canvas.width * 0.1, canvas.height * 0.45, 0, canvas.height * 0.6);
+            ctx.fill();
+
+            // Right cliff - more detailed
+            ctx.beginPath();
+            ctx.moveTo(canvas.width, canvas.height * 0.25);
+            ctx.quadraticCurveTo(canvas.width * 0.85, canvas.height * 0.08, canvas.width * 0.75, canvas.height * 0.35);
+            ctx.lineTo(canvas.width * 0.8, canvas.height * 0.45);
+            ctx.quadraticCurveTo(canvas.width * 0.9, canvas.height * 0.4, canvas.width, canvas.height * 0.55);
+            ctx.fill();
+
+            // Center cliff with waterfall drop - more detailed
+            ctx.fillStyle = scheme.cliff[1];
+            ctx.beginPath();
+            ctx.moveTo(canvas.width * 0.35, canvas.height * 0.2);
+            ctx.lineTo(canvas.width * 0.65, canvas.height * 0.2);
+            
+            // Add some cliff texture
+            ctx.lineTo(canvas.width * 0.68, canvas.height * 0.35);
+            ctx.quadraticCurveTo(canvas.width * 0.65, canvas.height * 0.4, canvas.width * 0.68, canvas.height * 0.45);
+            ctx.lineTo(canvas.width * 0.65, canvas.height * 0.5);
+            
+            ctx.lineTo(canvas.width * 0.32, canvas.height * 0.5);
+            
+            // Mirror texture on left side
+            ctx.lineTo(canvas.width * 0.35, canvas.height * 0.45);
+            ctx.quadraticCurveTo(canvas.width * 0.32, canvas.height * 0.4, canvas.width * 0.35, canvas.height * 0.35);
+            
+            ctx.closePath();
+            ctx.fill();
+
+            // Add some vegetation on cliffs
+            ctx.fillStyle = '#2a5c2a';
+            drawVegetation(canvas.width * 0.2, canvas.height * 0.35, 15, 25);
+            drawVegetation(canvas.width * 0.8, canvas.height * 0.3, 12, 20);
+            drawVegetation(canvas.width * 0.3, canvas.height * 0.25, 10, 15);
+            drawVegetation(canvas.width * 0.7, canvas.height * 0.22, 8, 12);
+        }
+
+        function drawVegetation(x, y, width, height) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.quadraticCurveTo(x - width/2, y - height/2, x - width/4, y - height);
+            ctx.quadraticCurveTo(x, y - height*0.8, x + width/4, y - height);
+            ctx.quadraticCurveTo(x + width/2, y - height/2, x, y);
+            ctx.fill();
+        }
+
+        function drawWaterfall() {
+            if (!state.waterfall) return;
+
+            const scheme = lightSchemes[state.light];
+            const startX = canvas.width * 0.5;
+            const startY = canvas.height * 0.2;
+            const dropWidth = canvas.width * 0.12;
+
+            // Main waterfall - animated gradient with multiple layers
+            const time = state.time * 0.02;
+            
+            // Create flowing water effect with multiple gradient layers
+            for (let i = 0; i < 8; i++) {
+                const gradient = ctx.createLinearGradient(
+                    startX - dropWidth * 0.5,
+                    startY + i * 25,
+                    startX - dropWidth * 0.5,
+                    startY + i * 25 + 50
+                );
+                
+                const offset = (time + i * 0.3) % 2;
+                gradient.addColorStop(0, scheme.water[0]);
+                gradient.addColorStop(0.5 + Math.sin(offset * Math.PI) * 0.2, scheme.water[1]);
+                gradient.addColorStop(1, scheme.water[2]);
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(
+                    startX - dropWidth * 0.5,
+                    startY + i * 25,
+                    dropWidth,
+                    50
+                );
+            }
+
+            // Waterfall splash effect with flowing animation
+            ctx.fillStyle = scheme.water[2];
+            for (let x = startX - dropWidth * 0.5; x < startX + dropWidth * 0.5; x += dropWidth * 0.1) {
+                const wave = Math.sin((x / dropWidth + time) * Math.PI * 2) * 4;
+                ctx.beginPath();
+                ctx.arc(x, canvas.height * 0.48 + wave, 2 + Math.random() * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Enhanced mist at waterfall base
+            if (state.mist) {
+                const mistGrad = ctx.createRadialGradient(
+                    startX, canvas.height * 0.48, 0, 
+                    startX, canvas.height * 0.55, canvas.width * 0.5
+                );
+                mistGrad.addColorStop(0, scheme.mist);
+                mistGrad.addColorStop(1, 'rgba(200, 220, 240, 0)');
+                
+                // Animate mist
+                ctx.globalAlpha = 0.6 + Math.sin(time * 0.5) * 0.2;
+                ctx.fillStyle = mistGrad;
+                ctx.fillRect(startX - canvas.width * 0.5, canvas.height * 0.35, canvas.width, canvas.height * 0.4);
+                ctx.globalAlpha = 1;
+            }
+
+            // Generate water particles
+            if (state.waterfall && Math.random() > 0.5) {
+                const px = startX - dropWidth * 0.5 + Math.random() * dropWidth;
+                const py = startY + Math.random() * (canvas.height * 0.3);
+                const vx = (Math.random() - 0.5) * 2;
+                const vy = 2 + Math.random() * 1;
+                particles.push(new Particle(px, py, vx, vy, Math.random() * 2 + 1, 'water'));
+            }
+        }
+
+        function drawWaterPool() {
+            const scheme = lightSchemes[state.light];
+            const time = state.time * 0.02;
+            
+            // Pool water with ripple effect
+            const gradient = ctx.createLinearGradient(0, canvas.height * 0.48, 0, canvas.height);
+            gradient.addColorStop(0, scheme.water[2]);
+            gradient.addColorStop(0.7, scheme.water[1]);
+            gradient.addColorStop(1, scheme.water[0]);
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, canvas.height * 0.48, canvas.width, canvas.height * 0.52);
+
+            // Ripple effect on water
+            ctx.strokeStyle = lightSchemes[state.light].water[1];
+            ctx.globalAlpha = 0.3;
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i < 5; i++) {
+                const radius = (time * 30 + i * 15) % (canvas.width * 0.4);
+                ctx.beginPath();
+                ctx.arc(canvas.width * 0.5, canvas.height * 0.48, radius, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+
+            // Water surface shimmer
+            ctx.globalAlpha = 0.1;
+            for (let x = 0; x < canvas.width; x += 20) {
+                const wave = Math.sin((x / 50) + time) * 3;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.fillRect(x, canvas.height * 0.48 + wave, 10, 1);
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawFlyingObjects() {
+            if (state.flying === 'none') return;
+
+            const time = state.time * 0.01;
+            const count = state.flying === 'birds' ? 8 : 
+                         state.flying === 'butterflies' ? 12 : 
+                         state.flying === 'fireflies' ? 20 : 15;
+
+            for (let i = 0; i < count; i++) {
+                const seed = i * 137.5; // golden ratio for distribution
+                const x = (Math.sin(seed + time * 0.5) + 1) * canvas.width * 0.5;
+                const y = (Math.cos(seed * 0.7 + time * 0.3) + 1) * canvas.height * 0.35;
+                
+                if (state.flying === 'leaves') {
+                    drawLeaf(x, y, i, time);
+                } else if (state.flying === 'birds') {
+                    drawBird(x, y, i, time);
+                } else if (state.flying === 'butterflies') {
+                    drawButterfly(x, y, i, time);
+                } else if (state.flying === 'fireflies') {
+                    // Fireflies are handled in the particle system
+                    if (Math.random() > 0.98 && particles.filter(p => p.type === 'firefly').length < 15) {
+                        particles.push(new Particle(
+                            Math.random() * canvas.width,
+                            Math.random() * canvas.height * 0.7,
+                            (Math.random() - 0.5) * 0.5,
+                            (Math.random() - 0.5) * 0.5,
+                            Math.random() * 2 + 1,
+                            'firefly',
+                            '#ffffaa'
+                        ));
+                    }
+                }
+            }
+        }
+
+        function drawLeaf(x, y, i, time) {
+            ctx.save();
+            ctx.translate(x, y);
+            const rotation = time * (0.3 + i * 0.1) + i;
+            ctx.rotate(rotation);
+            
+            const colors = ['#d4823f', '#c97f38', '#d19a3f', '#c68c36', '#a86f2a'];
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.globalAlpha = 0.7 + Math.sin(time * 0.5 + i) * 0.2;
+            
+            // More detailed leaf shape
+            ctx.beginPath();
+            ctx.moveTo(0, -10);
+            ctx.bezierCurveTo(8, -5, 8, 5, 0, 10);
+            ctx.bezierCurveTo(-8, 5, -8, -5, 0, -10);
+            ctx.fill();
+            
+            // Leaf vein
+            ctx.strokeStyle = colors[(i + 2) % colors.length];
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(0, -8);
+            ctx.lineTo(0, 8);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+
+        function drawBird(x, y, i, time) {
+            ctx.save();
+            ctx.translate(x, y);
+            
+            const wingFlap = Math.sin(time * 0.8 + i) * 0.5;
+            ctx.fillStyle = i % 3 === 0 ? '#1a1a1a' : i % 3 === 1 ? '#333333' : '#555555';
+            ctx.globalAlpha = 0.8 + Math.sin(time * 0.3 + i) * 0.15;
+            
+            // Body
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 4, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Head
+            ctx.beginPath();
+            ctx.arc(5, -2, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Beak
+            ctx.fillStyle = '#ff9900';
+            ctx.beginPath();
+            ctx.moveTo(7, -2);
+            ctx.lineTo(10, -2);
+            ctx.lineTo(7, 0);
+            ctx.fill();
+            
+            // Left wing
+            ctx.fillStyle = i % 3 === 0 ? '#1a1a1a' : i % 3 === 1 ? '#333333' : '#555555';
+            ctx.beginPath();
+            ctx.moveTo(-1, 0);
+            ctx.quadraticCurveTo(-8 + wingFlap, -4, -6, -8);
+            ctx.quadraticCurveTo(-3, -2, -1, 0);
+            ctx.fill();
+            
+            // Right wing
+            ctx.beginPath();
+            ctx.moveTo(1, 0);
+            ctx.quadraticCurveTo(8 - wingFlap, -4, 6, -8);
+            ctx.quadraticCurveTo(3, -2, 1, 0);
+            ctx.fill();
+            
+            // Tail
+            ctx.beginPath();
+            ctx.moveTo(-3, 0);
+            ctx.quadraticCurveTo(-8, 2, -6, 6);
+            ctx.quadraticCurveTo(-4, 2, -3, 0);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        function drawButterfly(x, y, i, time) {
+            ctx.save();
+            ctx.translate(x, y);
+            
+            const wingFlap = Math.sin(time * 1.2 + i) * 0.6;
+            const colors = [
+                ['#ff69b4', '#ff1493'], 
+                ['#6495ed', '#4169e1'],
+                ['#32cd32', '#228b22'],
+                ['#ffd700', '#ffa500']
+            ];
+            const colorSet = colors[i % colors.length];
+            ctx.fillStyle = colorSet[0];
+            ctx.globalAlpha = 0.75 + Math.sin(time * 0.4 + i) * 0.2;
+            
+            // Left upper wing
+            ctx.beginPath();
+            ctx.ellipse(-4, -4 - wingFlap, 4, 5, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Left lower wing
+            ctx.beginPath();
+            ctx.ellipse(-3, 3 + wingFlap * 0.5, 3, 4, 0.2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Right upper wing
+            ctx.beginPath();
+            ctx.ellipse(4, -4 - wingFlap, 4, 5, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Right lower wing
+            ctx.beginPath();
+            ctx.ellipse(3, 3 + wingFlap * 0.5, 3, 4, -0.2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Body
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 1.5, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Wing patterns
+            ctx.fillStyle = colorSet[1];
+            ctx.globalAlpha = 0.6;
+            
+            // Left upper wing pattern
+            ctx.beginPath();
+            ctx.ellipse(-4, -4 - wingFlap, 2, 2.5, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Right upper wing pattern
+            ctx.beginPath();
+            ctx.ellipse(4, -4 - wingFlap, 2, 2.5, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        function drawRain() {
+            if (!state.rain) return;
+            
+            const time = state.time * 0.05;
+            
+            // Generate rain particles
+            if (Math.random() > 0.3) {
+                rainParticles.push(new Particle(
+                    Math.random() * canvas.width,
+                    -10,
+                    (Math.random() - 0.5) * 0.5,
+                    5 + Math.random() * 3,
+                    Math.random() * 1.5 + 0.5,
+                    'rain'
+                ));
+            }
+            
+            // Draw and update rain particles
+            for (let i = rainParticles.length - 1; i >= 0; i--) {
+                const p = rainParticles[i];
+                p.update();
+                
+                if (p.y > canvas.height || !p.isAlive()) {
+                    rainParticles.splice(i, 1);
+                    
+                    // Create splash when rain hits the ground or water
+                    if (p.y > canvas.height * 0.48) {
+                        for (let j = 0; j < 3; j++) {
+                            particles.push(new Particle(
+                                p.x,
+                                canvas.height * 0.48,
+                                (Math.random() - 0.5) * 2,
+                                -1 - Math.random() * 2,
+                                Math.random() * 1 + 0.5,
+                                'water'
+                            ));
+                        }
+                    }
+                } else {
+                    ctx.save();
+                    ctx.globalAlpha = 0.6;
+                    ctx.strokeStyle = '#aaccff';
+                    ctx.lineWidth = p.size;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p.x + p.vx * 0.5, p.y + p.vy * 0.5);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                
+                if (!particles[i].isAlive()) {
+                    particles.splice(i, 1);
+                } else {
+                    ctx.save();
+                    
+                    if (particles[i].type === 'firefly') {
+                        ctx.globalAlpha = particles[i].life * 0.8;
+                        ctx.fillStyle = particles[i].color;
+                        ctx.beginPath();
+                        ctx.arc(particles[i].x, particles[i].y, particles[i].size, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Glow effect
+                        const glow = ctx.createRadialGradient(
+                            particles[i].x, particles[i].y, 0,
+                            particles[i].x, particles[i].y, particles[i].size * 3
+                        );
+                        glow.addColorStop(0, particles[i].color + '80');
+                        glow.addColorStop(1, 'transparent');
+                        
+                        ctx.globalAlpha = particles[i].life * 0.3;
+                        ctx.fillStyle = glow;
+                        ctx.beginPath();
+                        ctx.arc(particles[i].x, particles[i].y, particles[i].size * 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        ctx.globalAlpha = particles[i].life * 0.6;
+                        ctx.fillStyle = lightSchemes[state.light].water[1];
+                        ctx.beginPath();
+                        ctx.arc(particles[i].x, particles[i].y, particles[i].size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    
+                    ctx.restore();
+                }
+            }
+        }
+
+        function drawAmbientLight() {
+            const scheme = lightSchemes[state.light];
+            ctx.fillStyle = scheme.ambient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawOverlay() {
+            // Clear overlay
+            overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+            
+            // Add subtle vignette effect
+            const gradient = overlayCtx.createRadialGradient(
+                overlay.width / 2, overlay.height / 2, 0,
+                overlay.width / 2, overlay.height / 2, overlay.width * 0.7
+            );
+            gradient.addColorStop(0, 'transparent');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
+            
+            overlayCtx.fillStyle = gradient;
+            overlayCtx.fillRect(0, 0, overlay.width, overlay.height);
+            
+            // Add subtle film grain for texture
+            overlayCtx.globalAlpha = 0.03;
+            for (let i = 0; i < 1000; i++) {
+                const x = Math.random() * overlay.width;
+                const y = Math.random() * overlay.height;
+                const size = Math.random() * 1.5;
+                
+                overlayCtx.fillStyle = Math.random() > 0.5 ? '#ffffff' : '#000000';
+                overlayCtx.fillRect(x, y, size, size);
+            }
+            overlayCtx.globalAlpha = 1;
+        }
+
+        function animate() {
+            // Clear canvas
+            drawGradientSky();
+            
+            // Draw scene layers
+            drawCelestialBody();
+            drawAurora();
+            drawStars();
+            drawCliffSilhouettes();
+            drawWaterfall();
+            drawWaterPool();
+            drawFlyingObjects();
+            drawRain();
+            updateParticles();
+            drawAmbientLight();
+            drawOverlay();
+
+            state.time += state.timeSpeed;
+            requestAnimationFrame(animate);
+        }
+
+        // Event listeners for controls
+        document.querySelectorAll('[data-toggle]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const toggle = this.dataset.toggle;
+                state[toggle] = !state[toggle];
+                this.textContent = state[toggle] ? 'On' : 'Off';
+                this.classList.toggle('active');
+                
+                if (toggle === 'stars' && state.stars) {
+                    initStars();
+                }
+            });
+        });
+
+        document.getElementById('flyingSelect').addEventListener('change', function() {
+            state.flying = this.value;
+        });
+
+        document.getElementById('lightSelect').addEventListener('change', function() {
+            state.light = this.value;
+            if (state.stars && (state.light === 'moonlight' || state.light === 'aurora')) {
+                initStars();
+            }
+        });
+
+        document.getElementById('timeSpeed').addEventListener('input', function() {
+            state.timeSpeed = parseFloat(this.value);
+        });
+
+        document.getElementById('soundToggle').addEventListener('click', function() {
+            state.soundEnabled = !state.soundEnabled;
+            this.style.background = state.soundEnabled ? 'var(--color-secondary)' : 'rgba(20, 35, 50, 0.7)';
+            
+            // In a real implementation, you would toggle sound here
+            // For this example, we'll just log to console
+            console.log('Sound ' + (state.soundEnabled ? 'enabled' : 'disabled'));
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            overlay.width = window.innerWidth;
+            overlay.height = window.innerHeight;
+            if (state.stars) initStars();
+        });
+
+        // Initialize
+        initStars();
+        animate();
+    </script>
+</body>
+</html>
