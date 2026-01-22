@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wet Beach at Low Tide - Tranquil Scene</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #87CEEB;
+        }
+
+        #scene-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            max-width: 300px;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+        }
+
+        .control-panel:hover {
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 12px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-panel h3 {
+            margin-bottom: 18px;
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #4A90B0;
+            padding-bottom: 8px;
+        }
+
+        .control-group {
+            margin-bottom: 18px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, #E0E0E0, #4A90B0);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4A90B0, #2A70A0);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(74, 144, 176, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4A90B0, #2A70A0);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(74, 144, 176, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb:hover {
+            background: linear-gradient(135deg, #2A70A0, #1A5080);
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(74, 144, 176, 0.6);
+        }
+
+        .time-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        button {
+            padding: 11px 16px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #4A90B0, #5AA0C0);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(74, 144, 176, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #2A70A0, #3A80B0);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(74, 144, 176, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.active {
+            background: linear-gradient(135deg, #1A5080, #2A6090);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-button {
+            width: 100%;
+            margin: 6px 0;
+        }
+
+        .toggle-button.active {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .info-text {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 14px;
+            max-width: 380px;
+            line-height: 1.6;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 16px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .info-text strong {
+            font-size: 16px;
+            display: block;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+
+        .value-display {
+            display: inline;
+            font-weight: 700;
+            color: #4A90B0;
+            background: rgba(74, 144, 176, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ccc, transparent);
+            margin: 16px 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .control-panel {
+            animation: fadeIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="scene-container">
+        <canvas id="beach-canvas"></canvas>
+    </div>
+
+    <div class="control-panel">
+        <h3>🌊 Beach Tranquility</h3>
+
+        <div class="control-group">
+            <label>Time of Day</label>
+            <div class="time-buttons">
+                <button id="btn-dawn">🌅 Dawn</button>
+                <button id="btn-day" class="active">☀️ Day</button>
+                <button id="btn-sunset">🌇 Sunset</button>
+                <button id="btn-night">🌙 Night</button>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="control-group">
+            <label>Wave Height: <span class="value-display" id="wave-val">4</span></label>
+            <input type="range" id="wave-slider" min="1" max="10" value="4">
+        </div>
+
+        <div class="control-group">
+            <label>Wave Speed: <span class="value-display" id="speed-val">1.0</span>x</label>
+            <input type="range" id="speed-slider" min="0.2" max="2.5" step="0.1" value="1.0">
+        </div>
+
+        <div class="control-group">
+            <label>Tide Level: <span class="value-display" id="water-val">35</span>%</label>
+            <input type="range" id="water-slider" min="15" max="65" value="35">
+        </div>
+
+        <div class="control-group">
+            <label>Sand Reflectivity: <span class="value-display" id="reflection-val">85</span>%</label>
+            <input type="range" id="reflection-slider" min="20" max="100" value="85">
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="control-group">
+            <button class="toggle-button active" id="btn-toggle-marine">🐬 Marine Life</button>
+            <button class="toggle-button active" id="btn-toggle-shells">🐚 Shells & Debris</button>
+            <button class="toggle-button active" id="btn-toggle-birds">🦅 Seabirds</button>
+            <button class="toggle-button active" id="btn-toggle-clouds">☁️ Clouds</button>
+            <button class="toggle-button active" id="btn-toggle-sparkles">✨ Sand Sparkles</button>
+        </div>
+    </div>
+
+    <div class="info-text">
+        <strong>Wet Beach at Low Tide</strong>
+        Immerse yourself in the tranquil beauty of a pristine beach. Watch the reflective sand shimmer, shallow puddles mirror the sky, and gentle waves roll in the distance. Relax and let the serenity wash over you.
+    </div>
+
+    <script>
+        const canvas = document.getElementById('beach-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Enhanced state management
+        const state = {
+            timeOfDay: 'day',
+            waveHeight: 4,
+            waveSpeed: 1,
+            waterLevel: 0.35,
+            reflectivity: 0.85,
+            showMarine: true,
+            showShells: true,
+            showBirds: true,
+            showClouds: true,
+            showSparkles: true,
+            time: 0,
+            marineAppearChance: 0,
+            skyColor: '#87CEEB',
+            groundColor: '#E8D4B8',
+            waterColor: '#4A90B0',
+            clouds: [],
+            birds: [],
+            dolphins: [],
+            sharks: [],
+            sparkles: []
+        };
+
+        // Time of day color schemes
+        const timePresets = {
+            dawn: {
+                skyTop: '#FFB380',
+                skyBottom: '#FFC9A3',
+                groundColor: '#E8D4B8',
+                waterColor: '#7BA9D1',
+                horizonGlow: '#FF9966'
+            },
+            day: {
+                skyTop: '#87CEEB',
+                skyBottom: '#B8E3F5',
+                groundColor: '#E8D4B8',
+                waterColor: '#4A90B0',
+                horizonGlow: '#FFFFFF'
+            },
+            sunset: {
+                skyTop: '#FF6B4A',
+                skyBottom: '#FFA07A',
+                groundColor: '#D4A574',
+                waterColor: '#FF8C6B',
+                horizonGlow: '#FF4500'
+            },
+            night: {
+                skyTop: '#0A1628',
+                skyBottom: '#1A2855',
+                groundColor: '#4A4A4A',
+                waterColor: '#1A3A55',
+                horizonGlow: '#2A4A6F'
+            }
+        };
+
+        // Initialize particles
+        function initClouds() {
+            state.clouds = [];
+            for (let i = 0; i < 8; i++) {
+                state.clouds.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.3,
+                    width: Math.random() * 120 + 80,
+                    height: Math.random() * 40 + 30,
+                    speed: Math.random() * 0.3 + 0.1,
+                    opacity: Math.random() * 0.4 + 0.3
+                });
+            }
+        }
+
+        function initBirds() {
+            state.birds = [];
+            for (let i = 0; i < 5; i++) {
+                state.birds.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.4,
+                    speed: Math.random() * 1.5 + 0.8,
+                    wingPhase: Math.random() * Math.PI * 2,
+                    size: Math.random() * 8 + 6
+                });
+            }
+        }
+
+        function initSparkles() {
+            state.sparkles = [];
+            for (let i = 0; i < 100; i++) {
+                const sandStart = canvas.height * 0.4;
+                const sandHeight = canvas.height * (0.35 + state.waterLevel * 0.15);
+                state.sparkles.push({
+                    x: Math.random() * canvas.width,
+                    y: sandStart + Math.random() * (sandHeight - sandStart),
+                    size: Math.random() * 2 + 1,
+                    brightness: Math.random(),
+                    phase: Math.random() * Math.PI * 2,
+                    speed: Math.random() * 0.02 + 0.01
+                });
+            }
+        }
+
+        initClouds();
+        initBirds();
+        initSparkles();
+
+        // Event listeners
+        const timeButtons = {
+            'btn-dawn': 'dawn',
+            'btn-day': 'day',
+            'btn-sunset': 'sunset',
+            'btn-night': 'night'
+        };
+
+        Object.keys(timeButtons).forEach(btnId => {
+            document.getElementById(btnId).addEventListener('click', function() {
+                setState('timeOfDay', timeButtons[btnId]);
+                document.querySelectorAll('.time-buttons button').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        document.getElementById('wave-slider').addEventListener('input', (e) => {
+            setState('waveHeight', parseFloat(e.target.value));
+            document.getElementById('wave-val').textContent = e.target.value;
+        });
+
+        document.getElementById('speed-slider').addEventListener('input', (e) => {
+            setState('waveSpeed', parseFloat(e.target.value));
+            document.getElementById('speed-val').textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        document.getElementById('water-slider').addEventListener('input', (e) => {
+            setState('waterLevel', parseFloat(e.target.value) / 100);
+            document.getElementById('water-val').textContent = e.target.value;
+            initSparkles();
+        });
+
+        document.getElementById('reflection-slider').addEventListener('input', (e) => {
+            setState('reflectivity', parseFloat(e.target.value) / 100);
+            document.getElementById('reflection-val').textContent = e.target.value;
+        });
+
+        const toggleButtons = [
+            { id: 'btn-toggle-marine', key: 'showMarine' },
+            { id: 'btn-toggle-shells', key: 'showShells' },
+            { id: 'btn-toggle-birds', key: 'showBirds' },
+            { id: 'btn-toggle-clouds', key: 'showClouds' },
+            { id: 'btn-toggle-sparkles', key: 'showSparkles' }
+        ];
+
+        toggleButtons.forEach(({ id, key }) => {
+            document.getElementById(id).addEventListener('click', function() {
+                state[key] = !state[key];
+                this.classList.toggle('active');
+            });
+        });
+
+        function setState(key, value) {
+            state[key] = value;
+            if (key === 'timeOfDay') {
+                const preset = timePresets[value];
+                Object.assign(state, preset);
+            }
+        }
+
+        // Drawing functions
+        function drawSky() {
+            const preset = timePresets[state.timeOfDay];
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.45);
+            gradient.addColorStop(0, preset.skyTop);
+            gradient.addColorStop(0.7, preset.skyBottom);
+            gradient.addColorStop(1, preset.horizonGlow);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.45);
+
+            // Sun or moon
+            if (state.timeOfDay === 'day' || state.timeOfDay === 'dawn') {
+                const sunX = canvas.width * 0.75;
+                const sunY = canvas.height * 0.15;
+                const sunGradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 50);
+                sunGradient.addColorStop(0, 'rgba(255, 255, 200, 1)');
+                sunGradient.addColorStop(0.3, 'rgba(255, 255, 150, 0.8)');
+                sunGradient.addColorStop(1, 'rgba(255, 255, 100, 0)');
+                ctx.fillStyle = sunGradient;
+                ctx.beginPath();
+                ctx.arc(sunX, sunY, 50, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (state.timeOfDay === 'night') {
+                const moonX = canvas.width * 0.8;
+                const moonY = canvas.height * 0.12;
+                const moonGradient = ctx.createRadialGradient(moonX, moonY, 0, moonX, moonY, 35);
+                moonGradient.addColorStop(0, 'rgba(240, 240, 255, 1)');
+                moonGradient.addColorStop(0.5, 'rgba(220, 220, 240, 0.8)');
+                moonGradient.addColorStop(1, 'rgba(200, 200, 230, 0)');
+                ctx.fillStyle = moonGradient;
+                ctx.beginPath();
+                ctx.arc(moonX, moonY, 35, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Stars
+                for (let i = 0; i < 50; i++) {
+                    const sx = Math.random() * canvas.width;
+                    const sy = Math.random() * canvas.height * 0.35;
+                    const size = Math.random() * 2;
+                    const twinkle = Math.sin(state.time * 0.01 + i) * 0.3 + 0.7;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${twinkle})`;
+                    ctx.beginPath();
+                    ctx.arc(sx, sy, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        function drawClouds() {
+            if (!state.showClouds) return;
+
+            state.clouds.forEach(cloud => {
+                cloud.x += cloud.speed;
+                if (cloud.x > canvas.width + cloud.width) {
+                    cloud.x = -cloud.width;
+                }
+
+                ctx.globalAlpha = cloud.opacity * (state.timeOfDay === 'night' ? 0.3 : 1);
+                
+                // Cloud shape
+                const cloudColor = state.timeOfDay === 'night' ? '#445577' : '#FFFFFF';
+                ctx.fillStyle = cloudColor;
+                
+                ctx.beginPath();
+                ctx.arc(cloud.x, cloud.y, cloud.height * 0.5, 0, Math.PI * 2);
+                ctx.arc(cloud.x + cloud.width * 0.3, cloud.y - cloud.height * 0.2, cloud.height * 0.6, 0, Math.PI * 2);
+                ctx.arc(cloud.x + cloud.width * 0.6, cloud.y, cloud.height * 0.55, 0, Math.PI * 2);
+                ctx.arc(cloud.x + cloud.width * 0.8, cloud.y + cloud.height * 0.1, cloud.height * 0.45, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.globalAlpha = 1;
+        }
+
+        function drawWetSand() {
+            const sandHeight = canvas.height * (0.35 + state.waterLevel * 0.15);
+            const skyEnd = canvas.height * 0.4;
+
+            // Base sand with gradient
+            const sandGrad = ctx.createLinearGradient(0, skyEnd, 0, sandHeight);
+            sandGrad.addColorStop(0, adjustBrightness(state.groundColor, 10));
+            sandGrad.addColorStop(1, state.groundColor);
+            ctx.fillStyle = sandGrad;
+            ctx.fillRect(0, skyEnd, canvas.width, sandHeight - skyEnd);
+
+            // Wet sand texture
+            if (state.showSparkles) {
+                state.sparkles.forEach(sparkle => {
+                    sparkle.phase += sparkle.speed;
+                    const brightness = (Math.sin(sparkle.phase) + 1) / 2;
+                    ctx.globalAlpha = brightness * state.reflectivity * 0.5;
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.beginPath();
+                    ctx.arc(sparkle.x, sparkle.y, sparkle.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                ctx.globalAlpha = 1;
+            }
+
+            // Reflective streaks
+            ctx.globalAlpha = state.reflectivity * 0.15;
+            for (let i = 0; i < 40; i++) {
+                const x = (Math.sin(state.time * 0.0008 + i * 0.8) * canvas.width * 0.4 + canvas.width * 0.5);
+                const y = skyEnd + Math.random() * (sandHeight - skyEnd);
+                const width = Math.random() * 100 + 60;
+                const height = Math.random() * 3 + 1;
+
+                const streakGrad = ctx.createLinearGradient(x, y, x + width, y);
+                streakGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                streakGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.6)');
+                streakGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = streakGrad;
+                ctx.fillRect(x, y, width, height);
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawWaterPuddles() {
+            const sandHeight = canvas.height * (0.35 + state.waterLevel * 0.15);
+            
+            const puddles = [
+                { x: 0.12, y: sandHeight + 50, w: 220, h: 110 },
+                { x: 0.35, y: sandHeight + 85, w: 280, h: 140 },
+                { x: 0.58, y: sandHeight + 35, w: 250, h: 120 },
+                { x: 0.78, y: sandHeight + 65, w: 230, h: 115 }
+            ];
+
+            puddles.forEach((puddle, idx) => {
+                const waveOffset = Math.sin(state.time * 0.002 + idx) * 6;
+                const px = puddle.x * canvas.width;
+                
+                ctx.save();
+                ctx.globalAlpha = 0.7;
+
+                // Puddle water with sky reflection
+                const preset = timePresets[state.timeOfDay];
+                const grad = ctx.createLinearGradient(px, puddle.y, px, puddle.y + puddle.h);
+                grad.addColorStop(0, preset.skyBottom);
+                grad.addColorStop(0.5, state.waterColor);
+                grad.addColorStop(1, adjustBrightness(state.waterColor, -20));
+                ctx.fillStyle = grad;
+
+                ctx.beginPath();
+                ctx.ellipse(px + puddle.w / 2, puddle.y + puddle.h / 2 + waveOffset, 
+                           puddle.w / 2, puddle.h / 2, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Ripples
+                ctx.globalAlpha = 0.15;
+                for (let i = 0; i < 3; i++) {
+                    const ripplePhase = (state.time * 0.003 + idx + i * 0.5) % (Math.PI * 2);
+                    const rippleSize = Math.sin(ripplePhase) * 20;
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.ellipse(px + puddle.w / 2, puddle.y + puddle.h / 2, 
+                               puddle.w / 2 + rippleSize, puddle.h / 2 + rippleSize, 0, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                // Highlight
+                ctx.globalAlpha = state.reflectivity * 0.25;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.fillRect(px + 25, puddle.y + 20, puddle.w / 3, 18);
+
+                ctx.restore();
+            });
+        }
+
+        function drawRocks() {
+            const sandHeight = canvas.height * (0.35 + state.waterLevel * 0.15);
+            const rocks = [
+                { x: 0.15, y: sandHeight - 35, w: 70, h: 50 },
+                { x: 0.42, y: sandHeight - 28, w: 60, h: 42 },
+                { x: 0.68, y: sandHeight - 38, w: 80, h: 55 },
+                { x: 0.28, y: sandHeight + 15, w: 50, h: 38 }
+            ];
+
+            rocks.forEach(rock => {
+                const rx = rock.x * canvas.width;
+                
+                // Rock shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.beginPath();
+                ctx.ellipse(rx + rock.w / 2 + 5, rock.y + rock.h + 3, rock.w / 2, rock.h / 6, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Rock body
+                const gradient = ctx.createLinearGradient(rx, rock.y, rx, rock.y + rock.h);
+                gradient.addColorStop(0, '#A0968F');
+                gradient.addColorStop(0.5, '#7A7570');
+                gradient.addColorStop(1, '#5A5550');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.ellipse(rx + rock.w / 2, rock.y + rock.h / 2, rock.w / 2, rock.h / 2, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Rock highlights
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.beginPath();
+                ctx.ellipse(rx + rock.w * 0.35, rock.y + rock.h * 0.3, rock.w * 0.15, rock.h * 0.15, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Moss texture
+                ctx.fillStyle = state.timeOfDay === 'night' ? 'rgba(60, 80, 60, 0.3)' : 'rgba(100, 140, 90, 0.3)';
+                ctx.beginPath();
+                ctx.arc(rx + rock.w * 0.6, rock.y + rock.h * 0.7, rock.w * 0.2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawShells() {
+            if (!state.showShells) return;
+
+            const sandHeight = canvas.height * (0.35 + state.waterLevel * 0.15);
+            const shells = [
+                { x: 0.22, y: sandHeight + 25, size: 14, type: 'spiral' },
+                { x: 0.38, y: sandHeight - 8, size: 11, type: 'clam' },
+                { x: 0.55, y: sandHeight + 40, size: 16, type: 'spiral' },
+                { x: 0.72, y: sandHeight + 18, size: 13, type: 'clam' },
+                { x: 0.85, y: sandHeight + 5, size: 12, type: 'spiral' }
+            ];
+
+            shells.forEach(shell => {
+                const sx = shell.x * canvas.width;
+                
+                if (shell.type === 'spiral') {
+                    // Spiral shell
+                    const gradient = ctx.createRadialGradient(sx, shell.y, 0, sx, shell.y, shell.size);
+                    gradient.addColorStop(0, state.timeOfDay === 'night' ? '#B0B0B0' : '#FAEBD7');
+                    gradient.addColorStop(1, state.timeOfDay === 'night' ? '#808080' : '#DEB887');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(sx, shell.y, shell.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Spiral pattern
+                    ctx.strokeStyle = state.timeOfDay === 'night' ? '#606060' : '#CD853F';
+                    ctx.lineWidth = 2;
+                    for (let i = 0; i < 3; i++) {
+                        ctx.beginPath();
+                        ctx.arc(sx - i * 2, shell.y - i * 2, shell.size - i * 3, 0, Math.PI * 1.5);
+                        ctx.stroke();
+                    }
+                } else {
+                    // Clam shell
+                    ctx.fillStyle = state.timeOfDay === 'night' ? '#A0A0A0' : '#F0E68C';
+                    ctx.beginPath();
+                    ctx.ellipse(sx, shell.y, shell.size * 0.8, shell.size, Math.PI / 4, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.strokeStyle = state.timeOfDay === 'night' ? '#707070' : '#DAA520';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+
+                    // Ridges
+                    for (let i = 0; i < 5; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(sx, shell.y);
+                        const angle = (i / 5) * Math.PI;
+                        ctx.lineTo(sx + Math.cos(angle) * shell.size * 0.8, 
+                                  shell.y - Math.sin(angle) * shell.size);
+                        ctx.stroke();
+                    }
+                }
+            });
+        }
+
+        function drawDistantWaves() {
+            const waterStart = canvas.height * (0.35 + state.waterLevel * 0.15);
+            const waveHeight = canvas.height - waterStart;
+
+            const preset = timePresets[state.timeOfDay];
+            const gradient = ctx.createLinearGradient(0, waterStart, 0, canvas.height);
+            gradient.addColorStop(0, adjustBrightness(state.waterColor, 20));
+            gradient.addColorStop(0.5, state.waterColor);
+            gradient.addColorStop(1, adjustBrightness(state.waterColor, -20));
+
+            ctx.globalAlpha = 0.6;
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, waterStart, canvas.width, waveHeight);
+            ctx.globalAlpha = 1;
+
+            // Multiple wave layers
+            for (let layer = 0; layer < 5; layer++) {
+                ctx.globalAlpha = 0.4 - layer * 0.05;
+                const waveY = waterStart + (waveHeight * (layer / 5));
+                const amplitude = state.waveHeight * (1.5 - layer * 0.2);
+                const frequency = 0.004 + layer * 0.001;
+
+                ctx.fillStyle = layer % 2 === 0 ? 
+                    adjustBrightness(state.waterColor, 15) : 
+                    adjustBrightness(state.waterColor, -10);
+
+                ctx.beginPath();
+                for (let x = 0; x <= canvas.width; x += 8) {
+                    const y = waveY + Math.sin((x * frequency + state.time * 0.0005 * state.waveSpeed + layer) * Math.PI) * amplitude;
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.lineTo(0, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+
+                // Wave foam
+                if (layer < 2) {
+                    ctx.globalAlpha = 0.3;
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    for (let x = 0; x <= canvas.width; x += 8) {
+                        const y = waveY + Math.sin((x * frequency + state.time * 0.0005 * state.waveSpeed + layer) * Math.PI) * amplitude;
+                        if (x === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                }
+            }
+
+            ctx.globalAlpha = 1;
+        }
+
+        function drawMarineLife() {
+            if (!state.showMarine) return;
+
+            state.marineAppearChance += 0.001;
+
+            const waterStart = canvas.height * (0.35 + state.waterLevel * 0.15);
+
+            // Dolphins
+            if (Math.random() < 0.005 || state.dolphins.length > 0) {
+                if (state.dolphins.length === 0 && Math.random() < 0.01) {
+                    state.dolphins.push({
+                        x: -100,
+                        y: waterStart + 60 + Math.random() * 40,
+                        speed: 2 + Math.random(),
+                        jumpPhase: 0
+                    });
+                }
+
+                state.dolphins = state.dolphins.filter(dolphin => {
+                    dolphin.x += dolphin.speed;
+                    dolphin.jumpPhase += 0.05;
+
+                    if (dolphin.x > canvas.width + 100) return false;
+
+                    const jumpHeight = Math.sin(dolphin.jumpPhase) * 40;
+                    const dy = dolphin.y - jumpHeight;
+
+                    // Dolphin body
+                    ctx.save();
+                    ctx.translate(dolphin.x, dy);
+                    ctx.rotate(Math.sin(dolphin.jumpPhase) * 0.3);
+
+                    const gradient = ctx.createLinearGradient(-30, -20, 30, 20);
+                    gradient.addColorStop(0, '#5A7A9A');
+                    gradient.addColorStop(0.5, '#6A8AAA');
+                    gradient.addColorStop(1, '#4A6A8A');
+                    ctx.fillStyle = gradient;
+
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 45, 28, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Dorsal fin
+                    ctx.fillStyle = '#4A6A8A';
+                    ctx.beginPath();
+                    ctx.moveTo(5, -20);
+                    ctx.lineTo(20, -45);
+                    ctx.lineTo(15, -22);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Tail
+                    ctx.beginPath();
+                    ctx.moveTo(-40, 0);
+                    ctx.lineTo(-60, -15);
+                    ctx.lineTo(-55, 0);
+                    ctx.lineTo(-60, 15);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Eye
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.beginPath();
+                    ctx.arc(30, -8, 5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#000';
+                    ctx.beginPath();
+                    ctx.arc(32, -8, 2, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.restore();
+                    return true;
+                });
+            }
+
+            // Shark fins
+            if (Math.random() < 0.003 || state.sharks.length > 0) {
+                if (state.sharks.length === 0 && Math.random() < 0.008) {
+                    state.sharks.push({
+                        x: -80,
+                        y: waterStart + 90 + Math.random() * 30,
+                        speed: 1.2 + Math.random() * 0.5
+                    });
+                }
+
+                state.sharks = state.sharks.filter(shark => {
+                    shark.x += shark.speed;
+
+                    if (shark.x > canvas.width + 100) return false;
+
+                    const waveOffset = Math.sin(state.time * 0.003) * 8;
+
+                    // Shark fin
+                    ctx.fillStyle = '#3A5A7A';
+                    ctx.beginPath();
+                    ctx.moveTo(shark.x, shark.y + waveOffset);
+                    ctx.lineTo(shark.x + 20, shark.y - 42 + waveOffset);
+                    ctx.lineTo(shark.x + 38, shark.y + waveOffset);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Fin highlight
+                    ctx.fillStyle = 'rgba(100, 140, 180, 0.4)';
+                    ctx.beginPath();
+                    ctx.moveTo(shark.x + 5, shark.y + waveOffset);
+                    ctx.lineTo(shark.x + 15, shark.y - 30 + waveOffset);
+                    ctx.lineTo(shark.x + 10, shark.y - 10 + waveOffset);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Water ripple
+                    ctx.globalAlpha = 0.3;
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(shark.x + 20, shark.y + waveOffset, 25, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+
+                    return true;
+                });
+            }
+        }
+
+        function drawBirds() {
+            if (!state.showBirds) return;
+
+            state.birds.forEach(bird => {
+                bird.x += bird.speed;
+                bird.wingPhase += 0.1;
+
+                if (bird.x > canvas.width + 50) {
+                    bird.x = -50;
+                    bird.y = Math.random() * canvas.height * 0.4;
+                }
+
+                const wingAngle = Math.sin(bird.wingPhase) * 0.6;
+
+                ctx.save();
+                ctx.translate(bird.x, bird.y);
+                
+                ctx.strokeStyle = state.timeOfDay === 'night' ? '#888' : '#333';
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+
+                // Body
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(bird.size * 0.3, 0);
+                ctx.stroke();
+
+                // Left wing
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(-bird.size * 0.8, -bird.size * 0.6 - wingAngle * bird.size,
+                                    -bird.size, -bird.size * 0.3 - wingAngle * bird.size);
+                ctx.stroke();
+
+                // Right wing
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(bird.size * 0.8, -bird.size * 0.6 + wingAngle * bird.size,
+                                    bird.size, -bird.size * 0.3 + wingAngle * bird.size);
+                ctx.stroke();
+
+                ctx.restore();
+            });
+        }
+
+        function adjustBrightness(color, percent) {
+            const num = parseInt(color.replace('#', ''), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = Math.max(0, Math.min(255, (num >> 16) + amt));
+            const G = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amt));
+            const B = Math.max(0, Math.min(255, (num & 0x0000FF) + amt));
+            return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+        }
+
+        // Main animation loop
+        function animate() {
+            state.time++;
+
+            ctx.fillStyle = state.skyColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawSky();
+            drawClouds();
+            drawWetSand();
+            drawWaterPuddles();
+            drawRocks();
+            drawShells();
+            drawDistantWaves();
+            drawMarineLife();
+            drawBirds();
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
