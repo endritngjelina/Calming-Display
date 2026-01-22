@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wet Beach at Low Tide</title>
+    <style>
+        :root {
+            --color-sky-day: #87CEEB;
+            --color-sky-sunset: #FF9F5A;
+            --color-sand-wet: #D4B8A1;
+            --color-sand-dry: #E8D4B8;
+            --color-water: #4A90B0;
+            --color-water-shallow: #6BA3C5;
+            --color-foam: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, var(--color-sky-day), #E0F6FF);
+        }
+
+        #scene-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 280px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-panel h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #DDD;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4A90B0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4A90B0;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb:hover {
+            background: #2A70A0;
+            transform: scale(1.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 6px;
+            background: #4A90B0;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #2A70A0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 176, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.active {
+            background: #1A5080;
+        }
+
+        .info-text {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 13px;
+            max-width: 300px;
+            line-height: 1.4;
+        }
+
+        .value-display {
+            display: inline;
+            font-weight: 600;
+            color: #4A90B0;
+        }
+    </style>
+</head>
+<body>
+    <div id="scene-container">
+        <canvas id="beach-canvas"></canvas>
+    </div>
+
+    <div class="control-panel">
+        <h3>🌊 Beach Settings</h3>
+
+        <div class="control-group">
+            <label>Time of Day</label>
+            <button id="btn-dawn">Dawn</button>
+            <button id="btn-day" class="active">Day</button>
+            <button id="btn-sunset">Sunset</button>
+            <button id="btn-night">Night</button>
+        </div>
+
+        <div class="control-group">
+            <label>Wave Height: <span class="value-display" id="wave-val">3</span></label>
+            <input type="range" id="wave-slider" min="1" max="8" value="3">
+        </div>
+
+        <div class="control-group">
+            <label>Wave Speed: <span class="value-display" id="speed-val">1</span>x</label>
+            <input type="range" id="speed-slider" min="0.3" max="2" step="0.1" value="1">
+        </div>
+
+        <div class="control-group">
+            <label>Water Level: <span class="value-display" id="water-val">30</span>%</label>
+            <input type="range" id="water-slider" min="10" max="60" value="30">
+        </div>
+
+        <div class="control-group">
+            <label>Reflectivity: <span class="value-display" id="reflection-val">100</span>%</label>
+            <input type="range" id="reflection-slider" min="20" max="100" value="100">
+        </div>
+
+        <div class="control-group">
+            <button id="btn-toggle-marine">Enable Marine Life</button>
+        </div>
+
+        <div class="control-group">
+            <button id="btn-toggle-shells">Toggle Shells</button>
+        </div>
+    </div>
+
+    <div class="info-text">
+        <strong>Wet Beach at Low Tide</strong><br>
+        Watch the reflective sand, shallow puddles, and distant waves. Marine life may appear on the surface.
+    </div>
+
+    <script>
+        const canvas = document.getElementById('beach-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Resize canvas
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // State management
+        const state = {
+            timeOfDay: 'day',
+            waveHeight: 3,
+            waveSpeed: 1,
+            waterLevel: 0.3,
+            reflectivity: 1,
+            showMarine: true,
+            showShells: true,
+            time: 0,
+            marinaAppearChance: 0,
+            skyColor: '#87CEEB',
+            groundColor: '#E8D4B8'
+        };
+
+        // Time of day presets
+        const timePresets = {
+            dawn: { skyColor: '#FFB380', groundColor: '#E8D4B8', waterColor: '#5A9FBF' },
+            day: { skyColor: '#87CEEB', groundColor: '#E8D4B8', waterColor: '#4A90B0' },
+            sunset: { skyColor: '#FF7F50', groundColor: '#D4A574', waterColor: '#FF6B4A' },
+            night: { skyColor: '#1A2555', groundColor: '#4A4A4A', waterColor: '#1A3A55' }
+        };
+
+        // Event listeners
+        document.getElementById('btn-dawn').addEventListener('click', () => setState('timeOfDay', 'dawn'));
+        document.getElementById('btn-day').addEventListener('click', () => setState('timeOfDay', 'day'));
+        document.getElementById('btn-sunset').addEventListener('click', () => setState('timeOfDay', 'sunset'));
+        document.getElementById('btn-night').addEventListener('click', () => setState('timeOfDay', 'night'));
+
+        document.getElementById('wave-slider').addEventListener('input', (e) => {
+            setState('waveHeight', parseFloat(e.target.value));
+            document.getElementById('wave-val').textContent = e.target.value;
+        });
+
+        document.getElementById('speed-slider').addEventListener('input', (e) => {
+            setState('waveSpeed', parseFloat(e.target.value));
+            document.getElementById('speed-val').textContent = e.target.value;
+        });
+
+        document.getElementById('water-slider').addEventListener('input', (e) => {
+            setState('waterLevel', parseFloat(e.target.value) / 100);
+            document.getElementById('water-val').textContent = e.target.value;
+        });
+
+        document.getElementById('reflection-slider').addEventListener('input', (e) => {
+            setState('reflectivity', parseFloat(e.target.value) / 100);
+            document.getElementById('reflection-val').textContent = e.target.value;
+        });
+
+        document.getElementById('btn-toggle-marine').addEventListener('click', function() {
+            state.showMarine = !state.showMarine;
+            this.classList.toggle('active');
+        });
+
+        document.getElementById('btn-toggle-shells').addEventListener('click', function() {
+            state.showShells = !state.showShells;
+            this.classList.toggle('active');
+        });
+
+        function setState(key, value) {
+            state[key] = value;
+            if (key === 'timeOfDay') {
+                const preset = timePresets[value];
+                state.skyColor = preset.skyColor;
+                state.groundColor = preset.groundColor;
+                document.querySelectorAll('.control-panel button').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(`btn-${value}`).classList.add('active');
+            }
+        }
+
+        // Drawing functions
+        function drawSky() {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.4);
+            gradient.addColorStop(0, state.skyColor);
+            gradient.addColorStop(1, state.skyColor === '#1A2555' ? '#2A3555' : adjustBrightness(state.skyColor, 20));
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.4);
+        }
+
+        function adjustBrightness(color, percent) {
+            const num = parseInt(color.replace('#', ''), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = Math.min(255, (num >> 16) + amt);
+            const G = Math.min(255, (num >> 8 & 0x00FF) + amt);
+            const B = Math.min(255, (num & 0x0000FF) + amt);
+            return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+        }
+
+        function drawWetSand() {
+            const sandHeight = canvas.height * (0.35 + state.waterLevel * 0.15);
+            const skyEnd = canvas.height * 0.4;
+
+            // Main wet sand
+            ctx.fillStyle = state.groundColor;
+            ctx.fillRect(0, skyEnd, canvas.width, sandHeight - skyEnd);
+
+            // Reflective shimmer patterns
+            ctx.globalAlpha = state.reflectivity * 0.15;
+            for (let i = 0; i < 30; i++) {
+                const x = (Math.sin(state.time * 0.001 + i * 0.5) * canvas.width * 0.5 + canvas.width * 0.5);
+                const y = skyEnd + Math.random() * (sandHeight - skyEnd);
+                const width = Math.random() * 80 + 40;
+                const height = Math.random() * 2 + 1;
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.fillRect(x, y, width, height);
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawWaterPuddles() {
+            const sandHeight = canvas.height * (0.35 + state.waterLevel * 0.15);
+            ctx.globalAlpha = 0.6;
+
+            // Multiple puddle layers
+            for (let layer = 0; layer < 3; layer++) {
+                const waveOffsetY = Math.sin(state.time * 0.002 + layer) * 5;
+                const puddles = [
+                    { x: 0.15 * canvas.width, y: sandHeight + 40, w: 200, h: 100 },
+                    { x: 0.4 * canvas.width, y: sandHeight + 80, w: 250, h: 120 },
+                    { x: 0.65 * canvas.width, y: sandHeight + 30, w: 220, h: 110 },
+                    { x: 0.85 * canvas.width, y: sandHeight + 60, w: 200, h: 100 }
+                ];
+
+                puddles.forEach(puddle => {
+                    // Gradient for water reflection
+                    const grad = ctx.createLinearGradient(puddle.x, puddle.y, puddle.x, puddle.y + puddle.h);
+                    grad.addColorStop(0, state.skyColor === '#1A2555' ? '#3A5A7F' : '#7BA9D1');
+                    grad.addColorStop(1, state.skyColor === '#1A2555' ? '#1A3A5F' : '#4A90B0');
+                    ctx.fillStyle = grad;
+
+                    // Ripple effect
+                    ctx.beginPath();
+                    ctx.ellipse(puddle.x + puddle.w / 2, puddle.y + puddle.h / 2 + waveOffsetY, puddle.w / 2, puddle.h / 2, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Highlight reflection
+                    ctx.globalAlpha = 0.2;
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.fillRect(puddle.x + 20, puddle.y + 15, puddle.w / 3, 15);
+                    ctx.globalAlpha = 0.6;
+                });
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawRocks() {
+            const sandHeight = canvas.height * (0.35 + state.waterLevel * 0.15);
+            const rocks = [
+                { x: 0.2 * canvas.width, y: sandHeight - 30, w: 60, h: 40 },
+                { x: 0.5 * canvas.width, y: sandHeight - 25, w: 50, h: 35 },
+                { x: 0.75 * canvas.width, y: sandHeight - 35, w: 70, h: 45 },
+                { x: 0.35 * canvas.width, y: sandHeight + 10, w: 40, h: 30 }
+            ];
+
+            rocks.forEach(rock => {
+                const gradient = ctx.createLinearGradient(rock.x, rock.y, rock.x, rock.y + rock.h);
+                gradient.addColorStop(0, '#8B8680');
+                gradient.addColorStop(1, '#5A5550');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(rock.x, rock.y, rock.w, rock.h);
+
+                // Rock shine
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.fillRect(rock.x + 5, rock.y + 5, rock.w / 3, rock.h / 3);
+            });
+        }
+
+        function drawShells() {
+            if (!state.showShells) return;
+
+            const sandHeight = canvas.height * (0.35 + state.waterLevel * 0.15);
+            const shells = [
+                { x: 0.25 * canvas.width, y: sandHeight + 20, size: 12 },
+                { x: 0.45 * canvas.width, y: sandHeight - 10, size: 10 },
+                { x: 0.6 * canvas.width, y: sandHeight + 35, size: 14 },
+                { x: 0.8 * canvas.width, y: sandHeight + 15, size: 11 }
+            ];
+
+            shells.forEach(shell => {
+                ctx.fillStyle = state.skyColor === '#1A2555' ? '#A0A0A0' : '#F5DEB3';
+                ctx.beginPath();
+                ctx.arc(shell.x, shell.y, shell.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = state.skyColor === '#1A2555' ? '#707070' : '#DEB887';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+        }
+
+        function drawDistantWaves() {
+            const waterStart = canvas.height * (0.35 + state.waterLevel * 0.15);
+            const waveHeight = canvas.height - waterStart;
+
+            ctx.globalAlpha = 0.5;
+            const gradient = ctx.createLinearGradient(0, waterStart, 0, canvas.height);
+            gradient.addColorStop(0, state.skyColor === '#1A2555' ? '#2A5A8F' : '#6BA3D5');
+            gradient.addColorStop(1, state.skyColor === '#1A2555' ? '#1A3A5F' : '#4A90B0');
+            ctx.fillStyle = gradient;
+
+            for (let i = 0; i < 4; i++) {
+                const waveY = waterStart + (waveHeight * (i / 4));
+                const amplitude = (state.waveHeight * 2) * (1 - i * 0.2);
+                const frequency = 0.005;
+
+                ctx.beginPath();
+                for (let x = 0; x <= canvas.width; x += 10) {
+                    const y = waveY + Math.sin((x * frequency + state.time * 0.0005 * state.waveSpeed) * Math.PI) * amplitude;
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.lineTo(0, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            ctx.globalAlpha = 1;
+        }
+
+        function drawMarineLife() {
+            if (!state.showMarine) return;
+
+            state.marinaAppearChance += 0.002;
+
+            // Dolphin
+            if (Math.random() < state.marinaAppearChance * 0.001) {
+                const waterStart = canvas.height * (0.35 + state.waterLevel * 0.15);
+                const y = waterStart + 50;
+                const x = (state.time * 0.05) % (canvas.width + 100);
+
+                // Dolphin body
+                ctx.fillStyle = '#4A5A7A';
+                ctx.beginPath();
+                ctx.ellipse(x, y, 40, 25, -0.2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Fin
+                ctx.fillStyle = '#3A4A6A';
+                ctx.beginPath();
+                ctx.moveTo(x + 10, y - 15);
+                ctx.lineTo(x + 25, y - 40);
+                ctx.lineTo(x + 20, y - 20);
+                ctx.closePath();
+                ctx.fill();
+
+                // Eye
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(x + 30, y - 10, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (Math.random() < 0.05) state.marinaAppearChance = 0;
+            }
+
+            // Shark fin
+            if (Math.random() < state.marinaAppearChance * 0.0008) {
+                const waterStart = canvas.height * (0.35 + state.waterLevel * 0.15);
+                const y = waterStart + 80;
+                const x = (state.time * 0.03 + 500) % (canvas.width + 100);
+
+                ctx.fillStyle = '#2A4A6A';
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + 15, y - 35);
+                ctx.lineTo(x + 30, y);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.strokeStyle = '#1A3A5A';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                if (Math.random() < 0.05) state.marinaAppearChance = 0;
+            }
+        }
+
+        function animate() {
+            state.time++;
+
+            // Clear canvas
+            ctx.fillStyle = state.skyColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw elements in order
+            drawSky();
+            drawWetSand();
+            drawWaterPuddles();
+            drawRocks();
+            drawShells();
+            drawDistantWaves();
+            drawMarineLife();
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
