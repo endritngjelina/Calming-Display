@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calming Solar System Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(ellipse at center, #0a0e27 0%, #000000 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Control Panel */
+        .control-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: rgba(30, 150, 180, 0.9);
+            border-radius: 50%;
+            border: 2px solid rgba(100, 200, 220, 0.6);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 20px rgba(100, 200, 220, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+
+        .control-toggle:hover {
+            background: rgba(50, 180, 220, 1);
+            box-shadow: 0 0 30px rgba(100, 200, 220, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .control-panel {
+            position: fixed;
+            bottom: 110px;
+            right: 30px;
+            width: 320px;
+            background: rgba(15, 25, 50, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1.5px solid rgba(100, 200, 220, 0.4);
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(100, 200, 220, 0.1);
+            max-height: 600px;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            transform: translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 999;
+        }
+
+        .control-panel.open {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(100, 200, 220, 0.2);
+        }
+
+        .control-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            color: rgba(100, 200, 220, 0.9);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+            display: block;
+            font-weight: 600;
+        }
+
+        .toggle-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .toggle-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #64c8dc;
+        }
+
+        .toggle-checkbox label {
+            color: rgba(200, 220, 240, 0.85);
+            font-size: 13px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .slider-container {
+            margin-bottom: 12px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(100, 200, 220, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #64c8dc, #32b8d4);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(100, 200, 220, 0.6);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #64c8dc, #32b8d4);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 8px rgba(100, 200, 220, 0.6);
+        }
+
+        .slider-value {
+            color: rgba(150, 180, 200, 0.8);
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 10px;
+            background: rgba(100, 200, 220, 0.15);
+            border: 1px solid rgba(100, 200, 220, 0.4);
+            color: rgba(100, 200, 220, 0.9);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .reset-btn:hover {
+            background: rgba(100, 200, 220, 0.25);
+            border-color: rgba(100, 200, 220, 0.6);
+            box-shadow: 0 0 15px rgba(100, 200, 220, 0.3);
+        }
+
+        /* Info Display */
+        .info-display {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: rgba(15, 25, 50, 0.85);
+            border: 1px solid rgba(100, 200, 220, 0.3);
+            border-radius: 10px;
+            padding: 15px 20px;
+            color: rgba(200, 220, 240, 0.9);
+            font-size: 13px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            min-width: 200px;
+        }
+
+        .info-display h3 {
+            color: rgba(100, 200, 220, 0.95);
+            font-size: 14px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .planet-info {
+            line-height: 1.8;
+        }
+
+        .planet-info span {
+            color: rgba(100, 200, 220, 0.8);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(100, 200, 220, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 200, 220, 0.3);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 200, 220, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="info-display">
+        <h3>Solar System</h3>
+        <div class="planet-info">
+            <div>🌍 <span id="planetName">Select a planet</span></div>
+            <div>Distance: <span id="distance">-</span> AU</div>
+            <div>Speed: <span id="speed">-</span> km/s</div>
+        </div>
+    </div>
+
+    <button class="control-toggle" id="toggleBtn">⚙️</button>
+
+    <div class="control-panel" id="controlPanel">
+        <div class="control-section">
+            <label class="control-label">Animations</label>
+            <div class="toggle-checkbox">
+                <input type="checkbox" id="orbitAnimation" checked>
+                <label for="orbitAnimation">Orbital Motion</label>
+            </div>
+            <div class="toggle-checkbox">
+                <input type="checkbox" id="rotationAnimation" checked>
+                <label for="rotationAnimation">Planet Rotation</label>
+            </div>
+            <div class="toggle-checkbox">
+                <input type="checkbox" id="glowEffect" checked>
+                <label for="glowEffect">Glow Effects</label>
+            </div>
+            <div class="toggle-checkbox">
+                <input type="checkbox" id="orbitTrail" checked>
+                <label for="orbitTrail">Orbit Trails</label>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <label class="control-label">Speed Controls</label>
+            <label class="control-label" style="margin-top: 12px;">Animation Speed</label>
+            <div class="slider-container">
+                <input type="range" min="0.1" max="3" step="0.1" value="1" class="slider" id="speedSlider">
+                <div class="slider-value">x<span id="speedValue">1.0</span></div>
+            </div>
+            <label class="control-label" style="margin-top: 12px;">Rotation Speed</label>
+            <div class="slider-container">
+                <input type="range" min="0.1" max="3" step="0.1" value="1" class="slider" id="rotationSlider">
+                <div class="slider-value">x<span id="rotationValue">1.0</span></div>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <label class="control-label">Visual Effects</label>
+            <label class="control-label" style="margin-top: 12px;">Zoom Level</label>
+            <div class="slider-container">
+                <input type="range" min="0.5" max="2" step="0.1" value="1" class="slider" id="zoomSlider">
+                <div class="slider-value"><span id="zoomValue">1.0</span>x</div>
+            </div>
+            <label class="control-label" style="margin-top: 12px;">Star Brightness</label>
+            <div class="slider-container">
+                <input type="range" min="0.3" max="1" step="0.05" value="0.8" class="slider" id="starSlider">
+                <div class="slider-value"><span id="starValue">80</span>%</div>
+            </div>
+        </div>
+
+        <button class="reset-btn" id="resetBtn">Reset to Defaults</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Control Elements
+        const toggleBtn = document.getElementById('toggleBtn');
+        const controlPanel = document.getElementById('controlPanel');
+        const orbitAnimation = document.getElementById('orbitAnimation');
+        const rotationAnimation = document.getElementById('rotationAnimation');
+        const glowEffect = document.getElementById('glowEffect');
+        const orbitTrail = document.getElementById('orbitTrail');
+        const speedSlider = document.getElementById('speedSlider');
+        const rotationSlider = document.getElementById('rotationSlider');
+        const zoomSlider = document.getElementById('zoomSlider');
+        const starSlider = document.getElementById('starSlider');
+        const resetBtn = document.getElementById('resetBtn');
+
+        let panelOpen = false;
+        toggleBtn.addEventListener('click', () => {
+            panelOpen = !panelOpen;
+            controlPanel.classList.toggle('open');
+        });
+
+        // Solar System Data
+        const planets = [
+            {
+                name: 'Mercury',
+                distance: 39,
+                size: 3.8,
+                speed: 47.87,
+                angle: 0,
+                color: '#8c7853',
+                orbitColor: 'rgba(140, 120, 80, 0.3)',
+                rotation: 0,
+                rotationSpeed: 0.01
+            },
+            {
+                name: 'Venus',
+                distance: 72,
+                size: 9.5,
+                speed: 35.02,
+                angle: 0.4,
+                color: '#ffc649',
+                orbitColor: 'rgba(255, 198, 73, 0.3)',
+                rotation: 0,
+                rotationSpeed: 0.005
+            },
+            {
+                name: 'Earth',
+                distance: 100,
+                size: 10,
+                speed: 29.78,
+                angle: 0.8,
+                color: '#4a90e2',
+                orbitColor: 'rgba(74, 144, 226, 0.3)',
+                rotation: 0,
+                rotationSpeed: 0.02
+            },
+            {
+                name: 'Mars',
+                distance: 152,
+                size: 5.3,
+                speed: 24.07,
+                angle: 1.2,
+                color: '#e27b58',
+                orbitColor: 'rgba(226, 123, 88, 0.3)',
+                rotation: 0,
+                rotationSpeed: 0.018
+            },
+            {
+                name: 'Jupiter',
+                distance: 250,
+                size: 30,
+                speed: 13.07,
+                angle: 1.5,
+                color: '#c88b3a',
+                orbitColor: 'rgba(200, 139, 58, 0.3)',
+                rotation: 0,
+                rotationSpeed: 0.08,
+                hasRings: false
+            },
+            {
+                name: 'Saturn',
+                distance: 350,
+                size: 25,
+                speed: 9.68,
+                angle: 1.8,
+                color: '#fad5a5',
+                orbitColor: 'rgba(250, 213, 165, 0.3)',
+                rotation: 0,
+                rotationSpeed: 0.06,
+                hasRings: true,
+                ringColor: 'rgba(200, 180, 140, 0.4)'
+            },
+            {
+                name: 'Uranus',
+                distance: 450,
+                size: 15,
+                speed: 6.81,
+                angle: 2.1,
+                color: '#4fd0e7',
+                orbitColor: 'rgba(79, 208, 231, 0.3)',
+                rotation: 0,
+                rotationSpeed: 0.04
+            },
+            {
+                name: 'Neptune',
+                distance: 550,
+                size: 14.6,
+                speed: 5.43,
+                angle: 2.4,
+                color: '#4166f5',
+                orbitColor: 'rgba(65, 102, 245, 0.3)',
+                rotation: 0,
+                rotationSpeed: 0.04
+            }
+        ];
+
+        // Generate stars
+        function generateStars(count = 200) {
+            const stars = [];
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.5,
+                    opacity: Math.random() * 0.5 + 0.3,
+                    twinkle: Math.random() * 0.02,
+                    phase: Math.random() * Math.PI * 2
+                });
+            }
+            return stars;
+        }
+
+        let stars = generateStars();
+        let animationFrame = 0;
+        let selectedPlanet = null;
+        let trails = {};
+
+        planets.forEach(planet => {
+            trails[planet.name] = [];
+        });
+
+        function drawStars() {
+            stars.forEach(star => {
+                const twinkleAmount = Math.sin(animationFrame * star.twinkle + star.phase) * 0.3 + 0.7;
+                const finalOpacity = star.opacity * twinkleAmount * (parseFloat(starSlider.value));
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${finalOpacity})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawSun() {
+            const sunX = canvas.width / 2;
+            const sunY = canvas.height / 2;
+            const sunSize = 35;
+
+            if (glowEffect.checked) {
+                // Glow layers
+                for (let i = 3; i >= 0; i--) {
+                    const gradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunSize * (1 + i * 0.3));
+                    gradient.addColorStop(0, `rgba(255, 200, 0, ${0.4 / (i + 1)})`);
+                    gradient.addColorStop(1, 'rgba(255, 150, 0, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(sunX - sunSize * 1.5, sunY - sunSize * 1.5, sunSize * 3, sunSize * 3);
+                }
+            }
+
+            // Sun core
+            const sunGradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunSize);
+            sunGradient.addColorStop(0, '#ffff99');
+            sunGradient.addColorStop(0.5, '#ffcc00');
+            sunGradient.addColorStop(1, '#ff9900');
+            ctx.fillStyle = sunGradient;
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, sunSize, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Subtle corona
+            ctx.strokeStyle = 'rgba(255, 200, 0, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, sunSize + 5, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        function drawOrbit(planet, zoomLevel) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            ctx.strokeStyle = planet.orbitColor;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, planet.distance * zoomLevel, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        function drawPlanet(planet, zoomLevel) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            if (orbitAnimation.checked) {
+                planet.angle += (planet.speed / 50000) * parseFloat(speedSlider.value);
+            }
+
+            const x = centerX + Math.cos(planet.angle) * planet.distance * zoomLevel;
+            const y = centerY + Math.sin(planet.angle) * planet.distance * zoomLevel;
+
+            // Draw orbit trail
+            if (orbitTrail.checked && trails[planet.name].length > 0) {
+                ctx.strokeStyle = planet.orbitColor.replace('0.3', '0.15');
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                trails[planet.name].forEach((point, index) => {
+                    if (index === 0) ctx.moveTo(point.x, point.y);
+                    else ctx.lineTo(point.x, point.y);
+                });
+                ctx.stroke();
+            }
+
+            // Add to trail
+            if (trails[planet.name].length > 300) {
+                trails[planet.name].shift();
+            }
+            trails[planet.name].push({ x, y });
+
+            // Draw planet glow
+            if (glowEffect.checked) {
+                const glowSize = planet.size * 1.5;
+                const glowGradient = ctx.createRadialGradient(x, y, planet.size * zoomLevel, x, y, glowSize * zoomLevel);
+                glowGradient.addColorStop(0, planet.color + '40');
+                glowGradient.addColorStop(1, planet.color + '00');
+                ctx.fillStyle = glowGradient;
+                ctx.fillRect(x - glowSize * zoomLevel, y - glowSize * zoomLevel, glowSize * 2 * zoomLevel, glowSize * 2 * zoomLevel);
+            }
+
+            // Draw planet
+            ctx.fillStyle = planet.color;
+            ctx.beginPath();
+            ctx.arc(x, y, planet.size * zoomLevel, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Add 3D shading
+            const shadeGradient = ctx.createLinearGradient(x - planet.size * zoomLevel, y - planet.size * zoomLevel, x + planet.size * zoomLevel, y + planet.size * zoomLevel);
+            shadeGradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+            shadeGradient.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+            ctx.fillStyle = shadeGradient;
+            ctx.beginPath();
+            ctx.arc(x, y, planet.size * zoomLevel, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw Saturn's rings
+            if (planet.hasRings) {
+                ctx.strokeStyle = planet.ringColor;
+                ctx.lineWidth = planet.size * 0.8 * zoomLevel;
+                ctx.beginPath();
+                ctx.ellipse(x, y, planet.size * 2 * zoomLevel, planet.size * 0.6 * zoomLevel, planet.rotation, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Update rotation
+            if (rotationAnimation.checked) {
+                planet.rotation += planet.rotationSpeed * parseFloat(rotationSlider.value) * 0.01;
+            }
+
+            return { x, y, planet };
+        }
+
+        function drawInfo(selected) {
+            if (!selected) return;
+            
+            document.getElementById('planetName').textContent = selected.planet.name + ' 🪐';
+            document.getElementById('distance').textContent = (selected.planet.distance / 100).toFixed(2);
+            document.getElementById('speed').textContent = selected.planet.speed.toFixed(2);
+        }
+
+        function animate() {
+            // Clear canvas
+            ctx.fillStyle = 'rgba(10, 14, 39, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const zoomLevel = parseFloat(zoomSlider.value);
+
+            // Draw background
+            drawStars();
+
+            // Draw sun
+            drawSun();
+
+            // Draw planets and orbits
+            let hoveredPlanet = null;
+            
+            for (let planet of planets) {
+                drawOrbit(planet, zoomLevel);
+            }
+
+            for (let planet of planets) {
+                const result = drawPlanet(planet, zoomLevel);
+                hoveredPlanet = result;
+            }
+
+            // Update info
+            if (selectedPlanet) {
+                drawInfo(selectedPlanet);
+            }
+
+            animationFrame++;
+            requestAnimationFrame(animate);
+        }
+
+        // Mouse events for planet selection
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            const zoomLevel = parseFloat(zoomSlider.value);
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            for (let planet of planets) {
+                const x = centerX + Math.cos(planet.angle) * planet.distance * zoomLevel;
+                const y = centerY + Math.sin(planet.angle) * planet.distance * zoomLevel;
+                const distance = Math.sqrt((mouseX - x) ** 2 + (mouseY - y) ** 2);
+
+                if (distance < planet.size * zoomLevel + 10) {
+                    selectedPlanet = { x, y, planet };
+                    break;
+                }
+            }
+        });
+
+        // Control event listeners
+        speedSlider.addEventListener('input', (e) => {
+            document.getElementById('speedValue').textContent = e.target.value;
+        });
+
+        rotationSlider.addEventListener('input', (e) => {
+            document.getElementById('rotationValue').textContent = e.target.value;
+        });
+
+        zoomSlider.addEventListener('input', (e) => {
+            document.getElementById('zoomValue').textContent = e.target.value;
+        });
+
+        starSlider.addEventListener('input', (e) => {
+            document.getElementById('starValue').textContent = Math.round(e.target.value * 100);
+        });
+
+        resetBtn.addEventListener('click', () => {
+            orbitAnimation.checked = true;
+            rotationAnimation.checked = true;
+            glowEffect.checked = true;
+            orbitTrail.checked = true;
+            speedSlider.value = 1;
+            rotationSlider.value = 1;
+            zoomSlider.value = 1;
+            starSlider.value = 0.8;
+            
+            document.getElementById('speedValue').textContent = '1.0';
+            document.getElementById('rotationValue').textContent = '1.0';
+            document.getElementById('zoomValue').textContent = '1.0';
+            document.getElementById('starValue').textContent = '80';
+
+            planets.forEach(planet => {
+                planet.rotation = 0;
+                planet.angle = 0;
+            });
+
+            trails = {};
+            planets.forEach(planet => {
+                trails[planet.name] = [];
+            });
+        });
+
+        // Window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
