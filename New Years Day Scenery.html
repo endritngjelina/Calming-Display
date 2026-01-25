@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Year's Day Scenery</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --radius-base: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-background);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            position: relative;
+        }
+
+        /* Canvas */
+        canvas {
+            display: block;
+            flex: 1;
+            background: #87CEEB;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            width: 300px;
+            background: var(--color-surface);
+            padding: var(--space-16);
+            overflow-y: auto;
+            border-left: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-panel h2 {
+            font-size: 18px;
+            margin-bottom: var(--space-16);
+            color: var(--color-text);
+            font-weight: 600;
+        }
+
+        .control-group {
+            margin-bottom: var(--space-16);
+            padding-bottom: var(--space-16);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .control-group:last-child {
+            border-bottom: none;
+        }
+
+        .control-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: var(--space-8);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-value {
+            display: inline-block;
+            background: rgba(33, 128, 141, 0.1);
+            color: var(--color-primary);
+            padding: 2px var(--space-8);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: var(--space-8);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(0, 0, 0, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+            margin-bottom: var(--space-12);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 150ms ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--color-primary-hover);
+            box-shadow: 0 2px 8px rgba(33, 128, 141, 0.4);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 150ms ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: var(--color-primary-hover);
+            box-shadow: 0 2px 8px rgba(33, 128, 141, 0.4);
+        }
+
+        input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--color-primary);
+            margin-right: var(--space-8);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--space-12);
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 13px;
+            color: var(--color-text);
+        }
+
+        .btn {
+            width: 100%;
+            padding: var(--space-12);
+            border: none;
+            border-radius: var(--radius-base);
+            background: var(--color-primary);
+            color: var(--color-white);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 150ms ease;
+            margin-top: var(--space-12);
+        }
+
+        .btn:hover {
+            background: var(--color-primary-hover);
+            box-shadow: 0 2px 8px rgba(33, 128, 141, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .time-display {
+            background: rgba(33, 128, 141, 0.08);
+            padding: var(--space-12);
+            border-radius: var(--radius-base);
+            border: 1px solid rgba(33, 128, 141, 0.2);
+            margin-bottom: var(--space-16);
+            font-size: 14px;
+            color: var(--color-text);
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-8);
+            margin-top: var(--space-12);
+        }
+
+        .preset-btn {
+            padding: var(--space-8) var(--space-12);
+            border: 1px solid rgba(33, 128, 141, 0.3);
+            background: transparent;
+            color: var(--color-primary);
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            transition: all 150ms ease;
+        }
+
+        .preset-btn:hover {
+            background: rgba(33, 128, 141, 0.1);
+            border-color: var(--color-primary);
+        }
+
+        .preset-btn.active {
+            background: var(--color-primary);
+            color: var(--color-white);
+            border-color: var(--color-primary);
+        }
+
+        .scroll-hint {
+            font-size: 10px;
+            color: rgba(0, 0, 0, 0.4);
+            text-align: center;
+            padding-top: var(--space-16);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: var(--space-16);
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                width: 100%;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                max-height: 50vh;
+                border-left: none;
+                border-top: 1px solid rgba(0, 0, 0, 0.1);
+                border-radius: 12px 12px 0 0;
+                z-index: 10;
+            }
+
+            canvas {
+                height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="canvas"></canvas>
+        <div class="control-panel">
+            <h2>⚙️ Settings</h2>
+            
+            <div class="control-group">
+                <label class="control-label">Time of Day</label>
+                <div class="time-display" id="timeDisplay">12:00</div>
+                <input type="range" id="timeSlider" min="0" max="24" value="12" step="0.5">
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="setTimePreset(6)">🌅 Dawn</button>
+                    <button class="preset-btn" onclick="setTimePreset(12)">☀️ Noon</button>
+                    <button class="preset-btn" onclick="setTimePreset(18)">🌅 Dusk</button>
+                    <button class="preset-btn" onclick="setTimePreset(0)">🌙 Night</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Weather <span class="control-value" id="weatherValue">Clear</span></label>
+                <input type="range" id="weatherSlider" min="0" max="100" value="0" step="1">
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="setWeather(0)">☀️ Clear</button>
+                    <button class="preset-btn" onclick="setWeather(30)">🌤️ Cloudy</button>
+                    <button class="preset-btn" onclick="setWeather(60)">🌧️ Rainy</button>
+                    <button class="preset-btn" onclick="setWeather(100)">❄️ Snowy</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Wind Speed <span class="control-value" id="windValue">0%</span></label>
+                <input type="range" id="windSlider" min="0" max="100" value="0" step="1">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Temperature <span class="control-value" id="tempValue">20°C</span></label>
+                <input type="range" id="tempSlider" min="-30" max="40" value="20" step="1">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Cloud Density <span class="control-value" id="cloudValue">50%</span></label>
+                <input type="range" id="cloudSlider" min="0" max="100" value="50" step="5">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Fog <span class="control-value" id="fogValue">0%</span></label>
+                <input type="range" id="fogSlider" min="0" max="100" value="0" step="5">
+            </div>
+
+            <div class="control-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showMountainsCheckbox" checked>
+                    <label for="showMountainsCheckbox">🏔️ Show Mountains</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showLakeCheckbox" checked>
+                    <label for="showLakeCheckbox">💧 Show Lake</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showStarsCheckbox" checked>
+                    <label for="showStarsCheckbox">⭐ Show Stars</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showFireworksCheckbox">
+                    <label for="showFireworksCheckbox">🎆 Show Fireworks</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="animateCheckbox" checked>
+                    <label for="animateCheckbox">▶️ Animate Scene</label>
+                </div>
+            </div>
+
+            <button class="btn" onclick="resetSettings()">Reset All Settings</button>
+            <div class="scroll-hint">↑ Scroll to see more controls</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth - 300;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // State
+        let state = {
+            time: 12,
+            weather: 0,
+            wind: 0,
+            temp: 20,
+            cloudDensity: 50,
+            fog: 0,
+            showMountains: true,
+            showLake: true,
+            showStars: true,
+            showFireworks: false,
+            animate: true,
+            particles: [],
+            fireworks: [],
+            stars: [],
+            clouds: [],
+            frameCount: 0
+        };
+
+        // Initialize stars
+        function initStars() {
+            state.stars = [];
+            for (let i = 0; i < 200; i++) {
+                state.stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.5,
+                    radius: Math.random() * 1.5,
+                    opacity: Math.random() * 0.5 + 0.3,
+                    twinkleSpeed: Math.random() * 0.02 + 0.01
+                });
+            }
+        }
+
+        // Initialize clouds
+        function initClouds() {
+            state.clouds = [];
+            const cloudCount = Math.floor(state.cloudDensity / 10) + 3;
+            for (let i = 0; i < cloudCount; i++) {
+                state.clouds.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.4 + 50,
+                    width: Math.random() * 150 + 80,
+                    height: Math.random() * 40 + 20,
+                    speed: Math.random() * 0.3 + 0.1,
+                    opacity: Math.random() * 0.3 + 0.3
+                });
+            }
+        }
+
+        // Get sky gradient based on time
+        function getSkyGradient(time) {
+            const hour = time % 24;
+            let colors = [];
+
+            if (hour < 6) { // Night
+                colors = ['#0a0e27', '#1a1a3a', '#0a0e27'];
+            } else if (hour < 8) { // Early morning
+                const progress = (hour - 6) / 2;
+                colors = [
+                    `hsl(240, 50%, ${10 + progress * 30}%)`,
+                    `hsl(25, 100%, ${20 + progress * 40}%)`,
+                    `hsl(240, 50%, ${10 + progress * 30}%)`
+                ];
+            } else if (hour < 12) { // Morning
+                const progress = (hour - 8) / 4;
+                colors = [
+                    `hsl(200, 80%, ${40 + progress * 20}%)`,
+                    `hsl(50, 100%, ${60 + progress * 20}%)`,
+                    `hsl(200, 80%, ${40 + progress * 20}%)`
+                ];
+            } else if (hour < 17) { // Afternoon
+                colors = ['#87CEEB', '#E0F6FF', '#87CEEB'];
+            } else if (hour < 20) { // Evening
+                const progress = (hour - 17) / 3;
+                colors = [
+                    `hsl(30, 80%, ${60 - progress * 40}%)`,
+                    `hsl(15, 100%, ${70 - progress * 50}%)`,
+                    `hsl(240, 50%, ${50 - progress * 40}%)`
+                ];
+            } else { // Dusk to night
+                const progress = (hour - 20) / 4;
+                colors = [
+                    `hsl(240, 50%, ${10 + progress * 20}%)`,
+                    `hsl(240, 60%, ${20 + progress * 10}%)`,
+                    `hsl(240, 50%, ${10 + progress * 20}%)`
+                ];
+            }
+
+            return colors;
+        }
+
+        // Draw gradient sky
+        function drawSky(time) {
+            const colors = getSkyGradient(time);
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, colors[0]);
+            gradient.addColorStop(0.5, colors[1]);
+            gradient.addColorStop(1, colors[2]);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Draw sun/moon
+        function drawCelestialBodies(time) {
+            const hour = time % 24;
+            
+            if (hour >= 6 && hour <= 20) {
+                // Sun
+                const sunProgress = (hour - 6) / 14;
+                const sunX = canvas.width * 0.2 + canvas.width * 0.6 * sunProgress;
+                const sunY = canvas.height * 0.8 - Math.sin(sunProgress * Math.PI) * canvas.height * 0.5;
+                
+                // Sun glow
+                const glowGradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 80);
+                glowGradient.addColorStop(0, 'rgba(255, 200, 0, 0.4)');
+                glowGradient.addColorStop(0.5, 'rgba(255, 150, 0, 0.2)');
+                glowGradient.addColorStop(1, 'rgba(255, 100, 0, 0)');
+                ctx.fillStyle = glowGradient;
+                ctx.fillRect(sunX - 80, sunY - 80, 160, 160);
+                
+                // Sun disk
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(sunX, sunY, 40, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Moon
+                const moonPhase = (hour + 6) % 24;
+                const moonX = canvas.width * 0.25 + canvas.width * 0.5 * (moonPhase / 24);
+                const moonY = canvas.height * 0.15 + Math.sin(moonPhase / 24 * Math.PI) * 50;
+                
+                ctx.fillStyle = '#E8E8E8';
+                ctx.beginPath();
+                ctx.arc(moonX, moonY, 35, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Moon shadow
+                ctx.fillStyle = getSkyGradient(time)[0];
+                ctx.beginPath();
+                ctx.arc(moonX + 10, moonY, 35, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Draw mountains
+        function drawMountains(time, weather) {
+            if (!state.showMountains) return;
+
+            // Mountain color based on time and weather
+            let mountainColor = '#6B4423';
+            if (time < 6 || time > 20) {
+                mountainColor = '#3a3a4a';
+            } else if (time < 8) {
+                mountainColor = '#8B6F47';
+            }
+
+            // Add white snow caps if cold
+            const snowCap = state.temp < 0 ? 0.7 : 0.3;
+
+            ctx.fillStyle = mountainColor;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            ctx.quadraticCurveTo(canvas.width * 0.2, canvas.height * 0.4, canvas.width * 0.35, canvas.height * 0.5);
+            ctx.quadraticCurveTo(canvas.width * 0.5, canvas.height * 0.3, canvas.width * 0.65, canvas.height * 0.45);
+            ctx.quadraticCurveTo(canvas.width * 0.8, canvas.height * 0.35, canvas.width, canvas.height * 0.4);
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.fill();
+
+            // Snow caps
+            ctx.fillStyle = `rgba(255, 255, 255, ${snowCap})`;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width * 0.35, canvas.height * 0.5);
+            ctx.quadraticCurveTo(canvas.width * 0.32, canvas.height * 0.47, canvas.width * 0.38, canvas.height * 0.52);
+            ctx.quadraticCurveTo(canvas.width * 0.38, canvas.height * 0.48, canvas.width * 0.35, canvas.height * 0.5);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(canvas.width * 0.65, canvas.height * 0.45);
+            ctx.quadraticCurveTo(canvas.width * 0.62, canvas.height * 0.42, canvas.width * 0.68, canvas.height * 0.47);
+            ctx.quadraticCurveTo(canvas.width * 0.68, canvas.height * 0.43, canvas.width * 0.65, canvas.height * 0.45);
+            ctx.fill();
+        }
+
+        // Draw lake
+        function drawLake(time) {
+            if (!state.showLake) return;
+
+            const hour = time % 24;
+            let lakeColor = '#4A90E2';
+            
+            if (hour < 6 || hour > 20) {
+                lakeColor = '#1a2847';
+            } else if (hour < 8 || hour > 18) {
+                lakeColor = '#3A6FB8';
+            }
+
+            ctx.fillStyle = lakeColor;
+            ctx.fillRect(0, canvas.height * 0.65, canvas.width, canvas.height * 0.35);
+
+            // Water ripples
+            ctx.strokeStyle = `rgba(255, 255, 255, 0.1)`;
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 3; i++) {
+                const phase = (state.frameCount + i * 20) * 0.02;
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height * 0.7 + Math.sin(phase) * 5);
+                ctx.quadraticCurveTo(canvas.width * 0.25, canvas.height * 0.68 + Math.sin(phase + 2) * 5, canvas.width * 0.5, canvas.height * 0.7 + Math.sin(phase) * 5);
+                ctx.quadraticCurveTo(canvas.width * 0.75, canvas.height * 0.72 + Math.sin(phase + 4) * 5, canvas.width, canvas.height * 0.7 + Math.sin(phase) * 5);
+                ctx.stroke();
+            }
+
+            // Lake reflection
+            ctx.globalAlpha = 0.15;
+            drawMountains(time, state.weather);
+            ctx.globalAlpha = 1;
+        }
+
+        // Draw clouds
+        function drawClouds(time) {
+            state.clouds.forEach(cloud => {
+                // Update position based on wind
+                cloud.x += state.wind * 0.05;
+                if (cloud.x > canvas.width + 200) cloud.x = -200;
+
+                const hour = time % 24;
+                let cloudColor = '#FFFFFF';
+                if (hour < 6 || hour > 20) {
+                    cloudColor = `rgba(100, 120, 150, ${cloud.opacity})`;
+                } else {
+                    cloudColor = `rgba(255, 255, 255, ${cloud.opacity})`;
+                }
+
+                ctx.fillStyle = cloudColor;
+                ctx.beginPath();
+                ctx.arc(cloud.x, cloud.y, cloud.width * 0.3, 0, Math.PI * 2);
+                ctx.arc(cloud.x + cloud.width * 0.15, cloud.y - 10, cloud.width * 0.35, 0, Math.PI * 2);
+                ctx.arc(cloud.x + cloud.width * 0.3, cloud.y, cloud.width * 0.28, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Draw stars
+        function drawStars(time) {
+            if (!state.showStars) return;
+            
+            const hour = time % 24;
+            if (hour < 20 && hour > 6) return; // Don't show stars during day
+
+            state.stars.forEach(star => {
+                const twinkle = (Math.sin(state.frameCount * star.twinkleSpeed) + 1) / 2 * 0.5;
+                const opacity = star.opacity + twinkle;
+                ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Draw particles (rain/snow)
+        function drawParticles() {
+            if (state.weather < 30) return; // No particles for clear weather
+
+            const particleType = state.weather < 65 ? 'rain' : 'snow';
+            
+            // Create particles
+            if (state.particles.length < 300) {
+                for (let i = 0; i < 5; i++) {
+                    state.particles.push({
+                        x: Math.random() * canvas.width,
+                        y: -10,
+                        vx: state.wind * 0.5,
+                        vy: particleType === 'rain' ? Math.random() * 5 + 3 : Math.random() * 1 + 0.5,
+                        type: particleType,
+                        size: particleType === 'rain' ? Math.random() * 2 + 1 : Math.random() * 3 + 2,
+                        opacity: Math.random() * 0.5 + 0.5
+                    });
+                }
+            }
+
+            // Update and draw particles
+            state.particles = state.particles.filter(p => p.y < canvas.height);
+            state.particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.type === 'rain') {
+                    ctx.strokeStyle = `rgba(100, 150, 200, ${p.opacity})`;
+                    ctx.lineWidth = p.size;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p.x + p.vx * 2, p.y + p.vy * 2);
+                    ctx.stroke();
+                } else {
+                    // Snow
+                    ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+        }
+
+        // Draw fireworks
+        function drawFireworks() {
+            if (!state.showFireworks) return;
+
+            // Create fireworks randomly
+            if (Math.random() < 0.02 && state.fireworks.length < 5) {
+                const colors = ['#FF1744', '#F50057', '#C51162', '#00E676', '#00C853', '#00BCD4', '#0091FF'];
+                state.fireworks.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.5 + 50,
+                    particles: []
+                });
+
+                const lastFirework = state.fireworks[state.fireworks.length - 1];
+                for (let i = 0; i < 40; i++) {
+                    const angle = (i / 40) * Math.PI * 2;
+                    const speed = Math.random() * 5 + 2;
+                    lastFirework.particles.push({
+                        x: lastFirework.x,
+                        y: lastFirework.y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        life: 1,
+                        decay: Math.random() * 0.02 + 0.01,
+                        color: colors[Math.floor(Math.random() * colors.length)]
+                    });
+                }
+            }
+
+            // Update and draw fireworks
+            state.fireworks = state.fireworks.filter(fw => fw.particles.length > 0);
+            state.fireworks.forEach(fw => {
+                fw.particles = fw.particles.filter(p => p.life > 0);
+                fw.particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.1; // Gravity
+                    p.life -= p.decay;
+
+                    ctx.fillStyle = `rgba(${parseInt(p.color.slice(1, 3), 16)}, ${parseInt(p.color.slice(3, 5), 16)}, ${parseInt(p.color.slice(5, 7), 16)}, ${p.life})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            });
+        }
+
+        // Draw fog
+        function drawFog() {
+            if (state.fog < 5) return;
+
+            const fogOpacity = state.fog / 100 * 0.5;
+            ctx.fillStyle = `rgba(255, 255, 255, ${fogOpacity})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Main animation loop
+        function animate() {
+            if (state.animate) {
+                state.frameCount++;
+                state.time += 0.005; // Very slow progression
+                if (state.time >= 24) state.time = 0;
+                updateTimeDisplay();
+            }
+
+            // Draw scene
+            drawSky(state.time);
+            drawClouds(state.time);
+            drawCelestialBodies(state.time);
+            drawStars(state.time);
+            drawMountains(state.time, state.weather);
+            drawLake(state.time);
+            drawParticles();
+            drawFireworks();
+            drawFog();
+
+            requestAnimationFrame(animate);
+        }
+
+        // Update UI displays
+        function updateTimeDisplay() {
+            const hours = Math.floor(state.time);
+            const minutes = Math.floor((state.time % 1) * 60);
+            document.getElementById('timeDisplay').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+
+        function updateWeatherDisplay() {
+            let weatherText = 'Clear';
+            if (state.weather < 30) weatherText = 'Clear';
+            else if (state.weather < 50) weatherText = 'Cloudy';
+            else if (state.weather < 80) weatherText = 'Rainy';
+            else weatherText = 'Snowy';
+            document.getElementById('weatherValue').textContent = weatherText;
+        }
+
+        // Set up event listeners
+        document.getElementById('timeSlider').addEventListener('input', (e) => {
+            state.time = parseFloat(e.target.value);
+            updateTimeDisplay();
+        });
+
+        document.getElementById('weatherSlider').addEventListener('input', (e) => {
+            state.weather = parseInt(e.target.value);
+            state.particles = [];
+            updateWeatherDisplay();
+        });
+
+        document.getElementById('windSlider').addEventListener('input', (e) => {
+            state.wind = parseInt(e.target.value);
+            document.getElementById('windValue').textContent = e.target.value + '%';
+        });
+
+        document.getElementById('tempSlider').addEventListener('input', (e) => {
+            state.temp = parseInt(e.target.value);
+            document.getElementById('tempValue').textContent = e.target.value + '°C';
+        });
+
+        document.getElementById('cloudSlider').addEventListener('input', (e) => {
+            state.cloudDensity = parseInt(e.target.value);
+            document.getElementById('cloudValue').textContent = e.target.value + '%';
+            initClouds();
+        });
+
+        document.getElementById('fogSlider').addEventListener('input', (e) => {
+            state.fog = parseInt(e.target.value);
+            document.getElementById('fogValue').textContent = e.target.value + '%';
+        });
+
+        document.getElementById('showMountainsCheckbox').addEventListener('change', (e) => {
+            state.showMountains = e.target.checked;
+        });
+
+        document.getElementById('showLakeCheckbox').addEventListener('change', (e) => {
+            state.showLake = e.target.checked;
+        });
+
+        document.getElementById('showStarsCheckbox').addEventListener('change', (e) => {
+            state.showStars = e.target.checked;
+        });
+
+        document.getElementById('showFireworksCheckbox').addEventListener('change', (e) => {
+            state.showFireworks = e.target.checked;
+        });
+
+        document.getElementById('animateCheckbox').addEventListener('change', (e) => {
+            state.animate = e.target.checked;
+        });
+
+        function setTimePreset(hour) {
+            state.time = hour;
+            document.getElementById('timeSlider').value = hour;
+            updateTimeDisplay();
+        }
+
+        function setWeather(value) {
+            state.weather = value;
+            state.particles = [];
+            document.getElementById('weatherSlider').value = value;
+            updateWeatherDisplay();
+        }
+
+        function resetSettings() {
+            state = {
+                time: 12,
+                weather: 0,
+                wind: 0,
+                temp: 20,
+                cloudDensity: 50,
+                fog: 0,
+                showMountains: true,
+                showLake: true,
+                showStars: true,
+                showFireworks: false,
+                animate: true,
+                particles: [],
+                fireworks: [],
+                stars: [],
+                clouds: [],
+                frameCount: 0
+            };
+
+            document.getElementById('timeSlider').value = 12;
+            document.getElementById('weatherSlider').value = 0;
+            document.getElementById('windSlider').value = 0;
+            document.getElementById('tempSlider').value = 20;
+            document.getElementById('cloudSlider').value = 50;
+            document.getElementById('fogSlider').value = 0;
+            document.getElementById('showMountainsCheckbox').checked = true;
+            document.getElementById('showLakeCheckbox').checked = true;
+            document.getElementById('showStarsCheckbox').checked = true;
+            document.getElementById('showFireworksCheckbox').checked = false;
+            document.getElementById('animateCheckbox').checked = true;
+
+            updateTimeDisplay();
+            updateWeatherDisplay();
+            document.getElementById('windValue').textContent = '0%';
+            document.getElementById('tempValue').textContent = '20°C';
+            document.getElementById('cloudValue').textContent = '50%';
+            document.getElementById('fogValue').textContent = '0%';
+        }
+
+        // Initialize
+        initStars();
+        initClouds();
+        updateTimeDisplay();
+        updateWeatherDisplay();
+        animate();
+    </script>
+</body>
+</html>
